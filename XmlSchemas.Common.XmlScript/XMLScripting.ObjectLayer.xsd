@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" xmlns:obj="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+  <xs:simpleType name="T_NoValueBehaviour">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Clear"/>
+      <xs:enumeration value="Error"/>
+      <xs:enumeration value="Skip"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="T_ObjectStoreBlock">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence>
+          <xs:element name="TypeMapping">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ObjectType" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Identifier" type="xs:string" use="required"/>
+                    <xs:attribute name="SchemaIdentifier" type="xs:string" use="optional"/>
+                    <xs:attribute name="SchemaID" type="xs:integer" use="optional"/>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="LinkType" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Identifier" type="xs:string" use="required"/>
+                    <xs:attribute name="SchemaIdentifier" type="xs:string" use="optional"/>
+                    <xs:attribute name="SchemaID" type="xs:integer" use="optional"/>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="PropertyType" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Identifier" type="xs:string" use="required"/>
+                    <xs:attribute name="SchemaIdentifier" type="xs:string" use="optional"/>
+                    <xs:attribute name="SchemaID" type="xs:integer" use="optional"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Context">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element ref="AbstractContext" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Block" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="proc:AbstractProcessItem"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="ObjectStoreIdentifier" type="xs:string" use="required"/>
+        <xs:attribute name="ObjectStoreManagerIdentifier" type="xs:string" use="required"/>
+        <xs:attribute name="ContextIdentifier" type="xs:string" use="optional"/>
+        <xs:attribute name="Connection" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectStoreCreateContainerObject">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="Identifier" type="xs:string" use="required"/>
+        <xs:attribute name="ObjectStore" type="xs:string" use="required"/>
+        <xs:attribute name="ObjectType" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectSetProperty">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+        <xs:attribute name="PropertyType" type="xs:string" use="required"/>
+        <xs:attribute name="Expression" type="xs:string" use="required"/>
+        <xs:attribute name="NoValueBehaviour" type="T_NoValueBehaviour" use="optional"/>
+        <xs:attribute name="Condition" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ContainerObjectCreateObject">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="ContainerObject" type="xs:string" use="required"/>
+        <xs:attribute name="ObjectType" type="xs:string" use="required"/>
+        <xs:attribute name="Identifier" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectGetProperty">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+        <xs:attribute name="PropertyType" type="xs:string" use="required"/>
+        <xs:attribute name="NoValueBehaviour" type="T_NoValueBehaviour" use="optional"/>
+        <xs:attribute name="Identifier" type="xs:string" use="required"/>
+        <xs:attribute name="ResultIdentifier" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectGetObjectID">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+        <xs:attribute name="Identifier" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectCreateObjectLink">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+        <xs:attribute name="ObjectLinkType" type="xs:string" use="required"/>
+        <xs:attribute name="LinkedObject" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ContainerObjectClose">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectStoreOpenContainerObject">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="ObjectStore" type="xs:string" use="required"/>
+        <xs:attribute name="Identifier" type="xs:string" use="required"/>
+        <xs:attribute name="ExpectedObjectType" type="xs:string" use="optional"/>
+        <xs:attribute name="ObjectID" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectStoreGetObject">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="ObjectStore" type="xs:string" use="required"/>
+        <xs:attribute name="ContainerObjectIdentifier" type="xs:string" use="optional"/>
+        <xs:attribute name="Identifier" type="xs:string" use="required"/>
+        <xs:attribute name="ExpectedObjectType" type="xs:string" use="optional"/>
+        <xs:attribute name="ObjectID" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ContainerObjectGetObject">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="ContainerObject" type="xs:string" use="required"/>
+        <xs:attribute name="Identifier" type="xs:string" use="required"/>
+        <xs:attribute name="ExpectedObjectType" type="xs:string" use="optional"/>
+        <xs:attribute name="ObjectID" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_ObjectDeleteObjectLink">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+        <xs:attribute name="ObjectLinkType" type="xs:string" use="required"/>
+        <xs:attribute name="LinkedObject" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectDelete">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectIterateObjectLinks">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="proc:AbstractProcessItem"/>
+        </xs:sequence>
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+        <xs:attribute name="ObjectLinkType" type="xs:string" use="required"/>
+        <xs:attribute name="LinkedObjectIdentifier" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectLockBlock">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="proc:AbstractProcessItem"/>
+        </xs:sequence>
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+        <xs:attribute name="ReadLock" type="xs:boolean" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectContextBlock">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence>
+          <xs:element name="Context">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element ref="AbstractContext" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:sequence>
+              <xs:attribute name="Identifier" type="xs:string" use="optional"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Block">
+            <xs:complexType>
+              <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="proc:AbstractProcessItem"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="ObjectStoreManager" type="xs:string" use="required"/>
+        <xs:attribute name="ContextIdentifier" type="xs:string" use="optional"/>
+        <xs:attribute name="CopyFrom" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_AbstractContext"/>
+  <xs:complexType name="T_ObjectCreateContext">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="proc:AbstractProcessItem"/>
+        </xs:sequence>
+        <xs:attribute name="ObjectIdentifier" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ContextBeginSession">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="proc:AbstractProcessItem"/>
+        </xs:sequence>
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+        <xs:attribute name="ProcessID" type="xs:integer" use="optional"/>
+        <xs:attribute name="ProcessName" type="xs:string" use="optional"/>
+        <xs:attribute name="Version" type="xs:integer" use="optional"/>
+        <xs:attribute name="MinorVersion" type="xs:integer" use="optional"/>
+        <xs:attribute name="Release" type="xs:integer" use="optional"/>
+        <xs:attribute name="Build" type="xs:integer" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectStoreTransactionBlock">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="proc:AbstractProcessItem"/>
+        </xs:sequence>
+        <xs:attribute name="ObjectStoreManager" type="xs:string" use="required"/>
+        <xs:attribute name="DoCommitExpression" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ObjectStoreSession">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="proc:AbstractProcessItem"/>
+        </xs:sequence>
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+        <xs:attribute name="ProcessID" type="xs:integer" use="optional"/>
+        <xs:attribute name="ProcessName" type="xs:string" use="optional"/>
+        <xs:attribute name="Version" type="xs:integer" use="optional"/>
+        <xs:attribute name="MinorVersion" type="xs:integer" use="optional"/>
+        <xs:attribute name="Release" type="xs:integer" use="optional"/>
+        <xs:attribute name="Build" type="xs:integer" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ContextEndSession">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="proc:AbstractProcessItem"/>
+        </xs:sequence>
+        <xs:attribute name="Object" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ProcessContext">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractContext">
+        <xs:attribute name="ProcessTypeID" type="xs:integer" use="optional"/>
+        <xs:attribute name="Description" type="xs:string" use="optional"/>
+        <xs:attribute name="Version" type="xs:integer" use="optional"/>
+        <xs:attribute name="MinorVersion" type="xs:integer" use="optional"/>
+        <xs:attribute name="Release" type="xs:integer" use="optional"/>
+        <xs:attribute name="Build" type="xs:integer" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_HostProcessContext">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractContext">
+        <xs:attribute name="ProcessTypeID" type="xs:integer" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_SessionContext">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractContext">
+        <xs:attribute name="ProcessTypeID" type="xs:integer" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_DataSourceContext">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractContext">
+        <xs:attribute name="DatasourceTypeID" type="xs:string" use="required"/>
+        <xs:attribute name="Description" type="xs:string" use="required"/>
+        <xs:attribute name="Details" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="AbstractContext" type="T_AbstractContext" abstract="1"/>
+  <xs:element name="Object.IterateObjectLinks" type="T_ObjectIterateObjectLinks" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="ObjectStore.Block" type="T_ObjectStoreBlock" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="ObjectStore.ContextBlock" type="T_ObjectContextBlock" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="ObjectStore.CreateContainerObject" type="T_ObjectStoreCreateContainerObject" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Object.SetProperty" type="T_ObjectSetProperty" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="ContainerObject.CreateObject" type="T_ContainerObjectCreateObject" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Object.GetProperty" type="T_ObjectGetProperty" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Object.GetObjectID" type="T_ObjectGetObjectID" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Object.CreateObjectLink" type="T_ObjectCreateObjectLink" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="ContainerObject.Close" type="T_ContainerObjectClose" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="ObjectStore.OpenContainerObject" type="T_ObjectStoreOpenContainerObject" substitutionGroup="proc:AbstractProcessItem"/>
+  <!--xs:element name="ObjectStore.GetObject" type="T_ObjectStoreGetObject" substitutionGroup="proc:AbstractProcessItem"/-->
+  <xs:element name="ContainerObject.GetObject" type="T_ContainerObjectGetObject" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Object.DeleteObjectLink" type="T_ObjectDeleteObjectLink" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Object.Delete" type="T_ObjectDelete" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Object.LockBlock" type="T_ObjectLockBlock" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="SessionContext" type="T_SessionContext" substitutionGroup="obj:AbstractContext"/>
+  <xs:element name="WorkstationContext" type="T_AbstractContext" substitutionGroup="obj:AbstractContext"/>
+  <xs:element name="HostProcessContext" type="T_HostProcessContext" substitutionGroup="obj:AbstractContext"/>
+  <xs:element name="DatabaseSessionContext" type="T_AbstractContext" substitutionGroup="obj:AbstractContext"/>
+  <xs:element name="ProcessContext" type="T_ProcessContext" substitutionGroup="obj:AbstractContext"/>
+  <xs:element name="DataSourceContext" type="T_DataSourceContext" substitutionGroup="obj:AbstractContext"/>
+  <xs:element name="ObjectStore.TransactionBlock" type="T_ObjectStoreTransactionBlock" substitutionGroup="proc:AbstractProcessItem"/>
+  
+  <!--
+  <xs:element name="ObjectStore.CreateContext" type="T_ObjectCreateContext" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Context.BeginSession" type="T_ContextBeginSession" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Context.EndSession" type="T_ContextEndSession" substitutionGroup="proc:AbstractProcessItem"/>>
+  <xs:element name="ObjectStore.Session" type="T_ObjectStoreSession" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="AddDefaultContext" type="T_ProcessContext" substitutionGroup="AbstractContext"/-->
+</xs:schema>

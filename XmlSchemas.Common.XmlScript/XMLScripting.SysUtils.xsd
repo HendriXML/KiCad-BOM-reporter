@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  elementFormDefault="qualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+  <xs:complexType name="T_DirectoryIterate">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:sequence>
+          <xs:element name="DirectoryBlock" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:extension base="sys:T_Block">
+                  <xs:attribute name="Recurse" type="sys:identifier" use="optional"/>
+                </xs:extension>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="FileBlock" type="sys:T_Block" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="DirectoryProcessedBlock" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:extension base="sys:T_Block">
+                  <xs:attribute name="DirectoryIdentifier" type="xs:string" use="optional"/>
+                </xs:extension>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Directory" type="sys:expression" use="required"/>
+        <xs:attribute name="FileSpec" type="sys:expression" use="required"/>
+        <xs:attribute name="Recursive" type="sys:expression" use="required"/>
+        <xs:attribute name="FindObject" type="sys:identifier" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Volume.Iterate">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalBlockProcessItem">
+        <xs:attribute name="VolumeInfo" type="sys:identifier" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_CreateProcess">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="ApplicationName" type="sys:expression" use="optional"/>
+        <xs:attribute name="CreationFlags" type="sys:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              CREATE_BREAKAWAY_FROM_JOB
+              CREATE_DEFAULT_ERROR_MODE
+              CREATE_NEW_CONSOLE
+              CREATE_NEW_PROCESS_GROUP
+              CREATE_NO_WINDOW
+              CREATE_PROTECTED_PROCESS
+              CREATE_PRESERVE_CODE_AUTHZ_LEVEL
+              CREATE_SEPARATE_WOW_VDM
+              CREATE_SHARED_WOW_VDM
+              CREATE_SUSPENDED
+              CREATE_UNICODE_ENVIRONMENT
+              DEBUG_ONLY_THIS_PROCESS
+              DEBUG_PROCESS
+              DETACHED_PROCESS
+              INHERIT_PARENT_AFFINITY
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="CommandLine" type="sys:expression" use="optional"/>
+        <xs:attribute name="StdInputHandle" type="sys:expression" use="optional"/>
+        <xs:attribute name="StdOutputHandle" type="sys:expression" use="optional"/>
+        <xs:attribute name="StdErrorHandle" type="sys:expression" use="optional"/>
+        <xs:attribute name="CurrentDirectory" type="sys:expression" use="optional"/>
+        <xs:attribute name="ProcessInformationIdentifier" type="sys:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ShellExecute">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="File" type="sys:expression" use="required"/>
+        <xs:attribute name="Verb" type="sys:expression" use="optional"/>
+        <xs:attribute name="Parameters" type="sys:expression" use="optional"/>
+        <xs:attribute name="Directory" type="sys:expression" use="optional"/>
+        <xs:attribute name="Show" type="sys:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              SW_HIDE
+              SW_MAXIMIZE
+              SW_MINIMIZE
+              SW_RESTORE
+              SW_SHOW
+              SW_SHOWDEFAULT
+              SW_SHOWMAXIMIZED
+              SW_SHOWMINIMIZED
+              SW_SHOWMINNOACTIVE
+              SW_SHOWNA
+              SW_SHOWNOACTIVATE
+              SW_SHOWNORMAL
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_CopyFile">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="SourceFilename" type="sys:expression" use="required"/>
+        <xs:attribute name="TargetFilename" type="sys:expression" use="required"/>
+        <xs:attribute name="FailIfExists" type="sys:expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_MoveFile">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="SourceFilename" type="sys:expression" use="required"/>
+        <xs:attribute name="TargetFilename" type="sys:expression" use="required"/>
+        <xs:attribute name="Flags" type="sys:expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="TCompareFiles">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="SourceFilename" type="sys:expression" use="required"/>
+        <xs:attribute name="TargetFilename" type="sys:expression" use="required"/>
+        <xs:attribute name="ReturnValueIdentifier" type="sys:functionidentifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_DeleteFile">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Filename" type="sys:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_GetFileAttributes">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Filename" type="sys:expression" use="required"/>
+        <xs:attribute name="Attributes" type="sys:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_SetFileTime">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Filename" type="sys:expression" use="required"/>
+        <xs:attribute name="CreationTime" type="sys:expression" use="optional"/>
+        <xs:attribute name="LastWriteTime" type="sys:expression" use="optional"/>
+        <xs:attribute name="LastAccessTime" type="sys:expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_SetFileAttributes">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Filename" type="sys:expression" use="required"/>
+        <xs:attribute name="Attributes" type="sys:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_DeleteDirectory">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Path" type="sys:expression" use="required"/>
+        <xs:attribute name="IgnoreNotEmptyError" type="sys:expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_CreateDirectory">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractProcessItem">
+        <xs:attribute name="Condition" type="sys:expression" use="optional"/>
+        <xs:attribute name="Path" type="sys:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_WaitFor">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractProcessItem">
+        <xs:attribute name="Handle" type="sys:expression" use="required"/>
+        <xs:attribute name="ReturnValueIdentifier" type="sys:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_MaskMatch">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractProcessItem">
+        <xs:sequence>
+          <xs:element name="Mask" minOccurs="1" maxOccurs="1">
+            <xs:complexType>
+              <xs:attribute name="Expression" type="xs:string" use="required"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Copy" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="MskMapping" type="xs:string" use="required"/>
+              <xs:attribute name="Identifier" type="sys:identifier" use="required"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Block" type="sys:T_Block" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="Condition" type="sys:expression" use="optional"/>
+        <xs:attribute name="Expression" type="sys:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Network.Connect">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="ResourceLocation" type="sys:expression" use="required"/>
+        <xs:attribute name="LocalMapping" type="sys:expression" use="optional"/>
+        <xs:attribute name="UserName" type="sys:expression" use="optional"/>
+        <xs:attribute name="Password" type="sys:expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Network.Disconnect">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="ResourceLocation" type="sys:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Service">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Handle" type="sys:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Service.QueryInfo">
+    <xs:complexContent>
+      <xs:extension base="T_Service">
+        <xs:attribute name="Status" type="sys:identifier" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              SERVICE_CONTINUE_PENDING, SERVICE_PAUSE_PENDING, SERVICE_PAUSED, SERVICE_RUNNING, SERVICE_START_PENDING, SERVICE_STOP_PENDING, SERVICE_STOPPED
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="DisplayName" type="sys:identifier" use="optional"/>
+        <xs:attribute name="ConfigDescription" type="sys:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="servicecontrol">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Continue"/>
+      <xs:enumeration value="Pause"/>
+      <xs:enumeration value="Stop"/>
+      <xs:enumeration value="Interrogate"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="T_Service.Control">
+    <xs:complexContent>
+      <xs:extension base="T_Service">
+        <xs:attribute name="Control" type="servicecontrol" use="required"/>
+        <xs:attribute name="Status" type="sys:identifier" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              SERVICE_CONTINUE_PENDING, SERVICE_PAUSE_PENDING, SERVICE_PAUSED, SERVICE_RUNNING, SERVICE_START_PENDING, SERVICE_STOP_PENDING, SERVICE_STOPPED
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_Service.Start">
+    <xs:complexContent>
+      <xs:extension base="T_Service">
+        <xs:attribute name="Status" type="sys:identifier" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              SERVICE_CONTINUE_PENDING, SERVICE_PAUSE_PENDING, SERVICE_PAUSED, SERVICE_RUNNING, SERVICE_START_PENDING, SERVICE_STOP_PENDING, SERVICE_STOPPED
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_ServicesBlock">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalBlockProcessItem">
+        <xs:attribute name="Handle" type="sys:identifier" use="required"/>
+        <xs:attribute name="Machine" type="sys:expression" use="optional"/>
+        <xs:attribute name="DesiredAccess" type="sys:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              SC_MANAGER_ALL_ACCESS
+              SC_MANAGER_CREATE_SERVICE
+              SC_MANAGER_CONNECT
+              SC_MANAGER_ENUMERATE_SERVICE
+              SC_MANAGER_LOCK
+              SC_MANAGER_MODIFY_BOOT_CONFIG
+              SC_MANAGER_QUERY_LOCK_STATUS
+              GENERIC_READ
+              GENERIC_WRITE
+              GENERIC_EXECUTE
+              GENERIC_ALL
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ServiceBlock">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalBlockProcessItem">
+        <xs:attribute name="ServiceManagerHandle" type="sys:expression" use="required"/>
+        <xs:attribute name="Name" type="sys:expression" use="required"/>
+        <xs:attribute name="Handle" type="sys:identifier" use="required"/>
+        <xs:attribute name="DesiredAccess" type="sys:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              READ_CONTROL
+              SERVICE_ENUMERATE_DEPENDENTS
+              SERVICE_INTERROGATE
+              SERVICE_PAUSE_CONTINUE
+              SERVICE_QUERY_CONFIG
+              SERVICE_QUERY_STATUS
+              SERVICE_START
+              SERVICE_STOP
+              SERVICE_USER_DEFINED_CONTROL
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_Service.EnumDependentServices">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalBlockProcessItem">
+        <xs:attribute name="Handle" type="sys:expression" use="required"/>
+        <xs:attribute name="ServiceState" type="sys:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              SERVICE_ACTIVE
+              SERVICE_INACTIVE
+              SERVICE_STATE_ALL
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="Name" type="sys:identifier" use="required"/>
+        <xs:attribute name="DisplayName" type="sys:identifier" use="optional"/>
+        <xs:attribute name="ServiceStatus" type="sys:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_EnumerateProcesses">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractProcessItem">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="sys:AbstractProcessItem"/>
+        </xs:sequence>
+        <xs:attribute name="ProcessID" type="sys:identifier" use="required"/>
+        <xs:attribute name="ProcessFilename" type="sys:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Directory.Iterate" type="T_DirectoryIterate" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Volume.Iterate" type="T_Volume.Iterate" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="CreateProcess" type="T_CreateProcess" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="EnumerateProcesses" type="T_EnumerateProcesses" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="MaskMatch" type="T_MaskMatch" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="AnsiMaskMatch" type="T_MaskMatch" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="CopyFile" type="T_CopyFile" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="ServiceManager.ConnectBlock" type="T_ServicesBlock" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Service.ConnectBlock" type="T_ServiceBlock" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Service.Control" type="T_Service.Control" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Service.Start" type="T_Service.Start" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Service.QueryInfo" type="T_Service.QueryInfo" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Service.EnumDependentServices" type="T_Service.EnumDependentServices" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Network.Connect" type="T_Network.Connect" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Network.Disconnect" type="T_Network.Disconnect" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="MoveFile" type="T_MoveFile" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="CompareFiles" type="TCompareFiles" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="DeleteFile" type="T_DeleteFile" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="SetFileAttributes" type="T_SetFileAttributes" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="SetFileTime" type="T_SetFileTime" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="GetFileAttributes" type="T_GetFileAttributes" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="DeleteDirectory" type="T_DeleteDirectory" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="CreateDirectory" type="T_CreateDirectory" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="ShellExecute" type="T_ShellExecute" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="WaitFor" type="T_WaitFor" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="ConsoleBlock"  type="sys:T_AbstractBlockProcessItem" substitutionGroup="sys:AbstractProcessItem"/>
+</xs:schema>
+
+

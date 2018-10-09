@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-filemanagement" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-filemanagement" elementFormDefault="qualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+
+  <xs:group name="InnerDirectoryGroup">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Directory" type="T_Directory"  minOccurs="0" maxOccurs="1" />
+        <xs:element name="Directory.MaskMatch" type="T_Directory.MaskMatch" minOccurs="0" maxOccurs="1" />
+        <xs:element name="Directory.ExpressionMatch" type="T_Directory.ExpressionMatch" minOccurs="0" maxOccurs="1" >
+          <xs:annotation>
+            <xs:documentation>
+              Expression must result one of these values:
+              TExpressionMatchKind.mkNone
+              TExpressionMatchKind.mkMatchThis
+              TExpressionMatchKind.mkMatchAndRetrySubDirectory
+              TExpressionMatchKind.mkRetrySubDirectory
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="File" type="T_File" minOccurs="0" maxOccurs="1" />
+        <xs:element name="File.MaskMatch" type="T_File.MaskMatch" minOccurs="0" maxOccurs="1" />
+        <xs:element name="File.ExpressionMatch" type="T_File.ExpressionMatch" minOccurs="0" maxOccurs="1" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="TFileSelection.Create">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence>
+          <xs:element name="Progress.Directory" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="Progress.File" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:group ref="InnerDirectoryGroup" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="Path" type="proc:expression" use="required"/>
+        <xs:attribute name="ExtendedFileData" type="proc:expression" use="optional"/>
+        <xs:attribute name="FileSelection" type="proc:identifier" use="required"/>
+        <xs:attribute name="FileInfo" type="proc:identifier" use="optional"/>
+        <xs:attribute name="DirectoryInfo" type="proc:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_BaseDirectoryMatch" abstract="true">
+    <xs:group ref="InnerDirectoryGroup" minOccurs="1" maxOccurs="1"/>
+    <xs:attribute name="Enabled" type="proc:expression" use="optional"/>
+    <xs:attribute name="EnabledChilds" type="proc:expression" use="optional"/>
+    <xs:attribute name="AlwaysIncludeDirectoryOnMatch" type="proc:expression" use="optional"/>
+    <xs:attribute name="ContinueOnMatch" type="proc:expression" use="optional"/>
+    <xs:attribute name="TaggingEnabled" type="proc:expression" use="optional"/>
+    <xs:attribute name="Tags" type="proc:tagidentifierlist" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="T_BaseFileMatch" abstract="true">
+    <xs:attribute name="Enabled" type="proc:expression" use="optional"/>
+    <xs:attribute name="Include" type="proc:expression" use="optional"/>
+    <xs:attribute name="ContinueOnMatch" type="proc:expression" use="optional"/>
+    <xs:attribute name="TaggingEnabled" type="proc:expression" use="optional"/>
+    <xs:attribute name="Tags" type="proc:tagidentifierlist" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="T_Directory">
+    <xs:complexContent>
+      <xs:extension base="T_BaseDirectoryMatch">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_Directory.MaskMatch">
+    <xs:complexContent>
+      <xs:extension base="T_BaseDirectoryMatch">
+        <xs:attribute name="Mask" type="proc:maskstring" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_Directory.ExpressionMatch">
+    <xs:complexContent>
+      <xs:extension base="T_BaseDirectoryMatch">
+        <xs:attribute name="Expression" type="proc:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_File">
+    <xs:complexContent>
+      <xs:extension base="T_BaseFileMatch">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_File.MaskMatch">
+    <xs:complexContent>
+      <xs:extension base="T_BaseFileMatch">
+        <xs:attribute name="Mask" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_File.ExpressionMatch">
+    <xs:complexContent>
+      <xs:extension base="T_BaseFileMatch">
+        <xs:attribute name="Expression" type="proc:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TDirectoryFile">
+    <xs:complexContent>
+      <xs:extension base="proc:T_Block">
+        <xs:attribute name="FileInfo" type="proc:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_Tag">
+    <xs:attribute name="Tag" type="proc:tagidentifier" use="required"/>
+    <xs:attribute name="Identifier" type="proc:identifier" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="T_Tags">
+    <xs:sequence>
+      <xs:element name="Tag" minOccurs="1" maxOccurs="unbounded" type="T_Tag"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TFileSelection.Iterate">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:sequence>
+          <xs:element name="Tags" minOccurs="0" maxOccurs="unbounded" type="T_Tags"/>
+          <xs:element name="Directory.Enter" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="File" minOccurs="0" maxOccurs="1" type="TDirectoryFile"/>
+          <xs:element name="AfterFiles" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="Directory.Leave" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+        </xs:sequence>
+        <xs:attribute name="FileSelection" type="proc:expression" use="required"/>
+        <xs:attribute name="OwnsFileSelection" type="proc:expression" use="optional"/>
+        <xs:attribute name="DirectoryInfo" type="proc:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_MergedFileSelections.Iterate">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:sequence>
+          <xs:element name="Tags.A" minOccurs="0" maxOccurs="1" type="T_Tags"/>
+          <xs:element name="Tags.B" minOccurs="0" maxOccurs="1" type="T_Tags"/>
+          <xs:element name="Directory.Enter.A" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="Directory.Enter.B" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="Directory.Enter.AB" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="File.A" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="File.B" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="File.AB" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="AfterFiles" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="Directory.Leave.A" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="Directory.Leave.B" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="Directory.Leave.AB" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+        </xs:sequence>
+        <xs:attribute name="FileSelectionA" type="proc:expression" use="required"/>
+        <xs:attribute name="FileSelectionB" type="proc:expression" use="required"/>
+        <xs:attribute name="OwnsFileSelectionA" type="proc:expression" use="optional"/>
+        <xs:attribute name="OwnsFileSelectionB" type="proc:expression" use="optional"/>
+        <xs:attribute name="FileInfoA" type="proc:identifier" use="optional"/>
+        <xs:attribute name="FileInfoB" type="proc:identifier" use="optional"/>
+        <xs:attribute name="DirectoryInfoA" type="proc:identifier" use="optional"/>
+        <xs:attribute name="DirectoryInfoB" type="proc:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="FileSelection.Create" type="TFileSelection.Create" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="FileSelection.Iterate" type="TFileSelection.Iterate" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="MergedFileSelections.Iterate" type="T_MergedFileSelections.Iterate" substitutionGroup="proc:AbstractProcessItem"/>
+</xs:schema>

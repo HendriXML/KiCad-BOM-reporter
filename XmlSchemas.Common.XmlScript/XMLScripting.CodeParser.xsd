@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-codeparser" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" 
+           targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-codeparser" elementFormDefault="qualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+  <xs:simpleType name="TCodeElementType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BoxedValueConst"/>
+      <xs:enumeration value="Identifier"/>
+      <xs:enumeration value="TypedIdentifier"/>
+      <xs:enumeration value="QualifiedIdentifier"/>
+      <xs:enumeration value="WhiteSpace"/>
+      <xs:enumeration value="Factor"/>
+      <xs:enumeration value="Term"/>
+      <xs:enumeration value="UnaryTerm"/>
+      <xs:enumeration value="Operator"/>
+      <xs:enumeration value="SimpleExpression"/>
+      <xs:enumeration value="Expression"/>
+      <xs:enumeration value="ExpressionList"/>
+      <xs:enumeration value="Array"/>
+      <xs:enumeration value="PropertyExpressionList"/>
+      <xs:enumeration value="ReservedWord"/>
+      <xs:enumeration value="FormalParameters"/>
+      <xs:enumeration value="FunctionHeading"/>
+      <xs:enumeration value="ClassFunctionHeading"/>
+      <xs:enumeration value="ExportedHeading"/>
+      <xs:enumeration value="IdentifierList"/>
+      <xs:enumeration value="FormalParameter"/>
+      <xs:enumeration value="ProcedureHeading"/>
+      <xs:enumeration value="ClassProcedureHeading"/>
+      <xs:enumeration value="ConstructorHeading"/>
+      <xs:enumeration value="DestructorHeading"/>
+      <xs:enumeration value="ClassMethodList"/>
+      <xs:enumeration value="ClassType"/>
+      <xs:enumeration value="ClassDecl"/>
+      <xs:enumeration value="TypeDecl"/>
+      <xs:enumeration value="TypeSection"/>
+      <xs:enumeration value="InterfaceDecl"/>
+      <xs:enumeration value="PropertyFormalParameters"/>
+      <xs:enumeration value="PropertyHeading"/>
+      <xs:enumeration value="InterfaceType"/>
+      <xs:enumeration value="InterfaceMethodList"/>
+      <xs:enumeration value="EnumType"/>
+      <xs:enumeration value="SetType"/>
+      <xs:enumeration value="ProcedureDirectives"/>
+      <xs:enumeration value="ClassFieldList"/>
+      <xs:enumeration value="InterfaceSection"/>
+      <xs:enumeration value="ImplementationSection"/>
+      <xs:enumeration value="Unit"/>
+      <xs:enumeration value="UsesClause"/>
+      <xs:enumeration value="ConstSection"/>
+      <xs:enumeration value="VarSection"/>
+      <xs:enumeration value="DeclSection"/>
+      <xs:enumeration value="LabelDeclSection"/>
+      <xs:enumeration value="ProcedureDeclSection"/>
+      <xs:enumeration value="ProcedureDecl"/>
+      <xs:enumeration value="ConstructorDecl"/>
+      <xs:enumeration value="DestructorDecl"/>
+      <xs:enumeration value="FunctionDecl"/>
+      <xs:enumeration value="ImplementationDecl"/>
+      <xs:enumeration value="InitSection"/>
+      <xs:enumeration value="StmtList"/>
+      <xs:enumeration value="CompoundStmt"/>
+      <xs:enumeration value="Block"/>
+      <xs:enumeration value="Designator"/>
+      <xs:enumeration value="SimpleStatement"/>
+      <xs:enumeration value="CallStatement"/>
+      <xs:enumeration value="AssignmentStatement"/>
+      <xs:enumeration value="InheritedStatement"/>
+      <xs:enumeration value="GotoStatement"/>
+      <xs:enumeration value="StructStmt"/>
+      <xs:enumeration value="Statement"/>
+      <xs:enumeration value="Label"/>
+      <xs:enumeration value="ConditionalStmt"/>
+      <xs:enumeration value="LoopStmt"/>
+      <xs:enumeration value="WithStmt"/>
+      <xs:enumeration value="TryExceptStmt"/>
+      <xs:enumeration value="TryFinallyStmt"/>
+      <xs:enumeration value="RaiseStmt"/>
+      <xs:enumeration value="IfStmt"/>
+      <xs:enumeration value="CaseStmt"/>
+      <xs:enumeration value="RepeatStmt"/>
+      <xs:enumeration value="WhileStmt"/>
+      <xs:enumeration value="ForStmt"/>
+      <xs:enumeration value="RecType"/>
+      <xs:enumeration value="SimpleType"/>
+      <xs:enumeration value="InterfaceGUID"/>
+      <xs:enumeration value="TypeForwardDecl"/>
+      <xs:enumeration value="ArrayType"/>
+      <xs:enumeration value="OrdinalType"/>
+      <xs:enumeration value="SubrangeType"/>
+      <xs:enumeration value="Type"/>
+      <xs:enumeration value="ClassRefType"/>
+      <xs:enumeration value="PointerType"/>
+      <xs:enumeration value="ClassMethodResolution"/>
+      <xs:enumeration value="ClassMethodResolutionList"/>
+      <xs:enumeration value="VarDecl"/>
+      <xs:enumeration value="ConstDecl"/>
+      <xs:enumeration value="CaseLabel"/>
+      <xs:enumeration value="CaseSelector"/>
+      <xs:enumeration value="Property"/>
+      <xs:enumeration value="DefaultProperty"/>
+      <xs:enumeration value="Method"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="TCodeElementTypes">
+    <xs:list itemType="TCodeElementType"/>
+  </xs:simpleType>
+  <xs:complexType name="T_ElementTypeBlock">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractBlockProcessItem">
+        <xs:attribute name="ElementTypes" type="TCodeElementTypes" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="TBaseCodeElementExamine">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:sequence>
+          <xs:element name="On" type="T_ElementTypeBlock" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="Else" type="sys:T_Block" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_CodeElement.ExamineChildElements">
+    <xs:complexContent>
+      <xs:extension base="TBaseCodeElementExamine">
+        <xs:attribute name="Element" type="sys:expression" use="required"/>
+        <xs:attribute name="ChildElement" type="sys:identifier" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_CodeElement.Examine">
+    <xs:complexContent>
+      <xs:extension base="TBaseCodeElementExamine">
+        <xs:attribute name="Element" type="sys:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CodeElement.Examine" type="T_CodeElement.Examine" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="CodeElement.ExamineChildElements" type="T_CodeElement.ExamineChildElements" substitutionGroup="sys:AbstractProcessItem"/>
+</xs:schema>

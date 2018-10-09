@@ -1,0 +1,1293 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="BomStrings"/>
+  </Uses>
+  <Type>
+    <DataClass.Forwarded Identifier="TComponentSpec"/>
+
+    <Enumeration Identifier="TComponentSpecConsolidateKind" Elements="Schema, Stock"/>
+
+    <Enumeration Identifier="TCustomField" Elements="cfUnknown, cfComponentKind, cfValue, cfFootprint, cfPartNumber, cfManufacturer, cfPowerRating, cfVoltageRating, cfAmperageRating, cfTolerance, cfTechnology, cfZenerVoltage, cfPins"/>
+
+    <Enumeration Identifier="TValueType" Elements="vtUnspecified, vtCleared, vtClearedByTemplate, vtSpecified, vtSpecifiedByTemplate, vtError, vtErrorByTemplate"/>
+
+    <Enumeration Identifier="TComponentKind" Elements="ckNone, ckResistor, ckVariableResistor, ckCapacitor, ckPolarisedCapacitor, ckInductor, ckZenerDiode, ckDiode, ckBipolarJunctionTransitor, ckFieldEffectTransitor, ckOpAmp, ckConnector, ckComponent"/>
+
+    <Enumeration Identifier="TFootprint" Elements="THT, SMD"/>
+
+    <Enumeration Identifier="TDeepSearchstate" Elements="None, Running, Done"/>
+
+    <DataClass Identifier="TSchemaComponent" DefaultConstructor="none">
+      <Field Identifier="Reference" Type="string"/>
+      <Field Identifier="Prefix" Type="string"/>
+      <Field Identifier="Counter" Type="UInt32"/>
+      <Field Identifier="Decoded" Type="Boolean"/>
+      <Field Identifier="Next" Type="TSchemaComponent"/>
+    </DataClass>
+
+    <DataClass Identifier="TStockCategory">
+      <Field Identifier="Name" Type="string"/>
+      <Field Identifier="ParentCategory" Type="TStockCategory"/>
+      <Field Identifier="ComponentSpec" Type="TComponentSpec"/>
+      <Field Identifier="FDeepSearchState" Type="TDeepSearchstate"/>
+    </DataClass>
+
+    <DataClass Identifier="TComponentValue" DefaultConstructor="createandsetfields">
+      <Field Identifier="Name" Type="string"/>
+      <Field Identifier="Value" Type="string"/>
+      <Field Identifier="Next" Type="TComponentValue"/>
+    </DataClass>
+
+    <DataClass Identifier="TStockComponent" DefaultConstructor="createonly">
+      <Field Identifier="ID" Type="UInt32"/>
+      <Field Identifier="Name" Type="string"/>
+      <Field Identifier="Amount" Type="UInt32"/>
+      <Field Identifier="Location" Type="string"/>
+      <Field Identifier="Footprint" Type="string"/>
+      <Field Identifier="StockCategory" Type="TStockCategory"/>
+      <Field Identifier="Next" Type="TStockComponent"/>
+    </DataClass>
+
+    <DataClass Identifier="TSpecificationLink" DefaultConstructor="createandsetfields">
+      <Field Identifier="StockComponentSpec" Type="TComponentSpec"/>
+      <Field Identifier="Next" Type="TSpecificationLink"/>
+    </DataClass>
+
+    <DataClass Identifier="TSpecificationLinks" DefaultConstructor="createandsetfields">
+      <Field Identifier="Head" Type="TSpecificationLink"/>
+      <Field Identifier="Tail" Type="TSpecificationLink"/>
+    </DataClass>
+
+    <DataClass Identifier="TSpecificationIndex" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetKey"/>
+      <VirtualMethod Identifier="vmFinalize" IsFinalizer="true"/>
+      <Field Identifier="HashList" Type="TAbstractBoxedValueMappingHashIndex"/>
+      <Field Identifier="HashListLoaded" Type="Boolean"/>
+    </DataClass>
+
+    <DataClass Identifier="TComponentSpec" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmHandleLibSource"/>
+      <VirtualMethod Identifier="vmHandleField"/>
+      <VirtualMethod Identifier="vmCheckComponentKind"/>
+      <VirtualMethod Identifier="vmSpecificationAsString"/>
+      <VirtualMethod Identifier="vmApplyTemplate"/>
+      <VirtualMethod Identifier="vmDoesMatchSpecification"/>
+      <Field Identifier="Template" Type="TComponentSpec"/>
+      <Field Identifier="ComponentKind" Type="TComponentKind"/>
+      <Field Identifier="ComponentKindVT" Type="TValueType"/>
+      <Field Identifier="ErrorComponentKind" Type="string"/>
+      <Field Identifier="Footprint" Type="TFootprint"/>
+      <Field Identifier="FootprintVT" Type="TValueType"/>
+      <Field Identifier="ErrorFootprint" Type="string"/>
+      <Field Identifier="ID" Type="Integer"/>
+      <Field Identifier="SchemaComponentHead" Type="TSchemaComponent"/>
+      <Field Identifier="SchemaComponentTail" Type="TSchemaComponent"/>
+      <Field Identifier="StockComponentHead" Type="TStockComponent"/>
+      <Field Identifier="StockComponentTail" Type="TStockComponent"/>
+      <Field Identifier="MatchedSpecLinkHead" Type="TSpecificationLink"/>
+      <Field Identifier="MatchedSpecLinkTail" Type="TSpecificationLink"/>
+      <Field Identifier="PartNumberVT" Type="TValueType"/>
+      <Field Identifier="PartNumber" Type="string"/>
+      <Field Identifier="ManufacturerVT" Type="TValueType"/>
+      <Field Identifier="Manufacturer" Type="string"/>
+      <Field Identifier="Next" Type="TComponentSpec"/>
+    </DataClass>
+
+    <DataClass Identifier="TComponentCategory" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmCreateSpecification"/>
+      <VirtualMethod Identifier="vmIsValidSpecification"/>
+      <VirtualMethod Identifier="vmCompareSpecifications"/>
+      <VirtualMethod Identifier="vmReportComponentHeader"/>
+      <VirtualMethod Identifier="vmLoadTemplatesFromIniFile"/>
+      <VirtualMethod Identifier="vmGetTemplate"/>
+      <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile"/>
+      <VirtualMethod Identifier="vmIndexSearchSpecifications"/>
+      <Field Identifier="FComponentSpecHead" Type="TComponentSpec"/>
+      <Field Identifier="FComponentSpecTail" Type="TComponentSpec"/>
+    </DataClass>
+
+  </Type>
+
+  <Variables>
+    <Variable Identifier="SymbolComponentKindIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
+    <Variable Identifier="CustomFieldsIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
+    <Variable Identifier="ComponentKindIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
+    <Variable Identifier="FootprintIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
+  </Variables>
+
+  <Procedures>
+    <Function Identifier="CompareStateStringValue" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="ItemIDA" Type="Integer"/>
+        <Parameter Identifier="ValueA" Type="string"/>
+        <Parameter Identifier="ValueTypeA" Type="TValueType"/>
+        <Parameter Identifier="ItemIDB" Type="string"/>
+        <Parameter Identifier="ValueB" Type="Int64"/>
+        <Parameter Identifier="ValueTypeB" Type="TValueType"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Case Expression="ValueTypeA">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Case Expression="ValueTypeB">
+              <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <Exit Result="-1"/>
+              </On>
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Execute Statement="Result:= 1"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Case Expression="ValueTypeB">
+              <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate, TValueType.vtError, TValueType.vtErrorByTemplate">
+                <Execute Statement="Result:= -1"/>
+              </On>
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Execute Statement="Result:= CompareText(ValueA, ValueB)"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Case Expression="ValueTypeB">
+              <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <Exit Result="-1" Condition="ItemIDA &lt; ItemIDB"/>
+              </On>
+              <Otherwise>
+                <Execute Statement="Result:= 1"/>
+              </Otherwise>
+            </Case>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="FootprintAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="Footprint" Type="TFootprint"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ''"/>
+        <Case Expression="Footprint">
+          <On Select="TFootprint.THT">
+            <Execute Statement="Result:= sFootprintTHT"/>
+          </On>
+          <On Select="TFootprint.SMD">
+            <Execute Statement="Result:= sFootprintSMD"/>
+          </On>
+          <Otherwise>
+            <Execute Statement="Result:= sFootprintNamingMissing"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="CompareStateValue" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="ItemIDA" Type="Integer"/>
+        <Parameter Identifier="ValueA" Type="Int64"/>
+        <Parameter Identifier="ValueTypeA" Type="TValueType"/>
+        <Parameter Identifier="ItemIDB" Type="Integer"/>
+        <Parameter Identifier="ValueB" Type="Int64"/>
+        <Parameter Identifier="ValueTypeB" Type="TValueType"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Case Expression="ValueTypeA">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Case Expression="ValueTypeB">
+              <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <Exit Result="-1"/>
+              </On>
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Execute Statement="Result:= 1"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Case Expression="ValueTypeB">
+              <On Select="TValueType.vtUnspecified, TValueType.vtError, TValueType.vtErrorByTemplate">
+                <Execute Statement="Result:= -1"/>
+              </On>
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Choose>
+                  <When Expression="ValueA &lt; ValueB">
+                    <Execute Statement="Result:= -1"/>
+                  </When>
+                  <When Expression="ValueA &gt; ValueB">
+                    <Execute Statement="Result:= 1"/>
+                  </When>
+                </Choose>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Case Expression="ValueTypeB">
+              <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <Exit Result="-1" Condition="ItemIDA &lt; ItemIDB"/>
+              </On>
+              <Otherwise>
+                <Execute Statement="Result:= 1"/>
+              </Otherwise>
+            </Case>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSpecificationIndex.GetKey" VirtualMethod="vmGetKey" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Parameter Identifier="Key" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TSpecificationIndex.Finalize" VirtualMethod="vmFinalize">
+      <Block>
+        <Free Expression="HashList"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TSpecificationIndex.LoadHashList">
+      <Parameters>
+        <Parameter Identifier="ComponentSpecHead" Type="TComponentSpec"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Found" Type="Boolean"/>
+        <Variable Identifier="Key"/>
+        <Variable Identifier="RunningComponent" Type="TComponentSpec" Init="ComponentSpecHead"/>
+        <Variable Identifier="Value" Type="TSpecificationLinks" Init="TSpecificationLinks.Create"/>
+        <Variable Identifier="FoundValue" Type="TSpecificationLinks"/>
+        <Variable Identifier="Link" Type="TSpecificationLink"/>
+      </Variables>
+      <Block>
+        <Execute Statement="HashListLoaded:= True"/>
+        <WhileLoop Expression="Assigned(RunningComponent)">
+          <Block Condition="GetKey(RunningComponent, Key)">
+            <Execute Statement="Link:= TSpecificationLink.Create(RunningComponent)"/>
+            <inx:Index.MapValue Index="HashList" Key="Key" Value="Value" PreviousValue="FoundValue" Found="Found" Flags="NoErrorOnExist DiscardOnExist"/>
+            <Choose>
+              <When Expression="Found">
+                <Execute Statement="FoundValue.Tail.Next:= Link"/>
+                <Execute Statement="FoundValue.Tail:= Link"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Value.Head:= Link"/>
+                <Execute Statement="Value.Tail:= Link"/>
+                <Execute Statement="Value:= TSpecificationLinks.Create"/>
+              </Otherwise>
+            </Choose>
+          </Block>
+          <Execute Statement="RunningComponent:= RunningComponent.Next"/>
+        </WhileLoop>
+        <Free Expression="Value"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TSpecificationIndex.GetLinks" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Parameter Identifier="ComponentSpecHead" Type="TComponentSpec"/>
+        <Parameter Identifier="SearchSpecifications" Type="TSpecificationLink" Direction="Output"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Found" Type="Boolean"/>
+        <Variable Identifier="Key"/>
+        <Variable Identifier="Value" Type="TSpecificationLinks"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Block Condition="GetKey(ComponentSpec, Key)">
+          <Execute Statement="Result:= True"/>
+          <Execute Statement="LoadHashList(ComponentSpecHead)" Condition="not HashListLoaded"/>
+          <inx:Index.FindValue Index="HashList" Key="Key" Value="Value" Found="Found" Flags="NoErrorOnNotFound"/>
+          <Choose>
+            <When Expression="Found">
+              <Execute Statement="SearchSpecifications:= Value.Head"/>
+            </When>
+            <Otherwise>
+              <Execute Statement="SearchSpecifications:= ObjNil"/>
+            </Otherwise>
+          </Choose>
+        </Block>
+      </Block>
+    </Function>
+
+    <ProcedureHeader Identifier="TStockCategory.AcquireSpecs"/>
+    <Implementation Identifier="TStockCategory.AcquireSpecs">
+      <Block>
+        <Case Expression="FDeepSearchState" Optimalisation="integermapping">
+          <On Select="TDeepSearchstate.None">
+            <Block Condition="Assigned(ParentCategory)">
+              <Execute Statement="FDeepSearchState:= TDeepSearchstate.Running"/>
+              <Execute Statement="ParentCategory.AcquireSpecs"/>
+              <Choose>
+                <When Expression="Assigned(ComponentSpec)">
+                  <Execute Statement="ComponentSpec.Template:= ParentCategory.ComponentSpec"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="ComponentSpec:= ParentCategory.ComponentSpec"/>
+                </Otherwise>
+              </Choose>
+            </Block>
+            <Execute Statement="FDeepSearchState:= TDeepSearchstate.Done"/>
+          </On>
+          <On Select="TDeepSearchstate.Running">
+            <Raise Expression="Exception.Create('Recursive category parent')" />
+          </On>
+          <On Select="TDeepSearchstate.Done">
+            <Exit/>
+          </On>
+        </Case>
+      </Block>
+    </Implementation>
+
+    <Constructor Identifier="TSchemaComponent.Create">
+      <Parameters>
+        <Parameter Identifier="Reference" Type="string"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="locDecoded" Type="Boolean"/>
+        <Variable Identifier="locPrefix" Type="string"/>
+        <Variable Identifier="locCounter" Type="string"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Self.Reference:= Reference"/>
+        <Execute Statement="locDecoded:= DecodeReference(Reference, locPrefix, locCounter)"/>
+        <Execute Statement="Decoded:= locDecoded"/>
+        <ConditionalBlock Expression="locDecoded">
+          <Execute Statement="Prefix:= locPrefix"/>
+          <Execute Statement="Counter:= locCounter"/>
+        </ConditionalBlock>
+      </Block>
+    </Constructor>
+
+    <Function Identifier="TComponentSpec.CheckComponentKind" VirtualMethod="vmCheckComponentKind" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TComponentSpec.DoesMatchSpecification" VirtualMethod="vmDoesMatchSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="ComponentKindVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Case Expression="ComponentSpec.ComponentKindVT">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="PartNumberVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Case Expression="ComponentSpec.PartNumberVT">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Exit Condition="CompareText(PartNumber, ComponentSpec.PartNumber) &lt;&gt; 0"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="ManufacturerVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Case Expression="ComponentSpec.ManufacturerVT">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Exit Condition="CompareText(Manufacturer, ComponentSpec.Manufacturer) &lt;&gt; 0"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="FootprintVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Case Expression="ComponentSpec.FootprintVT">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Exit Condition="Footprint &lt;&gt; ComponentSpec.Footprint"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TComponentSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Variables>
+        <Variable Identifier="NeedsSep" Type="Boolean" Init="False"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= ''"/>
+        <Case Expression="ManufacturerVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Execute Statement="Result:= Manufacturer"/>
+            <Execute Statement="NeedsSep:= True"/>
+          </On>
+        </Case>
+        <Case Expression="PartNumberVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Execute Statement="Result:= Result + ' '" Condition="NeedsSep"/>
+            <Execute Statement="Result:= Result + PartNumber"/>
+            <Execute Statement="NeedsSep:= True"/>
+          </On>
+        </Case>
+        <Case Expression="FootPrintVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Execute Statement="Result:= Result + ' '" Condition="NeedsSep"/>
+            <Execute Statement="Result:= Result + FootprintAsString(Footprint)"/>
+            <Execute Statement="NeedsSep:= True"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TComponentSpec.HandleLibSource" VirtualMethod="vmHandleLibSource">
+      <Parameters>
+        <Parameter Identifier="LibAttrib" Type="IXMLDomAttribute"/>
+        <Parameter Identifier="PartAttrib" Type="IXMLDomAttribute"/>
+        <Parameter Identifier="DescriptionAttrib" Type="IXMLDomAttribute"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="LocComponentKind" Type="TComponentKind" Init="TComponentKind.ckComponent"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+      </Variables>
+      <Block>
+        <inx:Index.FindValue Index="SymbolComponentKindIndex" Key="LibAttrib.Text + ':' + PartAttrib.Text" Value="LocComponentKind" Found="Found" Flags="NoErrorOnNotFound" />
+        <inx:Index.FindValue Index="SymbolComponentKindIndex" Key="LibAttrib.Text + ':'" Value="LocComponentKind" Found="Found" Flags="NoErrorOnNotFound" Condition="not Found" />
+        <Execute Statement="ComponentKind:= LocComponentKind"/>
+        <Execute Statement="ComponentKindVT:= TValueType.vtSpecified"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TComponentSpec.HandleField" VirtualMethod="vmHandleField">
+      <Parameters>
+        <Parameter Identifier="CustomField" Type="TCustomField"/>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="locComponentKind" Type="TComponentKind"/>
+        <Variable Identifier="locFootprint" Type="TFootprint"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+      </Variables>
+      <Block>
+        <Case Expression="CustomField" Optimalisation="integermapping">
+          <On Select="TCustomField.cfComponentKind">
+            <rep:Reporter.Information Text="Format('ComponentKind: %s', Value)" Condition="IsVerbose"/>
+            <inx:Index.FindValue Index="ComponentKindIndex" Key="Value" Value="locComponentKind" Found="Found" Flags="NoErrorOnNotFound" />
+            <Choose>
+              <When Expression="Found">
+                <rep:Reporter.Information Text="Format('ComponentKind: %d', locComponentKind)" Condition="IsVerbose"/>
+                <Execute Statement="ComponentKindVT:= TValueType.vtSpecified"/>
+                <Execute Statement="ComponentKind:= locComponentKind"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('ComponentKind could not be matched: %s', Value)" Target="Errors"/>
+                <Execute Statement="ComponentKindVT:= TValueType.vtError"/>
+                <Execute Statement="ErrorComponentKind:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.cfFootprint">
+            <rep:Reporter.Information Text="Format('Footprint: %s', Value)" Condition="IsVerbose"/>
+            <inx:Index.FindValue Index="FootprintIndex" Key="Value" Value="locFootprint" Found="Found" Flags="NoErrorOnNotFound" />
+            <Choose>
+              <When Expression="Found">
+                <rep:Reporter.Information Text="Format('Footprint: %d', locFootprint)" Condition="IsVerbose"/>
+                <Execute Statement="FootprintVT:= TValueType.vtSpecified"/>
+                <Execute Statement="Footprint:= locFootprint"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('Footprint could not be matched: %s', Value)" Target="Errors"/>
+                <Execute Statement="FootprintVT:= TValueType.vtError"/>
+                <Execute Statement="ErrorFootprint:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.cfPartNumber">
+            <Execute Statement="PartNumber:= Value"/>
+            <Execute Statement="PartNumberVT:= TValueType.vtSpecified"/>
+          </On>
+          <On Select="TCustomField.cfManufacturer">
+            <Execute Statement="Manufacturer:= Value"/>
+            <Execute Statement="ManufacturerVT:= TValueType.vtSpecified"/>
+          </On>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <ProcedureHeader Identifier="TComponentSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
+    </ProcedureHeader>
+    <Implementation Identifier="TComponentSpec.ApplyTemplate">
+      <Variables>
+        <Variable Identifier="locTemplate" Type="TComponentSpec" Init="Template"/>
+      </Variables>
+      <Block>
+        <Exit Condition="not Assigned(locTemplate)"/>
+        <Execute Statement="locTemplate.ApplyTemplate"/>
+        <Case Expression="ComponentKindVT" Optimalisation="integermapping">
+          <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+            <Case Expression="locTemplate.ComponentKindVT" Optimalisation="integermapping">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Execute Statement="ComponentKind:= locTemplate.ComponentKind"/>
+                <Execute Statement="ComponentKindVT:= TValueType.vtSpecifiedByTemplate"/>
+              </On>
+              <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <Execute Statement="ComponentKindVT:= TValueType.vtErrorByTemplate"/>
+              </On>
+            </Case>
+          </On>
+        </Case>
+        <Case Expression="PartNumberVT" Optimalisation="integermapping">
+          <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+            <Case Expression="locTemplate.PartNumberVT" Optimalisation="integermapping">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Execute Statement="PartNumber:= locTemplate.PartNumber"/>
+                <Execute Statement="PartNumberVT:= TValueType.vtSpecifiedByTemplate"/>
+              </On>
+              <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <Execute Statement="PartNumberVT:= TValueType.vtErrorByTemplate"/>
+              </On>
+            </Case>
+          </On>
+        </Case>
+        <Case Expression="ManufacturerVT" Optimalisation="integermapping">
+          <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+            <Case Expression="locTemplate.ManufacturerVT" Optimalisation="integermapping">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Execute Statement="Manufacturer:= locTemplate.Manufacturer"/>
+                <Execute Statement="ManufacturerVT:= TValueType.vtSpecifiedByTemplate"/>
+              </On>
+              <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <Execute Statement="ManufacturerVT:= TValueType.vtErrorByTemplate"/>
+              </On>
+            </Case>
+          </On>
+        </Case>
+        <Case Expression="FootprintVT" Optimalisation="integermapping">
+          <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+            <Case Expression="locTemplate.FootprintVT" Optimalisation="integermapping">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Execute Statement="Footprint:= locTemplate.Footprint"/>
+                <Execute Statement="FootprintVT:= TValueType.vtSpecifiedByTemplate"/>
+              </On>
+              <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <Execute Statement="FootprintVT:= TValueType.vtErrorByTemplate"/>
+              </On>
+            </Case>
+          </On>
+        </Case>
+        <Execute Statement="Template:= ObjNil"/>
+      </Block>
+    </Implementation>
+
+    <Procedure Identifier="TComponentSpec.LoadFromIniFileSection">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Section" Type="string"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="NameS" Type="string"/>
+        <Variable Identifier="ValueS" Type="string"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+        <Variable Identifier="CustomField" Type="TCustomField"/>
+      </Variables>
+      <Block>
+        <Object.Use Identifier="KeyValueList" Type="TStringList" Expression="TStringList.Create">
+          <Execute Statement="IniFile.ReadSectionValues(Section, KeyValueList)"/>
+          <ForLoop Indexer="I" From="0" To="KeyValueList.Count - 1">
+            <Execute Statement="NameS:= KeyValueList.Names[I]"/>
+            <Execute Statement="ValueS:= KeyValueList.ValueFromIndex[I]"/>
+            <Execute Statement="CustomField:= TCustomField.cfUnknown"/>
+            <rep:Reporter.Information Text="Format('LoadFromIniFileSection - CustomField: %s=%s', NameS, ValueS)" Condition="IsVerbose"/>
+            <inx:Index.FindValue Index="CustomFieldsIndex" Key="NameS" Value="CustomField" Found="Found" Flags="NoErrorOnNotFound" />
+            <Execute Statement="HandleField(CustomField, NameS, ValueS)" />
+          </ForLoop>
+        </Object.Use>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TComponentSpec.LoadFromXML">
+      <Parameters>
+        <Parameter Identifier="Element" Type="IXMLDOMElement"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TValueState" Elements="None, HasValue, Handled"/>
+      </Type>
+      <Variables>
+        <Variable Identifier="CustomField" Type="TCustomField"/>
+        <Variable Identifier="NameS" Type="string"/>
+        <Variable Identifier="ValueS" Type="string"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+      </Variables>
+      <Block>
+        <msx:Node.IterateChilds Node="Element">
+          <msx:OnElement baseName="'value'">
+            <msx:Block>
+              <rep:Reporter.Information Text="Format('Value=%s', Node.Text)" Condition="IsVerbose"/>
+              <Execute Statement="HandleField(TCustomField.cfValue, 'Value', Node.Text)"/>
+              <rep:Reporter.Information Text="'OKK'" Condition="IsVerbose"/>
+            </msx:Block>
+          </msx:OnElement>
+          <msx:OnElement baseName="'fields'">
+            <msx:Block>
+              <msx:Node.IterateChilds Node="Node">
+                <msx:OnElement baseName="'field'">
+                  <msx:Attribute baseName="'name'"/>
+                  <msx:Block>
+                    <Execute Statement="NameS:= Name.Text"/>
+                    <Execute Statement="ValueS:= Node.Text"/>
+                    <Execute Statement="CustomField:= TCustomField.cfUnknown"/>
+                    <rep:Reporter.Information Text="Format('CustomField: %s=%s', NameS, ValueS)" Condition="IsVerbose"/>
+                    <inx:Index.FindValue Index="CustomFieldsIndex" Key="NameS" Value="CustomField" Found="Found" Flags="NoErrorOnNotFound" />
+                    <Execute Statement="HandleField(CustomField, NameS, ValueS)" />
+                  </msx:Block>
+                </msx:OnElement>
+              </msx:Node.IterateChilds>
+            </msx:Block>
+          </msx:OnElement>
+          <msx:OnElement baseName="'libsource'">
+            <msx:Attribute baseName="'lib'"/>
+            <msx:Attribute baseName="'part'"/>
+            <msx:Attribute baseName="'description'"/>
+            <msx:Block>
+              <rep:Reporter.Information Text="Format('Lib: %s, Part: %s, Description: %s', lib.Text, part.Text, description.Text)" Condition="IsVerbose"/>
+              <Execute Statement="HandleLibSource(lib, part, description)"/>
+            </msx:Block>
+          </msx:OnElement>
+          <msx:OnOtherElement>
+          </msx:OnOtherElement>
+        </msx:Node.IterateChilds>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TComponentCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
+      <Block>
+        <Execute Statement="Result:= TComponentSpec.Create"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TComponentCategory.IsValidSpecification" VirtualMethod="vmIsValidSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TComponentCategory.IndexSearchSpecifications" VirtualMethod="vmIndexSearchSpecifications" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Parameter Identifier="Specifications" Type="TSpecificationLink" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TComponentCategory.GetTemplate" VirtualMethod="vmGetTemplate" Type="TComponentSpec">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ObjNil"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TComponentCategory.CompareSpecifications" Type="Integer" VirtualMethod="vmCompareSpecifications">
+      <Parameters>
+        <Parameter Identifier="A" Type="TComponentSpec"/>
+        <Parameter Identifier="B" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateStringValue(A.ID, A.PartNumber, A.PartNumberVT, B.ID, B.PartNumber, B.PartNumberVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateStringValue(A.ID, A.Manufacturer, A.ManufacturerVT, B.ID, B.Manufacturer, B.ManufacturerVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.Footprint, A.FootprintVT, B.ID, B.Footprint, B.FootprintVT)"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TComponentCategory.ReportComponentHeader" VirtualMethod="vmReportComponentHeader">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Case Expression="ComponentKind" Optimalisation="integermapping">
+          <On Select="TComponentKind.ckComponent">
+            <rep:Reporter.Information Text="sComponentHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckOpAmp">
+            <rep:Reporter.Information Text="sOpAmpHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckConnector">
+            <rep:Reporter.Information Text="sConnectorHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckResistor">
+            <rep:Reporter.Information Text="sResistorHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckVariableResistor">
+            <rep:Reporter.Information Text="sVariableResistorHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckCapacitor">
+            <rep:Reporter.Information Text="sCapacitorHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckPolarisedCapacitor">
+            <rep:Reporter.Information Text="sPolarisedCapacitorHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckInductor">
+            <rep:Reporter.Information Text="sInductorHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckDiode">
+            <rep:Reporter.Information Text="sDiodeHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckZenerDiode">
+            <rep:Reporter.Information Text="sZenerDiodeHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckBipolarJunctionTransitor">
+            <rep:Reporter.Information Text="sBipolarJunctionTransitorHeader" Markup="Header2"/>
+          </On>
+          <On Select="TComponentKind.ckFieldEffectTransitor">
+            <rep:Reporter.Information Text="sFieldEffectTransitor" Markup="Header2"/>
+          </On>
+          <Otherwise>
+            <rep:Reporter.Error Text="sMissingComponentHeader" Target="Errors"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="CompareComponent" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="A" Type="TSchemaComponent"/>
+        <Parameter Identifier="B" Type="TSchemaComponent"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Choose>
+          <When Expression="A.Decoded and B.Decoded">
+            <!--<rep:Reporter.Information Text="Format('%s vs %s', A.Prefix, B.Prefix)"/>-->
+            <Execute Statement="Result:= CompareText(A.Prefix, B.Prefix)"/>
+            <!--<rep:Reporter.Information Text="Format('%d vs %d', A.Counter, B.Counter)"/>-->
+            <Exit Condition="Result &lt;&gt; 0"/>
+            <Choose>
+              <When Expression="A.Counter &lt; B.Counter">
+                <Execute Statement="Result:= -1"/>
+              </When>
+              <When Expression="A.Counter &gt; B.Counter">
+                <Execute Statement="Result:= 1"/>
+              </When>
+            </Choose>
+          </When>
+          <When Expression="not A.Decoded and not B.Decoded">
+            <Execute Statement="Result:= CompareText(A.Reference, B.Reference)"/>
+          </When>
+          <When Expression="not B.Decoded">
+            <Execute Statement="Result:= -1"/>
+          </When>
+          <When Expression="not A.Decoded">
+            <Execute Statement="Result:= 1"/>
+          </When>
+        </Choose>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TComponentCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+      </Parameters>
+      <Block>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TComponentCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TComponentCategory.ReportStockComponents">
+      <Parameters>
+        <Parameter Identifier="Spec" Type="TComponentSpec"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="RunningComponent" Type="TStockComponent"/>
+        <Variable Identifier="TotCount" Type="Integer" Init="0"/>
+        <Variable Identifier="ComponentDesignators" Type="string" Init="''"/>
+        <Variable Identifier="DoSeperate" Type="Boolean" Init="False"/>
+      </Variables>
+      <Block>
+        <Execute Statement="RunningComponent:= Spec.StockComponentHead"/>
+        <!--<lil:LinkedList.MergeSort Head="RunningComponent" ItemType="TSchemaComponent" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA, ItemB) &lt;= 0"/>
+        <Execute Statement="Spec.SchemaComponentHead:= RunningComponent"/>-->
+        <WhileLoop Expression="Assigned(RunningComponent)">
+          <Execute Statement="ComponentDesignators:= ComponentDesignators + ', '" Condition="DoSeperate"/>
+          <Execute Statement="ComponentDesignators:= ComponentDesignators + Format('%dx #%d @%s', RunningComponent.Amount, RunningComponent.ID, RunningComponent.Location)"/>
+          <Execute Statement="TotCount:= TotCount + RunningComponent.Amount"/>
+          <Execute Statement="RunningComponent:= RunningComponent.Next"/>
+          <Execute Statement="DoSeperate:= True"/>
+        </WhileLoop>
+        <!--<rep:Reporter.Information Text="Format('%d', Spec.ID)"/>-->
+        <rep:Reporter.Information Text="Format('%3dx %s (%s)', TotCount, Spec.SpecificationAsString, ComponentDesignators)"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TComponentCategory.ReportSchemaComponents">
+      <Parameters>
+        <Parameter Identifier="Spec" Type="TComponentSpec"/>
+        <Parameter Identifier="Count" Type="Integer"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="RunningComponent" Type="TSchemaComponent"/>
+        <Variable Identifier="TotCount" Type="Integer" Init="0"/>
+        <Variable Identifier="ComponentDesignators" Type="string" Init="''"/>
+        <Variable Identifier="DoSeperate" Type="Boolean" Init="False"/>
+        <Variable Identifier="RunningSpecLink" Type="TSpecificationLink"/>
+      </Variables>
+      <Block>
+        <Execute Statement="RunningComponent:= Spec.SchemaComponentHead"/>
+        <lil:LinkedList.MergeSort Head="RunningComponent" ItemType="TSchemaComponent" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA, ItemB) &lt;= 0"/>
+        <Execute Statement="Spec.SchemaComponentHead:= RunningComponent"/>
+        <WhileLoop Expression="Assigned(RunningComponent)">
+          <Execute Statement="ComponentDesignators:= ComponentDesignators + ', '" Condition="DoSeperate"/>
+          <Execute Statement="ComponentDesignators:= ComponentDesignators + RunningComponent.Reference"/>
+          <Execute Statement="TotCount:= TotCount + Count"/>
+          <Execute Statement="RunningComponent:= RunningComponent.Next"/>
+          <Execute Statement="DoSeperate:= True"/>
+        </WhileLoop>
+        <!--<rep:Reporter.Information Text="Format('%d', Spec.ID)"/>-->
+        <rep:Reporter.Information Text="Format('%3dx %s (%s)', TotCount, Spec.SpecificationAsString, ComponentDesignators)" Markup="Header4"/>
+        <Execute Statement="RunningSpecLink:= Spec.MatchedSpecLinkHead"/>
+        <WhileLoop Expression="Assigned(RunningSpecLink)">
+          <Execute Statement="ReportStockComponents(RunningSpecLink.StockComponentSpec)"/>
+          <Execute Statement="RunningSpecLink:= RunningSpecLink.Next"/>
+        </WhileLoop>
+        <rep:Reporter.Information Text="''"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TComponentCategory.ConsolidateSpecifications">
+      <!--<Parameters>
+        <Parameter Identifier="ConsolidateKind" Type="TComponentSpecConsolidateKind"/>
+      </Parameters>-->
+      <Variables>
+        <Variable Identifier="RemoveSpec" Type="TComponentSpec"/>
+        <Variable Identifier="PrevSpec" Type="TComponentSpec"/>
+        <Variable Identifier="RunningSpec" Type="TComponentSpec" Init="FComponentSpecHead"/>
+        <Variable Identifier="ComponentKind" Type="TComponentKind" Init="TComponentKind.ckNone"/>
+      </Variables>
+      <Block>
+        <Exit Condition="not Assigned(RunningSpec)"/>
+        <lil:LinkedList.MergeSort Head="RunningSpec" ItemType="TComponentSpec" LinkUp="ItemA.Next:= ItemB" Next="Item.Next" IsInOrder="CompareSpecifications(ItemA, ItemB) &lt;= 0"/>
+        <Execute Statement="FComponentSpecHead:= RunningSpec"/>
+        <Execute Statement="PrevSpec:= RunningSpec"/>
+        <Execute Statement="RunningSpec:= RunningSpec.Next"/>
+        <WhileLoop Expression="Assigned(RunningSpec)">
+          <ConditionalBlock Expression="CompareSpecifications(PrevSpec, RunningSpec) = 0">
+            <Execute Statement="RemoveSpec:= RunningSpec"/>
+            <Execute Statement="RunningSpec:= RunningSpec.Next"/>
+            <Execute Statement="PrevSpec.Next:= RunningSpec"/>
+            <Choose>
+              <When Expression="Assigned(PrevSpec.SchemaComponentHead)">
+                <Execute Statement="PrevSpec.SchemaComponentTail.Next:= RemoveSpec.SchemaComponentHead"/>
+                <Execute Statement="PrevSpec.SchemaComponentTail:= RemoveSpec.SchemaComponentTail"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="PrevSpec.SchemaComponentHead:= RemoveSpec.SchemaComponentHead"/>
+                <Execute Statement="PrevSpec.SchemaComponentTail:= RemoveSpec.SchemaComponentTail"/>
+              </Otherwise>
+            </Choose>
+            <Choose>
+              <When Expression="Assigned(PrevSpec.StockComponentHead)">
+                <Execute Statement="PrevSpec.StockComponentTail.Next:= RemoveSpec.StockComponentHead"/>
+                <Execute Statement="PrevSpec.StockComponentTail:= RemoveSpec.StockComponentTail"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="PrevSpec.StockComponentHead:= RemoveSpec.StockComponentHead"/>
+                <Execute Statement="PrevSpec.StockComponentTail:= RemoveSpec.StockComponentTail"/>
+              </Otherwise>
+            </Choose>
+            <Choose>
+              <When Expression="Assigned(PrevSpec.MatchedSpecLinkHead)">
+                <Execute Statement="PrevSpec.MatchedSpecLinkTail.Next:= RemoveSpec.MatchedSpecLinkHead"/>
+                <Execute Statement="PrevSpec.MatchedSpecLinkTail:= RemoveSpec.MatchedSpecLinkTail"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="PrevSpec.MatchedSpecLinkHead:= RemoveSpec.MatchedSpecLinkHead"/>
+                <Execute Statement="PrevSpec.MatchedSpecLinkTail:= RemoveSpec.MatchedSpecLinkTail"/>
+              </Otherwise>
+            </Choose>
+
+
+            <Free Expression="RemoveSpec"/>
+            <Continue/>
+          </ConditionalBlock>
+          <Execute Statement="PrevSpec:= RunningSpec"/>
+          <Execute Statement="RunningSpec:= RunningSpec.Next"/>
+        </WhileLoop>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TComponentCategory.ReportSchema">
+      <Parameters>
+        <Parameter Identifier="Count" Type="Integer"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="RunningSpec" Type="TComponentSpec" Init="FComponentSpecHead"/>
+        <Variable Identifier="ComponentKind" Type="TComponentKind" Init="TComponentKind.ckNone"/>
+      </Variables>
+      <Block>
+        <Exit Condition="not Assigned(RunningSpec)"/>
+        <Execute Statement="RunningSpec:= FComponentSpecHead"/>
+        <WhileLoop Expression="Assigned(RunningSpec)">
+          <ConditionalBlock Expression="RunningSpec.ComponentKind &lt;&gt; ComponentKind">
+            <rep:Reporter.Information Text="''"/>
+            <Execute Statement="ComponentKind:= RunningSpec.ComponentKind"/>
+            <Execute Statement="ReportComponentHeader(ComponentKind)"/>
+          </ConditionalBlock>
+          <Execute Statement="ReportSchemaComponents(RunningSpec, Count)"/>
+          <Execute Statement="RunningSpec:= RunningSpec.Next"/>
+        </WhileLoop>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TComponentCategory.ReportStock">
+      <Variables>
+        <Variable Identifier="RunningSpec" Type="TComponentSpec" Init="FComponentSpecHead"/>
+        <Variable Identifier="ComponentKind" Type="TComponentKind" Init="TComponentKind.ckNone"/>
+      </Variables>
+      <Block>
+        <Exit Condition="not Assigned(RunningSpec)"/>
+        <Execute Statement="RunningSpec:= FComponentSpecHead"/>
+        <WhileLoop Expression="Assigned(RunningSpec)">
+          <ConditionalBlock Expression="RunningSpec.ComponentKind &lt;&gt; ComponentKind">
+            <rep:Reporter.Information Text="''"/>
+            <Execute Statement="ComponentKind:= RunningSpec.ComponentKind"/>
+            <Execute Statement="ReportComponentHeader(ComponentKind)"/>
+          </ConditionalBlock>
+          <Execute Statement="ReportStockComponents(RunningSpec)"/>
+          <Execute Statement="RunningSpec:= RunningSpec.Next"/>
+        </WhileLoop>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TComponentCategory.AssignStockSpecsToSchemaSpec">
+      <Parameters>
+        <Parameter Identifier="SchemaSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="RunningSpec" Type="TComponentSpec" Init="FComponentSpecHead"/>
+        <Variable Identifier="MatchedSpecLink" Type="TSpecificationLink"/>
+        <Variable Identifier="SearchSpecLink" Type="TSpecificationLink"/>
+      </Variables>
+      <Block>
+        <Block Condition="IndexSearchSpecifications(SchemaSpec, SearchSpecLink)">
+          <WhileLoop Expression="Assigned(SearchSpecLink)">
+            <Block Condition="SchemaSpec.DoesMatchSpecification(SearchSpecLink.StockComponentSpec)">
+              <Execute Statement="MatchedSpecLink:= TSpecificationLink.Create(SearchSpecLink.StockComponentSpec)"/>
+              <Choose>
+                <When Expression="Assigned(SchemaSpec.MatchedSpecLinkHead)">
+                  <Execute Statement="SchemaSpec.MatchedSpecLinkTail.Next:= MatchedSpecLink"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="SchemaSpec.MatchedSpecLinkHead:= MatchedSpecLink"/>
+                </Otherwise>
+              </Choose>
+              <Execute Statement="SchemaSpec.MatchedSpecLinkTail:= MatchedSpecLink"/>
+            </Block>
+            <Execute Statement="SearchSpecLink:= SearchSpecLink.Next"/>
+          </WhileLoop>
+          <Exit/>
+        </Block>
+
+        <WhileLoop Expression="Assigned(RunningSpec)">
+          <Block Condition="SchemaSpec.DoesMatchSpecification(RunningSpec)">
+            <Execute Statement="MatchedSpecLink:= TSpecificationLink.Create(RunningSpec)"/>
+            <Choose>
+              <When Expression="Assigned(SchemaSpec.MatchedSpecLinkHead)">
+                <Execute Statement="SchemaSpec.MatchedSpecLinkTail.Next:= MatchedSpecLink"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="SchemaSpec.MatchedSpecLinkHead:= MatchedSpecLink"/>
+              </Otherwise>
+            </Choose>
+            <Execute Statement="SchemaSpec.MatchedSpecLinkTail:= MatchedSpecLink"/>
+          </Block>
+          <Execute Statement="RunningSpec:= RunningSpec.Next"/>
+        </WhileLoop>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TComponentCategory.AssignStockSpecsFromCategory">
+      <Parameters>
+        <Parameter Identifier="StockCategory" Type="TComponentCategory"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="RunningSpec" Type="TComponentSpec" Init="FComponentSpecHead"/>
+      </Variables>
+      <Block>
+        <WhileLoop Expression="Assigned(RunningSpec)">
+          <Execute Statement="StockCategory.AssignStockSpecsToSchemaSpec(RunningSpec)"/>
+          <Execute Statement="RunningSpec:= RunningSpec.Next"/>
+        </WhileLoop>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TComponentCategory.ProcessSchemaXml" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Element" Type="IXMLDomElement" />
+        <Parameter Identifier="Reference" Type="string" />
+        <Parameter Identifier="ID" Type="Integer" />
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Specification" Type="TComponentSpec"/>
+        <Variable Identifier="Component" Type="TSchemaComponent"/>
+      </Variables>
+      <Block>
+        <rep:Reporter.Information Text="'ProcessSchemaXml'" Condition="IsVerbose"/>
+        <Execute Statement="Result:= False"/>
+        <TryFinally>
+          <Try>
+            <Execute Statement="Specification:= CreateSpecification" />
+            <Execute Statement="Specification.LoadFromXML(Element)" />
+            <ConditionalBlock Expression="IsValidSpecification(Specification)">
+              <Execute Statement="Result:= True"/>
+              <Execute Statement="Component:= TSchemaComponent.Create(Reference)"/>
+              <Execute Statement="Specification.ID:= ID"/>
+              <Execute Statement="Specification.SchemaComponentHead:= Component"/>
+              <Execute Statement="Specification.SchemaComponentTail:= Component"/>
+              <Execute Statement="Specification.Template:= GetTemplate(Specification)"/>
+              <Execute Statement="Specification.ApplyTemplate"/>
+              <Choose>
+                <When Expression="Assigned(FComponentSpecHead)">
+                  <Execute Statement="FComponentSpecTail.Next:= Specification"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="FComponentSpecHead:= Specification"/>
+                </Otherwise>
+              </Choose>
+              <Execute Statement="FComponentSpecTail:= Specification"/>
+            </ConditionalBlock>
+          </Try>
+          <Finally>
+            <Free Identifier="Specification" Condition="not Result"/>
+          </Finally>
+        </TryFinally>
+      </Block>
+    </Function>
+
+    <Function Identifier="TComponentCategory.ProcessStockComponent" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="StockComponent" Type="TStockComponent"/>
+        <Parameter Identifier="ValueHead" Type="TComponentValue"/>
+        <Parameter Identifier="ID" Type="Integer" />
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Specification" Type="TComponentSpec"/>
+        <Variable Identifier="RunningComponentValue" Type="TComponentValue" Init="ValueHead"/>
+        <Variable Identifier="ReleaseComponentValue" Type="TComponentValue"/>
+        <Variable Identifier="CustomField" Type="TCustomField"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <TryFinally>
+          <Try>
+            <Execute Statement="Specification:= CreateSpecification" />
+            <Execute Statement="Specification.Template:= StockComponent.StockCategory.ComponentSpec"/>
+            <Execute Statement="Specification.ApplyTemplate"/>
+            <Execute Statement="Specification.HandleField(TCustomField.cfValue, '', StockComponent.Name)"/>
+            <Execute Statement="Specification.HandleField(TCustomField.cfFootprint, '', StockComponent.Footprint)" Condition="StockComponent.Footprint &lt;&gt; ''"/>
+            <WhileLoop Expression="Assigned(RunningComponentValue)">
+              <Execute Statement="CustomField:= TCustomField.cfUnknown"/>
+              <inx:Index.FindValue Index="CustomFieldsIndex" Key="RunningComponentValue.Name" Value="CustomField" Flags="NoErrorOnNotFound" />
+              <Execute Statement="Specification.HandleField(CustomField, RunningComponentValue.Name, RunningComponentValue.Value)" />
+              <Execute Statement="RunningComponentValue:= RunningComponentValue.Next"/>
+            </WhileLoop>
+            <ConditionalBlock Expression="IsValidSpecification(Specification)">
+              <rep:Reporter.Information Text="'Valid:' + Specification.SpecificationAsString" Condition="IsVerbose"/>
+              <Execute Statement="Result:= True"/>
+              <Execute Statement="Specification.ID:= ID"/>
+              <Execute Statement="Specification.StockComponentHead:= StockComponent"/>
+              <Execute Statement="Specification.StockComponentTail:= StockComponent"/>
+              <Choose>
+                <When Expression="Assigned(FComponentSpecHead)">
+                  <Execute Statement="FComponentSpecTail.Next:= Specification"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="FComponentSpecHead:= Specification"/>
+                </Otherwise>
+              </Choose>
+              <Execute Statement="FComponentSpecTail:= Specification"/>
+            </ConditionalBlock>
+          </Try>
+          <Finally>
+            <Free Identifier="Specification" Condition="not Result"/>
+          </Finally>
+        </TryFinally>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="InitCustomFieldIndex">
+      <Parameters>
+        <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
+      </Parameters>
+      <Block>
+        <inx:Index.MapValue Index="Index" Key="'ComponentKind'" Value="TCustomField.cfComponentKind"/>
+        <inx:Index.MapValue Index="Index" Key="'Footprint'" Value="TCustomField.cfFootprint"/>
+        <inx:Index.MapValue Index="Index" Key="'PartNumber'" Value="TCustomField.cfPartNumber"/>
+        <inx:Index.MapValue Index="Index" Key="'Manufacturer'" Value="TCustomField.cfManufacturer"/>
+        <inx:Index.MapValue Index="Index" Key="'PowerRating'" Value="TCustomField.cfPowerRating"/>
+        <inx:Index.MapValue Index="Index" Key="'VoltageRating'" Value="TCustomField.cfVoltageRating"/>
+        <inx:Index.MapValue Index="Index" Key="'AmperageRating'" Value="TCustomField.cfAmperageRating"/>
+        <inx:Index.MapValue Index="Index" Key="'Tolerance'" Value="TCustomField.cfTolerance"/>
+        <inx:Index.MapValue Index="Index" Key="'Technology'" Value="TCustomField.cfTechnology"/>
+        <inx:Index.MapValue Index="Index" Key="'ZenerVoltage'" Value="TCustomField.cfZenerVoltage"/>
+        <inx:Index.MapValue Index="Index" Key="'Pins'" Value="TCustomField.cfPins"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="InitFootprintIndex">
+      <Parameters>
+        <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
+      </Parameters>
+      <Block>
+        <inx:Index.MapValue Index="Index" Key="'THT'" Value="TFootprint.THT"/>
+        <inx:Index.MapValue Index="Index" Key="'SMD'" Value="TFootprint.SMD"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="InitSymbolComponentKindIndex">
+      <Parameters>
+        <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
+      </Parameters>
+      <Block>
+        <inx:Index.MapValue Index="Index" Key="'Amplifier_Operational:'" Value="TComponentKind.ckOpAmp"/>
+        <inx:Index.MapValue Index="Index" Key="'Connector_Generic:'" Value="TComponentKind.ckConnector"/>
+        <inx:Index.MapValue Index="Index" Key="'Connector:'" Value="TComponentKind.ckConnector"/>
+        <inx:Index.MapValue Index="Index" Key="':R'" Value="TComponentKind.ckResistor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:R'" Value="TComponentKind.ckResistor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:R_POT_TRIM'" Value="TComponentKind.ckVariableResistor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:C_Small'" Value="TComponentKind.ckCapacitor"/>
+        <inx:Index.MapValue Index="Index" Key="':C'" Value="TComponentKind.ckCapacitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:C'" Value="TComponentKind.ckCapacitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:L_Small'" Value="TComponentKind.ckInductor"/>
+        <inx:Index.MapValue Index="Index" Key="':L'" Value="TComponentKind.ckInductor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:L'" Value="TComponentKind.ckInductor"/>
+        <inx:Index.MapValue Index="Index" Key="':CP'" Value="TComponentKind.ckPolarisedCapacitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:CP'" Value="TComponentKind.ckPolarisedCapacitor"/>
+        <inx:Index.MapValue Index="Index" Key="':D'" Value="TComponentKind.ckDiode"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:D'" Value="TComponentKind.ckDiode"/>
+        <inx:Index.MapValue Index="Index" Key="':D_Zener'" Value="TComponentKind.ckZenerDiode"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:D_Zener'" Value="TComponentKind.ckZenerDiode"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_NPN_EBC'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_NPN_CBE'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_NPN_BCE'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_NPN_ECB'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_NPN_BEC'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_NPN_CEB'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_PNP_EBC'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_PNP_CBE'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_PNP_BCE'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_PNP_ECB'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_PNP_BEC'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Device:Q_PNP_CEB'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Transistor_BJT:'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Transistor_FET:'" Value="TComponentKind.ckFieldEffectTransitor"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="InitComponentKindIndex">
+      <Parameters>
+        <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
+      </Parameters>
+      <Block>
+        <inx:Index.MapValue Index="Index" Key="'Resistor'" Value="TComponentKind.ckResistor"/>
+        <inx:Index.MapValue Index="Index" Key="'VariableResistor'" Value="TComponentKind.ckVariableResistor"/>
+        <inx:Index.MapValue Index="Index" Key="'Capacitor'" Value="TComponentKind.ckCapacitor"/>
+        <inx:Index.MapValue Index="Index" Key="'Inductor'" Value="TComponentKind.ckInductor"/>
+        <inx:Index.MapValue Index="Index" Key="'PolarisedCapacitor'" Value="TComponentKind.ckPolarisedCapacitor"/>
+        <inx:Index.MapValue Index="Index" Key="'ZenerDiode'" Value="TComponentKind.ckZenerDiode"/>
+        <inx:Index.MapValue Index="Index" Key="'Connector'" Value="TComponentKind.ckConnector"/>
+        <inx:Index.MapValue Index="Index" Key="'Diode'" Value="TComponentKind.ckDiode"/>
+        <inx:Index.MapValue Index="Index" Key="'OpAmp'" Value="TComponentKind.ckOpAmp"/>
+        <inx:Index.MapValue Index="Index" Key="'Component'" Value="TComponentKind.ckComponent"/>
+        <inx:Index.MapValue Index="Index" Key="'BipolarJunctionTransitor'" Value="TComponentKind.ckBipolarJunctionTransitor"/>
+        <inx:Index.MapValue Index="Index" Key="'FieldEffectTransitor'" Value="TComponentKind.ckFieldEffectTransitor"/>
+      </Block>
+    </Procedure>
+
+  </Procedures>
+
+  <Initialization>
+    <Execute Statement="InitCustomFieldIndex(CustomFieldsIndex)"/>
+    <Execute Statement="InitComponentKindIndex(ComponentKindIndex)"/>
+    <Execute Statement="InitFootprintIndex(FootprintIndex)"/>
+    <Execute Statement="InitSymbolComponentKindIndex(SymbolComponentKindIndex)"/>
+  </Initialization>
+
+  <Finalization>
+    <Free Identifier="CustomFieldsIndex"/>
+    <Free Identifier="FootprintIndex"/>
+    <Free Identifier="ComponentKindIndex"/>
+    <Free Identifier="SymbolComponentKindIndex"/>
+  </Finalization>
+
+</pkg:Library>

@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<pkg:Program xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+            xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+            xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+            xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+            xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+            xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+            xmlns:indx="urn:schemas-www-wisware.nl-xmlscripting-index"
+            xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+            xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+            xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+            xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+            xmlns:obj="urn:schemas-www-wisware.nl-xmlscripting-objectlayer"
+            xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+            xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd">
+  <pkg:ReportTargets>
+    <pkg:Target Identifier="Report" Description="BOM rapportage"/>
+    <pkg:Target Identifier="StockReport" Description="Partkeepr componenten"/>
+    <pkg:Target Identifier="Info" Description="Informatie"/>
+    <pkg:Target Identifier="Errors" Description="Fouten"/>
+    <!--<pkg:Target Identifier="Errors" Description="Fouten"/>
+    <pkg:Target Identifier="Warnings" Description="Waarschuwingen"/>-->
+  </pkg:ReportTargets>
+  <pkg:Config xml:space="preserve">[Settings]
+BomFilename=F:\Software development\Constructie\FumeExtracter\eSchemas.Project\FumeExtracter.xml
+BomCount=1
+ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr
+
+[Template.Resistor.THT]
+PowerRating = 250mW
+Tolerance = 5%
+Technology = metal film
+Footprint = THT
+
+
+[Template.Resistor.Variable.THT]
+;PowerRating = 250mW
+
+[Template.PolarisedCapacitor.THT]
+;Tolerance = 10%
+VoltageRating = 50V
+Technology = electrolytic
+Footprint = THT
+
+[Template.Capacitor.THT]
+;Tolerance = 10%
+VoltageRating = 50V
+Technology = ceramic
+Footprint = THT
+
+[Template.ZenderDiode.THT]
+;Tolerance = 10%
+PowerRating = 1W
+Footprint = THT
+
+  </pkg:Config>
+  <Imports>
+    <Import Identifier="ElectronicUtils" Filename="..\Script.Common.Electronics\ElectronicUtils.xml"/>
+    <Import Identifier="BomStrings" Filename="..\Script.Common.Electronics\BOM strings en-GB.xml"/>
+    <Import Identifier="BomClasses" Filename="..\Script.Common.Electronics\BOM classes.xml"/>
+    <Import Identifier="ResistorClasses" Filename="..\Script.Common.Electronics\BOM ResistorClasses.xml"/>
+    <Import Identifier="CapacitorClasses" Filename="..\Script.Common.Electronics\BOM CapacitorClasses.xml"/>
+    <Import Identifier="InductorClasses" Filename="..\Script.Common.Electronics\BOM InductorClasses.xml"/>
+    <Import Identifier="ZenerDiodeClasses" Filename="..\Script.Common.Electronics\BOM ZenerDiodeClasses.xml"/>
+    <Import Identifier="ConnectorClasses" Filename="..\Script.Common.Electronics\BOM ConnectorClasses.xml"/>
+    <Import Identifier="GenericComponentClasses" Filename="..\Script.Common.Electronics\BOM GenericComponentClasses.xml"/>
+    <Import Identifier="StockManager" Filename="..\Script.Common.Electronics\BOM StockManager.xml"/>
+    <Import Identifier="BillOfMaterialClass" Filename="..\Script.Common.Electronics\BOM BillOfMaterialClass.xml"/>
+  </Imports>
+  <Uses>
+    <Use Identifier="BomStrings"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="BillOfMaterialClass"/>
+    <Use Identifier="StockManager"/>
+  </Uses>
+  <Constants>
+    <Constant Identifier="connPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
+  </Constants>
+  <Variables>
+    <Variable Identifier="ConnectionString" Type="string" Init="connPartKeepr"/>
+    <Variable Identifier="BomFilename" Type="string" Init="''"/>
+    <Variable Identifier="BomCountS" Type="string" Init="''"/>
+    <Variable Identifier="BomCount" Type="Integer" Init="1"/>
+    <Variable Identifier="BillOfMaterials" Type="TBillOfMaterials" Init="TBillOfMaterials.Create"/>
+    <Variable Identifier="StockManager" Type="TStockManager" Init="TStockManager.Create"/>
+  </Variables>
+  <Block>
+    <Variable Identifier="StartTime" Type="Int64" Init="QueryPerformanceCounter" />
+
+    <rep:Reporter.DefaultTarget Identifier="Info"/>
+    <Execute Statement="ConnectionString:= ConfigInifile.ReadString('Settings', 'ConnectionString', ConnectionString)"/>
+    <ConditionalBlock Expression="not CommandlineVariables.GetValue('BomFilename', BomFilename)">
+      <Execute Statement="BomFilename:= ConfigInifile.ReadString('Settings', 'BomFilename', BomFilename)"/>
+    </ConditionalBlock>
+    <Choose>
+      <When Expression="CommandlineVariables.GetValue('BomCount', BomCountS)" >
+        <Execute Statement="BomCount:= StrToInt(BomCountS)"/>
+      </When>
+      <Otherwise>
+        <Execute Statement="BomCount:= ConfigInifile.ReadInteger('Settings', 'BomCount', BomCount)"/>
+      </Otherwise>
+    </Choose>
+    
+    <Execute Statement="StockManager.LoadFromDB(ConnectionString)"/>
+    <Execute Statement="StockManager.ConsolidateSpecifications"/>
+    <rep:Reporter.DefaultTarget Identifier="StockReport"/>
+    <Execute Statement="StockManager.Report"/>
+    
+    <rep:Reporter.DefaultTarget Identifier="Info"/>
+    
+    <Execute Statement="BillOfMaterials.LoadTemplatesFromIniFile(ConfigInifile)"/>
+    <Execute Statement="BillOfMaterials.LoadFromFile(BomFilename)"/>
+    <Execute Statement="BillOfMaterials.ConsolidateSpecifications"/>
+    <Execute Statement="BillOfMaterials.AssignStockComponents(StockManager)"/>
+    <rep:Reporter.DefaultTarget Identifier="Report"/>
+    <Execute Statement="BillOfMaterials.Report(BomCount)"/>
+
+    <Variable Identifier="EndTime" Type="Int64" Init="QueryPerformanceCounter" />
+    <rep:Reporter.Information Text="Format(sTimeMeasure, (EndTime-StartTime)/QueryPerformanceFrequency)" Target="Info"/>
+  </Block>
+</pkg:Program>

@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado" 
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement" 
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall" 
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index" 
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist" 
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry" 
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report" 
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus" 
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils" 
+  >
+<Constants>
+  <Constant Identifier="sBOMHeader" Type="string" Expression="'Bill of materials'"/>
+  <Constant Identifier="sStockHeader" Type="string" Expression="'Bill of available materials'"/>
+  <Constant Identifier="sTitleField" Type="string" Expression="'Title: %s'"/>
+  <Constant Identifier="sCountField" Type="string" Expression="'Amount: %dx'"/>
+  <Constant Identifier="sResistorHeader" Type="string" Expression="'Resistors'"/>
+  <Constant Identifier="sComponentHeader" Type="string" Expression="'Components'"/>
+  <Constant Identifier="sOpAmpHeader" Type="string" Expression="'OpAmps'"/>
+  <Constant Identifier="sConnectorHeader" Type="string" Expression="'Connectors'"/>
+  <Constant Identifier="sVariableResistorHeader" Type="string" Expression="'Variable resistors'"/>
+  <Constant Identifier="sCapacitorHeader" Type="string" Expression="'Capacitors'"/>
+  <Constant Identifier="sInductorHeader" Type="string" Expression="'Inductors'"/>
+  <Constant Identifier="sBipolarJunctionTransitorHeader" Type="string" Expression="'Transistors'"/>
+  <Constant Identifier="sFieldEffectTransitor" Type="string" Expression="'FET transistors'"/>
+  <Constant Identifier="sPolarisedCapacitorHeader" Type="string" Expression="'Polarized capacitors'"/>
+  <Constant Identifier="sDiodeHeader" Type="string" Expression="'Diodes'"/>
+  <Constant Identifier="sZenerDiodeHeader" Type="string" Expression="'Zener diodes'"/>
+  <Constant Identifier="sMissingComponentHeader" Type="string" Expression="'Missing component class name'"/>
+  <Constant Identifier="sResistorTechnologyMetalFilm" Type="string" Expression="'metal film'"/>
+  <Constant Identifier="sResistorTechnologyMissing" Type="string" Expression="'-missing resistor technology mapping-'"/>
+
+  <Constant Identifier="sCapacitorTechnologyElectrolytic" Type="string" Expression="'elco'"/>
+  <Constant Identifier="sCapacitorTechnologyCeramic" Type="string" Expression="'ceramic'"/>
+  <Constant Identifier="sCapacitorTechnologyMissing" Type="string" Expression="'-missening capacitor technology mapping-'"/>
+  <Constant Identifier="sFootprintNamingMissing" Type="string" Expression="'-missening footprint mapping-'"/>
+
+  <Constant Identifier="sFootprintTHT" Type="string" Expression="'THT'"/>
+  <Constant Identifier="sFootprintSMD" Type="string" Expression="'SMD'"/>
+  <Constant Identifier="sTimeMeasure" Type="string" Expression="'Elapsed time: %.4f sec'"/>
+  <Constant Identifier="sFilename" Type="string" Expression="'Filename: %s'"/>
+</Constants>
+</pkg:Library>

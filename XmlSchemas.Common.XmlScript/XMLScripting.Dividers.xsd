@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-dividers" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-dividers" elementFormDefault="qualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+
+  <xs:complexType name="TShared">
+    <xs:group ref="GDividers" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:complexType>
+  
+  <xs:complexType name="TSegment">
+    <xs:group ref="GDividers" minOccurs="0" maxOccurs="unbounded"/>
+    <xs:attribute name="Spacing" type="proc:expression" use="required"/>
+    <xs:attribute name="Identifier" type="proc:identifier" use="optional"/>
+  </xs:complexType>
+
+  <xs:group name="GDividers">
+    <xs:sequence>
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element name="Shared" type="TShared" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="Segment" type="TSegment" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="TDividerBlock">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:sequence>
+          <xs:group ref="GDividers" minOccurs="1" maxOccurs="1"/>
+          <xs:element name="Block" type="proc:T_Block"/>
+        </xs:sequence>
+        <xs:attribute name="Starts" type="proc:expression" use="required"/>
+        <xs:attribute name="Ends" type="proc:expression" use="required"/>
+        <xs:attribute name="Identifier" type="proc:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+  <xs:element name="DividerBlock" type="TDividerBlock" substitutionGroup="proc:AbstractProcessItem"/>
+</xs:schema>

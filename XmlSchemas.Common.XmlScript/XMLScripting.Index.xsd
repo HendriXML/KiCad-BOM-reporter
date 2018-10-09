@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-index" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-index" elementFormDefault="qualified">
+	<xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+	<xs:simpleType name="T_IndexMapValueFlagItemType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="NoErrorOnExist"/>
+      <xs:enumeration value="NoKeyConvertError"/>
+      <xs:enumeration value="NoValueConvertError"/>
+      <xs:enumeration value="DiscardOnExist"/>
+    </xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="T_IndexFindValueFlagItemType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="NoErrorOnNotFound"/>   
+			<xs:enumeration value="NoKeyConvertError"/>
+		</xs:restriction>
+		
+	</xs:simpleType>
+	<xs:simpleType name="T_IndexFindValueFlagType">
+	  <xs:list itemType="T_IndexFindValueFlagItemType"></xs:list>
+	</xs:simpleType>
+	<xs:simpleType name="T_IndexMapValueFlagType">
+	  <xs:list itemType="T_IndexMapValueFlagItemType"></xs:list>
+	</xs:simpleType>
+	<xs:complexType name="T_IndexMapValue">
+		<xs:complexContent>
+			<xs:extension base="proc:T_AbstractConditionalProcessItem">
+				<xs:attribute name="Index" type="proc:expression" use="required"/>
+				<xs:attribute name="Key" type="proc:expression" use="required"/>
+				<xs:attribute name="Value" type="proc:expression" use="required"/>
+        <xs:attribute name="PreviousValue" type="proc:identifier" use="optional"/>
+        <xs:attribute name="Found" type="proc:identifier" use="optional"/>
+				<xs:attribute name="Flags" type="T_IndexMapValueFlagType" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="T_IndexFindValue">
+		<xs:complexContent>
+			<xs:extension base="proc:T_AbstractConditionalProcessItem">
+				<xs:attribute name="Index" type="proc:expression" use="required"/>
+				<xs:attribute name="Key" type="proc:expression" use="required"/>
+				<xs:attribute name="Value" type="proc:identifier" use="required"/>
+				<xs:attribute name="Found" type="proc:identifier" use="optional"/>
+				<xs:attribute name="Flags" type="T_IndexFindValueFlagType" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="Index.MapValue" type="T_IndexMapValue" substitutionGroup="proc:AbstractProcessItem"/>
+	<xs:element name="Index.FindValue" type="T_IndexFindValue" substitutionGroup="proc:AbstractProcessItem"/>
+</xs:schema>

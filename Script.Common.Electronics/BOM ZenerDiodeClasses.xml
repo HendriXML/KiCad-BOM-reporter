@@ -1,0 +1,425 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="BomStrings"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TZenerDiodeSpec" Inherit="TComponentSpec" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmHandleField" Override="true"/>
+      <VirtualMethod Identifier="vmCheckComponentKind" Override="true"/>
+      <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
+      <VirtualMethod Identifier="vmApplyTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <Field Identifier="ZenerVoltageVT" Type="TValueType"/>
+      <Field Identifier="ZenerVoltage" Type="Int64"/>
+      <Field Identifier="ErrorZenerVoltage" Type="string"/>
+      <Field Identifier="PowerRatingVT" Type="TValueType"/>
+      <Field Identifier="PowerRating" Type="Int64"/>
+      <Field Identifier="ErrorPowerRating" Type="string"/>
+      <Field Identifier="ToleranceVT" Type="TValueType"/>
+      <Field Identifier="Tolerance" Type="Int64"/>
+      <Field Identifier="ErrorTolerance" Type="string"/>
+    </DataClass>
+
+    <DataClass Identifier="TZenerVoltageSpecificationIndex" Inherit="TSpecificationIndex" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetKey" Override="true"/>
+    </DataClass>
+
+    <DataClass Identifier="TZenerDiodeCategory" Inherit="TComponentCategory">
+      <VirtualMethod Identifier="vmCreateSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmIsValidSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmIndexSearchSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmCompareSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmLoadTemplatesFromIniFile" Override="true"/>
+      <VirtualMethod Identifier="vmGetTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile" Override="true"/>
+      <Field Identifier="ZenerVoltageSpecificationIndex" Type="TZenerVoltageSpecificationIndex"/>
+      <Field Identifier="TemplateTHT" Type="TZenerDiodeSpec"/>
+    </DataClass>
+  </Type>
+
+  <Procedures>
+
+    <Function Identifier="TZenerDiodeSpec.CheckComponentKind" VirtualMethod="vmCheckComponentKind" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="ComponentKind" Optimalisation="integermapping">
+          <On Select="TComponentKind.ckZenerDiode">
+            <Execute Statement="Result:= True"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TZenerDiodeSpec.DoesMatchSpecification" VirtualMethod="vmDoesMatchSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
+        <Case Expression="ZenerVoltageVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
+            <Case Expression="TZenerDiodeSpec(ComponentSpec).ZenerVoltageVT">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Exit Condition="ZenerVoltage &lt;&gt; TZenerDiodeSpec(ComponentSpec).ZenerVoltage"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="PowerRatingVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
+            <Case Expression="TZenerDiodeSpec(ComponentSpec).PowerRatingVT">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Exit Condition="PowerRating &gt; TZenerDiodeSpec(ComponentSpec).PowerRating"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="ToleranceVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
+            <Case Expression="TZenerDiodeSpec(ComponentSpec).ToleranceVT">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Exit Condition="Tolerance &lt; TZenerDiodeSpec(ComponentSpec).Tolerance"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TZenerDiodeSpec.HandleField" VirtualMethod="vmHandleField">
+      <Parameters>
+        <Parameter Identifier="CustomField" Type="TCustomField"/>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="LocZenerVoltage" Type="Int64"/>
+        <Variable Identifier="LocPowerRating" Type="Int64"/>
+        <Variable Identifier="LocTolerance" Type="Int64"/>
+      </Variables>
+      <Block>
+        <Case Expression="CustomField" Optimalisation="integermapping">
+          <On Select="TCustomField.cfValue">
+            <Choose>
+              <When Expression="StrValueToMicroVolts(Value, LocZenerVoltage)">
+                <Execute Statement="ZenerVoltageVT:= TValueType.vtSpecified"/>
+                <Execute Statement="ZenerVoltage:= LocZenerVoltage"/>
+                <rep:Reporter.Information Text="Format('ZenerVoltage %s', FormatMicroVolt(LocZenerVoltage))" Condition="IsVerbose"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('ZenerVoltage could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
+                <Execute Statement="ZenerVoltageVT:= TValueType.vtError"/>
+                <Execute Statement="ErrorZenerVoltage:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.cfPowerRating">
+            <Choose>
+              <When Expression="StrToMicroWatts(Value, LocPowerRating)">
+                <rep:Reporter.Information Text="Format('PowerRating: %s', FormatMicroWatt(LocPowerRating))" Condition="IsVerbose"/>
+                <Execute Statement="PowerRatingVT:= TValueType.vtSpecified"/>
+                <Execute Statement="PowerRating:= LocPowerRating"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('PowerRating could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
+                <Execute Statement="PowerRatingVT:= TValueType.vtError"/>
+                <Execute Statement="ErrorPowerRating:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.cfTolerance">
+            <Choose>
+              <When Expression="StrToMicroPerc(Value, LocTolerance)">
+                <rep:Reporter.Information Text="Format('Tolerance: %s', FormatMicroPercentage(LocTolerance))" Condition="IsVerbose"/>
+                <Execute Statement="ToleranceVT:= TValueType.vtSpecified"/>
+                <Execute Statement="Tolerance:= LocTolerance"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('Tolerance could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
+                <Execute Statement="ToleranceVT:= TValueType.vtError"/>
+                <Execute Statement="ErrorTolerance:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <Otherwise>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TZenerDiodeSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Variables>
+        <Variable Identifier="LocZenerVoltage" Type="string" Init="''"/>
+        <Variable Identifier="LocPowerRating" Type="string" Init="''"/>
+        <Variable Identifier="LocTolerance" Type="string" Init="''"/>
+        <Variable Identifier="LocComponent" Type="string" Init="''"/>
+      </Variables>
+      <Block>
+        <Case Expression="ZenerVoltageVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="LocZenerVoltage:= '?V'"/>
+          </On>
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Execute Statement="LocZenerVoltage:= FormatMicroVolt(ZenerVoltage)"/>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Execute Statement="LocZenerVoltage:= '{volt:' + ErrorZenerVoltage + '}'"/>
+          </On>
+        </Case>
+
+        <Case Expression="PowerRatingVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Execute Statement="LocPowerRating:= FormatMicroWatt(PowerRating)"/>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Execute Statement="LocPowerRating:= '{pwr:' + ErrorPowerRating + '}'"/>
+          </On>
+        </Case>
+
+        <Case Expression="ToleranceVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Execute Statement="LocTolerance:= FormatMicroPercentage(Tolerance)"/>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Execute Statement="LocTolerance:= '{tol:' + ErrorTolerance + '}'"/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Format('%6s %6s %3s %-12s', LocZenerVoltage, LocPowerRating, LocTolerance, '')"/>
+        <!--<Execute Statement="LocComponent:= inherited SpecificationAsString"/>
+        <Execute Statement="Result:= Result + ' ' + LocComponent" Condition="LocComponent &lt;&gt; ''"/>-->
+        <Execute Statement="Result:= Format('%-50s %-10s', Result, inherited SpecificationAsString)"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TZenerDiodeSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
+      <Variables>
+        <Variable Identifier="locTemplate" Type="TZenerDiodeSpec"/>
+      </Variables>
+      <Block>
+        <Exit Condition="not Assigned(Template)"/>
+        <ConditionalBlock Expression="Template is TZenerDiodeSpec">
+          <Execute Statement="locTemplate:= TZenerDiodeSpec(Template)"/>
+          <Case Expression="ZenerVoltageVT" Optimalisation="integermapping">
+            <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+              <Case Expression="locTemplate.ZenerVoltageVT" Optimalisation="integermapping">
+                <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                  <Execute Statement="ZenerVoltage:= locTemplate.ZenerVoltage"/>
+                  <Execute Statement="ZenerVoltageVT:= TValueType.vtSpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                  <Execute Statement="ErrorZenerVoltage:= locTemplate.ErrorZenerVoltage"/>
+                  <Execute Statement="ZenerVoltageVT:= TValueType.vtErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+          <Case Expression="PowerRatingVT" Optimalisation="integermapping">
+            <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+              <Case Expression="locTemplate.PowerRatingVT" Optimalisation="integermapping">
+                <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                  <Execute Statement="PowerRating:= locTemplate.PowerRating"/>
+                  <Execute Statement="PowerRatingVT:= TValueType.vtSpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                  <Execute Statement="ErrorPowerRating:= locTemplate.ErrorPowerRating"/>
+                  <Execute Statement="PowerRatingVT:= TValueType.vtErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+          <Case Expression="ToleranceVT" Optimalisation="integermapping">
+            <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+              <Case Expression="locTemplate.ToleranceVT" Optimalisation="integermapping">
+                <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                  <Execute Statement="Tolerance:= locTemplate.Tolerance"/>
+                  <Execute Statement="ToleranceVT:= TValueType.vtSpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                  <Execute Statement="ErrorTolerance:= locTemplate.ErrorTolerance"/>
+                  <Execute Statement="ToleranceVT:= TValueType.vtErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+        </ConditionalBlock>
+        <Execute Statement="inherited ApplyTemplate"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TZenerVoltageSpecificationIndex.GetKey" VirtualMethod="vmGetKey" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TZenerDiodeSpec"/>
+        <Parameter Identifier="Key" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="ComponentSpec.ZenerVoltageVT" Optimalisation="integermapping">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Execute Statement="Result:= True"/>
+            <Execute Statement="Key:= ComponentSpec.ZenerVoltage"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Constructor Identifier="TZenerDiodeCategory.Create">
+      <Block>
+        <Execute Statement="ZenerVoltageSpecificationIndex:= TZenerVoltageSpecificationIndex.Create(TMappingInt64ToObject.Create)"/>
+      </Block>
+    </Constructor>
+
+    <Function Identifier="TZenerDiodeCategory.IndexSearchSpecifications" VirtualMethod="vmIndexSearchSpecifications" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Parameter Identifier="Specifications" Type="TSpecificationLink" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Choose>
+          <When Expression="ZenerVoltageSpecificationIndex.GetLinks(ComponentSpec, FComponentSpecHead, Specifications)">
+            <Execute Statement="Result:= True"/>
+          </When>
+        </Choose>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TZenerDiodeCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="sSectionZenderDiodeTHT" Type="string" Expression="'Template.ZenderDiode.THT'"/>
+      </Constants>
+      <Block>
+        <ConditionalBlock Expression="IniFile.SectionExists(sSectionZenderDiodeTHT)">
+          <Execute Statement="TemplateTHT:= TZenerDiodeSpec.Create"/>
+          <Execute Statement="TemplateTHT.LoadFromIniFileSection(IniFile, sSectionZenderDiodeTHT)"/>
+        </ConditionalBlock>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TZenerDiodeCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
+      <Block>
+        <Execute Statement="Result:= TZenerDiodeSpec.Create"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TZenerDiodeCategory.IsValidSpecification" VirtualMethod="vmIsValidSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Specification.ComponentKindVT">
+          <On Select="TValueType.vtSpecified, TValueType.vtSpecifiedByTemplate"/>
+          <Otherwise>
+            <Exit Result="False"/>
+          </Otherwise>
+        </Case>
+        <Case Expression="Specification.ComponentKind">
+          <On Select="TComponentKind.ckZenerDiode"/>
+          <Otherwise>
+            <Exit Result="False"/>
+          </Otherwise>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TZenerDiodeCategory.GetTemplate" VirtualMethod="vmGetTemplate" Type="TComponentSpec">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ObjNil"/>
+        <Case Expression="Specification.ComponentKind">
+          <On Select="TComponentKind.ckZenerDiode">
+            <Execute Statement="Result:= TemplateTHT"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TZenerDiodeCategory.CompareSpecifications" Type="Integer" VirtualMethod="vmCompareSpecifications">
+      <Parameters>
+        <Parameter Identifier="A" Type="TZenerDiodeSpec"/>
+        <Parameter Identifier="B" Type="TZenerDiodeSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.ZenerVoltage, A.ZenerVoltageVT, B.ID, B.ZenerVoltage, B.ZenerVoltageVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.PowerRating, A.PowerRatingVT, B.ID, B.PowerRating, B.PowerRatingVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.Tolerance, A.ToleranceVT, B.ID, B.Tolerance, B.ToleranceVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TZenerDiodeCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="cZenerDiode" Type="string" Expression="'ZenerDiode'"/>
+      </Constants>
+      <Block>
+        <Execute Statement="Result:= IniFile.SectionExists(cZenerDiode)"/>
+        <Block Condition="Result">
+          <Execute Statement="ComponentSpec:= TZenerDiodeSpec.Create"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cZenerDiode)"/>
+        </Block>
+      </Block>
+    </Function>
+
+  </Procedures>
+
+</pkg:Library>

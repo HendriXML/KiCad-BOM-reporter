@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="BomStrings"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TGenericComponentSpec" Inherit="TComponentSpec" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmHandleField" Override="true"/>
+      <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
+      <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <Field Identifier="Value" Type="string"/>
+      <Field Identifier="ValueVT" Type="TValueType"/>
+    </DataClass>
+
+    <DataClass Identifier="TGenericComponentValueSpecificationIndex" Inherit="TSpecificationIndex" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetKey" Override="true"/>
+    </DataClass>
+
+    <DataClass Identifier="TGenericComponentCategory" Inherit="TComponentCategory">
+      <VirtualMethod Identifier="vmCreateSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmIndexSearchSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmCompareSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile" Override="true"/>
+      <Field Identifier="GenericComponentValueSpecificationIndex" Type="TGenericComponentValueSpecificationIndex"/>
+    </DataClass>
+
+  </Type>
+
+  <Procedures>
+
+    <Function Identifier="TGenericComponentSpec.DoesMatchSpecification" VirtualMethod="vmDoesMatchSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
+        <Case Expression="ValueVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Exit Condition="not (ComponentSpec is TGenericComponentSpec)"/>
+            <Case Expression="TGenericComponentSpec(ComponentSpec).ValueVT">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Exit Condition="CompareText(Value, TGenericComponentSpec(ComponentSpec).Value) &lt;&gt; 0"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TGenericComponentSpec.HandleField" VirtualMethod="vmHandleField">
+      <Parameters>
+        <Parameter Identifier="CustomField" Type="TCustomField"/>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+      </Parameters>
+      <Block>
+        <Case Expression="CustomField" Optimalisation="integermapping">
+          <On Select="TCustomField.cfValue">
+            <Execute Statement="Self.Value:= Value"/>
+            <Execute Statement="ValueVT:= TValueType.vtSpecified"/>
+          </On>
+          <Otherwise>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TGenericComponentSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Variables>
+        <Variable Identifier="LocValue" Type="string" Init="''"/>
+        <Variable Identifier="LocInherited" Type="string" Init="''"/>
+      </Variables>
+      <Block>
+        <Case Expression="ValueVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="LocValue:= '?'"/>
+          </On>
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Execute Statement="LocValue:= Value"/>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          </On>
+        </Case>
+        <Execute Statement="LocInherited:= inherited SpecificationAsString"/>
+        <Execute Statement="Result:= Format('%-50s %-10s', LocValue, LocInherited)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TGenericComponentValueSpecificationIndex.GetKey" VirtualMethod="vmGetKey" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TGenericComponentSpec"/>
+        <Parameter Identifier="Key" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="ComponentSpec.ValueVT" Optimalisation="integermapping">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Execute Statement="Result:= True"/>
+            <Execute Statement="Key:= ComponentSpec.Value"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Constructor Identifier="TGenericComponentCategory.Create">
+      <Block>
+        <Execute Statement="GenericComponentValueSpecificationIndex:= TGenericComponentValueSpecificationIndex.Create(TMappingCaseInSensitiveUnicodeStringToObject.Create)"/>
+      </Block>
+    </Constructor>
+
+    <Function Identifier="TGenericComponentCategory.IndexSearchSpecifications" VirtualMethod="vmIndexSearchSpecifications" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Parameter Identifier="Specifications" Type="TSpecificationLink" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Choose>
+          <When Expression="GenericComponentValueSpecificationIndex.GetLinks(ComponentSpec, FComponentSpecHead, Specifications)">
+            <Execute Statement="Result:= True"/>
+          </When>
+        </Choose>
+      </Block>
+    </Function>
+
+  <Function Identifier="TGenericComponentCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
+      <Block>
+        <Execute Statement="Result:= TGenericComponentSpec.Create"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TGenericComponentCategory.CompareSpecifications" Type="Integer" VirtualMethod="vmCompareSpecifications">
+      <Parameters>
+        <Parameter Identifier="A" Type="TGenericComponentSpec"/>
+        <Parameter Identifier="B" Type="TGenericComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateStringValue(A.ID, A.Value, A.ValueVT, B.ID, B.Value, B.ValueVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TGenericComponentCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="cComponent" Type="string" Expression="'Component'"/>
+      </Constants>
+      <Block>
+        <Execute Statement="Result:= IniFile.SectionExists(cComponent)"/>
+        <Block Condition="Result">
+          <Execute Statement="ComponentSpec:= TGenericComponentSpec.Create"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cComponent)"/>
+        </Block>
+      </Block>
+    </Function>
+
+  </Procedures>
+
+</pkg:Library>

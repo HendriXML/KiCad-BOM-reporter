@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-registry" elementFormDefault="qualified">
+	<xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+	<xs:simpleType name="T_RegistryKeySecurityItemType">
+		<xs:restriction base="xs:string">
+      <xs:enumeration value="ALL_ACCESS"/>
+      <xs:enumeration value="CREATE_LINK"/>
+      <xs:enumeration value="CREATE_SUB_KEY"/>
+      <xs:enumeration value="ENUMERATE_SUB_KEYS"/>
+      <xs:enumeration value="EXECUTE"/>
+      <xs:enumeration value="NOTIFY"/>
+      <xs:enumeration value="QUERY_VALUE"/>
+      <xs:enumeration value="READ"/>
+      <xs:enumeration value="SET_VALUE"/>
+      <xs:enumeration value="WOW64_32KEY"/>
+      <xs:enumeration value="WOW64_64KEY"/>
+      <xs:enumeration value="WRITE"/>
+    </xs:restriction>
+	</xs:simpleType>
+
+  <xs:simpleType name="T_DataTypeItemType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="REG_BINARY"/>
+      <xs:enumeration value="REG_DWORD"/>
+      <xs:enumeration value="REG_DWORD_LITTLE_ENDIAN"/>
+      <xs:enumeration value="REG_DWORD_BIG_ENDIAN"/>
+      <xs:enumeration value="REG_EXPAND_SZ"/>
+      <xs:enumeration value="REG_LINK"/>
+      <xs:enumeration value="REG_MULTI_SZ"/>
+      <xs:enumeration value="REG_NONE"/>
+      <xs:enumeration value="REG_QWORD"/>
+      <xs:enumeration value="REG_QWORD_LITTLE_ENDIAN"/>
+      <xs:enumeration value="REG_SZ"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="T_OnErrorItemType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Skip"/>
+      <xs:enumeration value="RaiseException"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="T_RegistryKeySecurityType">
+	  <xs:list itemType="T_RegistryKeySecurityItemType"></xs:list>
+	</xs:simpleType>
+
+  <xs:simpleType name="T_RegistryRootKeyItemType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HKEY_CLASSES_ROOT"/>
+      <xs:enumeration value="HKEY_CURRENT_CONFIG"/>
+      <xs:enumeration value="HKEY_CURRENT_USER"/>
+      <xs:enumeration value="HKEY_LOCAL_MACHINE"/>
+      <xs:enumeration value="HKEY_USERS"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="T_AbstractKey">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractProcessItem">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="proc:AbstractProcessItem"/>
+        </xs:sequence>
+        <xs:attribute name="Flags" type="T_RegistryKeySecurityType" use="optional"/>
+        <xs:attribute name="OnError" type="T_OnErrorItemType" use="optional"/>
+        <xs:attribute name="ReturnIdentifier" type="proc:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_OpenRootKey">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractKey">
+        <xs:attribute name="Root" type="T_RegistryRootKeyItemType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_AbstractNamedKey">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractKey">
+        <xs:attribute name="SubKeyExpression" type="proc:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_SetValue">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="ValueNameExpression" type="proc:expression" use="required"/>
+        <xs:attribute name="ValueExpression" type="proc:expression" use="required"/>
+        <xs:attribute name="DataType" type="T_DataTypeItemType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_GetValue">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="ValueNameExpression" type="proc:expression" use="required"/>
+        <xs:attribute name="ValueIdentifier" type="proc:identifier" use="required"/>
+        <xs:attribute name="DataType" type="T_DataTypeItemType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="OpenRootKey" type="T_OpenRootKey" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="OpenSubKey" type="T_AbstractNamedKey" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="CreateSubKey" type="T_AbstractNamedKey" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="SetValue" type="T_SetValue" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="GetValue" type="T_GetValue" substitutionGroup="proc:AbstractProcessItem"/>
+</xs:schema>

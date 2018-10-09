@@ -1,0 +1,668 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="BomStrings"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TConnectorSpec" Inherit="TComponentSpec" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmHandleLibSource" Override="true"/>
+      <VirtualMethod Identifier="vmHandleField" Override="true"/>
+      <VirtualMethod Identifier="vmCheckComponentKind" Override="true"/>
+      <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
+      <VirtualMethod Identifier="vmApplyTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <Field Identifier="PinsVT" Type="TValueType"/>
+      <Field Identifier="PinRowsLow" Type="Integer"/>
+      <Field Identifier="PinColsLow" Type="Integer"/>
+      <Field Identifier="PinRowsHigh" Type="Integer"/>
+      <Field Identifier="PinColsHigh" Type="Integer"/>
+      <Field Identifier="ErrorPins" Type="string"/>
+      <Field Identifier="AmperageRatingVT" Type="TValueType"/>
+      <Field Identifier="AmperageRating" Type="Int64"/>
+      <Field Identifier="ErrorAmperageRating" Type="string"/>
+    </DataClass>
+
+    <DataClass Identifier="TConnectorCategory" Inherit="TComponentCategory" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmCreateSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmIsValidSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCompareSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmLoadTemplatesFromIniFile" Override="true"/>
+      <VirtualMethod Identifier="vmGetTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile" Override="true"/>
+      <Field Identifier="TemplateConnector" Type="TConnectorSpec"/>
+    </DataClass>
+  </Type>
+
+  <Procedures>
+
+    <Function Identifier="StrValueToPins" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="Rows" Type="Integer" Direction="Output"/>
+        <Parameter Identifier="Cols" Type="Integer" Direction="Output"/>
+        <Parameter Identifier="RowsHigh" Type="Integer" Direction="Output"/>
+        <Parameter Identifier="ColsHigh" Type="Integer" Direction="Output"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TState" Elements="Start, InRows, AfterSep, InCols, Ended, AfterRangeSep1, AfterRangeSep2, InRowsHigh, AfterSepHigh, InColsHigh, EndedHigh"/>
+      </Type>
+      <Variables>
+        <Variable Identifier="State" Type="TState" Init="TState.Start"/>
+        <Variable Identifier="locRows" Type="Integer"/>
+        <Variable Identifier="locCols" Type="Integer"/>
+        <Variable Identifier="locRowsHigh" Type="Integer"/>
+        <Variable Identifier="locColsHigh" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <StringLoop StringValue="Value" OrdinalIdentifier="ChrI">
+          <Case Expression="State" Optimalisation="integermapping">
+            <On Select="TState.Start">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="' ', #9"/>
+                <On Select="'0'..'9'">
+                  <Execute Statement="locRows:= ChrI - CharOrd('0')"/>
+                  <Execute Statement="State:= TState.InRows"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.InRows">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locRows:= locRows * 10 + ChrI - CharOrd('0')"/>
+                </On>
+                <On Select="'x', 'X'">
+                  <Execute Statement="State:= TState.AfterSep"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterSep">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locCols:= ChrI - CharOrd('0')"/>
+                  <Execute Statement="State:= TState.InCols"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.InCols">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locCols:= locCols * 10 + ChrI - CharOrd('0')"/>
+                </On>
+                <On Select="'.'">
+                  <Execute Statement="State:= TState.AfterRangeSep1"/>
+                </On>
+                <On Select="' ', #9">
+                  <Execute Statement="State:= TState.Ended"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterRangeSep1">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'.'">
+                  <Execute Statement="State:= TState.AfterRangeSep2"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterRangeSep2">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locRowsHigh:= ChrI - CharOrd('0')"/>
+                  <Execute Statement="State:= TState.InRowsHigh"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.InRowsHigh">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locRowsHigh:= locRowsHigh * 10 + ChrI - CharOrd('0')"/>
+                </On>
+                <On Select="'x', 'X'">
+                  <Execute Statement="State:= TState.AfterSepHigh"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterSepHigh">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locColsHigh:= ChrI - CharOrd('0')"/>
+                  <Execute Statement="State:= TState.InColsHigh"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.InColsHigh">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locColsHigh:= locColsHigh * 10 + ChrI - CharOrd('0')"/>
+                </On>
+                <On Select="' ', #9">
+                  <Execute Statement="State:= TState.EndedHigh"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.Ended, TState.EndedHigh">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="' ', #9"/>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+          </Case>
+        </StringLoop>
+        <Case Expression="State" Optimalisation="integermapping">
+          <On Select="TState.InCols, TState.Ended">
+            <Execute Statement="RowsHigh:= locRows"/>
+            <Execute Statement="ColsHigh:= locCols"/>
+          </On>
+          <On Select="TState.InColsHigh, TState.EndedHigh">
+            <Execute Statement="RowsHigh:= locRowsHigh"/>
+            <Execute Statement="ColsHigh:= locColsHigh"/>
+          </On>
+          <Otherwise>
+            <Exit/>
+          </Otherwise>
+        </Case>
+        <Execute Statement="Result:= True"/>
+        <Execute Statement="Rows:= locRows"/>
+        <Execute Statement="Cols:= locCols"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="LibSourcePartToPins" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="Rows" Type="Integer" Direction="Output"/>
+        <Parameter Identifier="Cols" Type="Integer" Direction="Output"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TState" Elements="Start, AfterConn_1C, AfterConn_2o, AfterConn_3n, AfterConn_4n, AfterConn_sep, InRows, AfterSep, InCols, Ended"/>
+      </Type>
+      <Variables>
+        <Variable Identifier="State" Type="TState" Init="TState.Start"/>
+        <Variable Identifier="locRows" Type="Integer"/>
+        <Variable Identifier="locCols" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <StringLoop StringValue="Value" OrdinalIdentifier="ChrI" CharacterIdentifier="Chr">
+          <Case Expression="State" Optimalisation="integermapping">
+            <On Select="TState.Start">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'C'"/>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+              <Execute Statement="State:= TState.AfterConn_1C"/>
+            </On>
+            <On Select="TState.AfterConn_1C">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'o'"/>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+              <Execute Statement="State:= TState.AfterConn_2o"/>
+            </On>
+            <On Select="TState.AfterConn_2o">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'n'"/>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+              <Execute Statement="State:= TState.AfterConn_3n"/>
+            </On>
+            <On Select="TState.AfterConn_3n">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'n'"/>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+              <Execute Statement="State:= TState.AfterConn_4n"/>
+            </On>
+            <On Select="TState.AfterConn_4n">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'_'"/>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+              <Execute Statement="State:= TState.AfterConn_sep"/>
+            </On>
+            <On Select="TState.AfterConn_sep">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locRows:= ChrI - CharOrd('0')"/>
+                  <Execute Statement="State:= TState.InRows"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.InRows">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locRows:= locRows + ChrI - CharOrd('0')"/>
+                </On>
+                <On Select="'x', 'X'">
+                  <Execute Statement="State:= TState.AfterSep"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterSep">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locCols:= ChrI - CharOrd('0')"/>
+                  <Execute Statement="State:= TState.InCols"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.InCols">
+              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                <On Select="'0'..'9'">
+                  <Execute Statement="locCols:= locCols + ChrI - CharOrd('0')"/>
+                </On>
+                <On Select="'_'">
+                  <Execute Statement="State:= TState.Ended"/>
+                  <Break/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+          </Case>
+        </StringLoop>
+        <Case Expression="State" Optimalisation="integermapping">
+          <On Select="TState.InCols, TState.Ended"/>
+          <Otherwise>
+            <Exit/>
+          </Otherwise>
+        </Case>
+        <Execute Statement="Result:= True"/>
+        <Execute Statement="Rows:= locRows"/>
+        <Execute Statement="Cols:= locCols"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TConnectorSpec.HandleLibSource" VirtualMethod="vmHandleLibSource">
+      <Parameters>
+        <Parameter Identifier="LibAttrib" Type="IXMLDomAttribute"/>
+        <Parameter Identifier="PartAttrib" Type="IXMLDomAttribute"/>
+        <Parameter Identifier="DescriptionAttrib" Type="IXMLDomAttribute"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="LocComponentKind" Type="TComponentKind" Init="TComponentKind.ckComponent"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+        <Variable Identifier="LocPinRows" Type="Integer"/>
+        <Variable Identifier="LocPinCols" Type="Integer"/>
+        <Variable Identifier="LocPinRowsHigh" Type="Integer"/>
+        <Variable Identifier="LocPinColsHigh" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Execute Statement="inherited HandleLibSource(LibAttrib, PartAttrib, DescriptionAttrib)"/>
+        <Choose>
+          <When Expression="LibSourcePartToPins(PartAttrib.Text, LocPinRows, LocPinCols)">
+            <Execute Statement="PinsVT:= TValueType.vtSpecified"/>
+            <Execute Statement="PinRowsLow:= LocPinRows"/>
+            <Execute Statement="PinColsLow:= LocPinCols"/>
+            <Execute Statement="PinRowsHigh:= LocPinRows"/>
+            <Execute Statement="PinColsHigh:= LocPinCols"/>
+            <rep:Reporter.Information Text="Format('Pins: %.2dx%.2d', LocPinRows, LocPinCols)" Condition="IsVerbose"/>
+          </When>
+          <Otherwise>
+            <rep:Reporter.Error Text="Format('Pins could not be safely parsed from value: %s', PartAttrib.Text)" Condition="IsVerbose"/>
+            <Execute Statement="PinsVT:= TValueType.vtError"/>
+            <Execute Statement="ErrorPins:= PartAttrib.Text"/>
+          </Otherwise>
+        </Choose>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TConnectorSpec.CheckComponentKind" VirtualMethod="vmCheckComponentKind" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="ComponentKind" Optimalisation="integermapping">
+          <On Select="TComponentKind.ckConnector">
+            <Execute Statement="Result:= True"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TConnectorSpec.DoesMatchSpecification" VirtualMethod="vmDoesMatchSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
+        <Case Expression="PinsVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Exit Condition="not (ComponentSpec is TConnectorSpec)"/>
+            <Case Expression="TConnectorSpec(ComponentSpec).PinsVT">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Exit Condition="PinRowsLow &lt; TConnectorSpec(ComponentSpec).PinRowsLow"/>
+                <Exit Condition="PinColsLow &lt; TConnectorSpec(ComponentSpec).PinColsLow"/>
+                <Exit Condition="PinRowsHigh &gt; TConnectorSpec(ComponentSpec).PinRowsHigh"/>
+                <Exit Condition="PinColsHigh &gt; TConnectorSpec(ComponentSpec).PinColsHigh"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="AmperageRatingVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Exit Condition="not (ComponentSpec is TConnectorSpec)"/>
+            <Case Expression="TConnectorSpec(ComponentSpec).AmperageRatingVT">
+              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <Exit Condition="AmperageRating &gt; TConnectorSpec(ComponentSpec).AmperageRating"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TConnectorSpec.HandleField" VirtualMethod="vmHandleField">
+      <Parameters>
+        <Parameter Identifier="CustomField" Type="TCustomField"/>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="LocPinRowsLow" Type="Integer"/>
+        <Variable Identifier="LocPinColsLow" Type="Integer"/>
+        <Variable Identifier="LocPinRowsHigh" Type="Integer"/>
+        <Variable Identifier="LocPinColsHigh" Type="Integer"/>
+        <Variable Identifier="LocAmperageRating" Type="Int64"/>
+      </Variables>
+      <Block>
+        <Case Expression="CustomField" Optimalisation="integermapping">
+          <On Select="TCustomField.cfPins">
+            <Choose>
+              <When Expression="StrValueToPins(Value, LocPinRowsLow, LocPinColsLow, LocPinRowsHigh, LocPinColsHigh)">
+                <Execute Statement="PinsVT:= TValueType.vtSpecified"/>
+                <Execute Statement="PinRowsLow:= LocPinRowsLow"/>
+                <Execute Statement="PinColsLow:= LocPinColsLow"/>
+                <Execute Statement="PinRowsHigh:= LocPinRowsHigh"/>
+                <Execute Statement="PinColsHigh:= LocPinColsHigh"/>
+                <rep:Reporter.Information Text="Format('Pins: %.2dx%.2d..%.2dx%.2d', LocPinRowsLow, LocPinColsLow, LocPinRowsHigh, LocPinColsHigh)" Condition="IsVerbose"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('Pins could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
+                <Execute Statement="PinsVT:= TValueType.vtError"/>
+                <Execute Statement="ErrorPins:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.cfAmperageRating">
+            <Choose>
+              <When Expression="StrToMicroAmps(Value, LocAmperageRating)">
+                <rep:Reporter.Information Text="Format('AmperageRating: %s', FormatMicroAmp(LocAmperageRating))" Condition="IsVerbose"/>
+                <Execute Statement="AmperageRatingVT:= TValueType.vtSpecified"/>
+                <Execute Statement="AmperageRating:= LocAmperageRating"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('AmperageRating could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
+                <Execute Statement="AmperageRatingVT:= TValueType.vtError"/>
+                <Execute Statement="ErrorAmperageRating:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <Otherwise>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TConnectorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Variables>
+        <Variable Identifier="LocPins" Type="string" Init="''"/>
+        <Variable Identifier="LocAmperageRating" Type="string" Init="''"/>
+      </Variables>
+      <Block>
+        <Case Expression="PinsVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="LocPins:= ''"/>
+          </On>
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Choose>
+              <When Expression="(PinRowsLow = PinRowsHigh) and (PinColsLow = PinColsHigh)">
+                <Execute Statement="LocPins:= Format('%.2dx%.2d', PinRowsLow, PinColsLow)"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="LocPins:= Format('%.2dx%.2d..%.2dx%.2d', PinRowsLow, PinColsLow, PinRowsHigh, PinColsHigh)"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Execute Statement="LocPins:= '{pins:' + ErrorPins + '}'"/>
+          </On>
+        </Case>
+
+        <Case Expression="AmperageRatingVT">
+          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+            <Execute Statement="LocAmperageRating:= FormatMicroAmp(AmperageRating)"/>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Execute Statement="LocAmperageRating:= '{amp:' + ErrorAmperageRating + '}'"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Format('%-13s %-36s %-10s', LocPins, LocAmperageRating, inherited SpecificationAsString)"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TConnectorSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
+      <Variables>
+        <Variable Identifier="locTemplate" Type="TConnectorSpec"/>
+      </Variables>
+      <Block>
+        <Exit Condition="not Assigned(Template)"/>
+        <Block Condition="Template is TConnectorSpec">
+          <Execute Statement="locTemplate:= TConnectorSpec(Template)"/>
+          <Case Expression="PinsVT" Optimalisation="integermapping">
+            <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+              <Case Expression="locTemplate.PinsVT" Optimalisation="integermapping">
+                <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                  <Execute Statement="PinRowsLow:= locTemplate.PinRowsLow"/>
+                  <Execute Statement="PinColsLow:= locTemplate.PinColsLow"/>
+                  <Execute Statement="PinRowsHigh:= locTemplate.PinRowsHigh"/>
+                  <Execute Statement="PinColsHigh:= locTemplate.PinColsHigh"/>
+                  <Execute Statement="PinsVT:= TValueType.vtSpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                  <Execute Statement="ErrorPins:= locTemplate.ErrorPins"/>
+                  <Execute Statement="PinsVT:= TValueType.vtErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+          <Case Expression="AmperageRatingVT" Optimalisation="integermapping">
+            <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+              <Case Expression="locTemplate.AmperageRatingVT" Optimalisation="integermapping">
+                <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                  <Execute Statement="AmperageRating:= locTemplate.AmperageRating"/>
+                  <Execute Statement="AmperageRatingVT:= TValueType.vtSpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                  <Execute Statement="ErrorAmperageRating:= locTemplate.ErrorAmperageRating"/>
+                  <Execute Statement="AmperageRatingVT:= TValueType.vtErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+        </Block>
+        <Execute Statement="inherited ApplyTemplate"/>
+      </Block>
+    </Procedure>
+
+
+    <Procedure Identifier="TConnectorCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="sSectionConnectors" Type="string" Expression="'Template.Connectors'"/>
+      </Constants>
+      <Block>
+        <ConditionalBlock Expression="IniFile.SectionExists(sSectionConnectors)">
+          <Execute Statement="TemplateConnector:= TConnectorSpec.Create"/>
+          <Execute Statement="TemplateConnector.LoadFromIniFileSection(IniFile, sSectionConnectors)"/>
+        </ConditionalBlock>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TConnectorCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
+      <Block>
+        <Execute Statement="Result:= TConnectorSpec.Create"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TConnectorCategory.IsValidSpecification" VirtualMethod="vmIsValidSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Specification.ComponentKindVT">
+          <On Select="TValueType.vtSpecified, TValueType.vtSpecifiedByTemplate"/>
+          <Otherwise>
+            <Exit Result="False"/>
+          </Otherwise>
+        </Case>
+        <Case Expression="Specification.ComponentKind">
+          <On Select="TComponentKind.ckConnector"/>
+          <Otherwise>
+            <Exit Result="False"/>
+          </Otherwise>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TConnectorCategory.GetTemplate" VirtualMethod="vmGetTemplate" Type="TComponentSpec">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ObjNil"/>
+        <Case Expression="Specification.ComponentKind">
+          <On Select="TComponentKind.ckConnector">
+            <Execute Statement="Result:= TemplateConnector"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TConnectorCategory.CompareSpecifications" Type="Integer" VirtualMethod="vmCompareSpecifications">
+      <Parameters>
+        <Parameter Identifier="A" Type="TConnectorSpec"/>
+        <Parameter Identifier="B" Type="TConnectorSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.PinRowsLow, A.PinsVT, B.ID, B.PinRowsLow, B.PinsVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.PinColsLow, A.PinsVT, B.ID, B.PinColsLow, B.PinsVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.PinRowsHigh, A.PinsVT, B.ID, B.PinRowsHigh, B.PinsVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.PinColsHigh, A.PinsVT, B.ID, B.PinColsHigh, B.PinsVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TConnectorCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="cConnector" Type="string" Expression="'Connector'"/>
+      </Constants>
+      <Block>
+        <Execute Statement="Result:= IniFile.SectionExists(cConnector)"/>
+        <Block Condition="Result">
+          <Execute Statement="ComponentSpec:= TConnectorSpec.Create"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cConnector)"/>
+        </Block>
+      </Block>
+    </Function>
+
+  </Procedures>
+
+</pkg:Library>

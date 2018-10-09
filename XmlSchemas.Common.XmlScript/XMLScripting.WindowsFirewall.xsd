@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall" elementFormDefault="qualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+  <xs:complexType name="T_Rule.Create">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="LocalAppPackageId" type="proc:expression" use="optional"/>
+        <xs:attribute name="LocalUserOwner" type="proc:expression" use="optional"/>
+        <xs:attribute name="LocalUserAuthorizedList" type="proc:expression" use="optional"/>
+        <xs:attribute name="RemoteUserAuthorizedList" type="proc:expression" use="optional"/>
+        <xs:attribute name="RemoteMachineAuthorizedList" type="proc:expression" use="optional"/>
+        <xs:attribute name="SecureFlags" type="proc:expression" use="optional"/>
+        <xs:attribute name="EdgeTraversalOptions" type="proc:expression" use="optional"/>
+        <xs:attribute name="Name" type="proc:expression" use="required"/>
+        <xs:attribute name="Description" type="proc:expression" use="optional"/>
+        <xs:attribute name="ApplicationName" type="proc:expression" use="optional"/>
+        <xs:attribute name="serviceName" type="proc:expression" use="optional"/>
+        <xs:attribute name="Protocol" type="proc:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>NET_FW_IP_PROTOCOL_TCP, NET_FW_IP_PROTOCOL_UDP, NET_FW_IP_PROTOCOL_ANY</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="LocalPorts" type="proc:expression" use="optional"/>
+        <xs:attribute name="RemotePorts" type="proc:expression" use="optional"/>
+        <xs:attribute name="LocalAddresses" type="proc:expression" use="optional"/>
+        <xs:attribute name="RemoteAddresses" type="proc:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>LocalSubnet,ipadress etc</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="IcmpTypesAndCodes" type="proc:expression" use="optional"/>
+        <xs:attribute name="Direction" type="proc:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>NET_FW_RULE_DIR_IN, NET_FW_RULE_DIR_OUT</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="Interfaces" type="proc:expression" use="optional"/>
+        <xs:attribute name="InterfaceTypes" type="proc:expression" use="optional"/>
+        <xs:attribute name="Enabled" type="proc:expression" use="optional"/>
+        <xs:attribute name="Grouping" type="proc:expression" use="optional"/>
+        <xs:attribute name="Profiles" type="proc:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>NET_FW_PROFILE2_DOMAIN, NET_FW_PROFILE2_PRIVATE, NET_FW_PROFILE2_PUBLIC, NET_FW_PROFILE2_ALL</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="EdgeTraversal" type="proc:expression" use="optional"/>
+        <xs:attribute name="Action" type="proc:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>NET_FW_ACTION_BLOCK, NET_FW_ACTION_ALLOW</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Rules.GetByName">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Name" type="proc:expression" use="required"/>
+        <xs:attribute name="ReturnValue" type="proc:identifier" use="optional"/>
+        <xs:attribute name="Rule" type="proc:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Rules.DeleteByName">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Name" type="proc:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Rules.Iterate">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalBlockProcessItem">
+        <xs:attribute name="Rule" type="proc:identifier" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="Rule.Create" type="T_Rule.Create" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Rules.Iterate" type="T_Rules.Iterate" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Rules.GetByName" type="T_Rules.GetByName" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Rules.DeleteByName" type="T_Rules.DeleteByName" substitutionGroup="proc:AbstractProcessItem"/>
+</xs:schema>
+
+

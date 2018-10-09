@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="BomStrings"/>
+    <Use Identifier="ResistorClasses"/>
+    <Use Identifier="CapacitorClasses"/>
+    <Use Identifier="InductorClasses"/>
+    <Use Identifier="ZenerDiodeClasses"/>
+    <Use Identifier="ConnectorClasses"/>
+    <Use Identifier="GenericComponentClasses"/>
+    <Use Identifier="StockManager"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TBillOfMaterials" DefaultConstructor="none">
+      <Field Identifier="Title" Type="string"/>
+      <Field Identifier="Resistors" Type="TResistorCategory"/>
+      <Field Identifier="Capacitors" Type="TCapacitorCategory"/>
+      <Field Identifier="Inductors" Type="TInductorCategory"/>
+      <Field Identifier="ZenerDiodes" Type="TZenerDiodeCategory"/>
+      <Field Identifier="Connectors" Type="TConnectorCategory"/>
+      <Field Identifier="GenericComponents" Type="TGenericComponentCategory"/>
+    </DataClass>
+  </Type>
+  <Procedures>
+    <Constructor Identifier="TBillOfMaterials.Create">
+      <Block>
+        <Execute Statement="Resistors:= TResistorCategory.Create"/>
+        <Execute Statement="Capacitors:= TCapacitorCategory.Create"/>
+        <Execute Statement="Inductors:= TInductorCategory.Create"/>
+        <Execute Statement="ZenerDiodes:= TZenerDiodeCategory.Create"/>
+        <Execute Statement="Connectors:= TConnectorCategory.Create"/>
+        <Execute Statement="GenericComponents:= TGenericComponentCategory.Create"/>
+      </Block>
+    </Constructor>
+
+    <Procedure Identifier="TBillOfMaterials.LoadTemplatesFromIniFile">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Resistors.LoadTemplatesFromIniFile(IniFile)"/>
+        <Execute Statement="Capacitors.LoadTemplatesFromIniFile(IniFile)"/>
+        <Execute Statement="Inductors.LoadTemplatesFromIniFile(IniFile)"/>
+        <Execute Statement="ZenerDiodes.LoadTemplatesFromIniFile(IniFile)"/>
+        <Execute Statement="Connectors.LoadTemplatesFromIniFile(IniFile)"/>
+        <Execute Statement="GenericComponents.LoadTemplatesFromIniFile(IniFile)"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TBillOfMaterials.ProcessComponentElement">
+      <Parameters>
+        <Parameter Identifier="Element" Type="IXMLDomElement" />
+        <Parameter Identifier="Reference" Type="string" />
+        <Parameter Identifier="ID" Type="Integer" />
+      </Parameters>
+      <Block>
+        <rep:Reporter.Information Text="Format('Component: %s', Reference)"  Markup="Header3" Condition="IsVerbose"/>
+        <Choose>
+          <When Expression="Resistors.ProcessSchemaXml(Element, Reference, ID)"/>
+          <When Expression="Capacitors.ProcessSchemaXml(Element, Reference, ID)"/>
+          <When Expression="Inductors.ProcessSchemaXml(Element, Reference, ID)"/>
+          <When Expression="ZenerDiodes.ProcessSchemaXml(Element, Reference, ID)"/>
+          <When Expression="Connectors.ProcessSchemaXml(Element, Reference, ID)"/>
+          <When Expression="GenericComponents.ProcessSchemaXml(Element, Reference, ID)"/>
+          <Otherwise>
+            <rep:Reporter.Error Text="Format('Component %s werd niet herkend', Reference)"/>
+          </Otherwise>
+        </Choose>
+        <rep:Reporter.Information Text="''" Condition="IsVerbose"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TBillOfMaterials.LoadFromFile">
+      <Parameters>
+        <Parameter Identifier="Filename" Type="string"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Document" Type="IXMLDOMDocument"/>
+        <Variable Identifier="Count" Type="Integer" Init="0"/>
+      </Variables>
+      <Block>
+        <rep:Reporter.Information Text="Format(sFilename, Filename)"/>
+        <msx:Document.Create Identifier="Document"/>
+        <msx:Document.LoadFromFile Document="Document" Filename="Filename"/>
+        <msx:Node.IterateChilds Node="Document">
+          <msx:OnElement baseName="'export'">
+            <msx:Block>
+              <msx:Node.IterateChilds Node="Node">
+                <msx:OnElement baseName="'design'">
+                  <msx:Block>
+                    <msx:Node.IterateChilds Node="Node">
+                      <msx:OnElement baseName="'sheet'">
+                        <msx:Block>
+                          <msx:Node.IterateChilds Node="Node">
+                            <msx:OnElement baseName="'title_block'">
+                              <msx:Block>
+                                <msx:Node.IterateChilds Node="Node">
+                                  <msx:OnElement baseName="'title'">
+                                    <msx:Block>
+                                      <Execute Statement="Title:= Node.Text"/>
+                                    </msx:Block>
+                                  </msx:OnElement>
+                                  <msx:OnOtherElement/>
+                                </msx:Node.IterateChilds>
+                              </msx:Block>
+                            </msx:OnElement>
+                            <msx:OnOtherElement/>
+                          </msx:Node.IterateChilds>
+                        </msx:Block>
+                      </msx:OnElement>
+                      <msx:OnOtherElement/>
+                    </msx:Node.IterateChilds>
+                  </msx:Block>
+                </msx:OnElement>
+                <msx:OnElement baseName="'components'">
+                  <msx:Block>
+                    <msx:Node.IterateChilds Node="Node">
+                      <msx:OnElement baseName="'comp'">
+                        <msx:Attribute baseName="'ref'" Required="true"/>
+                        <msx:Block>
+                          <Execute Statement="Count:= Count + 1"/>
+                          <Execute Statement="ProcessComponentElement(Node, Ref.Text, Count)"/>
+                        </msx:Block>
+                      </msx:OnElement>
+                    </msx:Node.IterateChilds>
+                  </msx:Block>
+                </msx:OnElement>
+                <msx:OnOtherElement>
+                </msx:OnOtherElement>
+              </msx:Node.IterateChilds>
+              <ExitOnAbortRequest/>
+            </msx:Block>
+          </msx:OnElement>
+        </msx:Node.IterateChilds>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TBillOfMaterials.ConsolidateSpecifications">
+      <Block>
+        <Execute Statement="Resistors.ConsolidateSpecifications"/>
+        <Execute Statement="Capacitors.ConsolidateSpecifications"/>
+        <Execute Statement="Inductors.ConsolidateSpecifications"/>
+        <Execute Statement="ZenerDiodes.ConsolidateSpecifications"/>
+        <Execute Statement="Connectors.ConsolidateSpecifications"/>
+        <Execute Statement="GenericComponents.ConsolidateSpecifications"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TBillOfMaterials.Report">
+      <Parameters>
+        <Parameter Identifier="Count" Type="Integer"/>
+      </Parameters>
+      <Block>
+        <rep:Reporter.Information Text="sBOMHeader" Markup="Header1"/>
+        <rep:Reporter.Information Text="Format(sTitleField, Title)"/>
+        <rep:Reporter.Information Text="Format(sCountField, Count)"/>
+
+        <Execute Statement="Resistors.ReportSchema(Count)"/>
+        <Execute Statement="Capacitors.ReportSchema(Count)"/>
+        <Execute Statement="Inductors.ReportSchema(Count)"/>
+        <Execute Statement="ZenerDiodes.ReportSchema(Count)"/>
+        <Execute Statement="Connectors.ReportSchema(Count)"/>
+        <Execute Statement="GenericComponents.ReportSchema(Count)"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TBillOfMaterials.AssignStockComponents">
+      <Parameters>
+        <Parameter Identifier="StockManager" Type="TStockManager"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Resistors.AssignStockSpecsFromCategory(StockManager.Resistors)"/>
+        <Execute Statement="Capacitors.AssignStockSpecsFromCategory(StockManager.Capacitors)"/>
+        <Execute Statement="Inductors.AssignStockSpecsFromCategory(StockManager.Capacitors)"/>
+        <Execute Statement="ZenerDiodes.AssignStockSpecsFromCategory(StockManager.ZenerDiodes)"/>
+        <Execute Statement="Connectors.AssignStockSpecsFromCategory(StockManager.Connectors)"/>
+        <Execute Statement="GenericComponents.AssignStockSpecsFromCategory(StockManager.GenericComponents)"/>
+      </Block>
+    </Procedure>
+
+  </Procedures>
+</pkg:Library>

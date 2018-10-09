@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-linkedlist" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-linkedlist" elementFormDefault="qualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+  <xs:complexType name="TLinkedList.MergeSort">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Head" type="proc:identifier" use="required"/>
+        <xs:attribute name="ItemType" type="proc:typeidentifier" use="required"/>
+        <!--Expression that results in next of a object, Item.Next  -->
+        <xs:attribute name="Next" type="proc:expression" use="required"/>
+        <!--Expression that results wether itemA is lesser or equal to ItemB, ItemA.Key <= ItemB.Key  -->
+        <xs:attribute name="IsInOrder" type="proc:expression" use="required"/>
+        <!--Expression that results the comparision of 2 items, CompareInt64(ItemA.Key, ItemB.Key)  -->
+        <xs:attribute name="LinkUp" type="proc:statement" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LinkedList.MergeSort" type="TLinkedList.MergeSort" substitutionGroup="proc:AbstractProcessItem"/>
+</xs:schema>

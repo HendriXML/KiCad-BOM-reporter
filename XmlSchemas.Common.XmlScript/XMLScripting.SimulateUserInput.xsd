@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting"
+           targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput" elementFormDefault="qualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+  
+  <xs:complexType name="T_AbstractSendInput">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="BO" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_Wait">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Time" type="proc:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_WindowTemplate">
+    <xs:sequence>
+      <xs:element name="Window" type="T_WindowTemplate" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="WindowTextMask" type="xs:string" use="optional"/>
+    <xs:attribute name="WindowClassMask" type="xs:string" use="optional"/>
+    <xs:attribute name="WindowsHandle" type="xs:string" use="optional"/>
+    <xs:attribute name="Required" type="xs:boolean" use="optional"/>
+    <xs:attribute name="SkipChildren" type="xs:boolean" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="T_RootTemplate">
+    <xs:complexContent>
+      <xs:extension base="T_WindowTemplate">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_WindowTemplateConfig">
+    <xs:sequence>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="T_WindowIteration">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:sequence minOccurs="1" maxOccurs="1">
+          <xs:element name="MatchWindow" minOccurs="1" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence minOccurs="1" maxOccurs="1">
+                <xs:element name="Window" type="T_RootTemplate" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Block" type="proc:T_Block" minOccurs="1" maxOccurs="1"/>
+              </xs:sequence>
+              <xs:attribute name="Condition" type="proc:expression" use="optional"/>
+              <xs:attribute name="AfterMatchCondition" type="proc:expression" use="optional"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Otherwise" type="proc:T_Block" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="AfterIteration" type="proc:T_Block" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="ThreadID" type="proc:identifier" use="optional"/>
+        <xs:attribute name="ProcessID" type="proc:identifier" use="optional"/>
+        <xs:attribute name="Handle" type="proc:identifier" use="optional"/>
+        <xs:attribute name="WindowClassname" type="proc:identifier" use="optional"/>
+        <xs:attribute name="WindowText" type="proc:identifier" use="optional"/>
+        <xs:attribute name="IsWindowVisible" type="proc:identifier" use="optional"/>
+        <xs:attribute name="FilterThreadID" type="proc:expression" use="optional"/>
+        <xs:attribute name="FilterActiveOnly" type="proc:expression" use="optional"/>
+        <xs:attribute name="FilterShowingOnly" type="proc:expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_WaitForIdleTimeOut">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Handle" type="proc:expression" use="required"/>
+        <xs:attribute name="Time" type="proc:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_ReportWindowTree">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Handle" type="proc:expression" use="required"/>
+        <xs:attribute name="Output" type="proc:identifier" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_WaitForWindow">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Handle" type="proc:expression" use="required"/>
+        <xs:attribute name="Timeout" type="proc:expression" use="required"/>
+        <xs:attribute name="Output" type="proc:identifier" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_PasteToWindow">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Text" type="proc:expression" use="optional"/>
+        <xs:attribute name="Handle" type="proc:expression" use="required"/>
+        <xs:attribute name="Timeout" type="proc:expression" use="required"/>
+        <xs:attribute name="Output" type="proc:identifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_SetForegroundWindow">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Handle" type="proc:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_CtrlV">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractSendInput">
+        <xs:attribute name="Text" type="proc:expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_Key">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractSendInput">
+        <xs:attribute name="VK" type="proc:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_Text">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractSendInput">
+        <xs:attribute name="Text" type="proc:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_SendBuffer">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractSendInput">
+        <xs:attribute name="Clear" type="proc:expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_CreateBuffer">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractSendInput">
+        <xs:attribute name="Identifier" type="proc:identifier" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_Mouse">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractSendInput">
+        <xs:attribute name="Handle" type="proc:expression" use="optional"/>
+        <xs:attribute name="XPos" type="proc:expression" use="optional"/>
+        <xs:attribute name="YPos" type="proc:expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_CopyTextToClipboard">
+    <xs:complexContent>
+      <xs:extension base="proc:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Text" type="proc:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:element name="Wait" type="T_Wait" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="WindowIteration" type="T_WindowIteration" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="WindowTemplateConfig" type="T_WindowTemplateConfig"/>
+  <xs:element name="Beep" type="proc:T_AbstractConditionalProcessItem" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="WaitForIdleTimeOut" type="T_WaitForIdleTimeOut" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="CtrlV" type="T_CtrlV" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="SendBuffer" type="T_SendBuffer" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="CreateBuffer" type="T_CreateBuffer" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="KeyDown" type="T_Key" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="KeyUp" type="T_Key" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="KeyPress" type="T_Key" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Text" type="T_Text" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Enter" type="T_AbstractSendInput" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="Tab" type="T_AbstractSendInput" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="ReportWindowTree" type="T_ReportWindowTree" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="SetForegroundWindow" type="T_SetForegroundWindow" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="WaitForWindow" type="T_WaitForWindow" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="PasteToWindow" type="T_PasteToWindow" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="MouseLeftClick" type="T_Mouse" substitutionGroup="proc:AbstractProcessItem"/>
+  <xs:element name="CopyTextToClipboard" type="T_CopyTextToClipboard" substitutionGroup="proc:AbstractProcessItem"/>
+
+</xs:schema>
