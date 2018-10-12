@@ -14,7 +14,7 @@
   xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
   xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages">
   <sys:Type>
-    <Enumeration Identifier="TPrefix" Elements="pfTera, pfGiga, pfMega, pfKilo, pfNone, pfMili, pfMicro, pfNano, pfPico, pfFemto"/>
+    <Enumeration Identifier="TPrefix" Elements="pfTera, pfGiga, pfMega, pfKilo, pfNone, pfMilli, pfMicro, pfNano, pfPico, pfFemto"/>
     <Enumeration Identifier="TDisplayUnitType" Elements="duMicroVoltage, duMicroAmp, duMicroResistance, duFemtoCapacitance, duFemtoInductance, duMicroPercentage, duMicroPower"/>
     <Enumeration Identifier="TFactorType" Elements="ftFemto, ftMicro, ftMicroAsSingle"/>
 
@@ -32,20 +32,42 @@
     <Constant Identifier="CopperResistivity" Type="Extended" Expression="1.75E-8"/>
     <Constant Identifier="nano" Type="Extended" Expression="1/1000000000"/>
     <Constant Identifier="micro" Type="Extended" Expression="1/1000000"/>
-    <Constant Identifier="mili" Type="Extended" Expression="1/1000"/>
+    <Constant Identifier="Milli" Type="Extended" Expression="1/1000"/>
     <Constant Identifier="k" Type="Integer" Expression="1000"/>
     <Constant Identifier="M" Type="Integer" Expression="1000 * k"/>
     <Constant Identifier="G" Type="Integer" Expression="1000 * M"/>
-    <Constant Identifier="cFemto" Type="Char" Expression="'f'"/>
-    <Constant Identifier="cPico" Type="Char" Expression="'p'"/>
-    <Constant Identifier="cNano" Type="Char" Expression="'n'"/>
-    <Constant Identifier="cMicro" Type="Char" Expression="'µ'"/>
-    <Constant Identifier="cMicroAlt" Type="Char" Expression="'u'"/>
-    <Constant Identifier="cMili" Type="Char" Expression="'m'"/>
-    <Constant Identifier="cKilo" Type="Char" Expression="'k'"/>
-    <Constant Identifier="cMega" Type="Char" Expression="'M'"/>
-    <Constant Identifier="cGiga" Type="Char" Expression="'G'"/>
+
+    <Constant Identifier="cYotta" Type="Char" Expression="'Y'"/>
+    <Constant Identifier="cZetta" Type="Char" Expression="'Z'"/>
+    <Constant Identifier="cExa" Type="Char" Expression="'E'"/>
+    <Constant Identifier="cPeta" Type="Char" Expression="'P'"/>
     <Constant Identifier="cTera" Type="Char" Expression="'T'"/>
+    <Constant Identifier="cGiga" Type="Char" Expression="'G'"/>
+    <Constant Identifier="cMega" Type="Char" Expression="'M'"/>
+    <Constant Identifier="cKilo" Type="Char" Expression="'k'"/>
+    <Constant Identifier="cHecto" Type="Char" Expression="'h'"/>
+    <Constant Identifier="cDeca" Type="string" Expression="'da'"/>
+    <Constant Identifier="cDeci" Type="Char" Expression="'d'"/>
+    <Constant Identifier="cCenti" Type="Char" Expression="'c'"/>
+    <Constant Identifier="cMilli" Type="Char" Expression="'m'"/>
+    <Constant Identifier="cMicro" Type="Char" Expression="'μ'"/>
+    <Constant Identifier="cMicroAlt" Type="Char" Expression="'µ'"/>
+    <Constant Identifier="cMicroAlt2" Type="Char" Expression="'u'"/>
+    <Constant Identifier="cNano" Type="Char" Expression="'n'"/>
+    <Constant Identifier="cPico" Type="Char" Expression="'p'"/>
+    <Constant Identifier="cFemto" Type="Char" Expression="'f'"/>
+    <Constant Identifier="cAtto" Type="Char" Expression="'a'"/>
+    <Constant Identifier="cZepto" Type="Char" Expression="'z'"/>
+    <Constant Identifier="cYocto" Type="Char" Expression="'y'"/>
+    <Constant Identifier="cKibi" Type="string" Expression="'Ki'"/>
+    <Constant Identifier="cMebi" Type="string" Expression="'Mi'"/>
+    <Constant Identifier="cGibi" Type="string" Expression="'Gi'"/>
+    <Constant Identifier="cTebi" Type="string" Expression="'Ti'"/>
+    <Constant Identifier="cPebi" Type="string" Expression="'Pi'"/>
+    <Constant Identifier="cExbi" Type="string" Expression="'Ei'"/>
+    <Constant Identifier="cZebi" Type="string" Expression="'Zi'"/>
+    <Constant Identifier="cYobi" Type="string" Expression="'Yi'"/>    
+    
     <Constant Identifier="cOhm" Type="Char" Expression="'Ω'"/>
     <Constant Identifier="cWatt" Type="Char" Expression="'W'"/>
     <Constant Identifier="cFarad" Type="Char" Expression="'F'"/>
@@ -55,8 +77,8 @@
     <Constant Identifier="cPerc" Type="Char" Expression="'%'"/>
 
     <Constant Identifier="facMicroToMicro" Type="Int64" Expression="1"/>
-    <Constant Identifier="facMiliToMicro" Type="Int64" Expression="k*facMicroToMicro"/>
-    <Constant Identifier="facToMicro" Type="Int64" Expression="k*facMiliToMicro"/>
+    <Constant Identifier="facMilliToMicro" Type="Int64" Expression="k*facMicroToMicro"/>
+    <Constant Identifier="facToMicro" Type="Int64" Expression="k*facMilliToMicro"/>
     <Constant Identifier="facKiloToMicro" Type="Int64" Expression="k*facToMicro"/>
     <Constant Identifier="facMegaToMicro" Type="Int64" Expression="k*facKiloToMicro"/>
     <Constant Identifier="facGigaToMicro" Type="Int64" Expression="k*facMegaToMicro"/>
@@ -65,8 +87,8 @@
     <Constant Identifier="facPicoToFemto" Type="Int64" Expression="k*facFemtoToFemto"/>
     <Constant Identifier="facNanoToFemto" Type="Int64" Expression="k*facPicoToFemto"/>
     <Constant Identifier="facMicroToFemto" Type="Int64" Expression="k*facNanoToFemto"/>
-    <Constant Identifier="facMiliToFemto" Type="Int64" Expression="k*facMicroToFemto"/>
-    <Constant Identifier="facToFemto" Type="Int64" Expression="k*facMiliToFemto"/>
+    <Constant Identifier="facMilliToFemto" Type="Int64" Expression="k*facMicroToFemto"/>
+    <Constant Identifier="facToFemto" Type="Int64" Expression="k*facMilliToFemto"/>
     <Constant Identifier="facKiloToFemto" Type="Int64" Expression="k*facToFemto"/>
   </Constants>
   <sys:Variables>
@@ -227,9 +249,9 @@
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToMicro"/>
+                  <Execute Statement="Factor:= facMilliToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
                 <On Select="',', '.'">
@@ -316,9 +338,9 @@
                   <Execute Statement="Factor:= facKiloToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToMicro"/>
+                  <Execute Statement="Factor:= facMilliToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
                 <Otherwise>
@@ -347,7 +369,7 @@
                 <Execute Statement="CheckMicroValue:= Num * Factor"/>
               </When>
               <Otherwise>
-                <WhileLoop Expression="(Frac mod 10) = 0">
+                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
                   <Execute Statement="Frac:= Frac div 10"/>
                   <Execute Statement="FracDiv:= FracDiv div 10"/>
                 </WhileLoop>
@@ -416,9 +438,9 @@
                   <Execute Statement="Factor:= facKiloToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToMicro"/>
+                  <Execute Statement="Factor:= facMilliToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
                 <On Select="',', '.'">
@@ -512,9 +534,9 @@
                   <Execute Statement="Factor:= facKiloToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToMicro"/>
+                  <Execute Statement="Factor:= facMilliToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
                 <Otherwise>
@@ -543,7 +565,7 @@
                 <Execute Statement="CheckMicroValue:= Num * Factor"/>
               </When>
               <Otherwise>
-                <WhileLoop Expression="(Frac mod 10) = 0">
+                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
                   <Execute Statement="Frac:= Frac div 10"/>
                   <Execute Statement="FracDiv:= FracDiv div 10"/>
                 </WhileLoop>
@@ -623,12 +645,12 @@
                   <Execute Statement="Factor:= facKiloToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToMicro"/>
+                  <Execute Statement="Factor:= facMilliToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMicro, cMicroAlt">
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <Execute Statement="Factor:= facMicroToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
@@ -682,12 +704,12 @@
                   <Execute Statement="Factor:= facKiloToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToMicro"/>
+                  <Execute Statement="Factor:= facMilliToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMicro, cMicroAlt">
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <Execute Statement="Factor:= facMicroToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
@@ -729,7 +751,7 @@
                 <Execute Statement="CheckMicroValue:= Num * Factor"/>
               </When>
               <Otherwise>
-                <WhileLoop Expression="(Frac mod 10) = 0">
+                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
                   <Execute Statement="Frac:= Frac div 10"/>
                   <Execute Statement="FracDiv:= FracDiv div 10"/>
                 </WhileLoop>
@@ -810,12 +832,12 @@
                   <Execute Statement="Factor:= facKiloToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToMicro"/>
+                  <Execute Statement="Factor:= facMilliToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMicro, cMicroAlt">
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <Execute Statement="Factor:= facMicroToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
@@ -869,12 +891,12 @@
                   <Execute Statement="Factor:= facKiloToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToMicro"/>
+                  <Execute Statement="Factor:= facMilliToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMicro, cMicroAlt">
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <Execute Statement="Factor:= facMicroToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
@@ -916,7 +938,7 @@
                 <Execute Statement="CheckMicroValue:= Num * Factor"/>
               </When>
               <Otherwise>
-                <WhileLoop Expression="(Frac mod 10) = 0">
+                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
                   <Execute Statement="Frac:= Frac div 10"/>
                   <Execute Statement="FracDiv:= FracDiv div 10"/>
                 </WhileLoop>
@@ -995,12 +1017,12 @@
                   <Execute Statement="Factor:= facKiloToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToMicro"/>
+                  <Execute Statement="Factor:= facMilliToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMicro, cMicroAlt">
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <Execute Statement="Factor:= facMicroToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
@@ -1054,12 +1076,12 @@
                   <Execute Statement="Factor:= facKiloToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToMicro"/>
+                  <Execute Statement="Factor:= facMilliToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMicro, cMicroAlt">
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <Execute Statement="Factor:= facMicroToMicro"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
@@ -1101,7 +1123,7 @@
                 <Execute Statement="CheckMicroValue:= Num * Factor"/>
               </When>
               <Otherwise>
-                <WhileLoop Expression="(Frac mod 10) = 0">
+                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
                   <Execute Statement="Frac:= Frac div 10"/>
                   <Execute Statement="FracDiv:= FracDiv div 10"/>
                 </WhileLoop>
@@ -1226,7 +1248,7 @@
                 <Execute Statement="CheckMicroValue:= Num * Factor"/>
               </When>
               <Otherwise>
-                <WhileLoop Expression="(Frac mod 10) = 0">
+                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
                   <Execute Statement="Frac:= Frac div 10"/>
                   <Execute Statement="FracDiv:= FracDiv div 10"/>
                 </WhileLoop>
@@ -1296,12 +1318,12 @@
                   <Execute Statement="Factor:= facKiloToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToFemto"/>
+                  <Execute Statement="Factor:= facMilliToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMicro, cMicroAlt">
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <Execute Statement="Factor:= facMicroToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
@@ -1360,12 +1382,12 @@
                   <Execute Statement="Factor:= facKiloToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToFemto"/>
+                  <Execute Statement="Factor:= facMilliToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMicro, cMicroAlt">
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <Execute Statement="Factor:= facMicroToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
@@ -1422,7 +1444,7 @@
                 <Execute Statement="CheckFemtoValue:= Num * Factor"/>
               </When>
               <Otherwise>
-                <WhileLoop Expression="(Frac mod 10) = 0">
+                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
                   <Execute Statement="Frac:= Frac div 10"/>
                   <Execute Statement="FracDiv:= FracDiv div 10"/>
                 </WhileLoop>
@@ -1491,12 +1513,12 @@
                   <Execute Statement="Factor:= facKiloToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToFemto"/>
+                  <Execute Statement="Factor:= facMilliToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMicro, cMicroAlt">
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <Execute Statement="Factor:= facMicroToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
@@ -1555,12 +1577,12 @@
                   <Execute Statement="Factor:= facKiloToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMili">
+                <On Select="cMilli">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMiliToFemto"/>
+                  <Execute Statement="Factor:= facMilliToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
                 </On>
-                <On Select="cMicro, cMicroAlt">
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="State:= TState.stAfterPrefix"/>
                   <Execute Statement="Factor:= facMicroToFemto"/>
                   <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
@@ -1617,7 +1639,7 @@
                 <Execute Statement="CheckFemtoValue:= Num * Factor"/>
               </When>
               <Otherwise>
-                <WhileLoop Expression="(Frac mod 10) = 0">
+                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
                   <Execute Statement="Frac:= Frac div 10"/>
                   <Execute Statement="FracDiv:= FracDiv div 10"/>
                 </WhileLoop>
@@ -1704,7 +1726,7 @@
         <Case Expression="UnitType" Optimalisation="integermapping">
           <On Select="TDisplayUnitType.duFemtoCapacitance">
             <Case Expression="Prefix" Optimalisation="integermapping">
-              <On Select="TPrefix.pfMili">
+              <On Select="TPrefix.pfMilli">
                 <Choose>
                   <When Expression="NumValue &gt;= 100">
                     <Execute Statement="Factor:= Factor * k"/>
@@ -1754,8 +1776,8 @@
           <On Select="TPrefix.pfNone">
             <Execute Statement="Result:= Result + UnitS"/>
           </On>
-          <On Select="TPrefix.pfMili">
-            <Execute Statement="Result:= Result + cMili + UnitS"/>
+          <On Select="TPrefix.pfMilli">
+            <Execute Statement="Result:= Result + cMilli + UnitS"/>
           </On>
           <On Select="TPrefix.pfMicro">
             <Execute Statement="Result:= Result + cMicro + UnitS"/>
@@ -1860,7 +1882,7 @@
           <When Expression="(Value &gt;= 1) or (Value &lt;= -1)">
             <Execute Statement="Prefix:= ''"/>
           </When>
-          <When Expression="((Value &gt;= mili) or (Value &lt;= -mili)) and not IsCapacitance">
+          <When Expression="((Value &gt;= Milli) or (Value &lt;= -Milli)) and not IsCapacitance">
             <Execute Statement="Prefix:= 'm'"/>
             <Execute Statement="Value:= Value * 1000"/>
           </When>
