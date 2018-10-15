@@ -324,6 +324,9 @@
     </Procedure>
 
     <Function Identifier="TCapacitorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+      </Parameters>
       <Variables>
         <Variable Identifier="LocCapacitance" Type="string" Init="''"/>
         <Variable Identifier="LocVoltageRating" Type="string" Init="''"/>
@@ -370,10 +373,15 @@
             <Execute Statement="LocTechnology:= '{tech:' + ErrorTechnology + '}'"/>
           </On>
         </Case>
-        <Execute Statement="Result:= Format('%6s %6s %3s %-12s', LocCapacitance, LocVoltageRating, LocTolerance, LocTechnology)"/>
-        <!--<Execute Statement="LocComponent:= inherited SpecificationAsString"/>
-        <Execute Statement="Result:= Result + ' ' + LocComponent" Condition="LocComponent &lt;&gt; ''"/>-->
-        <Execute Statement="Result:= Format('%-50s %-10s', Result, inherited SpecificationAsString)"/>
+        <Case Expression="FormatType" Optimalisation="integermapping">
+          <On Select="TSpecFormatType.Fixed">
+            <Execute Statement="Result:= Format('%6s %6s %3s %-12s', LocCapacitance, LocVoltageRating, LocTolerance, LocTechnology)"/>
+            <Execute Statement="Result:= Format('%-50s %-10s', Result, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+          </On>
+          <On Select="TSpecFormatType.Compressed">
+            <Execute Statement="Result:= ConcatExt(' ', True, LocCapacitance, LocVoltageRating, LocTolerance, LocTechnology, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+          </On>
+        </Case>
       </Block>
     </Function>
 

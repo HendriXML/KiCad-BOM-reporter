@@ -194,6 +194,9 @@
     </Procedure>
 
     <Function Identifier="TZenerDiodeSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+      </Parameters>
       <Variables>
         <Variable Identifier="LocZenerVoltage" Type="string" Init="''"/>
         <Variable Identifier="LocPowerRating" Type="string" Init="''"/>
@@ -230,10 +233,15 @@
             <Execute Statement="LocTolerance:= '{tol:' + ErrorTolerance + '}'"/>
           </On>
         </Case>
-        <Execute Statement="Result:= Format('%6s %6s %3s %-12s', LocZenerVoltage, LocPowerRating, LocTolerance, '')"/>
-        <!--<Execute Statement="LocComponent:= inherited SpecificationAsString"/>
-        <Execute Statement="Result:= Result + ' ' + LocComponent" Condition="LocComponent &lt;&gt; ''"/>-->
-        <Execute Statement="Result:= Format('%-50s %-10s', Result, inherited SpecificationAsString)"/>
+        <Case Expression="FormatType" Optimalisation="integermapping">
+          <On Select="TSpecFormatType.Fixed">
+            <Execute Statement="Result:= Format('%6s %6s %3s %-12s', LocZenerVoltage, LocPowerRating, LocTolerance, '')"/>
+            <Execute Statement="Result:= Format('%-50s %-10s', Result, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+          </On>
+          <On Select="TSpecFormatType.Compressed">
+            <Execute Statement="Result:= ConcatExt(' ', True, LocZenerVoltage, LocPowerRating, LocTolerance, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+          </On>
+        </Case>
       </Block>
     </Function>
 

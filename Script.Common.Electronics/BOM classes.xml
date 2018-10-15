@@ -34,6 +34,8 @@
     <Enumeration Identifier="TFootprint" Elements="THT, SMD"/>
 
     <Enumeration Identifier="TDeepSearchstate" Elements="None, Running, Done"/>
+    
+    <Enumeration Identifier="TSpecFormatType" Elements="Fixed, Compressed"/>
 
     <DataClass Identifier="TSchemaComponent" DefaultConstructor="none">
       <Field Identifier="Reference" Type="string"/>
@@ -125,7 +127,9 @@
     </DataClass>
 
   </Type>
-
+  <Constants>
+    <Constant Identifier="sUnitName" Type="string" Expression="'BOM classes.xml'"/>
+  </Constants>
   <Variables>
     <Variable Identifier="SymbolComponentKindIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
     <Variable Identifier="CustomFieldsIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
@@ -180,7 +184,7 @@
       </Block>
     </Function>
 
-    <Function Identifier="FootprintAsString" Type="string">
+    <Function Identifier="FootprintAsString" Type="string" IsDeterministic="true">
       <Parameters>
         <Parameter Identifier="Footprint" Type="TFootprint"/>
       </Parameters>
@@ -195,6 +199,56 @@
           </On>
           <Otherwise>
             <Execute Statement="Result:= sFootprintNamingMissing"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="ComponentKindAsString" Type="string" IsDeterministic="true">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Case Expression="ComponentKind" Optimalisation="integermapping">
+          <On Select="TComponentKind.ckComponent">
+            <Execute Statement="Result:= sComponentHeader"/>
+          </On>
+          <On Select="TComponentKind.ckOpAmp">
+            <Execute Statement="Result:= sOpAmpHeader"/>
+          </On>
+          <On Select="TComponentKind.ckConnector">
+            <Execute Statement="Result:= sConnectorHeader"/>
+          </On>
+          <On Select="TComponentKind.ckResistor">
+            <Execute Statement="Result:= sResistorHeader"/>
+          </On>
+          <On Select="TComponentKind.ckVariableResistor">
+            <Execute Statement="Result:= sVariableResistorHeader"/>
+          </On>
+          <On Select="TComponentKind.ckCapacitor">
+            <Execute Statement="Result:= sCapacitorHeader"/>
+          </On>
+          <On Select="TComponentKind.ckPolarisedCapacitor">
+            <Execute Statement="Result:= sPolarisedCapacitorHeader"/>
+          </On>
+          <On Select="TComponentKind.ckInductor">
+            <Execute Statement="Result:= sInductorHeader"/>
+          </On>
+          <On Select="TComponentKind.ckDiode">
+            <Execute Statement="Result:= sDiodeHeader"/>
+          </On>
+          <On Select="TComponentKind.ckZenerDiode">
+            <Execute Statement="Result:= sZenerDiodeHeader"/>
+          </On>
+          <On Select="TComponentKind.ckBipolarJunctionTransitor">
+            <Execute Statement="Result:= sBipolarJunctionTransitorHeader"/>
+          </On>
+          <On Select="TComponentKind.ckFieldEffectTransitor">
+            <Execute Statement="Result:= sFieldEffectTransitor"/>
+          </On>
+          <Otherwise>
+            <Execute Statement="Result:= Format(sUnknownComponentKind, ComponentKind)"/>
+            <rep:Reporter.Error Text="Format(sMissingComponentKindMapping, sUnitName, 'ComponentKindAsString', ComponentKind)"/>
           </Otherwise>
         </Case>
       </Block>
@@ -463,6 +517,9 @@
     </Function>
 
     <Function Identifier="TComponentSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+      </Parameters>
       <Variables>
         <Variable Identifier="NeedsSep" Type="Boolean" Init="False"/>
       </Variables>
@@ -766,47 +823,7 @@
         <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
       </Parameters>
       <Block>
-        <Case Expression="ComponentKind" Optimalisation="integermapping">
-          <On Select="TComponentKind.ckComponent">
-            <rep:Reporter.Information Text="sComponentHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckOpAmp">
-            <rep:Reporter.Information Text="sOpAmpHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckConnector">
-            <rep:Reporter.Information Text="sConnectorHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckResistor">
-            <rep:Reporter.Information Text="sResistorHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckVariableResistor">
-            <rep:Reporter.Information Text="sVariableResistorHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckCapacitor">
-            <rep:Reporter.Information Text="sCapacitorHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckPolarisedCapacitor">
-            <rep:Reporter.Information Text="sPolarisedCapacitorHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckInductor">
-            <rep:Reporter.Information Text="sInductorHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckDiode">
-            <rep:Reporter.Information Text="sDiodeHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckZenerDiode">
-            <rep:Reporter.Information Text="sZenerDiodeHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckBipolarJunctionTransitor">
-            <rep:Reporter.Information Text="sBipolarJunctionTransitorHeader" Markup="Header2"/>
-          </On>
-          <On Select="TComponentKind.ckFieldEffectTransitor">
-            <rep:Reporter.Information Text="sFieldEffectTransitor" Markup="Header2"/>
-          </On>
-          <Otherwise>
-            <rep:Reporter.Error Text="sMissingComponentHeader" Target="Errors"/>
-          </Otherwise>
-        </Case>
+        <rep:Reporter.Information Text="ComponentKindAsString(ComponentKind)" Markup="Header2"/>
       </Block>
     </Procedure>
 
@@ -885,7 +902,7 @@
           <Execute Statement="DoSeperate:= True"/>
         </WhileLoop>
         <!--<rep:Reporter.Information Text="Format('%d', Spec.ID)"/>-->
-        <rep:Reporter.Information Text="Format('%3dx %s (%s)', TotCount, Spec.SpecificationAsString, ComponentDesignators)"/>
+        <rep:Reporter.Information Text="Format('%3dx %s (%s)', TotCount, Spec.SpecificationAsString(TSpecFormatType.Fixed), ComponentDesignators)"/>
       </Block>
     </Procedure>
 
@@ -913,7 +930,7 @@
           <Execute Statement="DoSeperate:= True"/>
         </WhileLoop>
         <!--<rep:Reporter.Information Text="Format('%d', Spec.ID)"/>-->
-        <rep:Reporter.Information Text="Format('%3dx %s (%s)', TotCount, Spec.SpecificationAsString, ComponentDesignators)" Markup="Header4"/>
+        <rep:Reporter.Information Text="Format('%3dx %s (%s)', TotCount, Spec.SpecificationAsString(TSpecFormatType.Fixed), ComponentDesignators)" Markup="Header4"/>
         <Execute Statement="RunningSpecLink:= Spec.MatchedSpecLinkHead"/>
         <WhileLoop Expression="Assigned(RunningSpecLink)">
           <Execute Statement="ReportStockComponents(RunningSpecLink.StockComponentSpec)"/>
@@ -1161,7 +1178,7 @@
               <Execute Statement="RunningComponentValue:= RunningComponentValue.Next"/>
             </WhileLoop>
             <ConditionalBlock Expression="IsValidSpecification(Specification)">
-              <rep:Reporter.Information Text="'Valid:' + Specification.SpecificationAsString" Condition="IsVerbose"/>
+              <rep:Reporter.Information Text="'Valid:' + Specification.SpecificationAsString(TSpecFormatType.Compressed)" Condition="IsVerbose"/>
               <Execute Statement="Result:= True"/>
               <Execute Statement="Specification.ID:= ID"/>
               <Execute Statement="Specification.StockComponentHead:= StockComponent"/>

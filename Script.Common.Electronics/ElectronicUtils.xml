@@ -200,7 +200,7 @@
         <Variable Identifier="Frac" Type="UInt64"/>
         <Variable Identifier="FracValue" Type="UInt64"/>
         <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" AllowErrors="true"/>
+        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>
@@ -403,7 +403,7 @@
         <Variable Identifier="Frac" Type="UInt64"/>
         <Variable Identifier="FracValue" Type="UInt64"/>
         <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" AllowErrors="true"/>
+        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>
@@ -600,7 +600,7 @@
         <Variable Identifier="Frac" Type="UInt64"/>
         <Variable Identifier="FracValue" Type="UInt64"/>
         <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" AllowErrors="true"/>
+        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>
@@ -787,7 +787,7 @@
         <Variable Identifier="Frac" Type="UInt64"/>
         <Variable Identifier="FracValue" Type="UInt64"/>
         <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" AllowErrors="true"/>
+        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>
@@ -972,7 +972,7 @@
         <Variable Identifier="Frac" Type="UInt64"/>
         <Variable Identifier="FracValue" Type="UInt64"/>
         <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" AllowErrors="true"/>
+        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>
@@ -1158,7 +1158,7 @@
         <Variable Identifier="Frac" Type="UInt64"/>
         <Variable Identifier="FracValue" Type="UInt64"/>
         <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" AllowErrors="true"/>
+        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>
@@ -1283,7 +1283,7 @@
         <Variable Identifier="Frac" Type="UInt64"/>
         <Variable Identifier="FracValue" Type="UInt64"/>
         <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckFemtoValue" Type="Int64" AllowErrors="true"/>
+        <Variable Identifier="CheckFemtoValue" Type="Int64" DisabledChecks="error"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>
@@ -1478,7 +1478,7 @@
         <Variable Identifier="Frac" Type="UInt64"/>
         <Variable Identifier="FracValue" Type="UInt64"/>
         <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckFemtoValue" Type="Int64" AllowErrors="true"/>
+        <Variable Identifier="CheckFemtoValue" Type="Int64" DisabledChecks="error"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>

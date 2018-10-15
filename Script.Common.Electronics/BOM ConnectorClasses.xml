@@ -488,6 +488,9 @@
     </Procedure>
 
     <Function Identifier="TConnectorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+      </Parameters>
       <Variables>
         <Variable Identifier="LocPins" Type="string" Init="''"/>
         <Variable Identifier="LocAmperageRating" Type="string" Init="''"/>
@@ -521,7 +524,14 @@
           </On>
         </Case>
 
-        <Execute Statement="Result:= Format('%-13s %-36s %-10s', LocPins, LocAmperageRating, inherited SpecificationAsString)"/>
+        <Case Expression="FormatType" Optimalisation="integermapping">
+          <On Select="TSpecFormatType.Fixed">
+            <Execute Statement="Result:= Format('%-13s %-36s %-10s', LocPins, LocAmperageRating, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+          </On>
+          <On Select="TSpecFormatType.Compressed">
+            <Execute Statement="Result:= ConcatExt(' ', True, LocPins, LocAmperageRating, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+          </On>
+        </Case>
       </Block>
     </Function>
 

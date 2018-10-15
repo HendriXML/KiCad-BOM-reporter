@@ -26,6 +26,7 @@
 BomFilename=F:\Software development\Constructie\FumeExtracter\eSchemas.Project\FumeExtracter.xml
 BomCount=1
 ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr
+ExportProjectID=?
 
 [Template.Resistor.THT]
 PowerRating = 250mW
@@ -67,56 +68,82 @@ Footprint = THT
     <Import Identifier="GenericComponentClasses" Filename="..\Script.Common.Electronics\BOM GenericComponentClasses.xml"/>
     <Import Identifier="StockManager" Filename="..\Script.Common.Electronics\BOM StockManager.xml"/>
     <Import Identifier="BillOfMaterialClass" Filename="..\Script.Common.Electronics\BOM BillOfMaterialClass.xml"/>
+    <Import Identifier="PartKeeprProjectExport" Filename="..\Script.Common.Electronics\BOM PartKeeprProjectExport.xml"/>
   </Imports>
   <Uses>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
     <Use Identifier="BillOfMaterialClass"/>
     <Use Identifier="StockManager"/>
+    <Use Identifier="PartKeeprProjectExport"/>
   </Uses>
   <Constants>
-    <Constant Identifier="connPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
+    <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
+    <Constant Identifier="secSettings" Type="string" Expression="'Settings'"/>
+    <Constant Identifier="keyBomFilename" Type="string" Expression="'BomFilename'"/>
+    <Constant Identifier="keyBomCount" Type="string" Expression="'BomCount'"/>
+    <Constant Identifier="keyConnectionString" Type="string" Expression="'ConnectionString'"/>
+    <Constant Identifier="keyExportProjectID" Type="string" Expression="'ExportProjectID'"/>
   </Constants>
   <Variables>
-    <Variable Identifier="ConnectionString" Type="string" Init="connPartKeepr"/>
+    <Variable Identifier="ConnectionString" Type="string" Init="connsPartKeepr"/>
     <Variable Identifier="BomFilename" Type="string" Init="''"/>
     <Variable Identifier="BomCountS" Type="string" Init="''"/>
     <Variable Identifier="BomCount" Type="Integer" Init="1"/>
     <Variable Identifier="BillOfMaterials" Type="TBillOfMaterials" Init="TBillOfMaterials.Create"/>
     <Variable Identifier="StockManager" Type="TStockManager" Init="TStockManager.Create"/>
+    <Variable Identifier="DBConnection" Type="Connection"/>
   </Variables>
   <Block>
     <Variable Identifier="StartTime" Type="Int64" Init="QueryPerformanceCounter" />
 
     <rep:Reporter.DefaultTarget Identifier="Info"/>
-    <Execute Statement="ConnectionString:= ConfigInifile.ReadString('Settings', 'ConnectionString', ConnectionString)"/>
-    <ConditionalBlock Expression="not CommandlineVariables.GetValue('BomFilename', BomFilename)">
-      <Execute Statement="BomFilename:= ConfigInifile.ReadString('Settings', 'BomFilename', BomFilename)"/>
+    <Execute Statement="ConnectionString:= ConfigInifile.ReadString(secSettings, keyConnectionString, ConnectionString)"/>
+    <ConditionalBlock Expression="not CommandlineVariables.GetValue(keyBomFilename, BomFilename)">
+      <Execute Statement="BomFilename:= ConfigInifile.ReadString(secSettings, keyBomFilename, BomFilename)"/>
     </ConditionalBlock>
     <Choose>
-      <When Expression="CommandlineVariables.GetValue('BomCount', BomCountS)" >
+      <When Expression="CommandlineVariables.GetValue(keyBomCount, BomCountS)" >
         <Execute Statement="BomCount:= StrToInt(BomCountS)"/>
       </When>
       <Otherwise>
-        <Execute Statement="BomCount:= ConfigInifile.ReadInteger('Settings', 'BomCount', BomCount)"/>
+        <Execute Statement="BomCount:= ConfigInifile.ReadInteger(secSettings, keyBomCount, BomCount)"/>
       </Otherwise>
     </Choose>
-    
-    <Execute Statement="StockManager.LoadFromDB(ConnectionString)"/>
-    <Execute Statement="StockManager.ConsolidateSpecifications"/>
-    <rep:Reporter.DefaultTarget Identifier="StockReport"/>
-    <Execute Statement="StockManager.Report"/>
-    
-    <rep:Reporter.DefaultTarget Identifier="Info"/>
-    
     <Execute Statement="BillOfMaterials.LoadTemplatesFromIniFile(ConfigInifile)"/>
     <Execute Statement="BillOfMaterials.LoadFromFile(BomFilename)"/>
     <Execute Statement="BillOfMaterials.ConsolidateSpecifications"/>
-    <Execute Statement="BillOfMaterials.AssignStockComponents(StockManager)"/>
-    <rep:Reporter.DefaultTarget Identifier="Report"/>
-    <Execute Statement="BillOfMaterials.Report(BomCount)"/>
+    <ado:Connection.OpenBlock ConnectionString="ConnectionString" Connection="DBConnection">
+      <Execute Statement="StockManager.LoadFromDB(DBConnection)"/>
+      <Execute Statement="StockManager.ConsolidateSpecifications"/>
+      <rep:Reporter.DefaultTarget Identifier="StockReport"/>
+      <Execute Statement="StockManager.Report"/>
+      <rep:Reporter.DefaultTarget Identifier="Info"/>
 
-    <Variable Identifier="EndTime" Type="Int64" Init="QueryPerformanceCounter" />
-    <rep:Reporter.Information Text="Format(sTimeMeasure, (EndTime-StartTime)/QueryPerformanceFrequency)" Target="Info"/>
+
+      <Execute Statement="BillOfMaterials.AssignStockComponents(StockManager)"/>
+      <rep:Reporter.DefaultTarget Identifier="Report"/>
+      <Execute Statement="BillOfMaterials.Report(BomCount)"/>
+
+      <Variable Identifier="EndTime" Type="Int64" Init="QueryPerformanceCounter" />
+      <rep:Reporter.Information Text="Format(sTimeMeasure, (EndTime-StartTime)/QueryPerformanceFrequency)" Target="Info"/>
+
+      <Block Condition="ConfigInifile.ValueExists(secSettings, keyExportProjectID)">
+        <rep:Reporter.DefaultTarget Identifier="Info"/>
+        <Variable Identifier="ExportProjectIDString" Type="string" Init="ConfigInifile.ReadString(secSettings, keyExportProjectID, '')"/>
+        <Choose>
+          <When Expression="ExportProjectIDString = '?'">
+            <Execute Statement="ReportPartKeeprProjects(DBConnection)"/>
+          </When>
+          <Otherwise>
+            <Variable Identifier="ExportProjectID" Type="Integer" Init="ConfigInifile.ReadInteger(secSettings, keyExportProjectID, -1)"/>
+            <Execute Statement="ExportToPartKeeprProject(DBConnection, BillOfMaterials, ExportProjectID)" Condition="ExportProjectID &lt;&gt; -1"/>
+            <ExitOnAbortRequest/>
+          </Otherwise>
+        </Choose>
+
+      </Block>
+    </ado:Connection.OpenBlock>
+
   </Block>
 </pkg:Program>

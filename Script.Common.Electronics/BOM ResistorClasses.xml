@@ -43,7 +43,7 @@
       <Field Identifier="Technology" Type="TResistorTechnology"/>
       <Field Identifier="ErrorTechnology" Type="string"/>
     </DataClass>
-    
+
     <DataClass Identifier="TResistanceSpecificationIndex" Inherit="TSpecificationIndex" DefaultConstructor="createandsetfields">
       <VirtualMethod Identifier="vmGetKey" Override="true"/>
     </DataClass>
@@ -266,6 +266,9 @@
     </Procedure>
 
     <Function Identifier="TResistorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+      </Parameters>
       <Variables>
         <Variable Identifier="LocResistance" Type="string" Init="''"/>
         <Variable Identifier="LocPowerRating" Type="string" Init="''"/>
@@ -275,9 +278,6 @@
       </Variables>
       <Block>
         <Case Expression="ResistanceVT">
-          <!--<On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
-            <Execute Statement="LocResistance:= '?Ω'"/>
-          </On>-->
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
             <Execute Statement="LocResistance:= FormatMicroOhm(Resistance)"/>
           </On>
@@ -312,10 +312,15 @@
             <Execute Statement="LocTechnology:= '{tech:' + ErrorTechnology + '}'"/>
           </On>
         </Case>
-        <Execute Statement="Result:= Format('%6s %6s %3s %-12s', LocResistance, LocPowerRating, LocTolerance, LocTechnology)"/>
-        <!--<Execute Statement="LocComponent:= inherited SpecificationAsString"/>
-        <Execute Statement="Result:= Result + ' ' + LocComponent" Condition="LocComponent &lt;&gt; ''"/>-->
-        <Execute Statement="Result:= Format('%-50s %-10s', Result, inherited SpecificationAsString)"/>
+        <Case Expression="FormatType" Optimalisation="integermapping">
+          <On Select="TSpecFormatType.Fixed">
+            <Execute Statement="Result:= Format('%6s %6s %3s %-12s', LocResistance, LocPowerRating, LocTolerance, LocTechnology)"/>
+            <Execute Statement="Result:= Format('%-50s %-10s', Result, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+          </On>
+          <On Select="TSpecFormatType.Compressed">
+            <Execute Statement="Result:= ConcatExt(' ', True, LocResistance, LocPowerRating, LocTolerance, LocTechnology, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+          </On>
+        </Case>
       </Block>
     </Function>
 
@@ -401,7 +406,7 @@
         <Execute Statement="Result:= TResistorSpec.Create"/>
       </Block>
     </Function>
-    
+
     <Function Identifier="TResistorCategory.IsValidSpecification" VirtualMethod="vmIsValidSpecification" Type="Boolean">
       <Parameters>
         <Parameter Identifier="Specification" Type="TComponentSpec"/>
@@ -495,7 +500,7 @@
         </ConditionalBlock>
       </Block>
     </Procedure>
-    
+
     <Function Identifier="TResistorCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
       <Parameters>
         <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
@@ -512,7 +517,7 @@
         </Block>
       </Block>
     </Function>
-    
+
   </Procedures>
 
   <Initialization>

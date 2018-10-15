@@ -93,6 +93,9 @@
     </Procedure>
 
     <Function Identifier="TGenericComponentSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+      </Parameters>
       <Variables>
         <Variable Identifier="LocValue" Type="string" Init="''"/>
         <Variable Identifier="LocInherited" Type="string" Init="''"/>
@@ -108,8 +111,15 @@
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
           </On>
         </Case>
-        <Execute Statement="LocInherited:= inherited SpecificationAsString"/>
-        <Execute Statement="Result:= Format('%-50s %-10s', LocValue, LocInherited)"/>
+        <Case Expression="FormatType" Optimalisation="integermapping">
+          <On Select="TSpecFormatType.Fixed">
+            <Execute Statement="LocInherited:= inherited SpecificationAsString(TSpecFormatType.Compressed)"/>
+            <Execute Statement="Result:= Format('%-50s %-10s', LocValue, LocInherited)"/>
+          </On>
+          <On Select="TSpecFormatType.Compressed">
+            <Execute Statement="Result:= ConcatExt(' ', True, LocValue, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+          </On>
+        </Case>
       </Block>
     </Function>
 

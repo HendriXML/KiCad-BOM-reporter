@@ -188,7 +188,7 @@
       </Block>
     </Procedure>
 
-    <Procedure Identifier="TStockManager.LoadCategories">
+    <Procedure Identifier="TStockManager.LoadFromDB">
       <Parameters>
         <Parameter Identifier="DBConnection" Type="Connection"/>
       </Parameters>
@@ -453,17 +453,6 @@
             </Object.Use>
           </Object.Use>
         </Object.Use>
-      </Block>
-    </Procedure>
-
-    <Procedure Identifier="TStockManager.LoadFromDB">
-      <Parameters>
-        <Parameter Identifier="ConnectionString" Type="string"/>
-      </Parameters>
-      <Block>
-        <ado:Connection.OpenBlock ConnectionString="ConnectionString" Connection="DBConnection">
-          <Execute Statement="LoadCategories(DBConnection)"/>
-        </ado:Connection.OpenBlock>
       </Block>
     </Procedure>
 

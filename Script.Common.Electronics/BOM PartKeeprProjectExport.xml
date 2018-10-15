@@ -1,0 +1,408 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="BomStrings"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="BillOfMaterialClass"/>
+  </Uses>
+  <Constants>
+    <Constant Identifier="cLF" Type="string"  Expression="#13#10"/>
+    <Constant Identifier="sqlInsertProjectPart"  Type="string" Expression="
+              'INSERT INTO ProjectPart' + cLF + 
+              '       (part_id, project_id, quantity, remarks, overageType,          lotNumber) ' + cLF + 
+              'VALUES (?,       ?,          ?,        ?,       &quot;absolute&quot;, &quot;&quot;)'"/>
+    <Constant Identifier="sqlDeleteProjectPart"  Type="string" Expression="
+              'DELETE FROM ProjectPart' + cLF + 
+              'WHERE id = ?'"/>
+    <Constant Identifier="sqlSelectProjectParts"  Type="string" Expression="
+              'SELECT id' + cLF + 
+              ',      part_id' + cLF + 
+              ',      quantity' + cLF + 
+              ',      remarks' + cLF + 
+              'FROM   ProjectPart' + cLF + 
+              'WHERE project_id = ?'"/>
+    <Constant Identifier="sqlSelectProjects"  Type="string" Expression="
+              'SELECT id' + cLF + 
+              ',      name' + cLF + 
+              ',      description' + cLF + 
+              'FROM   Project'"/>
+  </Constants>
+
+  <Procedures>
+
+    <Procedure Identifier="ReportPartKeeprProjects">
+      <Parameters>
+        <Parameter Identifier="DBConnection" Type="Connection"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="ID"/>
+        <Variable Identifier="Name"/>
+        <Variable Identifier="Description"/>
+        <Variable Identifier="DescriptionDisplayValue" Type="string"/>
+      </Variables>
+      <Block>
+        <rep:Reporter.Information Text="''"/>
+        <rep:Reporter.Information Text="sPartKeeprProjectsHeader" Markup="Header2"/>
+        <ado:Command.CreateBlock  CommandText="sqlSelectProjects" CommandType="adCmdText" Connection="DBConnection" Command="Command">
+          <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+            <ado:Recordset.Iterate>
+              <ado:Field.GetValue Name="id" Identifier="ID"/>
+              <ado:Field.GetValue Name="name" Identifier="Name"/>
+              <ado:Field.GetValue Name="description" Identifier="Description"/>
+              <Execute Statement="DescriptionDisplayValue:= IfElse(IsNull(Description), '', Description)"/>
+              <rep:Reporter.Information Text="Format('%d: %s - %s', ID, Name, Description)"/>
+            </ado:Recordset.Iterate>
+          </ado:Recordset.OpenBlock>
+        </ado:Command.CreateBlock>
+        <rep:Reporter.Information Text="''"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="ExportToPartKeeprProject">
+      <Parameters>
+        <Parameter Identifier="DBConnection" Type="Connection"/>
+        <Parameter Identifier="BillOfMaterials" Type="TBillOfMaterials"/>
+        <Parameter Identifier="ProjectID" Type="Integer"/>
+      </Parameters>
+      <Type>
+        <DataClass Identifier="TTaskObject">
+          <Field Identifier="Description" Type="string"/>
+          <Field Identifier="Next" Type="TTaskObject"/>
+        </DataClass>
+
+        <DataClass Identifier="TAddPartObject" Inherit="TTaskObject">
+          <Field Identifier="PartID" Type="Variant"/>
+          <Field Identifier="Quantity" Type="Integer"/>
+          <Field Identifier="Remarks" Type="string"/>
+        </DataClass>
+
+        <DataClass Identifier="TDeletePartObject" Inherit="TTaskObject">
+          <Field Identifier="ID" Type="Integer"/>
+        </DataClass>
+
+        <DataClass Identifier="TGroupObject" Inherit="TTaskObject">
+          <Field Identifier="FirstChild" Type="TTaskObject"/>
+        </DataClass>
+      </Type>
+
+      <Variables>
+        <Variable Identifier="cmdInsertProjectPart" Type="Command"/>
+        <Variable Identifier="cmdInsertProjectPart_part_id" Type="Parameter"/>
+        <Variable Identifier="cmdInsertProjectPart_project_id" Type="Parameter"/>
+        <Variable Identifier="cmdInsertProjectPart_quantity" Type="Parameter"/>
+        <Variable Identifier="cmdInsertProjectPart_remarks" Type="Parameter"/>
+        <Variable Identifier="cmdDeleteProjectPart" Type="Command"/>
+        <Variable Identifier="cmdDeleteProjectPart_id" Type="Parameter"/>
+        <Variable Identifier="AddComponentKindHead" Type="TGroupObject"/>
+        <Variable Identifier="AddComponentKindTail" Type="TGroupObject"/>
+        <Variable Identifier="DeletePartHead" Type="TDeletePartObject"/>
+        <Variable Identifier="DeletePartTail" Type="TDeletePartObject"/>
+        <Variable Identifier="ComponentKindGroup" Type="TGroupObject"/>
+        <Variable Identifier="AddRootGroup" Type="TGroupObject"/>
+        <Variable Identifier="DeleteRootGroup" Type="TGroupObject"/>
+      </Variables>
+      <Procedures>
+        <Procedure Identifier="ExportComponentCategory">
+          <Parameters>
+            <Parameter Identifier="Category" Type="TComponentCategory"/>
+          </Parameters>
+          <Variables>
+            <Variable Identifier="SchemaSpecHead" Type="TGroupObject" DisabledChecks="empty error dataloss"/>
+            <Variable Identifier="SchemaSpecTail" Type="TGroupObject"/>
+          </Variables>
+          <Procedures>
+            <Procedure Identifier="ExportSchemaComponents">
+              <Parameters>
+                <Parameter Identifier="Spec" Type="TComponentSpec"/>
+              </Parameters>
+              <Variables>
+                <Variable Identifier="AddPartHead" Type="TAddPartObject"/>
+                <Variable Identifier="AddPartTail" Type="TAddPartObject"/>
+              </Variables>
+              <Procedures>
+                <Procedure Identifier="ExportStockComponents">
+                  <Parameters>
+                    <Parameter Identifier="Spec" Type="TComponentSpec"/>
+                    <Parameter Identifier="SchemaCount" Type="Integer"/>
+                    <Parameter Identifier="Designators" Type="string"/>
+                  </Parameters>
+                  <Variables>
+                    <Variable Identifier="RunningComponent" Type="TStockComponent"/>
+                    <Variable Identifier="TotCount" Type="Integer" Init="0"/>
+                    <Variable Identifier="HasStock" Type="Boolean" Init="False"/>
+                    <Variable Identifier="AddPart" Type="TAddPartObject"/>
+                  </Variables>
+                  <Block>
+                    <Execute Statement="RunningComponent:= Spec.StockComponentHead"/>
+                    <WhileLoop Expression="Assigned(RunningComponent)">
+                      <Execute Statement="HasStock:= True"/>
+                      <Execute Statement="AddPart:= TAddPartObject.Create"/>
+                      <Execute Statement="AddPart.PartID := RunningComponent.ID"/>
+                      <Execute Statement="AddPart.Description := Format('%d x %s (#%d)', SchemaCount, Spec.SpecificationAsString(TSpecFormatType.Compressed), RunningComponent.ID)"/>
+                      <Execute Statement="AddPart.Quantity := SchemaCount"/>
+                      <Execute Statement="AddPart.Remarks := Designators"/>
+                      <Choose>
+                        <When Expression="IsEmpty(AddPartHead)">
+                          <Execute Statement="AddPartHead:= AddPart"/>
+                        </When>
+                        <Otherwise>
+                          <Execute Statement="AddPartTail.Next:= AddPart"/>
+                        </Otherwise>
+                      </Choose>
+                      <Execute Statement="AddPartTail:= AddPart"/>
+                      <Execute Statement="RunningComponent:= RunningComponent.Next"/>
+                    </WhileLoop>
+                  </Block>
+                </Procedure>
+              </Procedures>
+              <Variables>
+                <Variable Identifier="RunningComponent" Type="TSchemaComponent"/>
+                <Variable Identifier="TotCount" Type="Integer" Init="0"/>
+                <Variable Identifier="ComponentDesignators" Type="string" Init="''"/>
+                <Variable Identifier="DoSeperate" Type="Boolean" Init="False"/>
+                <Variable Identifier="RunningSpecLink" Type="TSpecificationLink"/>
+                <Variable Identifier="TaskObject" Type="TTaskObject"/>
+                <Variable Identifier="AddPart" Type="TAddPartObject"/>
+                <Variable Identifier="GroupObject" Type="TGroupObject"/>
+              </Variables>
+              <Block>
+                <Execute Statement="RunningComponent:= Spec.SchemaComponentHead"/>
+                <lil:LinkedList.MergeSort Head="RunningComponent" ItemType="TSchemaComponent" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA, ItemB) &lt;= 0"/>
+                <Execute Statement="Spec.SchemaComponentHead:= RunningComponent"/>
+                <WhileLoop Expression="Assigned(RunningComponent)">
+                  <Execute Statement="ComponentDesignators:= ComponentDesignators + ', '" Condition="DoSeperate"/>
+                  <Execute Statement="ComponentDesignators:= ComponentDesignators + RunningComponent.Reference"/>
+                  <Execute Statement="TotCount:= TotCount + 1"/>
+                  <Execute Statement="RunningComponent:= RunningComponent.Next"/>
+                  <Execute Statement="DoSeperate:= True"/>
+                </WhileLoop>
+                <!--<rep:Reporter.Information Text="Format('%d', Spec.ID)"/>-->
+                <Execute Statement="RunningSpecLink:= Spec.MatchedSpecLinkHead"/>
+                <WhileLoop Expression="Assigned(RunningSpecLink)">
+                  <Execute Statement="ExportStockComponents(RunningSpecLink.StockComponentSpec, TotCount, ComponentDesignators)"/>
+                  <Execute Statement="RunningSpecLink:= RunningSpecLink.Next"/>
+                </WhileLoop>
+                <Block Condition="IsEmpty(AddPartHead)">
+                  <Execute Statement="AddPartHead:= TAddPartObject.Create"/>
+                  <Execute Statement="AddPartHead.PartID := Null"/>
+                  <Execute Statement="AddPartHead.Description := Format(sUnmatched, TotCount)"/>
+                  <Execute Statement="AddPartHead.Quantity := TotCount"/>
+                  <Execute Statement="AddPartHead.Remarks := ComponentDesignators"/>
+                </Block>
+                <Execute Statement="GroupObject:= TGroupObject.Create"/>
+                <Execute Statement="GroupObject.Description := Format('%s (%s)', Spec.SpecificationAsString(TSpecFormatType.Compressed), ComponentDesignators)"/>
+                <Execute Statement="GroupObject.FirstChild := AddPartHead"/>
+                <Choose>
+                  <When Expression="IsEmpty(SchemaSpecHead)">
+                    <Execute Statement="SchemaSpecHead:= GroupObject"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="SchemaSpecTail.Next:= GroupObject"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="SchemaSpecTail:= GroupObject"/>
+              </Block>
+            </Procedure>
+          </Procedures>
+          <Variables>
+            <Variable Identifier="RunningSpec" Type="TComponentSpec" Init="Category.FComponentSpecHead"/>
+            <Variable Identifier="PrevComponentKind" Type="TComponentKind"/>
+          </Variables>
+          <Block>
+            <WhileLoop Expression="Assigned(RunningSpec)">
+              <Choose>
+                <When Expression="IsEmpty(PrevComponentKind)"/>
+                <When Expression="PrevComponentKind &lt;&gt; RunningSpec.ComponentKind">
+                  <Execute Statement="ComponentKindGroup:= TGroupObject.Create"/>
+                  <Execute Statement="ComponentKindGroup.Description:= ComponentKindAsString(PrevComponentKind)"/>
+                  <Execute Statement="ComponentKindGroup.FirstChild:= SchemaSpecHead"/>
+                  <Choose>
+                    <When Expression="IsEmpty(AddComponentKindHead)">
+                      <Execute Statement="AddComponentKindHead:= ComponentKindGroup"/>
+                    </When>
+                    <Otherwise>
+                      <Execute Statement="AddComponentKindTail.Next:= ComponentKindGroup"/>
+                    </Otherwise>
+                  </Choose>
+                  <Execute Statement="AddComponentKindTail:= ComponentKindGroup"/>
+                  <Execute Statement="SchemaSpecHead:= EmptyValue"/>
+                </When>
+              </Choose>
+              <Execute Statement="ExportSchemaComponents(RunningSpec)"/>
+              <Execute Statement="PrevComponentKind:= RunningSpec.ComponentKind"/>
+              <Execute Statement="RunningSpec:= RunningSpec.Next"/>
+            </WhileLoop>
+            <Block Condition="not IsEmpty(PrevComponentKind)">
+              <Execute Statement="ComponentKindGroup:= TGroupObject.Create"/>
+              <Execute Statement="ComponentKindGroup.Description:= ComponentKindAsString(PrevComponentKind)"/>
+              <Execute Statement="ComponentKindGroup.FirstChild:= SchemaSpecHead"/>
+              <Choose>
+                <When Expression="IsEmpty(AddComponentKindHead)">
+                  <Execute Statement="AddComponentKindHead:= ComponentKindGroup"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="AddComponentKindTail.Next:= ComponentKindGroup"/>
+                </Otherwise>
+              </Choose>
+              <Execute Statement="AddComponentKindTail:= ComponentKindGroup"/>
+            </Block>
+          </Block>
+        </Procedure>
+
+        <Procedure Identifier="ProcessExistingProjectComponents">
+          <Variables>
+            <Variable Identifier="ID"/>
+            <Variable Identifier="PartID"/>
+            <Variable Identifier="PartIdDisplayValue" Type="string"/>
+            <Variable Identifier="Quantity"/>
+            <Variable Identifier="Remarks"/>
+            <Variable Identifier="RemarksDisplayValue" Type="string"/>
+            <Variable Identifier="DeletePartObject" Type="TDeletePartObject"/>
+          </Variables>
+          <Block>
+            <ado:Command.CreateBlock  CommandText="sqlSelectProjectParts" CommandType="adCmdText" Connection="DBConnection" Command="Command">
+              <Execute Statement="Command.Prepared:= True"/>
+              <Execute Statement="Command.Parameters[0].Value:= ProjectID"/>
+              <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+                <ado:Recordset.Iterate>
+                  <ado:Field.GetValue Name="id" Identifier="ID"/>
+                  <ado:Field.GetValue Name="part_id" Identifier="PartID"/>
+                  <ado:Field.GetValue Name="quantity" Identifier="Quantity"/>
+                  <ado:Field.GetValue Name="remarks" Identifier="Remarks"/>
+                  <Execute Statement="DeletePartObject:= TDeletePartObject.Create"/>
+                  <Execute Statement="DeletePartObject.ID:= ID"/>
+                  <Execute Statement="PartIdDisplayValue:= IfElse(IsNull(PartID), '', Format('#%d', PartID))"/>
+                  <Execute Statement="RemarksDisplayValue:= IfElse(IsNull(Remarks), '', Remarks)"/>
+                  <Execute Statement="DeletePartObject.Description:= ConcatExt(' ', True, Format('%d x', Quantity), PartIdDisplayValue, RemarksDisplayValue, Format('(id: %d)', ID))"/>
+                  <Choose>
+                    <When Expression="IsEmpty(DeletePartHead)">
+                      <Execute Statement="DeletePartHead:= DeletePartObject"/>
+                    </When>
+                    <Otherwise>
+                      <Execute Statement="DeletePartTail.Next:= DeletePartObject"/>
+                    </Otherwise>
+                  </Choose>
+                  <Execute Statement="DeletePartTail:= DeletePartObject"/>
+                </ado:Recordset.Iterate>
+              </ado:Recordset.OpenBlock>
+            </ado:Command.CreateBlock>
+          </Block>
+        </Procedure>
+
+        <Task Identifier="GroupTask">
+          <Variables>
+            <Variable Identifier="InstanceObject" Type="TGroupObject" Init="Task.InstanceObject"/>
+            <Variable Identifier="RunningItem" Type="TTaskObject" Init="InstanceObject.FirstChild"/>
+          </Variables>
+          <Init>
+            <Task.Description Expression="InstanceObject.Description"/>
+            <WhileLoop Expression="Assigned(RunningItem)">
+              <Choose>
+                <When Expression="RunningItem is TGroupObject">
+                  <Task.AddDependency Task="GroupTask" InstanceObject="RunningItem"/>
+                </When>
+                <When Expression="RunningItem is TDeletePartObject">
+                  <Task.AddDependency Task="DeletePartTask" InstanceObject="RunningItem"/>
+                </When>
+                <When Expression="RunningItem is TAddPartObject">
+                  <Task.AddDependency Task="AddPartTask" InstanceObject="RunningItem"/>
+                </When>
+              </Choose>
+              <Execute Statement="RunningItem:= RunningItem.Next"/>
+            </WhileLoop>
+          </Init>
+        </Task>
+
+        <Task Identifier="AddPartTask">
+          <Variables>
+            <Variable Identifier="InstanceObject" Type="TAddPartObject" Init="Task.InstanceObject"/>
+          </Variables>
+          <Init>
+            <Task.Description Expression="Format(sAddPart, InstanceObject.Description)"/>
+          </Init>
+          <Block>
+            <sts:ShowStatus.Information Text="Format(sAddingPart, InstanceObject.Description)"/>
+            <Execute Statement="cmdInsertProjectPart_quantity.Value:= InstanceObject.Quantity"/>
+            <Execute Statement="cmdInsertProjectPart_remarks.Value:= InstanceObject.Remarks"/>
+            <Execute Statement="cmdInsertProjectPart_part_id.Value:= InstanceObject.PartID"/>
+            <ado:Command.Execute Command="cmdInsertProjectPart"/>
+          </Block>
+        </Task>
+
+        <Task Identifier="DeletePartTask">
+          <Variables>
+            <Variable Identifier="InstanceObject" Type="TDeletePartObject" Init="Task.InstanceObject"/>
+          </Variables>
+          <Init>
+            <Task.Description Expression="Format(sRemovePart, InstanceObject.Description)"/>
+          </Init>
+          <Block>
+            <sts:ShowStatus.Information Text="Format(sRemovingPart, InstanceObject.Description)"/>
+            <Execute Statement="cmdDeleteProjectPart_id.Value:= InstanceObject.ID"/>
+            <ado:Command.Execute Command="cmdDeleteProjectPart"/>
+          </Block>
+        </Task>
+      </Procedures>
+      <Block>
+        <Execute Statement="ProcessExistingProjectComponents"/>
+        <Execute Statement="DeleteRootGroup:= TGroupObject.Create"/>
+        <Execute Statement="DeleteRootGroup.Description:= sRemoveGroupHeader"/>
+        <Execute Statement="DeleteRootGroup.FirstChild:= DeletePartHead" Condition="not IsEmpty(DeletePartHead)"/>
+
+        <Execute Statement="ExportComponentCategory(BillOfMaterials.Resistors)"/>
+        <Execute Statement="ExportComponentCategory(BillOfMaterials.Capacitors)"/>
+        <Execute Statement="ExportComponentCategory(BillOfMaterials.Inductors)"/>
+        <Execute Statement="ExportComponentCategory(BillOfMaterials.ZenerDiodes)"/>
+        <Execute Statement="ExportComponentCategory(BillOfMaterials.Connectors)"/>
+        <Execute Statement="ExportComponentCategory(BillOfMaterials.GenericComponents)"/>
+        <Execute Statement="AddRootGroup:= TGroupObject.Create"/>
+        <Execute Statement="AddRootGroup.Description:= sAddGroupHeader"/>
+        <Execute Statement="AddRootGroup.FirstChild:= AddComponentKindHead" Condition="not IsEmpty(AddComponentKindHead)"/>
+
+
+        <ado:Command.CreateBlock CommandText="sqlInsertProjectPart" CommandType="adCmdText" Connection="DBConnection" Command="Command" >
+          <Execute Statement="cmdInsertProjectPart:= Command"/>
+          <Execute Statement="cmdInsertProjectPart.Prepared:= True"/>
+          <Execute Statement="cmdInsertProjectPart_part_id:= cmdInsertProjectPart.Parameters[0]"/>
+          <Execute Statement="cmdInsertProjectPart_project_id:= cmdInsertProjectPart.Parameters.Item[1]"/>
+          <Execute Statement="cmdInsertProjectPart_quantity:= cmdInsertProjectPart.Parameters.Item[2]"/>
+          <Execute Statement="cmdInsertProjectPart_remarks:= cmdInsertProjectPart.Parameters.Item[3]"/>
+          <Execute Statement="cmdInsertProjectPart_project_id.Value:= ProjectID"/>
+          <ado:Command.CreateBlock CommandText="sqlDeleteProjectPart" CommandType="adCmdText" Connection="DBConnection" Command="Command" >
+            <Execute Statement="cmdDeleteProjectPart:= Command"/>
+            <Execute Statement="cmdDeleteProjectPart.Prepared:= True"/>
+            <Execute Statement="cmdDeleteProjectPart_id:= cmdDeleteProjectPart.Parameters[0]"/>
+          </ado:Command.CreateBlock>
+          <sts:ShowStatus.Information Text="sProjectPartsTaskMsg"/>
+          <ExecuteTasks ExecutableTasksInSelectionOnly="False">
+            <Task Identifier="GroupTask" InstanceObject="DeleteRootGroup"/>
+            <Task Identifier="GroupTask" InstanceObject="AddRootGroup"/>
+            <SelectionSuspend>
+              <Resume.ResumeRequest/>
+              <Resume.BreakRequest IssueExit="True">
+                <sts:ShowStatus.Information Text="''"/>
+              </Resume.BreakRequest>
+            </SelectionSuspend>
+          </ExecuteTasks>
+          <sts:ShowStatus.Information Text="sDoneMsg"/>
+        </ado:Command.CreateBlock>
+      </Block>
+    </Procedure>
+  </Procedures>
+</pkg:Library>

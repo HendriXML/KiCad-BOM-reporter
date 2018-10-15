@@ -60,6 +60,16 @@
       <xs:enumeration value="createandsetfields"/>
     </xs:restriction>
   </xs:simpleType>
+  <xs:simpleType name="valuestatuschecktype">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="empty"/>
+      <xs:enumeration value="dataloss"/>
+      <xs:enumeration value="error"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="valuestatuschecks">
+    <xs:list itemType="valuestatuschecktype"></xs:list>
+  </xs:simpleType>
   <xs:simpleType name="typeidentifier">
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
@@ -278,7 +288,7 @@
         <xs:attribute name="Identifier" type="identifier" use="required"/>
         <xs:attribute name="Type" type="typeidentifier" use="optional"/>
         <xs:attribute name="Init" type="expression" use="optional"/>
-        <xs:attribute name="AllowErrors" type="xs:boolean" use="optional"/>
+        <xs:attribute name="DisabledChecks" type="valuestatuschecks" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -287,7 +297,7 @@
     <xs:attribute name="Identifier" type="identifier" use="required"/>
     <xs:attribute name="Type" type="typeidentifier" use="optional"/>
     <xs:attribute name="Init" type="expression" use="optional"/>
-    <xs:attribute name="AllowErrors" type="xs:boolean" use="optional"/>
+    <xs:attribute name="DisabledChecks" type="valuestatuschecks" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="T_Variables">
