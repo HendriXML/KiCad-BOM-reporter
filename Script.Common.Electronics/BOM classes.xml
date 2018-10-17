@@ -25,7 +25,7 @@
 
     <Enumeration Identifier="TComponentSpecConsolidateKind" Elements="Schema, Stock"/>
 
-    <Enumeration Identifier="TCustomField" Elements="cfUnknown, cfComponentKind, cfValue, cfFootprint, cfPartNumber, cfManufacturer, cfPowerRating, cfVoltageRating, cfAmperageRating, cfTolerance, cfTechnology, cfZenerVoltage, cfPins"/>
+    <Enumeration Identifier="TCustomField" Elements="cfUnknown, cfComponentKind, cfValue, cfFootprint, cfPartNumber, cfManufacturer, cfPowerRating, cfVoltageRating, cfAmperageRating, cfTolerance, cfTechnology, cfPins"/>
 
     <Enumeration Identifier="TValueType" Elements="vtUnspecified, vtCleared, vtClearedByTemplate, vtSpecified, vtSpecifiedByTemplate, vtError, vtErrorByTemplate"/>
 
@@ -1334,7 +1334,6 @@
         <inx:Index.MapValue Index="Index" Key="'AmperageRating'" Value="TCustomField.cfAmperageRating"/>
         <inx:Index.MapValue Index="Index" Key="'Tolerance'" Value="TCustomField.cfTolerance"/>
         <inx:Index.MapValue Index="Index" Key="'Technology'" Value="TCustomField.cfTechnology"/>
-        <inx:Index.MapValue Index="Index" Key="'ZenerVoltage'" Value="TCustomField.cfZenerVoltage"/>
         <inx:Index.MapValue Index="Index" Key="'Pins'" Value="TCustomField.cfPins"/>
       </Block>
     </Procedure>

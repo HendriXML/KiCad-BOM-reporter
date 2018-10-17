@@ -40,7 +40,7 @@
     <Constant Identifier="sComponentName" Type="string" Expression="'component'"/>
     <Constant Identifier="sOpAmpName" Type="string" Expression="'opamp'"/>
     <Constant Identifier="sConnectorName" Type="string" Expression="'connector'"/>
-    <Constant Identifier="sVariableResistorName" Type="string" Expression="'varistor'"/>
+    <Constant Identifier="sVariableResistorName" Type="string" Expression="'variabele weerstand'"/>
     <Constant Identifier="sCapacitorName" Type="string" Expression="'condensator'"/>
     <Constant Identifier="sInductorName" Type="string" Expression="'spoel'"/>
     <Constant Identifier="sBipolarJunctionTransitorName" Type="string" Expression="'transistors'"/>
