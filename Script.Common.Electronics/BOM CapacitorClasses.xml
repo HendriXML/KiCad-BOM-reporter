@@ -323,63 +323,116 @@
       </Block>
     </Procedure>
 
-    <Function Identifier="TCapacitorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+    <Procedure Identifier="TCapacitorSpec.GetSpecificationValues">
       <Parameters>
-        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="Value" Type="string" Direction="Output"/>
+        <Parameter Identifier="VoltageRating" Type="string" Direction="Output"/>
+        <Parameter Identifier="Tolerance" Type="string" Direction="Output"/>
+        <Parameter Identifier="Technology" Type="string" Direction="Output"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
       </Parameters>
-      <Variables>
-        <Variable Identifier="LocCapacitance" Type="string" Init="''"/>
-        <Variable Identifier="LocVoltageRating" Type="string" Init="''"/>
-        <Variable Identifier="LocTolerance" Type="string" Init="''"/>
-        <Variable Identifier="LocTechnology" Type="string" Init="''"/>
-        <Variable Identifier="LocComponent" Type="string" Init="''"/>
-      </Variables>
       <Block>
         <Case Expression="CapacitanceVT">
           <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
-            <Execute Statement="LocCapacitance:= '?F'"/>
+            <Execute Statement="Value:= ''"/>
           </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocCapacitance:= FormatFemtoFarad(Capacitance)"/>
+            <Execute Statement="Value:= FormatFemtoFarad(Self.Capacitance)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocCapacitance:= '{cap:' + ErrorCapacitance + '}'"/>
+            <Execute Statement="Value:= '!' + ErrorCapacitance + '!'"/>
           </On>
         </Case>
 
         <Case Expression="VoltageRatingVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="VoltageRating:= ''"/>
+          </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocVoltageRating:= FormatMicroVolt(VoltageRating)"/>
+            <Execute Statement="VoltageRating:= FormatMicroVolt(Self.VoltageRating)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocVoltageRating:= '{volt:' + ErrorVoltageRating + '}'"/>
+            <Execute Statement="VoltageRating:= '!' + ErrorVoltageRating + '!'"/>
           </On>
         </Case>
 
         <Case Expression="ToleranceVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="Tolerance:= ''"/>
+          </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocTolerance:= FormatMicroPercentage(Tolerance)"/>
+            <Execute Statement="Tolerance:= FormatMicroPercentage(Self.Tolerance)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocTolerance:= '{tol:' + ErrorTolerance + '}'"/>
+            <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
           </On>
         </Case>
 
         <Case Expression="TechnologyVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="Technology:= ''"/>
+          </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocTechnology:= CapacitorTechnologyAsString(Technology)"/>
+            <Execute Statement="Technology:= CapacitorTechnologyAsString(Self.Technology)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocTechnology:= '{tech:' + ErrorTechnology + '}'"/>
+            <Execute Statement="Technology:= '!' + ErrorTechnology + '!'"/>
           </On>
         </Case>
+
+        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TCapacitorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="ReportContext" Type="TSpecReportContext"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Value" Type="string" Init="''"/>
+        <Variable Identifier="VoltageRating" Type="string" Init="''"/>
+        <Variable Identifier="Tolerance" Type="string" Init="''"/>
+        <Variable Identifier="Technology" Type="string" Init="''"/>
+        <Variable Identifier="Footprint" Type="string" Init="''"/>
+        <Variable Identifier="PartNumberModel" Type="string" Init="''"/>
+      </Variables>
+      <Block>
+        <Execute Statement="GetSpecificationValues(Value, VoltageRating, Tolerance, Technology, Footprint, PartNumberModel)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
-            <Execute Statement="Result:= Format('%6s %6s %3s %-12s', LocCapacitance, LocVoltageRating, LocTolerance, LocTechnology)"/>
-            <Execute Statement="Result:= Format('%-50s %-10s', Result, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+            <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
+            <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
+            <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
+            <Execute Statement="VoltageRating:= VoltageRating + ' '" Condition="VoltageRating &lt;&gt; ''"/>
+            <Execute Statement="Tolerance:= Tolerance + ' '" Condition="Tolerance &lt;&gt; ''"/>
+            <Execute Statement="Technology:= Technology + ' '" Condition="Technology &lt;&gt; ''"/>
+            <Execute Statement="Footprint:= Footprint + ' '" Condition="Footprint &lt;&gt; ''"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
+            <Choose>
+              <When Expression="ReportContext.Measure">
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.Value, 1, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.VoltageRating, 1, Length(VoltageRating))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.Tolerance, 1, Length(Tolerance))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.Technology, 1, Length(Technology))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.FootPrint, 1, Length(Footprint))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="Result:= ''"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= Format('%*s%*s%*s%-*s%-*s%-*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.Value, 1), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.VoltageRating, 1), VoltageRating,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.Tolerance, 1), Tolerance,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.Technology, 1), Technology,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.FootPrint, 1), Footprint,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
+              </Otherwise>
+            </Choose>
           </On>
           <On Select="TSpecFormatType.Compressed">
-            <Execute Statement="Result:= ConcatExt(' ', True, LocCapacitance, LocVoltageRating, LocTolerance, LocTechnology, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, Tolerance, VoltageRating, Technology, Footprint, PartNumberModel)"/>
           </On>
         </Case>
       </Block>

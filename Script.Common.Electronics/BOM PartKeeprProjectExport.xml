@@ -20,6 +20,7 @@
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
     <Use Identifier="BillOfMaterialClass"/>
+    <Use Identifier="CategoryContainer"/>
   </Uses>
   <Constants>
     <Constant Identifier="cLF" Type="string"  Expression="#13#10"/>
@@ -143,61 +144,41 @@
                     <Parameter Identifier="Designators" Type="string"/>
                   </Parameters>
                   <Variables>
-                    <Variable Identifier="RunningComponent" Type="TStockComponent"/>
                     <Variable Identifier="TotCount" Type="Integer" Init="0"/>
                     <Variable Identifier="HasStock" Type="Boolean" Init="False"/>
                     <Variable Identifier="AddPart" Type="TAddPartObject"/>
                   </Variables>
                   <Block>
-                    <Execute Statement="RunningComponent:= Spec.StockComponentHead"/>
-                    <WhileLoop Expression="Assigned(RunningComponent)">
+                    <lil:LinkedList.Iterate Head="Spec.StockComponentHead" ItemType="TStockComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
                       <Execute Statement="HasStock:= True"/>
                       <Execute Statement="AddPart:= TAddPartObject.Create"/>
                       <Execute Statement="AddPart.PartID := RunningComponent.ID"/>
-                      <Execute Statement="AddPart.Description := Format('%d x %s (#%d)', SchemaCount, Spec.SpecificationAsString(TSpecFormatType.Compressed), RunningComponent.ID)"/>
+                      <Execute Statement="AddPart.Description := Format('%d x %s (#%d)', SchemaCount, Spec.SpecificationAsString(TSpecFormatType.Compressed, ObjNil), RunningComponent.ID)"/>
                       <Execute Statement="AddPart.Quantity := SchemaCount"/>
                       <Execute Statement="AddPart.Remarks := Designators"/>
-                      <Choose>
-                        <When Expression="IsEmpty(AddPartHead)">
-                          <Execute Statement="AddPartHead:= AddPart"/>
-                        </When>
-                        <Otherwise>
-                          <Execute Statement="AddPartTail.Next:= AddPart"/>
-                        </Otherwise>
-                      </Choose>
-                      <Execute Statement="AddPartTail:= AddPart"/>
-                      <Execute Statement="RunningComponent:= RunningComponent.Next"/>
-                    </WhileLoop>
+                      <lil:LinkedList.LinkUp Head="AddPartHead" Tail="AddPartTail" Item="AddPart" TailLinkStatement="AddPartTail.Next:= Item"/>
+                    </lil:LinkedList.Iterate>
                   </Block>
                 </Procedure>
               </Procedures>
               <Variables>
-                <Variable Identifier="RunningComponent" Type="TSchemaComponent"/>
                 <Variable Identifier="TotCount" Type="Integer" Init="0"/>
                 <Variable Identifier="ComponentDesignators" Type="string" Init="''"/>
                 <Variable Identifier="DoSeperate" Type="Boolean" Init="False"/>
-                <Variable Identifier="RunningSpecLink" Type="TSpecificationLink"/>
                 <Variable Identifier="TaskObject" Type="TTaskObject"/>
                 <Variable Identifier="AddPart" Type="TAddPartObject"/>
                 <Variable Identifier="GroupObject" Type="TGroupObject"/>
               </Variables>
               <Block>
-                <Execute Statement="RunningComponent:= Spec.SchemaComponentHead"/>
-                <lil:LinkedList.MergeSort Head="RunningComponent" ItemType="TSchemaComponent" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA, ItemB) &lt;= 0"/>
-                <Execute Statement="Spec.SchemaComponentHead:= RunningComponent"/>
-                <WhileLoop Expression="Assigned(RunningComponent)">
+                <lil:LinkedList.Iterate Head="Spec.SchemaComponentHead" ItemType="TSchemaComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
                   <Execute Statement="ComponentDesignators:= ComponentDesignators + ', '" Condition="DoSeperate"/>
                   <Execute Statement="ComponentDesignators:= ComponentDesignators + RunningComponent.Reference"/>
                   <Execute Statement="TotCount:= TotCount + 1"/>
-                  <Execute Statement="RunningComponent:= RunningComponent.Next"/>
                   <Execute Statement="DoSeperate:= True"/>
-                </WhileLoop>
-                <!--<rep:Reporter.Information Text="Format('%d', Spec.ID)"/>-->
-                <Execute Statement="RunningSpecLink:= Spec.MatchedSpecLinkHead"/>
-                <WhileLoop Expression="Assigned(RunningSpecLink)">
+                </lil:LinkedList.Iterate>
+                <lil:LinkedList.Iterate Head="Spec.MatchedSpecLinkHead" ItemType="TSpecificationLink" RunningItem="RunningSpecLink" Next="RunningSpecLink.Next">
                   <Execute Statement="ExportStockComponents(RunningSpecLink.StockComponentSpec, TotCount, ComponentDesignators)"/>
-                  <Execute Statement="RunningSpecLink:= RunningSpecLink.Next"/>
-                </WhileLoop>
+                </lil:LinkedList.Iterate>
                 <Block Condition="IsEmpty(AddPartHead)">
                   <Execute Statement="AddPartHead:= TAddPartObject.Create"/>
                   <Execute Statement="AddPartHead.PartID := Null"/>
@@ -206,61 +187,35 @@
                   <Execute Statement="AddPartHead.Remarks := ComponentDesignators"/>
                 </Block>
                 <Execute Statement="GroupObject:= TGroupObject.Create"/>
-                <Execute Statement="GroupObject.Description := Format('%s (%s)', Spec.SpecificationAsString(TSpecFormatType.Compressed), ComponentDesignators)"/>
+                <Execute Statement="GroupObject.Description := Format('%s (%s)', Spec.SpecificationAsString(TSpecFormatType.Compressed, ObjNil), ComponentDesignators)"/>
                 <Execute Statement="GroupObject.FirstChild := AddPartHead"/>
-                <Choose>
-                  <When Expression="IsEmpty(SchemaSpecHead)">
-                    <Execute Statement="SchemaSpecHead:= GroupObject"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="SchemaSpecTail.Next:= GroupObject"/>
-                  </Otherwise>
-                </Choose>
-                <Execute Statement="SchemaSpecTail:= GroupObject"/>
+                <lil:LinkedList.LinkUp Head="SchemaSpecHead" Tail="SchemaSpecTail" Item="GroupObject" TailLinkStatement="SchemaSpecTail.Next:= Item"/>
               </Block>
             </Procedure>
           </Procedures>
           <Variables>
-            <Variable Identifier="RunningSpec" Type="TComponentSpec" Init="Category.FComponentSpecHead"/>
             <Variable Identifier="PrevComponentKind" Type="TComponentKind"/>
           </Variables>
           <Block>
-            <WhileLoop Expression="Assigned(RunningSpec)">
+            <lil:LinkedList.Iterate Head="Category.FComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
               <Choose>
                 <When Expression="IsEmpty(PrevComponentKind)"/>
                 <When Expression="PrevComponentKind &lt;&gt; RunningSpec.ComponentKind">
                   <Execute Statement="ComponentKindGroup:= TGroupObject.Create"/>
-                  <Execute Statement="ComponentKindGroup.Description:= ComponentKindAsString(PrevComponentKind)"/>
+                  <Execute Statement="ComponentKindGroup.Description:= ComponentKindHeaderString(PrevComponentKind)"/>
                   <Execute Statement="ComponentKindGroup.FirstChild:= SchemaSpecHead"/>
-                  <Choose>
-                    <When Expression="IsEmpty(AddComponentKindHead)">
-                      <Execute Statement="AddComponentKindHead:= ComponentKindGroup"/>
-                    </When>
-                    <Otherwise>
-                      <Execute Statement="AddComponentKindTail.Next:= ComponentKindGroup"/>
-                    </Otherwise>
-                  </Choose>
-                  <Execute Statement="AddComponentKindTail:= ComponentKindGroup"/>
+                  <lil:LinkedList.LinkUp Head="AddComponentKindHead" Tail="AddComponentKindTail" Item="ComponentKindGroup" TailLinkStatement="AddComponentKindTail.Next:= Item"/>
                   <Execute Statement="SchemaSpecHead:= EmptyValue"/>
                 </When>
               </Choose>
               <Execute Statement="ExportSchemaComponents(RunningSpec)"/>
               <Execute Statement="PrevComponentKind:= RunningSpec.ComponentKind"/>
-              <Execute Statement="RunningSpec:= RunningSpec.Next"/>
-            </WhileLoop>
+            </lil:LinkedList.Iterate>
             <Block Condition="not IsEmpty(PrevComponentKind)">
               <Execute Statement="ComponentKindGroup:= TGroupObject.Create"/>
-              <Execute Statement="ComponentKindGroup.Description:= ComponentKindAsString(PrevComponentKind)"/>
+              <Execute Statement="ComponentKindGroup.Description:= ComponentKindHeaderString(PrevComponentKind)"/>
               <Execute Statement="ComponentKindGroup.FirstChild:= SchemaSpecHead"/>
-              <Choose>
-                <When Expression="IsEmpty(AddComponentKindHead)">
-                  <Execute Statement="AddComponentKindHead:= ComponentKindGroup"/>
-                </When>
-                <Otherwise>
-                  <Execute Statement="AddComponentKindTail.Next:= ComponentKindGroup"/>
-                </Otherwise>
-              </Choose>
-              <Execute Statement="AddComponentKindTail:= ComponentKindGroup"/>
+              <lil:LinkedList.LinkUp Head="AddComponentKindHead" Tail="AddComponentKindTail" Item="ComponentKindGroup" TailLinkStatement="AddComponentKindTail.Next:= Item"/>
             </Block>
           </Block>
         </Procedure>
@@ -290,15 +245,7 @@
                   <Execute Statement="PartIdDisplayValue:= IfElse(IsNull(PartID), '', Format('#%d', PartID))"/>
                   <Execute Statement="RemarksDisplayValue:= IfElse(IsNull(Remarks), '', Remarks)"/>
                   <Execute Statement="DeletePartObject.Description:= ConcatExt(' ', True, Format('%d x', Quantity), PartIdDisplayValue, RemarksDisplayValue, Format('(id: %d)', ID))"/>
-                  <Choose>
-                    <When Expression="IsEmpty(DeletePartHead)">
-                      <Execute Statement="DeletePartHead:= DeletePartObject"/>
-                    </When>
-                    <Otherwise>
-                      <Execute Statement="DeletePartTail.Next:= DeletePartObject"/>
-                    </Otherwise>
-                  </Choose>
-                  <Execute Statement="DeletePartTail:= DeletePartObject"/>
+                  <lil:LinkedList.LinkUp Head="DeletePartHead" Tail="DeletePartTail" Item="DeletePartObject" TailLinkStatement="DeletePartTail.Next:= Item"/>
                 </ado:Recordset.Iterate>
               </ado:Recordset.OpenBlock>
             </ado:Command.CreateBlock>
@@ -308,11 +255,10 @@
         <Task Identifier="GroupTask">
           <Variables>
             <Variable Identifier="InstanceObject" Type="TGroupObject" Init="Task.InstanceObject"/>
-            <Variable Identifier="RunningItem" Type="TTaskObject" Init="InstanceObject.FirstChild"/>
           </Variables>
           <Init>
             <Task.Description Expression="InstanceObject.Description"/>
-            <WhileLoop Expression="Assigned(RunningItem)">
+            <lil:LinkedList.Iterate Head="InstanceObject.FirstChild" ItemType="TTaskObject" RunningItem="RunningItem" Next="RunningItem.Next">
               <Choose>
                 <When Expression="RunningItem is TGroupObject">
                   <Task.AddDependency Task="GroupTask" InstanceObject="RunningItem"/>
@@ -324,8 +270,7 @@
                   <Task.AddDependency Task="AddPartTask" InstanceObject="RunningItem"/>
                 </When>
               </Choose>
-              <Execute Statement="RunningItem:= RunningItem.Next"/>
-            </WhileLoop>
+            </lil:LinkedList.Iterate>
           </Init>
         </Task>
 
@@ -365,12 +310,9 @@
         <Execute Statement="DeleteRootGroup.Description:= sRemoveGroupHeader"/>
         <Execute Statement="DeleteRootGroup.FirstChild:= DeletePartHead" Condition="not IsEmpty(DeletePartHead)"/>
 
-        <Execute Statement="ExportComponentCategory(BillOfMaterials.Resistors)"/>
-        <Execute Statement="ExportComponentCategory(BillOfMaterials.Capacitors)"/>
-        <Execute Statement="ExportComponentCategory(BillOfMaterials.Inductors)"/>
-        <Execute Statement="ExportComponentCategory(BillOfMaterials.ZenerDiodes)"/>
-        <Execute Statement="ExportComponentCategory(BillOfMaterials.Connectors)"/>
-        <Execute Statement="ExportComponentCategory(BillOfMaterials.GenericComponents)"/>
+        <lil:LinkedList.Iterate Head="BillOfMaterials.CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
+          <Execute Statement="ExportComponentCategory(RunningItem)"/>
+        </lil:LinkedList.Iterate>
         <Execute Statement="AddRootGroup:= TGroupObject.Create"/>
         <Execute Statement="AddRootGroup.Description:= sAddGroupHeader"/>
         <Execute Statement="AddRootGroup.FirstChild:= AddComponentKindHead" Condition="not IsEmpty(AddComponentKindHead)"/>

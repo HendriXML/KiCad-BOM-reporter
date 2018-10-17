@@ -92,32 +92,64 @@
       </Block>
     </Procedure>
 
-    <Function Identifier="TGenericComponentSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+    <Procedure Identifier="TGenericComponentSpec.GetSpecificationValues">
       <Parameters>
-        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="Value" Type="string" Direction="Output"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
       </Parameters>
-      <Variables>
-        <Variable Identifier="LocValue" Type="string" Init="''"/>
-        <Variable Identifier="LocInherited" Type="string" Init="''"/>
-      </Variables>
       <Block>
         <Case Expression="ValueVT">
           <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
-            <Execute Statement="LocValue:= '?'"/>
+            <Execute Statement="Value:= ''"/>
           </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocValue:= Value"/>
+            <Execute Statement="Value:= Self.Value"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Execute Statement="Value:= '!!'"/>
           </On>
         </Case>
+        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TGenericComponentSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="ReportContext" Type="TSpecReportContext"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Value" Type="string"/>
+        <Variable Identifier="Footprint" Type="string"/>
+        <Variable Identifier="PartNumberModel" Type="string"/>
+      </Variables>
+      <Block>
+        <Execute Statement="GetSpecificationValues(Value, Footprint, PartNumberModel)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
-            <Execute Statement="LocInherited:= inherited SpecificationAsString(TSpecFormatType.Compressed)"/>
-            <Execute Statement="Result:= Format('%-50s %-10s', LocValue, LocInherited)"/>
+            <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
+            <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
+            <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
+            <Execute Statement="Footprint:= Footprint + ' '" Condition="Footprint &lt;&gt; ''"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
+            <Choose>
+              <When Expression="ReportContext.Measure">
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 4, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.FootPrint, 1, Length(Footprint))"/>
+                <!--<Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>-->
+                <Execute Statement="Result:= ''"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= Format('%-*s%-*s%-*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 4), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.FootPrint, 1), Footprint,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
+              </Otherwise>
+            </Choose>
           </On>
           <On Select="TSpecFormatType.Compressed">
-            <Execute Statement="Result:= ConcatExt(' ', True, LocValue, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, Footprint, PartNumberModel)"/>
           </On>
         </Case>
       </Block>
@@ -160,7 +192,7 @@
       </Block>
     </Function>
 
-  <Function Identifier="TGenericComponentCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
+    <Function Identifier="TGenericComponentCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
       <Block>
         <Execute Statement="Result:= TGenericComponentSpec.Create"/>
       </Block>

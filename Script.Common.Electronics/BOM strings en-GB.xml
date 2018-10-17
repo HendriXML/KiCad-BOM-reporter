@@ -19,8 +19,10 @@
   <Constants>
     <Constant Identifier="sBOMHeader" Type="string" Expression="'Bill of materials'"/>
     <Constant Identifier="sStockHeader" Type="string" Expression="'Bill of available materials'"/>
+    <Constant Identifier="sDesignatorReport" Type="string" Expression="'Designator specifications'"/>
     <Constant Identifier="sTitleField" Type="string" Expression="'Title: %s'"/>
     <Constant Identifier="sCountField" Type="string" Expression="'Amount: %dx'"/>
+    
     <Constant Identifier="sResistorHeader" Type="string" Expression="'Resistors'"/>
     <Constant Identifier="sComponentHeader" Type="string" Expression="'Components'"/>
     <Constant Identifier="sOpAmpHeader" Type="string" Expression="'OpAmps'"/>
@@ -29,10 +31,24 @@
     <Constant Identifier="sCapacitorHeader" Type="string" Expression="'Capacitors'"/>
     <Constant Identifier="sInductorHeader" Type="string" Expression="'Inductors'"/>
     <Constant Identifier="sBipolarJunctionTransitorHeader" Type="string" Expression="'Transistors'"/>
-    <Constant Identifier="sFieldEffectTransitor" Type="string" Expression="'FET transistors'"/>
+    <Constant Identifier="sFieldEffectTransitorHeader" Type="string" Expression="'FET transistors'"/>
     <Constant Identifier="sPolarisedCapacitorHeader" Type="string" Expression="'Polarized capacitors'"/>
     <Constant Identifier="sDiodeHeader" Type="string" Expression="'Diodes'"/>
     <Constant Identifier="sZenerDiodeHeader" Type="string" Expression="'Zener diodes'"/>
+    
+    <Constant Identifier="sResistorName" Type="string" Expression="'resistor'"/>
+    <Constant Identifier="sComponentName" Type="string" Expression="'component'"/>
+    <Constant Identifier="sOpAmpName" Type="string" Expression="'op amp'"/>
+    <Constant Identifier="sConnectorName" Type="string" Expression="'connector'"/>
+    <Constant Identifier="sVariableResistorName" Type="string" Expression="'varistor'"/>
+    <Constant Identifier="sCapacitorName" Type="string" Expression="'capacitor'"/>
+    <Constant Identifier="sInductorName" Type="string" Expression="'inductor'"/>
+    <Constant Identifier="sBipolarJunctionTransitorName" Type="string" Expression="'transistor'"/>
+    <Constant Identifier="sFieldEffectTransitorName" Type="string" Expression="'fet transistor'"/>
+    <Constant Identifier="sPolarisedCapacitorName" Type="string" Expression="'polarized capacitor'"/>
+    <Constant Identifier="sDiodeName" Type="string" Expression="'diode'"/>
+    <Constant Identifier="sZenerDiodeName" Type="string" Expression="'zener diode'"/>
+    
     <Constant Identifier="sMissingComponentHeader" Type="string" Expression="'Missing component class name'"/>
     <Constant Identifier="sResistorTechnologyMetalFilm" Type="string" Expression="'metal film'"/>
     <Constant Identifier="sResistorTechnologyMissing" Type="string" Expression="'-missing resistor technology mapping-'"/>

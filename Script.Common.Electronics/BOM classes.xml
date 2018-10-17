@@ -34,8 +34,15 @@
     <Enumeration Identifier="TFootprint" Elements="THT, SMD"/>
 
     <Enumeration Identifier="TDeepSearchstate" Elements="None, Running, Done"/>
-    
-    <Enumeration Identifier="TSpecFormatType" Elements="Fixed, Compressed"/>
+
+    <Enumeration Identifier="TSpecFormatType" Elements="Compressed, Fixed"/>
+
+    <Enumeration Identifier="TResistorSpecColumns"      Elements="Value, PowerRating,   Tolerance, Technology, FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TCapacitorSpecColumns"     Elements="Value, VoltageRating, Tolerance, Technology, FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TZenerDiodeSpecColumns"    Elements="Value, PowerRating,   Tolerance, None1,      FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TInductorSpecColumns"      Elements="Value, AmpRating,     Tolerance, None1,      FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TConnectorSpecColumns"     Elements="Value, Span1,         AmpRating, Span2,      FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TGenComponentSpecColumns"  Elements="Value, Span1,         Span2,     Span3,      FootPrint, PartNumberModel"/>
 
     <DataClass Identifier="TSchemaComponent" DefaultConstructor="none">
       <Field Identifier="Reference" Type="string"/>
@@ -85,6 +92,26 @@
       <Field Identifier="HashListLoaded" Type="Boolean"/>
     </DataClass>
 
+    <DataClass Identifier="TSpecReportContext">
+      <Field Identifier="ColumnOffset" Type="Integer"/>
+      <Field Identifier="ColumnManager" Type="TTextColumnManager"/>
+      <Field Identifier="Measure" Type="Boolean"/>
+    </DataClass>
+
+    <DataClass Identifier="TBaseReportContext">
+      <Field Identifier="SpecContext" Type="TSpecReportContext"/>
+      <Field Identifier="Measure" Type="Boolean"/>
+    </DataClass>
+
+    <DataClass Identifier="TStockReportContext" Inherit="TBaseReportContext">
+    </DataClass>
+
+    <DataClass Identifier="TSchemaReportContext" Inherit="TBaseReportContext">
+    </DataClass>
+
+    <DataClass Identifier="TDesignatorsReportContext" Inherit="TBaseReportContext">
+    </DataClass>
+
     <DataClass Identifier="TComponentSpec" DefaultConstructor="createonly">
       <VirtualMethod Identifier="vmHandleLibSource"/>
       <VirtualMethod Identifier="vmHandleField"/>
@@ -122,6 +149,7 @@
       <VirtualMethod Identifier="vmGetTemplate"/>
       <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile"/>
       <VirtualMethod Identifier="vmIndexSearchSpecifications"/>
+      <Field Identifier="Next" Type="TComponentCategory"/>
       <Field Identifier="FComponentSpecHead" Type="TComponentSpec"/>
       <Field Identifier="FComponentSpecTail" Type="TComponentSpec"/>
     </DataClass>
@@ -204,7 +232,7 @@
       </Block>
     </Function>
 
-    <Function Identifier="ComponentKindAsString" Type="string" IsDeterministic="true">
+    <Function Identifier="ComponentKindHeaderString" Type="string" IsDeterministic="true">
       <Parameters>
         <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
       </Parameters>
@@ -244,11 +272,61 @@
             <Execute Statement="Result:= sBipolarJunctionTransitorHeader"/>
           </On>
           <On Select="TComponentKind.ckFieldEffectTransitor">
-            <Execute Statement="Result:= sFieldEffectTransitor"/>
+            <Execute Statement="Result:= sFieldEffectTransitorHeader"/>
           </On>
           <Otherwise>
             <Execute Statement="Result:= Format(sUnknownComponentKind, ComponentKind)"/>
-            <rep:Reporter.Error Text="Format(sMissingComponentKindMapping, sUnitName, 'ComponentKindAsString', ComponentKind)"/>
+            <rep:Reporter.Error Text="Format(sMissingComponentKindMapping, sUnitName, 'ComponentKindHeaderString', ComponentKind)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="ComponentKindNameString" Type="string" IsDeterministic="true">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Case Expression="ComponentKind" Optimalisation="integermapping">
+          <On Select="TComponentKind.ckComponent">
+            <Execute Statement="Result:= sComponentName"/>
+          </On>
+          <On Select="TComponentKind.ckOpAmp">
+            <Execute Statement="Result:= sOpAmpName"/>
+          </On>
+          <On Select="TComponentKind.ckConnector">
+            <Execute Statement="Result:= sConnectorName"/>
+          </On>
+          <On Select="TComponentKind.ckResistor">
+            <Execute Statement="Result:= sResistorName"/>
+          </On>
+          <On Select="TComponentKind.ckVariableResistor">
+            <Execute Statement="Result:= sVariableResistorName"/>
+          </On>
+          <On Select="TComponentKind.ckCapacitor">
+            <Execute Statement="Result:= sCapacitorName"/>
+          </On>
+          <On Select="TComponentKind.ckPolarisedCapacitor">
+            <Execute Statement="Result:= sPolarisedCapacitorName"/>
+          </On>
+          <On Select="TComponentKind.ckInductor">
+            <Execute Statement="Result:= sInductorName"/>
+          </On>
+          <On Select="TComponentKind.ckDiode">
+            <Execute Statement="Result:= sDiodeName"/>
+          </On>
+          <On Select="TComponentKind.ckZenerDiode">
+            <Execute Statement="Result:= sZenerDiodeName"/>
+          </On>
+          <On Select="TComponentKind.ckBipolarJunctionTransitor">
+            <Execute Statement="Result:= sBipolarJunctionTransitorName"/>
+          </On>
+          <On Select="TComponentKind.ckFieldEffectTransitor">
+            <Execute Statement="Result:= sFieldEffectTransitorName"/>
+          </On>
+          <Otherwise>
+            <Execute Statement="Result:= Format(sUnknownComponentKind, ComponentKind)"/>
+            <rep:Reporter.Error Text="Format(sMissingComponentKindMapping, sUnitName, 'ComponentKindNameString', ComponentKind)"/>
           </Otherwise>
         </Case>
       </Block>
@@ -516,33 +594,73 @@
       </Block>
     </Function>
 
-    <Function Identifier="TComponentSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+    <Procedure Identifier="TComponentSpec.GetSpecificationValues">
       <Parameters>
-        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
       </Parameters>
       <Variables>
-        <Variable Identifier="NeedsSep" Type="Boolean" Init="False"/>
+        <Variable Identifier="locPartNumberModel" Type="string" Init="''"/>
       </Variables>
       <Block>
-        <Execute Statement="Result:= ''"/>
         <Case Expression="ManufacturerVT">
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="Result:= Manufacturer"/>
-            <Execute Statement="NeedsSep:= True"/>
+            <Execute Statement="locPartNumberModel:= Self.Manufacturer"/>
           </On>
         </Case>
         <Case Expression="PartNumberVT">
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="Result:= Result + ' '" Condition="NeedsSep"/>
-            <Execute Statement="Result:= Result + PartNumber"/>
-            <Execute Statement="NeedsSep:= True"/>
+            <Execute Statement="locPartNumberModel:= ConcatExt(' ', True, locPartNumberModel, Self.PartNumber)"/>
           </On>
         </Case>
+        <Execute Statement="PartNumberModel:= locPartNumberModel"/>
         <Case Expression="FootPrintVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="Footprint:= ''"/>
+          </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="Result:= Result + ' '" Condition="NeedsSep"/>
-            <Execute Statement="Result:= Result + FootprintAsString(Footprint)"/>
-            <Execute Statement="NeedsSep:= True"/>
+            <Execute Statement="Footprint:= FootprintAsString(Self.Footprint)"/>
+          </On>
+          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Execute Statement="Footprint:= '!' + ErrorFootprint + '!'"/>
+          </On>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TComponentSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="ReportContext" Type="TSpecReportContext"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Footprint" Type="string"/>
+        <Variable Identifier="PartNumberModel" Type="string"/>
+      </Variables>
+      <Block>
+        <Execute Statement="GetSpecificationValues(Footprint, PartNumberModel)"/>
+        <Case Expression="FormatType" Optimalisation="integermapping">
+          <On Select="TSpecFormatType.Fixed">
+            <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
+            <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
+            <Execute Statement="Footprint:= Footprint + ' '" Condition="Footprint &lt;&gt; ''"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
+            <Choose>
+              <When Expression="ReportContext.Measure">
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.FootPrint, 1, Length(FootPrint))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="Result:= ''"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= Format('%*s%*s%*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 4), '',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.FootPrint, 1), FootPrint,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TSpecFormatType.Compressed">
+            <Execute Statement="Result:= ConcatExt(' ', True, Footprint, PartNumberModel)"/>
           </On>
         </Case>
       </Block>
@@ -823,7 +941,7 @@
         <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
       </Parameters>
       <Block>
-        <rep:Reporter.Information Text="ComponentKindAsString(ComponentKind)" Markup="Header2"/>
+        <rep:Reporter.Information Text="ComponentKindHeaderString(ComponentKind)" Markup="Header2"/>
       </Block>
     </Procedure>
 
@@ -852,11 +970,13 @@
           <When Expression="not A.Decoded and not B.Decoded">
             <Execute Statement="Result:= CompareText(A.Reference, B.Reference)"/>
           </When>
-          <When Expression="not B.Decoded">
-            <Execute Statement="Result:= -1"/>
-          </When>
           <When Expression="not A.Decoded">
-            <Execute Statement="Result:= 1"/>
+            <Execute Statement="Result:= CompareText(A.Reference, B.Prefix)"/>
+            <Execute Statement="Result:= -1" Condition="Result = 0"/>
+          </When>
+          <When Expression="not B.Decoded">
+            <Execute Statement="Result:= CompareText(A.Prefix, B.Reference)"/>
+            <Execute Statement="Result:= 1" Condition="Result = 0"/>
           </When>
         </Choose>
       </Block>
@@ -883,26 +1003,25 @@
     <Procedure Identifier="TComponentCategory.ReportStockComponents">
       <Parameters>
         <Parameter Identifier="Spec" Type="TComponentSpec"/>
+        <Parameter Identifier="StockContext" Type="TStockReportContext"/>
       </Parameters>
       <Variables>
-        <Variable Identifier="RunningComponent" Type="TStockComponent"/>
+        <Variable Identifier="SpecAsString" Type="string"/>
         <Variable Identifier="TotCount" Type="Integer" Init="0"/>
-        <Variable Identifier="ComponentDesignators" Type="string" Init="''"/>
+        <Variable Identifier="StockDescriptions" Type="string" Init="''"/>
         <Variable Identifier="DoSeperate" Type="Boolean" Init="False"/>
       </Variables>
       <Block>
-        <Execute Statement="RunningComponent:= Spec.StockComponentHead"/>
-        <!--<lil:LinkedList.MergeSort Head="RunningComponent" ItemType="TSchemaComponent" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA, ItemB) &lt;= 0"/>
-        <Execute Statement="Spec.SchemaComponentHead:= RunningComponent"/>-->
-        <WhileLoop Expression="Assigned(RunningComponent)">
-          <Execute Statement="ComponentDesignators:= ComponentDesignators + ', '" Condition="DoSeperate"/>
-          <Execute Statement="ComponentDesignators:= ComponentDesignators + Format('%dx #%d @%s', RunningComponent.Amount, RunningComponent.ID, RunningComponent.Location)"/>
+        <Execute Statement="SpecAsString:= Spec.SpecificationAsString(TSpecFormatType.Fixed, StockContext.SpecContext)"/>
+        <Exit Condition="StockContext.Measure" />
+        <lil:LinkedList.Iterate Head="Spec.StockComponentHead" ItemType="TStockComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
+          <Execute Statement="StockDescriptions:= StockDescriptions + ', '" Condition="DoSeperate"/>
+          <Execute Statement="StockDescriptions:= StockDescriptions + Format('%dx #%d @%s', RunningComponent.Amount, RunningComponent.ID, RunningComponent.Location)"/>
           <Execute Statement="TotCount:= TotCount + RunningComponent.Amount"/>
           <Execute Statement="RunningComponent:= RunningComponent.Next"/>
           <Execute Statement="DoSeperate:= True"/>
-        </WhileLoop>
-        <!--<rep:Reporter.Information Text="Format('%d', Spec.ID)"/>-->
-        <rep:Reporter.Information Text="Format('%3dx %s (%s)', TotCount, Spec.SpecificationAsString(TSpecFormatType.Fixed), ComponentDesignators)"/>
+        </lil:LinkedList.Iterate>
+        <rep:Reporter.Information Text="Format('%3dx %-*s(%s)', TotCount, StockContext.SpecContext.ColumnManager.GetColumnWidth(1, 6), SpecAsString, StockDescriptions)"/>
       </Block>
     </Procedure>
 
@@ -910,8 +1029,10 @@
       <Parameters>
         <Parameter Identifier="Spec" Type="TComponentSpec"/>
         <Parameter Identifier="Count" Type="Integer"/>
+        <Parameter Identifier="SchemaContext" Type="TSchemaReportContext"/>
       </Parameters>
       <Variables>
+        <Variable Identifier="SpecAsString" Type="string"/>
         <Variable Identifier="RunningComponent" Type="TSchemaComponent"/>
         <Variable Identifier="TotCount" Type="Integer" Init="0"/>
         <Variable Identifier="ComponentDesignators" Type="string" Init="''"/>
@@ -919,24 +1040,19 @@
         <Variable Identifier="RunningSpecLink" Type="TSpecificationLink"/>
       </Variables>
       <Block>
-        <Execute Statement="RunningComponent:= Spec.SchemaComponentHead"/>
-        <lil:LinkedList.MergeSort Head="RunningComponent" ItemType="TSchemaComponent" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA, ItemB) &lt;= 0"/>
-        <Execute Statement="Spec.SchemaComponentHead:= RunningComponent"/>
-        <WhileLoop Expression="Assigned(RunningComponent)">
-          <Execute Statement="ComponentDesignators:= ComponentDesignators + ', '" Condition="DoSeperate"/>
-          <Execute Statement="ComponentDesignators:= ComponentDesignators + RunningComponent.Reference"/>
-          <Execute Statement="TotCount:= TotCount + Count"/>
-          <Execute Statement="RunningComponent:= RunningComponent.Next"/>
-          <Execute Statement="DoSeperate:= True"/>
-        </WhileLoop>
-        <!--<rep:Reporter.Information Text="Format('%d', Spec.ID)"/>-->
-        <rep:Reporter.Information Text="Format('%3dx %s (%s)', TotCount, Spec.SpecificationAsString(TSpecFormatType.Fixed), ComponentDesignators)" Markup="Header4"/>
-        <Execute Statement="RunningSpecLink:= Spec.MatchedSpecLinkHead"/>
-        <WhileLoop Expression="Assigned(RunningSpecLink)">
-          <Execute Statement="ReportStockComponents(RunningSpecLink.StockComponentSpec)"/>
-          <Execute Statement="RunningSpecLink:= RunningSpecLink.Next"/>
-        </WhileLoop>
-        <rep:Reporter.Information Text="''"/>
+        <Execute Statement="SpecAsString:= Spec.SpecificationAsString(TSpecFormatType.Fixed, SchemaContext.SpecContext)"/>
+        <Block Condition="not SchemaContext.Measure">
+          <Execute Statement="RunningComponent:= Spec.SchemaComponentHead"/>
+          <lil:LinkedList.MergeSort Head="RunningComponent" ItemType="TSchemaComponent" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA, ItemB) &lt;= 0"/>
+          <Execute Statement="Spec.SchemaComponentHead:= RunningComponent"/>
+          <lil:LinkedList.Iterate Head="Spec.SchemaComponentHead" ItemType="TSchemaComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
+            <Execute Statement="ComponentDesignators:= ComponentDesignators + ', '" Condition="DoSeperate"/>
+            <Execute Statement="ComponentDesignators:= ComponentDesignators + RunningComponent.Reference"/>
+            <Execute Statement="TotCount:= TotCount + Count"/>
+            <Execute Statement="DoSeperate:= True"/>
+          </lil:LinkedList.Iterate>
+          <rep:Reporter.Information Text="Format('%3dx %-*s(%s)', TotCount, SchemaContext.SpecContext.ColumnManager.GetColumnWidth(1, 6), SpecAsString, ComponentDesignators)" Markup="Header4"/>
+        </Block>
       </Block>
     </Procedure>
 
@@ -1005,43 +1121,48 @@
     <Procedure Identifier="TComponentCategory.ReportSchema">
       <Parameters>
         <Parameter Identifier="Count" Type="Integer"/>
+        <Parameter Identifier="SchemaContext" Type="TSchemaReportContext"/>
+        <Parameter Identifier="StockContext" Type="TStockReportContext"/>
       </Parameters>
       <Variables>
-        <Variable Identifier="RunningSpec" Type="TComponentSpec" Init="FComponentSpecHead"/>
         <Variable Identifier="ComponentKind" Type="TComponentKind" Init="TComponentKind.ckNone"/>
       </Variables>
       <Block>
-        <Exit Condition="not Assigned(RunningSpec)"/>
-        <Execute Statement="RunningSpec:= FComponentSpecHead"/>
-        <WhileLoop Expression="Assigned(RunningSpec)">
-          <ConditionalBlock Expression="RunningSpec.ComponentKind &lt;&gt; ComponentKind">
-            <rep:Reporter.Information Text="''"/>
-            <Execute Statement="ComponentKind:= RunningSpec.ComponentKind"/>
-            <Execute Statement="ReportComponentHeader(ComponentKind)"/>
-          </ConditionalBlock>
-          <Execute Statement="ReportSchemaComponents(RunningSpec, Count)"/>
-          <Execute Statement="RunningSpec:= RunningSpec.Next"/>
-        </WhileLoop>
+        <lil:LinkedList.Iterate Head="FComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
+          <Block Condition="not SchemaContext.Measure">
+            <Block Condition="RunningSpec.ComponentKind &lt;&gt; ComponentKind">
+              <rep:Reporter.Information Text="''"/>
+              <Execute Statement="ComponentKind:= RunningSpec.ComponentKind"/>
+              <Execute Statement="ReportComponentHeader(ComponentKind)"/>
+            </Block>
+          </Block>
+          <Execute Statement="ReportSchemaComponents(RunningSpec, Count, SchemaContext)"/>
+            <lil:LinkedList.Iterate Head="RunningSpec.MatchedSpecLinkHead" ItemType="TSpecificationLink" RunningItem="RunningSpecLink" Next="RunningSpecLink.Next">
+              <Execute Statement="ReportStockComponents(RunningSpecLink.StockComponentSpec, StockContext)"/>
+            </lil:LinkedList.Iterate>
+          <rep:Reporter.Information Text="''" Condition="not SchemaContext.Measure"/>
+        </lil:LinkedList.Iterate>
       </Block>
     </Procedure>
 
     <Procedure Identifier="TComponentCategory.ReportStock">
+      <Parameters>
+        <Parameter Identifier="StockContext" Type="TStockReportContext"/>
+      </Parameters>
       <Variables>
-        <Variable Identifier="RunningSpec" Type="TComponentSpec" Init="FComponentSpecHead"/>
         <Variable Identifier="ComponentKind" Type="TComponentKind" Init="TComponentKind.ckNone"/>
       </Variables>
       <Block>
-        <Exit Condition="not Assigned(RunningSpec)"/>
-        <Execute Statement="RunningSpec:= FComponentSpecHead"/>
-        <WhileLoop Expression="Assigned(RunningSpec)">
-          <ConditionalBlock Expression="RunningSpec.ComponentKind &lt;&gt; ComponentKind">
-            <rep:Reporter.Information Text="''"/>
-            <Execute Statement="ComponentKind:= RunningSpec.ComponentKind"/>
-            <Execute Statement="ReportComponentHeader(ComponentKind)"/>
-          </ConditionalBlock>
-          <Execute Statement="ReportStockComponents(RunningSpec)"/>
-          <Execute Statement="RunningSpec:= RunningSpec.Next"/>
-        </WhileLoop>
+        <lil:LinkedList.Iterate Head="FComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
+          <Block Condition="not StockContext.Measure">
+            <Block Condition="RunningSpec.ComponentKind &lt;&gt; ComponentKind">
+              <rep:Reporter.Information Text="''"/>
+              <Execute Statement="ComponentKind:= RunningSpec.ComponentKind"/>
+              <Execute Statement="ReportComponentHeader(ComponentKind)"/>
+            </Block>
+          </Block>
+          <Execute Statement="ReportStockComponents(RunningSpec, StockContext)"/>
+        </lil:LinkedList.Iterate>
       </Block>
     </Procedure>
 
@@ -1158,8 +1279,6 @@
       </Parameters>
       <Variables>
         <Variable Identifier="Specification" Type="TComponentSpec"/>
-        <Variable Identifier="RunningComponentValue" Type="TComponentValue" Init="ValueHead"/>
-        <Variable Identifier="ReleaseComponentValue" Type="TComponentValue"/>
         <Variable Identifier="CustomField" Type="TCustomField"/>
       </Variables>
       <Block>
@@ -1171,14 +1290,14 @@
             <Execute Statement="Specification.ApplyTemplate"/>
             <Execute Statement="Specification.HandleField(TCustomField.cfValue, '', StockComponent.Name)"/>
             <Execute Statement="Specification.HandleField(TCustomField.cfFootprint, '', StockComponent.Footprint)" Condition="StockComponent.Footprint &lt;&gt; ''"/>
-            <WhileLoop Expression="Assigned(RunningComponentValue)">
+            <lil:LinkedList.Iterate Head="ValueHead" ItemType="TComponentValue" RunningItem="RunningComponentValue" Next="RunningComponentValue.Next">
               <Execute Statement="CustomField:= TCustomField.cfUnknown"/>
               <inx:Index.FindValue Index="CustomFieldsIndex" Key="RunningComponentValue.Name" Value="CustomField" Flags="NoErrorOnNotFound" />
               <Execute Statement="Specification.HandleField(CustomField, RunningComponentValue.Name, RunningComponentValue.Value)" />
-              <Execute Statement="RunningComponentValue:= RunningComponentValue.Next"/>
-            </WhileLoop>
+            </lil:LinkedList.Iterate>
+
             <ConditionalBlock Expression="IsValidSpecification(Specification)">
-              <rep:Reporter.Information Text="'Valid:' + Specification.SpecificationAsString(TSpecFormatType.Compressed)" Condition="IsVerbose"/>
+              <rep:Reporter.Information Text="'Valid:' + Specification.SpecificationAsString(TSpecFormatType.Compressed, ObjNil)" Condition="IsVerbose"/>
               <Execute Statement="Result:= True"/>
               <Execute Statement="Specification.ID:= ID"/>
               <Execute Statement="Specification.StockComponentHead:= StockComponent"/>

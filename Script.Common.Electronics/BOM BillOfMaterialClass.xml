@@ -26,41 +26,23 @@
     <Use Identifier="ConnectorClasses"/>
     <Use Identifier="GenericComponentClasses"/>
     <Use Identifier="StockManager"/>
+    <Use Identifier="CategoryContainer"/>
   </Uses>
   <Type>
-    <DataClass Identifier="TBillOfMaterials" DefaultConstructor="none">
+    <DataClass Identifier="TBillOfMaterials" Inherit="TCategoryContainer" DefaultConstructor="none">
       <Field Identifier="Title" Type="string"/>
-      <Field Identifier="Resistors" Type="TResistorCategory"/>
-      <Field Identifier="Capacitors" Type="TCapacitorCategory"/>
-      <Field Identifier="Inductors" Type="TInductorCategory"/>
-      <Field Identifier="ZenerDiodes" Type="TZenerDiodeCategory"/>
-      <Field Identifier="Connectors" Type="TConnectorCategory"/>
-      <Field Identifier="GenericComponents" Type="TGenericComponentCategory"/>
     </DataClass>
   </Type>
   <Procedures>
-    <Constructor Identifier="TBillOfMaterials.Create">
-      <Block>
-        <Execute Statement="Resistors:= TResistorCategory.Create"/>
-        <Execute Statement="Capacitors:= TCapacitorCategory.Create"/>
-        <Execute Statement="Inductors:= TInductorCategory.Create"/>
-        <Execute Statement="ZenerDiodes:= TZenerDiodeCategory.Create"/>
-        <Execute Statement="Connectors:= TConnectorCategory.Create"/>
-        <Execute Statement="GenericComponents:= TGenericComponentCategory.Create"/>
-      </Block>
-    </Constructor>
 
     <Procedure Identifier="TBillOfMaterials.LoadTemplatesFromIniFile">
       <Parameters>
         <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
       </Parameters>
       <Block>
-        <Execute Statement="Resistors.LoadTemplatesFromIniFile(IniFile)"/>
-        <Execute Statement="Capacitors.LoadTemplatesFromIniFile(IniFile)"/>
-        <Execute Statement="Inductors.LoadTemplatesFromIniFile(IniFile)"/>
-        <Execute Statement="ZenerDiodes.LoadTemplatesFromIniFile(IniFile)"/>
-        <Execute Statement="Connectors.LoadTemplatesFromIniFile(IniFile)"/>
-        <Execute Statement="GenericComponents.LoadTemplatesFromIniFile(IniFile)"/>
+        <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
+          <Execute Statement="RunningItem.LoadTemplatesFromIniFile(IniFile)"/>
+        </lil:LinkedList.Iterate>
       </Block>
     </Procedure>
 
@@ -152,17 +134,6 @@
       </Block>
     </Procedure>
 
-    <Procedure Identifier="TBillOfMaterials.ConsolidateSpecifications">
-      <Block>
-        <Execute Statement="Resistors.ConsolidateSpecifications"/>
-        <Execute Statement="Capacitors.ConsolidateSpecifications"/>
-        <Execute Statement="Inductors.ConsolidateSpecifications"/>
-        <Execute Statement="ZenerDiodes.ConsolidateSpecifications"/>
-        <Execute Statement="Connectors.ConsolidateSpecifications"/>
-        <Execute Statement="GenericComponents.ConsolidateSpecifications"/>
-      </Block>
-    </Procedure>
-
     <Procedure Identifier="TBillOfMaterials.Report">
       <Parameters>
         <Parameter Identifier="Count" Type="Integer"/>
@@ -172,12 +143,112 @@
         <rep:Reporter.Information Text="Format(sTitleField, Title)"/>
         <rep:Reporter.Information Text="Format(sCountField, Count)"/>
 
-        <Execute Statement="Resistors.ReportSchema(Count)"/>
-        <Execute Statement="Capacitors.ReportSchema(Count)"/>
-        <Execute Statement="Inductors.ReportSchema(Count)"/>
-        <Execute Statement="ZenerDiodes.ReportSchema(Count)"/>
-        <Execute Statement="Connectors.ReportSchema(Count)"/>
-        <Execute Statement="GenericComponents.ReportSchema(Count)"/>
+        <Object.Use Identifier="SchemaContext" Type="TSchemaReportContext" Expression="TSchemaReportContext.Create">
+          <Object.Use Identifier="StockContext" Type="TStockReportContext" Expression="TStockReportContext.Create">
+            <Object.Use Identifier="SpecReportContext" Type="TSpecReportContext" Expression="TSpecReportContext.Create">
+              <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create(8)">
+                <Execute Statement="SpecReportContext.ColumnManager:= ColumnManager"/>
+                <Execute Statement="SpecReportContext.ColumnOffset:= 1"/>
+                <Execute Statement="StockContext.SpecContext:= SpecReportContext"/>
+                <Execute Statement="SchemaContext.SpecContext:= SpecReportContext"/>
+                <Execute Statement="StockContext.Measure:= True"/>
+                <Execute Statement="SpecReportContext.Measure:= True"/>
+                <Execute Statement="SchemaContext.Measure:= True"/>
+                <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
+                  <Execute Statement="RunningCategory.ReportSchema(Count, SchemaContext, StockContext)"/>
+                </lil:LinkedList.Iterate>
+                <rep:Reporter.Information Text="''"/>
+                <Execute Statement="StockContext.Measure:= False"/>
+                <Execute Statement="SpecReportContext.Measure:= False"/>
+                <Execute Statement="SchemaContext.Measure:= False"/>
+                <Execute Statement="ColumnManager.DetermineColumnWidths"/>
+                <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
+                  <Execute Statement="RunningCategory.ReportSchema(Count, SchemaContext, StockContext)"/>
+                </lil:LinkedList.Iterate>
+                <rep:Reporter.Information Text="''"/>
+              </Object.Use>
+            </Object.Use>
+          </Object.Use>
+        </Object.Use>
+
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TBillOfMaterials.ReportDesignators">
+      <Type>
+        <DataClass Identifier="TDesignatorInfo">
+          <Field Identifier="SchemaComponent" Type="TSchemaComponent"/>
+          <Field Identifier="ComponentSpec" Type="TComponentSpec"/>
+          <Field Identifier="Next" Type="TDesignatorInfo"/>
+        </DataClass>
+      </Type>
+      <Variables>
+        <Variable Identifier="DesignatorInfoHead" Type="TDesignatorInfo"/>
+        <Variable Identifier="DesignatorInfoTail" Type="TDesignatorInfo"/>
+        <Variable Identifier="DesignatorInfo" Type="TDesignatorInfo"/>
+        <Variable Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Variable Identifier="ComponentSpecAsString" Type="string"/>
+        <Variable Identifier="Component" Type="TSchemaComponent"/>
+        <Variable Identifier="PrevDecodedComponent" Type="TSchemaComponent" DisabledChecks="empty"/>
+      </Variables>
+      <Block>
+        <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
+          <lil:LinkedList.Iterate Head="RunningCategory.FComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpecification" Next="RunningSpecification.Next">
+            <lil:LinkedList.Iterate Head="RunningSpecification.SchemaComponentHead" ItemType="TSchemaComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
+              <Execute Statement="DesignatorInfo:= TDesignatorInfo.Create(RunningComponent, RunningSpecification)"/>
+              <lil:LinkedList.LinkUp Head="DesignatorInfoHead" Tail="DesignatorInfoTail" Item="DesignatorInfo" TailLinkStatement="DesignatorInfoTail.Next:= Item" />
+            </lil:LinkedList.Iterate>
+          </lil:LinkedList.Iterate>
+        </lil:LinkedList.Iterate>
+        <lil:LinkedList.MergeSort Head="DesignatorInfoHead" ItemType="TDesignatorInfo" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA.SchemaComponent, ItemB.SchemaComponent) &lt;= 0"/>
+
+        <Object.Use Identifier="DesignatorsReportContext" Type="TDesignatorsReportContext" Expression="TDesignatorsReportContext.Create">
+          <Object.Use Identifier="SpecReportContext" Type="TSpecReportContext" Expression="TSpecReportContext.Create">
+            <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create(8)">
+              <Execute Statement="SpecReportContext.ColumnManager:= ColumnManager"/>
+              <Execute Statement="SpecReportContext.ColumnOffset:= 1"/>
+              <Execute Statement="DesignatorsReportContext.SpecContext:= SpecReportContext"/>
+
+              <Execute Statement="SpecReportContext.Measure:= True"/>
+              <Execute Statement="DesignatorsReportContext.Measure:= True"/>
+              <lil:LinkedList.Iterate Head="DesignatorInfoHead" ItemType="TDesignatorInfo" RunningItem="RunningDesignatorInfo" Next="RunningDesignatorInfo.Next">
+                <Execute Statement="ComponentSpec:= RunningDesignatorInfo.ComponentSpec"/>
+                <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
+                <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, Length(Component.Reference)+2)"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(7, 1, Length(ComponentKindNameString(ComponentSpec.ComponentKind)))"/>
+              </lil:LinkedList.Iterate>
+              
+              <Execute Statement="ColumnManager.DetermineColumnWidths"/>
+              <!--<ForLoop Indexer="I" From="0" To="ColumnManager.ColumnCount - 1">
+                <rep:Reporter.Information Text="Format('%*d: %d', 3, I, ColumnManager.GetColumnWidth(I, 1))"/>
+              </ForLoop>-->
+              <Execute Statement="SpecReportContext.Measure:= False"/>
+              <Execute Statement="DesignatorsReportContext.Measure:= False"/>
+              <rep:Reporter.Information Text="sDesignatorReport" Markup="Header1"/>
+              <lil:LinkedList.Iterate Head="DesignatorInfoHead" ItemType="TDesignatorInfo" RunningItem="RunningDesignatorInfo" Next="RunningDesignatorInfo.Next">
+                <Execute Statement="ComponentSpec:= RunningDesignatorInfo.ComponentSpec"/>
+                <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
+                <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
+                <Choose>
+                  <When Expression="Component.Decoded">
+                    <rep:Reporter.Information Text="''" Condition="IsEmpty(PrevDecodedComponent) or (CompareText(PrevDecodedComponent.Prefix, Component.Prefix) &lt;&gt; 0)"/>
+                    <Execute Statement="PrevDecodedComponent:= Component"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="PrevDecodedComponent:= EmptyValue"/>
+                  </Otherwise>
+                </Choose>
+                <rep:Reporter.Information Text="Format('%-*s%-*s%-*s', 
+                                          ColumnManager.GetColumnWidth(0, 1), Component.Reference,
+                                          ColumnManager.GetColumnWidth(1, 1), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(7, 1), ComponentKindNameString(ComponentSpec.ComponentKind) 
+                                          )"/>
+              </lil:LinkedList.Iterate>
+            </Object.Use>
+          </Object.Use>
+        </Object.Use>
+
       </Block>
     </Procedure>
 

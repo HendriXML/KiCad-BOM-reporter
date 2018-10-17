@@ -16,6 +16,8 @@
             xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd">
   <pkg:ReportTargets>
     <pkg:Target Identifier="Report" Description="BOM report"/>
+    <pkg:Target Identifier="DesignatorReport" Description="Designator report"/>
+    <!--<pkg:Target Identifier="DesignatorStockReport" Description="Designator stock report"/>-->
     <pkg:Target Identifier="StockReport" Description="Partkeepr components"/>
     <pkg:Target Identifier="Info" Description="Info"/>
     <pkg:Target Identifier="Errors" Description="Errors"/>
@@ -66,6 +68,7 @@ Footprint = THT
     <Import Identifier="ZenerDiodeClasses" Filename="..\Script.Common.Electronics\BOM ZenerDiodeClasses.xml"/>
     <Import Identifier="ConnectorClasses" Filename="..\Script.Common.Electronics\BOM ConnectorClasses.xml"/>
     <Import Identifier="GenericComponentClasses" Filename="..\Script.Common.Electronics\BOM GenericComponentClasses.xml"/>
+    <Import Identifier="CategoryContainer" Filename="..\Script.Common.Electronics\BOM CategoryContainer.xml"/>
     <Import Identifier="StockManager" Filename="..\Script.Common.Electronics\BOM StockManager.xml"/>
     <Import Identifier="BillOfMaterialClass" Filename="..\Script.Common.Electronics\BOM BillOfMaterialClass.xml"/>
     <Import Identifier="PartKeeprProjectExport" Filename="..\Script.Common.Electronics\BOM PartKeeprProjectExport.xml"/>
@@ -73,6 +76,7 @@ Footprint = THT
   <Uses>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
+    <Use Identifier="CategoryContainer"/>
     <Use Identifier="BillOfMaterialClass"/>
     <Use Identifier="StockManager"/>
     <Use Identifier="PartKeeprProjectExport"/>
@@ -116,14 +120,18 @@ Footprint = THT
     <ado:Connection.OpenBlock ConnectionString="ConnectionString" Connection="DBConnection">
       <Execute Statement="StockManager.LoadFromDB(DBConnection)"/>
       <Execute Statement="StockManager.ConsolidateSpecifications"/>
-      <rep:Reporter.DefaultTarget Identifier="StockReport"/>
-      <Execute Statement="StockManager.Report"/>
-      <rep:Reporter.DefaultTarget Identifier="Info"/>
-
 
       <Execute Statement="BillOfMaterials.AssignStockComponents(StockManager)"/>
       <rep:Reporter.DefaultTarget Identifier="Report"/>
       <Execute Statement="BillOfMaterials.Report(BomCount)"/>
+
+      <rep:Reporter.DefaultTarget Identifier="StockReport"/>
+      <Execute Statement="StockManager.Report"/>
+      <rep:Reporter.DefaultTarget Identifier="Info"/>
+
+      <rep:Reporter.DefaultTarget Identifier="DesignatorReport"/>
+      <Execute Statement="BillOfMaterials.ReportDesignators"/>
+      
 
       <Variable Identifier="EndTime" Type="Int64" Init="QueryPerformanceCounter" />
       <rep:Reporter.Information Text="Format(sTimeMeasure, (EndTime-StartTime)/QueryPerformanceFrequency)" Target="Info"/>

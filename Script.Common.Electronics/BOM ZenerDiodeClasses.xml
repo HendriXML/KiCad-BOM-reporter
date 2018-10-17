@@ -193,53 +193,101 @@
       </Block>
     </Procedure>
 
-    <Function Identifier="TZenerDiodeSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+
+    <Procedure Identifier="TZenerDiodeSpec.GetSpecificationValues">
       <Parameters>
-        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="Value" Type="string" Direction="Output"/>
+        <Parameter Identifier="PowerRating" Type="string" Direction="Output"/>
+        <Parameter Identifier="Tolerance" Type="string" Direction="Output"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
       </Parameters>
-      <Variables>
-        <Variable Identifier="LocZenerVoltage" Type="string" Init="''"/>
-        <Variable Identifier="LocPowerRating" Type="string" Init="''"/>
-        <Variable Identifier="LocTolerance" Type="string" Init="''"/>
-        <Variable Identifier="LocComponent" Type="string" Init="''"/>
-      </Variables>
       <Block>
         <Case Expression="ZenerVoltageVT">
           <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
-            <Execute Statement="LocZenerVoltage:= '?V'"/>
+            <Execute Statement="Value:= ''"/>
           </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocZenerVoltage:= FormatMicroVolt(ZenerVoltage)"/>
+            <Execute Statement="Value:= FormatMicroVolt(Self.ZenerVoltage)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocZenerVoltage:= '{volt:' + ErrorZenerVoltage + '}'"/>
+            <Execute Statement="Value:= '!' + ErrorZenerVoltage + '!'"/>
           </On>
         </Case>
 
         <Case Expression="PowerRatingVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="PowerRating:= ''"/>
+          </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocPowerRating:= FormatMicroWatt(PowerRating)"/>
+            <Execute Statement="PowerRating:= FormatMicroWatt(Self.PowerRating)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocPowerRating:= '{pwr:' + ErrorPowerRating + '}'"/>
+            <Execute Statement="PowerRating:= '!' + ErrorPowerRating + '!'"/>
           </On>
         </Case>
 
         <Case Expression="ToleranceVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="Tolerance:= ''"/>
+          </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocTolerance:= FormatMicroPercentage(Tolerance)"/>
+            <Execute Statement="Tolerance:= FormatMicroPercentage(Self.Tolerance)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocTolerance:= '{tol:' + ErrorTolerance + '}'"/>
+            <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
           </On>
         </Case>
+
+        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TZenerDiodeSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="ReportContext" Type="TSpecReportContext"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Value" Type="string"/>
+        <Variable Identifier="PowerRating" Type="string"/>
+        <Variable Identifier="Tolerance" Type="string"/>
+        <Variable Identifier="Footprint" Type="string"/>
+        <Variable Identifier="PartNumberModel" Type="string"/>
+      </Variables>
+      <Block>
+        <Execute Statement="GetSpecificationValues(Value, PowerRating, Tolerance, Footprint, PartNumberModel)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
-            <Execute Statement="Result:= Format('%6s %6s %3s %-12s', LocZenerVoltage, LocPowerRating, LocTolerance, '')"/>
-            <Execute Statement="Result:= Format('%-50s %-10s', Result, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+            <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
+            <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
+            <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
+            <Execute Statement="PowerRating:= PowerRating + ' '" Condition="PowerRating &lt;&gt; ''"/>
+            <Execute Statement="Tolerance:= Tolerance + ' '" Condition="Tolerance &lt;&gt; ''"/>
+            <Execute Statement="Footprint:= Footprint + ' '" Condition="Footprint &lt;&gt; ''"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
+            <Choose>
+              <When Expression="ReportContext.Measure">
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.Value, 1, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.PowerRating, 1, Length(PowerRating))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.Tolerance, 1, Length(Tolerance))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.FootPrint, 1, Length(Footprint))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="Result:= ''"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= Format('%*s%*s%*s%*s%-*s%-*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.Value, 1), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.PowerRating, 1), PowerRating,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.Tolerance, 1), Tolerance,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.None1, 1), '',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.FootPrint, 1), Footprint,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
+              </Otherwise>
+            </Choose>
           </On>
           <On Select="TSpecFormatType.Compressed">
-            <Execute Statement="Result:= ConcatExt(' ', True, LocZenerVoltage, LocPowerRating, LocTolerance, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, Tolerance, PowerRating, Footprint, PartNumberModel)"/>
           </On>
         </Case>
       </Block>

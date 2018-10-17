@@ -251,55 +251,102 @@
         <Execute Statement="inherited ApplyTemplate"/>
       </Block>
     </Procedure>
-
-    <Function Identifier="TInductorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+    
+    <Procedure Identifier="TInductorSpec.GetSpecificationValues">
       <Parameters>
-        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="Value" Type="string" Direction="Output"/>
+        <Parameter Identifier="AmperageRating" Type="string" Direction="Output"/>
+        <Parameter Identifier="Tolerance" Type="string" Direction="Output"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
       </Parameters>
-      <Variables>
-        <Variable Identifier="LocInductance" Type="string" Init="''"/>
-        <Variable Identifier="LocAmperageRating" Type="string" Init="''"/>
-        <Variable Identifier="LocTolerance" Type="string" Init="''"/>
-        <Variable Identifier="LocComponent" Type="string" Init="''"/>
-      </Variables>
       <Block>
         <Case Expression="InductanceVT">
-          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
-            <Execute Statement="LocInductance:= '?F'"/>
+         <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="Value:= ''"/>
           </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocInductance:= FormatFemtoHenry(Inductance)"/>
+            <Execute Statement="Value:= FormatFemtoHenry(Self.Inductance)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocInductance:= '{cap:' + ErrorInductance + '}'"/>
+            <Execute Statement="Value:= '!' + ErrorInductance + '!'"/>
           </On>
         </Case>
 
         <Case Expression="AmperageRatingVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="Tolerance:= ''"/>
+          </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocAmperageRating:= FormatMicroAmp(AmperageRating)"/>
+            <Execute Statement="AmperageRating:= FormatMicroAmp(Self.AmperageRating)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocAmperageRating:= '{amp:' + ErrorAmperageRating + '}'"/>
+            <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!'"/>
           </On>
         </Case>
 
         <Case Expression="ToleranceVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="Tolerance:= ''"/>
+          </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocTolerance:= FormatMicroPercentage(Tolerance)"/>
+            <Execute Statement="Tolerance:= FormatMicroPercentage(Self.Tolerance)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocTolerance:= '{tol:' + ErrorTolerance + '}'"/>
+            <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
           </On>
         </Case>
 
+
+        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TInductorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="ReportContext" Type="TSpecReportContext"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Value" Type="string" Init="''"/>
+        <Variable Identifier="AmpRating" Type="string" Init="''"/>
+        <Variable Identifier="Tolerance" Type="string" Init="''"/>
+        <Variable Identifier="Footprint" Type="string" Init="''"/>
+        <Variable Identifier="PartNumberModel" Type="string" Init="''"/>
+      </Variables>
+      <Block>
+        <Execute Statement="GetSpecificationValues(Value, AmpRating, Tolerance, Footprint, PartNumberModel)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
-            <Execute Statement="Result:= Format('%6s %6s %3s', LocInductance, LocAmperageRating, LocTolerance)"/>
-            <Execute Statement="Result:= Format('%-50s %-10s', Result, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+            <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
+            <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
+            <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
+            <Execute Statement="Tolerance:= Tolerance + ' '" Condition="Tolerance &lt;&gt; ''"/>
+            <Execute Statement="AmpRating:= AmpRating + ' '" Condition="AmpRating &lt;&gt; ''"/>
+            <Execute Statement="Footprint:= Footprint + ' '" Condition="Footprint &lt;&gt; ''"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
+            <Choose>
+              <When Expression="ReportContext.Measure">
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.Value, 1, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.AmpRating, 1, Length(AmpRating))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.Tolerance, 1, Length(Tolerance))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.FootPrint, 1, Length(Footprint))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="Result:= ''"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= Format('%*s%*s%*s%*s%-*s%-*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.Value, 1), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.AmpRating, 1), AmpRating,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.Tolerance, 1), Tolerance,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.None1, 1), '',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.FootPrint, 1), Footprint,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
+              </Otherwise>
+            </Choose>
           </On>
           <On Select="TSpecFormatType.Compressed">
-            <Execute Statement="Result:= ConcatExt(' ', True, LocInductance, LocAmperageRating, LocTolerance, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, Tolerance, AmpRating, Footprint, PartNumberModel)"/>
           </On>
         </Case>
       </Block>

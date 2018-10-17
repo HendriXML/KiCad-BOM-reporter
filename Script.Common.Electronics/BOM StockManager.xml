@@ -26,18 +26,12 @@
     <Use Identifier="ZenerDiodeClasses"/>
     <Use Identifier="ConnectorClasses"/>
     <Use Identifier="GenericComponentClasses"/>
+    <Use Identifier="CategoryContainer"/>
   </Uses>
   <Type>
     <Enumeration Identifier="TPartKeeprPrefix" Elements="Yotta = 1, Zetta = 2, Exa = 3, Peta = 4, Tera = 5, Giga = 6, Mega = 7, Kilo = 8, Hecto = 9, Deca = 10, None = 11, Deci = 12, Centi = 13, Milli = 14, Micro = 15, Nano = 16, Pico = 17, Femto = 18, Atto = 19, Zepto = 20, Yocto = 21, Kibi = 22, Mebi = 23, Gibi = 24, Tebi = 25, Pebi = 26, Exbi = 27, Zebi = 28, Yobi = 29"/>
 
-    <DataClass Identifier="TStockManager">
-      <VirtualMethod Identifier="vmFinalize" IsFinalizer="true"/>
-      <Field Identifier="Resistors" Type="TResistorCategory"/>
-      <Field Identifier="Capacitors" Type="TCapacitorCategory"/>
-      <Field Identifier="Inductors" Type="TInductorCategory"/>
-      <Field Identifier="ZenerDiodes" Type="TZenerDiodeCategory"/>
-      <Field Identifier="Connectors" Type="TConnectorCategory"/>
-      <Field Identifier="GenericComponents" Type="TGenericComponentCategory"/>
+    <DataClass Identifier="TStockManager" Inherit="TCategoryContainer" DefaultConstructor="none">
     </DataClass>
 
     <DataClass Identifier="TUnitInfo">
@@ -172,22 +166,6 @@
       </Block>
     </Function>
 
-    <Constructor Identifier="TStockManager.Create">
-      <Block>
-        <Execute Statement="Resistors:= TResistorCategory.Create"/>
-        <Execute Statement="Capacitors:= TCapacitorCategory.Create"/>
-        <Execute Statement="Inductors:= TInductorCategory.Create"/>
-        <Execute Statement="ZenerDiodes:= TZenerDiodeCategory.Create"/>
-        <Execute Statement="Connectors:= TConnectorCategory.Create"/>
-        <Execute Statement="GenericComponents:= TGenericComponentCategory.Create"/>
-      </Block>
-    </Constructor>
-
-    <Procedure Identifier="TStockManager.Finalize" VirtualMethod="vmFinalize">
-      <Block>
-      </Block>
-    </Procedure>
-
     <Procedure Identifier="TStockManager.LoadFromDB">
       <Parameters>
         <Parameter Identifier="DBConnection" Type="Connection"/>
@@ -202,17 +180,14 @@
             <Parameter Identifier="ValueHead" Type="TComponentValue"/>
           </Parameters>
           <Variables>
-            <Variable Identifier="RunningComponentValue" Type="TComponentValue" Init="ValueHead"/>
             <Variable Identifier="ReleaseComponentValue" Type="TComponentValue"/>
           </Variables>
           <Block>
             <rep:Reporter.Information Text="Format('%s (%d)', StockComponent.Name, StockComponent.ID)" Markup="Header3" Condition="IsVerbose"/>
 
-            <WhileLoop Expression="Assigned(RunningComponentValue)">
+            <lil:LinkedList.Iterate Head="ValueHead" ItemType="TComponentValue" RunningItem="RunningComponentValue" Next="RunningComponentValue.Next">
               <rep:Reporter.Information Text="Format('%s=%s', RunningComponentValue.Name, RunningComponentValue.Value)" Condition="IsVerbose"/>
-              <Execute Statement="RunningComponentValue:= RunningComponentValue.Next"/>
-            </WhileLoop>
-
+            </lil:LinkedList.Iterate>
             <Execute Statement="Count:= Count + 1"/>
             <Choose>
               <When Expression="Resistors.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
@@ -225,13 +200,9 @@
                 <rep:Reporter.Error Text="Format('Component %d werd niet herkend', StockComponent.ID)" Target="Errors"/>
               </Otherwise>
             </Choose>
-
-            <Execute Statement="RunningComponentValue:= ValueHead"/>
-            <WhileLoop Expression="Assigned(RunningComponentValue)">
-              <Execute Statement="ReleaseComponentValue:= RunningComponentValue"/>
-              <Execute Statement="RunningComponentValue:= RunningComponentValue.Next"/>
-              <Free Expression="ReleaseComponentValue"/>
-            </WhileLoop>
+            <lil:LinkedList.Iterate Head="ValueHead" ItemType="TComponentValue" RunningItem="RunningComponentValue" Next="RunningComponentValue.Next">
+              <Free Expression="RunningComponentValue"/>
+            </lil:LinkedList.Iterate>
           </Block>
         </Procedure>
       </Procedures>
@@ -344,15 +315,7 @@
                             <Execute Statement="StockComponent.Location:= IfElse(IsNull(Location), '', Location)"/>
                             <Execute Statement="StockComponent.Footprint:= IfElse(IsNull(Footprint), '', Footprint)"/>
                             <Execute Statement="StockComponent.StockCategory:= Category"/>
-                            <Choose>
-                              <When Expression="Assigned(StockComponentHead)">
-                                <Execute Statement="StockComponentTail.Next:= StockComponent"/>
-                              </When>
-                              <Otherwise>
-                                <Execute Statement="StockComponentHead:= StockComponent"/>
-                              </Otherwise>
-                            </Choose>
-                            <Execute Statement="StockComponentTail:= StockComponent"/>
+                            <lil:LinkedList.LinkUp Head="StockComponentHead" Tail="StockComponentTail" Item="StockComponent" TailLinkStatement="StockComponentTail.Next:= Item"/>
                           </ado:Recordset.Iterate>
                         </ado:Recordset.OpenBlock>
                       </ado:Command.CreateBlock>
@@ -456,26 +419,29 @@
       </Block>
     </Procedure>
 
-    <Procedure Identifier="TStockManager.ConsolidateSpecifications">
-      <Block>
-        <Execute Statement="Resistors.ConsolidateSpecifications"/>
-        <Execute Statement="Capacitors.ConsolidateSpecifications"/>
-        <Execute Statement="Inductors.ConsolidateSpecifications"/>
-        <Execute Statement="ZenerDiodes.ConsolidateSpecifications"/>
-        <Execute Statement="Connectors.ConsolidateSpecifications"/>
-        <Execute Statement="GenericComponents.ConsolidateSpecifications"/>
-      </Block>
-    </Procedure>
-
     <Procedure Identifier="TStockManager.Report">
       <Block>
-        <rep:Reporter.Information Text="sStockHeader" Markup="Header1"/>
-        <Execute Statement="Resistors.ReportStock"/>
-        <Execute Statement="Capacitors.ReportStock"/>
-        <Execute Statement="Inductors.ReportStock"/>
-        <Execute Statement="ZenerDiodes.ReportStock"/>
-        <Execute Statement="Connectors.ReportStock"/>
-        <Execute Statement="GenericComponents.ReportStock"/>
+        <Object.Use Identifier="StockContext" Type="TStockReportContext" Expression="TStockReportContext.Create">
+          <Object.Use Identifier="SpecReportContext" Type="TSpecReportContext" Expression="TSpecReportContext.Create">
+            <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create(8)">
+              <Execute Statement="SpecReportContext.ColumnManager:= ColumnManager"/>
+              <Execute Statement="SpecReportContext.ColumnOffset:= 1"/>
+              <Execute Statement="StockContext.SpecContext:= SpecReportContext"/>
+              <Execute Statement="StockContext.Measure:= True"/>
+              <Execute Statement="SpecReportContext.Measure:= True"/>
+              <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
+                <Execute Statement="RunningItem.ReportStock(StockContext)"/>
+              </lil:LinkedList.Iterate>
+              <Execute Statement="ColumnManager.DetermineColumnWidths"/>
+              <Execute Statement="StockContext.Measure:= False"/>
+              <Execute Statement="SpecReportContext.Measure:= False"/>
+              <rep:Reporter.Information Text="sStockHeader" Markup="Header1"/>
+              <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
+                <Execute Statement="RunningItem.ReportStock(StockContext)"/>
+              </lil:LinkedList.Iterate>
+            </Object.Use>
+          </Object.Use>
+        </Object.Use>
       </Block>
     </Procedure>
 

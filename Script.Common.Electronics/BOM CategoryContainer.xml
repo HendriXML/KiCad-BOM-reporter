@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado" 
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement" 
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall" 
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index" 
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist" 
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry" 
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report" 
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus" 
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils" 
+  >
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="BomStrings"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="ResistorClasses"/>
+    <Use Identifier="CapacitorClasses"/>
+    <Use Identifier="InductorClasses"/>
+    <Use Identifier="ZenerDiodeClasses"/>
+    <Use Identifier="ConnectorClasses"/>
+    <Use Identifier="GenericComponentClasses"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TCategoryContainer">
+      <Field Identifier="CategoryHead" Type="TComponentCategory"/>
+      <Field Identifier="Resistors" Type="TResistorCategory"/>
+      <Field Identifier="Capacitors" Type="TCapacitorCategory"/>
+      <Field Identifier="Inductors" Type="TInductorCategory"/>
+      <Field Identifier="ZenerDiodes" Type="TZenerDiodeCategory"/>
+      <Field Identifier="Connectors" Type="TConnectorCategory"/>
+      <Field Identifier="GenericComponents" Type="TGenericComponentCategory"/>
+    </DataClass>
+  </Type>
+  <Procedures>
+    <Constructor Identifier="TCategoryContainer.Create">
+      <Variables>
+        <Variable Identifier="Head" Type="TComponentCategory"/>
+        <Variable Identifier="Tail" Type="TComponentCategory"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Resistors:= TResistorCategory.Create"/>
+        <Execute Statement="Capacitors:= TCapacitorCategory.Create"/>
+        <Execute Statement="Inductors:= TInductorCategory.Create"/>
+        <Execute Statement="ZenerDiodes:= TZenerDiodeCategory.Create"/>
+        <Execute Statement="Connectors:= TConnectorCategory.Create"/>
+        <Execute Statement="GenericComponents:= TGenericComponentCategory.Create"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Resistors" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Capacitors" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Inductors" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="ZenerDiodes" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Connectors" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="GenericComponents" TailLinkStatement="Tail.Next:= Item"/>
+        <Execute Statement="CategoryHead:= Head"/>
+      </Block>
+    </Constructor>
+    
+    <Procedure Identifier="TCategoryContainer.ConsolidateSpecifications">
+      <Block>
+        <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
+          <Execute Statement="RunningItem.ConsolidateSpecifications"/>
+        </lil:LinkedList.Iterate>
+      </Block>
+    </Procedure>
+
+  </Procedures>
+</pkg:Library>

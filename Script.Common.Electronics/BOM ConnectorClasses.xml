@@ -486,56 +486,95 @@
         </Case>
       </Block>
     </Procedure>
-
-    <Function Identifier="TConnectorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+    
+    <Procedure Identifier="TConnectorSpec.GetSpecificationValues">
       <Parameters>
-        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="Value" Type="string" Direction="Output"/>
+        <Parameter Identifier="AmperageRating" Type="string" Direction="Output"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
       </Parameters>
-      <Variables>
-        <Variable Identifier="LocPins" Type="string" Init="''"/>
-        <Variable Identifier="LocAmperageRating" Type="string" Init="''"/>
-      </Variables>
       <Block>
         <Case Expression="PinsVT">
           <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
-            <Execute Statement="LocPins:= ''"/>
+            <Execute Statement="Value:= ''"/>
           </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
             <Choose>
               <When Expression="(PinRowsLow = PinRowsHigh) and (PinColsLow = PinColsHigh)">
-                <Execute Statement="LocPins:= Format('%.2dx%.2d', PinRowsLow, PinColsLow)"/>
+                <Execute Statement="Value:= Format('%.2dx%.2d', PinRowsLow, PinColsLow)"/>
               </When>
               <Otherwise>
-                <Execute Statement="LocPins:= Format('%.2dx%.2d..%.2dx%.2d', PinRowsLow, PinColsLow, PinRowsHigh, PinColsHigh)"/>
+                <Execute Statement="Value:= Format('%.2dx%.2d..%.2dx%.2d', PinRowsLow, PinColsLow, PinRowsHigh, PinColsHigh)"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocPins:= '{pins:' + ErrorPins + '}'"/>
+            <Execute Statement="Value:= '!' + ErrorPins + '!'"/>
           </On>
         </Case>
 
         <Case Expression="AmperageRatingVT">
+          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+            <Execute Statement="AmperageRating:= ''"/>
+          </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="LocAmperageRating:= FormatMicroAmp(AmperageRating)"/>
+            <Execute Statement="AmperageRating:= FormatMicroAmp(Self.AmperageRating)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
-            <Execute Statement="LocAmperageRating:= '{amp:' + ErrorAmperageRating + '}'"/>
+            <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!'"/>
           </On>
         </Case>
+        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel)"/>
+      </Block>
+    </Procedure>
 
+    <Function Identifier="TConnectorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="ReportContext" Type="TSpecReportContext"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Value" Type="string"/>
+        <Variable Identifier="AmpRating" Type="string"/>
+        <Variable Identifier="FootPrint" Type="string"/>
+        <Variable Identifier="PartNumberModel" Type="string"/>
+      </Variables>
+      <Block>
+        <Execute Statement="GetSpecificationValues(Value, AmpRating, FootPrint, PartNumberModel)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
-            <Execute Statement="Result:= Format('%-13s %-36s %-10s', LocPins, LocAmperageRating, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+            <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
+            <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
+            <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
+            <Execute Statement="AmpRating:= AmpRating + ' '" Condition="AmpRating &lt;&gt; ''"/>
+            <Execute Statement="FootPrint:= FootPrint + ' '" Condition="FootPrint &lt;&gt; ''"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
+            <Choose>
+              <When Expression="ReportContext.Measure">
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.Value, 2, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.AmpRating, 2, Length(AmpRating))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.FootPrint, 1, Length(FootPrint))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="Result:= ''"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= Format('%-*s%*s%*s%-*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.Value, 2), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.AmpRating, 2), AmpRating,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.FootPrint, 1), FootPrint,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
+              </Otherwise>
+            </Choose>
           </On>
           <On Select="TSpecFormatType.Compressed">
-            <Execute Statement="Result:= ConcatExt(' ', True, LocPins, LocAmperageRating, inherited SpecificationAsString(TSpecFormatType.Compressed))"/>
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, AmpRating, FootPrint, PartNumberModel)"/>
           </On>
         </Case>
       </Block>
     </Function>
 
-    <Procedure Identifier="TConnectorSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
+  <Procedure Identifier="TConnectorSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
       <Variables>
         <Variable Identifier="locTemplate" Type="TConnectorSpec"/>
       </Variables>
