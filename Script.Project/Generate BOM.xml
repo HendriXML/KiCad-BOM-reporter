@@ -29,6 +29,7 @@ BomFilename=F:\Software development\Constructie\FumeExtracter\eSchemas.Project\F
 BomCount=1
 ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr
 ExportProjectID=?
+HideESerieOfValue=0
 
 [Template.Resistor.THT]
 PowerRating = 250mW
@@ -88,6 +89,7 @@ Footprint = THT
     <Constant Identifier="keyBomCount" Type="string" Expression="'BomCount'"/>
     <Constant Identifier="keyConnectionString" Type="string" Expression="'ConnectionString'"/>
     <Constant Identifier="keyExportProjectID" Type="string" Expression="'ExportProjectID'"/>
+    <Constant Identifier="keyHideESerieOfValue" Type="string" Expression="'HideESerieOfValue'"/>
   </Constants>
   <Variables>
     <Variable Identifier="ConnectionString" Type="string" Init="connsPartKeepr"/>
@@ -102,6 +104,7 @@ Footprint = THT
     <Variable Identifier="StartTime" Type="Int64" Init="QueryPerformanceCounter" />
 
     <rep:Reporter.DefaultTarget Identifier="Info"/>
+    <Execute Statement="HideESerieOfValue:= ConfigInifile.ReadBool(secSettings, keyHideESerieOfValue, HideESerieOfValue)"/>
     <Execute Statement="ConnectionString:= ConfigInifile.ReadString(secSettings, keyConnectionString, ConnectionString)"/>
     <ConditionalBlock Expression="not CommandlineVariables.GetValue(keyBomFilename, BomFilename)">
       <Execute Statement="BomFilename:= ConfigInifile.ReadString(secSettings, keyBomFilename, BomFilename)"/>

@@ -135,14 +135,14 @@
             <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
             <Choose>
               <When Expression="ReportContext.Measure">
-                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 4, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 5, Length(Value))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.FootPrint, 1, Length(Footprint))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
                 <Execute Statement="Result:= ''"/>
               </When>
               <Otherwise>
                 <Execute Statement="Result:= Format('%-*s%-*s%-*s',
-                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 4), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 5), Value,
                          ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.FootPrint, 1), Footprint,
                          ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
               </Otherwise>

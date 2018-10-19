@@ -146,7 +146,7 @@
         <Object.Use Identifier="SchemaContext" Type="TSchemaReportContext" Expression="TSchemaReportContext.Create">
           <Object.Use Identifier="StockContext" Type="TStockReportContext" Expression="TStockReportContext.Create">
             <Object.Use Identifier="SpecReportContext" Type="TSpecReportContext" Expression="TSpecReportContext.Create">
-              <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create(8)">
+              <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create">
                 <Execute Statement="SpecReportContext.ColumnManager:= ColumnManager"/>
                 <Execute Statement="SpecReportContext.ColumnOffset:= 1"/>
                 <Execute Statement="StockContext.SpecContext:= SpecReportContext"/>
@@ -161,7 +161,6 @@
                 <Execute Statement="StockContext.Measure:= False"/>
                 <Execute Statement="SpecReportContext.Measure:= False"/>
                 <Execute Statement="SchemaContext.Measure:= False"/>
-                <Execute Statement="ColumnManager.DetermineColumnWidths"/>
                 <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
                   <Execute Statement="RunningCategory.ReportSchema(Count, SchemaContext, StockContext)"/>
                 </lil:LinkedList.Iterate>
@@ -204,7 +203,7 @@
 
         <Object.Use Identifier="DesignatorsReportContext" Type="TDesignatorsReportContext" Expression="TDesignatorsReportContext.Create">
           <Object.Use Identifier="SpecReportContext" Type="TSpecReportContext" Expression="TSpecReportContext.Create">
-            <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create(8)">
+            <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create">
               <Execute Statement="SpecReportContext.ColumnManager:= ColumnManager"/>
               <Execute Statement="SpecReportContext.ColumnOffset:= 1"/>
               <Execute Statement="DesignatorsReportContext.SpecContext:= SpecReportContext"/>
@@ -218,8 +217,6 @@
                 <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, Length(Component.Reference)+2)"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(7, 1, Length(ComponentKindNameString(ComponentSpec.ComponentKind)))"/>
               </lil:LinkedList.Iterate>
-              
-              <Execute Statement="ColumnManager.DetermineColumnWidths"/>
               <!--<ForLoop Indexer="I" From="0" To="ColumnManager.ColumnCount - 1">
                 <rep:Reporter.Information Text="Format('%*d: %d', 3, I, ColumnManager.GetColumnWidth(I, 1))"/>
               </ForLoop>-->

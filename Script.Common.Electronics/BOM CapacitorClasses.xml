@@ -326,6 +326,7 @@
     <Procedure Identifier="TCapacitorSpec.GetSpecificationValues">
       <Parameters>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
+        <Parameter Identifier="ESerie" Type="string" Direction="Output"/>
         <Parameter Identifier="VoltageRating" Type="string" Direction="Output"/>
         <Parameter Identifier="Tolerance" Type="string" Direction="Output"/>
         <Parameter Identifier="Technology" Type="string" Direction="Output"/>
@@ -339,6 +340,7 @@
           </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
             <Execute Statement="Value:= FormatFemtoFarad(Self.Capacitance)"/>
+            <Execute Statement="ESerie:= ESerieOfValue(Self.Capacitance)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
             <Execute Statement="Value:= '!' + ErrorCapacitance + '!'"/>
@@ -392,6 +394,7 @@
       </Parameters>
       <Variables>
         <Variable Identifier="Value" Type="string" Init="''"/>
+        <Variable Identifier="ESerie" Type="string" Init="''"/>
         <Variable Identifier="VoltageRating" Type="string" Init="''"/>
         <Variable Identifier="Tolerance" Type="string" Init="''"/>
         <Variable Identifier="Technology" Type="string" Init="''"/>
@@ -399,12 +402,13 @@
         <Variable Identifier="PartNumberModel" Type="string" Init="''"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, VoltageRating, Tolerance, Technology, Footprint, PartNumberModel)"/>
+        <Execute Statement="GetSpecificationValues(Value, ESerie, VoltageRating, Tolerance, Technology, Footprint, PartNumberModel)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
             <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
             <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
+            <Execute Statement="ESerie:= ESerie + ' '" Condition="ESerie &lt;&gt; ''"/>
             <Execute Statement="VoltageRating:= VoltageRating + ' '" Condition="VoltageRating &lt;&gt; ''"/>
             <Execute Statement="Tolerance:= Tolerance + ' '" Condition="Tolerance &lt;&gt; ''"/>
             <Execute Statement="Technology:= Technology + ' '" Condition="Technology &lt;&gt; ''"/>
@@ -413,6 +417,7 @@
             <Choose>
               <When Expression="ReportContext.Measure">
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.Value, 1, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.ESerie, 1, Length(ESerie))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.VoltageRating, 1, Length(VoltageRating))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.Tolerance, 1, Length(Tolerance))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.Technology, 1, Length(Technology))"/>
@@ -421,8 +426,9 @@
                 <Execute Statement="Result:= ''"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= Format('%*s%*s%*s%-*s%-*s%-*s',
+                <Execute Statement="Result:= Format('%*s%*s%*s%*s%-*s%-*s%-*s',
                          ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.Value, 1), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.ESerie, 1), ESerie,
                          ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.VoltageRating, 1), VoltageRating,
                          ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.Tolerance, 1), Tolerance,
                          ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.Technology, 1), Technology,

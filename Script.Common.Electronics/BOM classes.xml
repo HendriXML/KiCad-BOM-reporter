@@ -37,12 +37,12 @@
 
     <Enumeration Identifier="TSpecFormatType" Elements="Compressed, Fixed"/>
 
-    <Enumeration Identifier="TResistorSpecColumns"      Elements="Value, PowerRating,   Tolerance, Technology, FootPrint, PartNumberModel"/>
-    <Enumeration Identifier="TCapacitorSpecColumns"     Elements="Value, VoltageRating, Tolerance, Technology, FootPrint, PartNumberModel"/>
-    <Enumeration Identifier="TZenerDiodeSpecColumns"    Elements="Value, PowerRating,   Tolerance, None1,      FootPrint, PartNumberModel"/>
-    <Enumeration Identifier="TInductorSpecColumns"      Elements="Value, AmpRating,     Tolerance, None1,      FootPrint, PartNumberModel"/>
-    <Enumeration Identifier="TConnectorSpecColumns"     Elements="Value, Span1,         AmpRating, Span2,      FootPrint, PartNumberModel"/>
-    <Enumeration Identifier="TGenComponentSpecColumns"  Elements="Value, Span1,         Span2,     Span3,      FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TResistorSpecColumns"      Elements="Value, ESerie, PowerRating,   Tolerance, Technology, FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TCapacitorSpecColumns"     Elements="Value, ESerie, VoltageRating, Tolerance, Technology, FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TZenerDiodeSpecColumns"    Elements="Value, ESerie, PowerRating,   Tolerance, None1,      FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TInductorSpecColumns"      Elements="Value, ESerie, AmpRating,     Tolerance, None1,      FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TConnectorSpecColumns"     Elements="Value, SpanA2, SpanA3,        AmpRating, SpanB2,     FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TGenComponentSpecColumns"  Elements="Value, SpanA2, SpanA3,        SpanA4,    SpanA5,     FootPrint, PartNumberModel" LowAlias="Min" HighAlias="Max"/>
 
     <DataClass Identifier="TSchemaComponent" DefaultConstructor="none">
       <Field Identifier="Reference" Type="string"/>
@@ -163,6 +163,9 @@
     <Variable Identifier="CustomFieldsIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
     <Variable Identifier="ComponentKindIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
     <Variable Identifier="FootprintIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
+    <Variable Identifier="E192Serie" Type="TSerie"/>
+    <Variable Identifier="E24Serie" Type="TSerie"/>
+    <Variable Identifier="HideESerieOfValue" Type="Boolean" Init="False"/>
   </Variables>
 
   <Procedures>
@@ -228,6 +231,45 @@
           <Otherwise>
             <Execute Statement="Result:= sFootprintNamingMissing"/>
           </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="ESerieOfValue" Type="string" IsDeterministic="true">
+      <Parameters>
+        <Parameter Identifier="Value" Type="Int64"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="SerieNode" Type="TSerieNode"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= ''"/>
+        <Exit Condition="HideESerieOfValue"/>
+        <Execute Statement="SerieNode:= E24Serie.FindNode(Value)"/>
+        <Execute Statement="SerieNode:= E192Serie.FindNode(Value)" Condition="not Assigned(SerieNode)"/>
+        <Exit  Condition="not Assigned(SerieNode)"/>
+        <Case Expression="SerieNode.LowSerie">
+          <On Select="TESerie.E3">
+            <Execute Statement="Result:= 'E3'"/>
+          </On>
+          <On Select="TESerie.E6">
+            <Execute Statement="Result:= 'E6'"/>
+          </On>
+          <On Select="TESerie.E12">
+            <Execute Statement="Result:= 'E12'"/>
+          </On>
+          <On Select="TESerie.E24">
+            <Execute Statement="Result:= 'E24'"/>
+          </On>
+          <On Select="TESerie.E48">
+            <Execute Statement="Result:= 'E48'"/>
+          </On>
+          <On Select="TESerie.E96">
+            <Execute Statement="Result:= 'E96'"/>
+          </On>
+          <On Select="TESerie.E192">
+            <Execute Statement="Result:= 'E192'"/>
+          </On>
         </Case>
       </Block>
     </Function>
@@ -653,7 +695,7 @@
               </When>
               <Otherwise>
                 <Execute Statement="Result:= Format('%*s%*s%*s',
-                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 4), '',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 5), '',
                          ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.FootPrint, 1), FootPrint,
                          ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
               </Otherwise>
@@ -1412,6 +1454,8 @@
   </Procedures>
 
   <Initialization>
+    <Execute Statement="E24Serie:= GetESerie(TESerie.E24)"/>
+    <Execute Statement="E192Serie:= GetESerie(TESerie.E192)"/>
     <Execute Statement="InitCustomFieldIndex(CustomFieldsIndex)"/>
     <Execute Statement="InitComponentKindIndex(ComponentKindIndex)"/>
     <Execute Statement="InitFootprintIndex(FootprintIndex)"/>

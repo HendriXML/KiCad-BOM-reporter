@@ -423,7 +423,7 @@
       <Block>
         <Object.Use Identifier="StockContext" Type="TStockReportContext" Expression="TStockReportContext.Create">
           <Object.Use Identifier="SpecReportContext" Type="TSpecReportContext" Expression="TSpecReportContext.Create">
-            <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create(8)">
+            <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create">
               <Execute Statement="SpecReportContext.ColumnManager:= ColumnManager"/>
               <Execute Statement="SpecReportContext.ColumnOffset:= 1"/>
               <Execute Statement="StockContext.SpecContext:= SpecReportContext"/>
@@ -432,7 +432,6 @@
               <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
                 <Execute Statement="RunningItem.ReportStock(StockContext)"/>
               </lil:LinkedList.Iterate>
-              <Execute Statement="ColumnManager.DetermineColumnWidths"/>
               <Execute Statement="StockContext.Measure:= False"/>
               <Execute Statement="SpecReportContext.Measure:= False"/>
               <rep:Reporter.Information Text="sStockHeader" Markup="Header1"/>

@@ -268,6 +268,7 @@
     <Procedure Identifier="TResistorSpec.GetSpecificationValues">
       <Parameters>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
+        <Parameter Identifier="ESerie" Type="string" Direction="Output"/>
         <Parameter Identifier="PowerRating" Type="string" Direction="Output"/>
         <Parameter Identifier="Tolerance" Type="string" Direction="Output"/>
         <Parameter Identifier="Technology" Type="string" Direction="Output"/>
@@ -278,11 +279,14 @@
         <Case Expression="ResistanceVT">
           <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
             <Execute Statement="Value:= ''"/>
+            <Execute Statement="ESerie:= ''"/>
           </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
             <Execute Statement="Value:= FormatMicroOhm(Self.Resistance)"/>
+            <Execute Statement="ESerie:= ESerieOfValue(Self.Resistance)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+            <Execute Statement="ESerie:= ''"/>
             <Execute Statement="Value:= '!' + ErrorResistance + '!'"/>
           </On>
         </Case>
@@ -334,6 +338,7 @@
       </Parameters>
       <Variables>
         <Variable Identifier="Value" Type="string" Init="''"/>
+        <Variable Identifier="ESerie" Type="string" Init="''"/>
         <Variable Identifier="PowerRating" Type="string" Init="''"/>
         <Variable Identifier="Tolerance" Type="string" Init="''"/>
         <Variable Identifier="Technology" Type="string" Init="''"/>
@@ -341,12 +346,13 @@
         <Variable Identifier="PartNumberModel" Type="string" Init="''"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, PowerRating, Tolerance, Technology, Footprint, PartNumberModel)"/>
+        <Execute Statement="GetSpecificationValues(Value, ESerie, PowerRating, Tolerance, Technology, Footprint, PartNumberModel)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
             <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
             <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
+            <Execute Statement="ESerie:= ESerie + ' '" Condition="ESerie &lt;&gt; ''"/>
             <Execute Statement="PowerRating:= PowerRating + ' '" Condition="PowerRating &lt;&gt; ''"/>
             <Execute Statement="Tolerance:= Tolerance + ' '" Condition="Tolerance &lt;&gt; ''"/>
             <Execute Statement="Technology:= Technology + ' '" Condition="Technology &lt;&gt; ''"/>
@@ -355,6 +361,7 @@
             <Choose>
               <When Expression="ReportContext.Measure">
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.Value, 1, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.ESerie, 1, Length(ESerie))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.PowerRating, 1, Length(PowerRating))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.Tolerance, 1, Length(Tolerance))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.Technology, 1, Length(Technology))"/>
@@ -363,8 +370,9 @@
                 <Execute Statement="Result:= ''"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= Format('%*s%*s%*s%-*s%-*s%-*s',
+                <Execute Statement="Result:= Format('%*s%*s%*s%*s%-*s%-*s%-*s',
                          ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.Value, 1), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.ESerie, 1), ESerie,
                          ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.PowerRating, 1), PowerRating,
                          ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.Tolerance, 1), Tolerance,
                          ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.Technology, 1), Technology,

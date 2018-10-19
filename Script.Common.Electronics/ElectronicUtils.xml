@@ -17,18 +17,28 @@
     <Enumeration Identifier="TPrefix" Elements="pfTera, pfGiga, pfMega, pfKilo, pfNone, pfMilli, pfMicro, pfNano, pfPico, pfFemto"/>
     <Enumeration Identifier="TDisplayUnitType" Elements="duMicroVoltage, duMicroAmp, duMicroResistance, duFemtoCapacitance, duFemtoInductance, duMicroPercentage, duMicroPower"/>
     <Enumeration Identifier="TFactorType" Elements="ftFemto, ftMicro, ftMicroAsSingle"/>
+    <Enumeration Identifier="TESerie" Elements="E3, E6, E12, E24, E48, E96, E192"/>
+    <Enumeration Identifier="TMatchValueKind" Elements="LessOrEqual, MoreOrEqual, Closest"/>
 
-    <sys:DataClass Identifier="TScaledSerieValue">
-      <sys:Field Identifier="Value" DataType="uint32"/>
-      <sys:Field Identifier="Next" DataType="object" Type="TScaledSerieValue"/>
+    <sys:DataClass Identifier="TSerieNode">
+      <sys:Field Identifier="Value" Type="UInt32"/>
+      <sys:Field Identifier="LowSerie" Type="TESerie"/>
+      <sys:Field Identifier="Previous" Type="TSerieNode"/>
+      <sys:Field Identifier="Next" Type="TSerieNode"/>
+      <sys:Field Identifier="Less" Type="TSerieNode"/>
+      <sys:Field Identifier="More" Type="TSerieNode"/>
     </sys:DataClass>
-    <sys:DataClass Identifier="TSerie">
-      <sys:Field Identifier="Scale" DataType="uint32"/>
-      <sys:Field Identifier="FirstValue" DataType="object" Type="TScaledSerieValue"/>
-      <sys:Field Identifier="LastValue" DataType="object" Type="TScaledSerieValue"/>
+
+    <sys:DataClass Identifier="TSerie" DefaultConstructor="none">
+      <sys:Field Identifier="Scale" Type="UInt32"/>
+      <sys:Field Identifier="Head" Type="TSerieNode"/>
+      <sys:Field Identifier="Tail" Type="TSerieNode"/>
+      <sys:Field Identifier="Root" Type="TSerieNode"/>
+      <sys:Field Identifier="OverFlowFactor" Type="Int64"/>
     </sys:DataClass>
   </sys:Type>
   <Constants>
+    <Constant Identifier="MaxInt64" Type="Int64" Expression="9223372036854775807"/>
     <Constant Identifier="CopperResistivity" Type="Extended" Expression="1.75E-8"/>
     <Constant Identifier="nano" Type="Extended" Expression="1/1000000000"/>
     <Constant Identifier="micro" Type="Extended" Expression="1/1000000"/>
@@ -66,8 +76,8 @@
     <Constant Identifier="cPebi" Type="string" Expression="'Pi'"/>
     <Constant Identifier="cExbi" Type="string" Expression="'Ei'"/>
     <Constant Identifier="cZebi" Type="string" Expression="'Zi'"/>
-    <Constant Identifier="cYobi" Type="string" Expression="'Yi'"/>    
-    
+    <Constant Identifier="cYobi" Type="string" Expression="'Yi'"/>
+
     <Constant Identifier="cOhm" Type="Char" Expression="'Ω'"/>
     <Constant Identifier="cWatt" Type="Char" Expression="'W'"/>
     <Constant Identifier="cFarad" Type="Char" Expression="'F'"/>
@@ -953,7 +963,7 @@
         </Case>
       </Block>
     </Function>
-    
+
     <Function Identifier="StrToMicroAmps" Type="Boolean">
       <Parameters>
         <Parameter Identifier="TextValue" Type="string"/>
@@ -2029,296 +2039,554 @@
         </Choose>
       </Block>
     </Function>
-    <Function Identifier="CreateSerie2" Type="TSerie">
+
+    <Function Identifier="TSerie.FindNode" Type="TSerieNode">
       <Parameters>
-        <Parameter Identifier="SerieType" Type="UInt32"/>
-      </Parameters>
-      <Procedures>
-        <Procedure Identifier="AddValue">
-          <Parameters>
-            <Parameter Identifier="Value" Type="UInt32"/>
-          </Parameters>
-          <Variables>
-            <Variable Identifier="ValueObject" Type="TScaledSerieValue" Init="TScaledSerieValue.Create(Value)"/>
-          </Variables>
-          <Block>
-            <Choose>
-              <When Expression="Assigned(Result.FirstValue)">
-                <Execute Statement="Result.LastValue.Next:= ValueObject"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result.FirstValue:= ValueObject"/>
-              </Otherwise>
-            </Choose>
-            <Execute Statement="Result.LastValue:= ValueObject"/>
-          </Block>
-        </Procedure>
-      </Procedures>
-      <Block>
-        <Execute Statement="Result:= TSerie.Create(100)"/>
-        <Execute Statement="AddValue(100)" Condition="SerieType &gt;=3"/>
-        <Execute Statement="AddValue(110)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(120)" Condition="SerieType &gt;=12"/>
-        <Execute Statement="AddValue(130)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(150)" Condition="SerieType &gt;=6"/>
-        <Execute Statement="AddValue(160)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(180)" Condition="SerieType &gt;=12"/>
-        <Execute Statement="AddValue(200)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(220)" Condition="SerieType &gt;=3"/>
-        <Execute Statement="AddValue(240)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(270)" Condition="SerieType &gt;=12"/>
-        <Execute Statement="AddValue(300)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(330)" Condition="SerieType &gt;=6"/>
-        <Execute Statement="AddValue(360)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(390)" Condition="SerieType &gt;=12"/>
-        <Execute Statement="AddValue(430)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(470)" Condition="SerieType &gt;=3"/>
-        <Execute Statement="AddValue(510)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(560)" Condition="SerieType &gt;=12"/>
-        <Execute Statement="AddValue(620)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(680)" Condition="SerieType &gt;=6"/>
-        <Execute Statement="AddValue(750)" Condition="SerieType &gt;=24"/>
-        <Execute Statement="AddValue(820)" Condition="SerieType &gt;=12"/>
-        <Execute Statement="AddValue(910)" Condition="SerieType &gt;=24"/>
-      </Block>
-    </Function>
-    <Function Identifier="CreateSerie3" Type="TSerie">
-      <Parameters>
-        <Parameter Identifier="SerieType" Type="UInt32"/>
-      </Parameters>
-      <Procedures>
-        <Procedure Identifier="AddValue">
-          <Parameters>
-            <Parameter Identifier="Value" Type="UInt32"/>
-          </Parameters>
-          <Variables>
-            <Variable Identifier="ValueObject" Type="TScaledSerieValue" Init="TScaledSerieValue.Create(Value)"/>
-          </Variables>
-          <Block>
-            <Choose>
-              <When Expression="Assigned(Result.FirstValue)">
-                <Execute Statement="Result.LastValue.Next:= ValueObject"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result.FirstValue:= ValueObject"/>
-              </Otherwise>
-            </Choose>
-            <Execute Statement="Result.LastValue:= ValueObject"/>
-          </Block>
-        </Procedure>
-      </Procedures>
-      <Block>
-        <Execute Statement="Result:= TSerie.Create(1000)"/>
-        <Execute Statement="AddValue(1000)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1010)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1020)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1040)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1050)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1060)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1070)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1090)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1100)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1110)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1130)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1140)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1150)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1170)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1180)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1200)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1210)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1230)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1240)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1260)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1270)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1290)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1300)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1320)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1330)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1350)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1370)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1380)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1400)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1420)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1430)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1450)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1470)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1490)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1500)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1520)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1540)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1560)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1580)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1600)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1620)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1640)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1650)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1670)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1690)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1720)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1740)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1760)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1780)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1800)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1820)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1840)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1870)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1890)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1910)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(1930)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(1960)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(1980)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2000)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(2030)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2050)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(2080)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2100)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(2130)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2150)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(2180)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2210)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(2230)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2260)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(2290)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2320)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(2340)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2370)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(2400)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2430)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(2460)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2490)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(2520)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2550)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(2580)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2610)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(2640)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2670)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(2710)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2740)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(2770)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2800)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(2840)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2870)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(2910)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(2940)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(2980)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3010)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(3050)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3090)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(3120)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3160)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(3200)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3240)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(3280)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3320)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(3360)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3400)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(3440)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3480)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(3520)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3570)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(3610)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3650)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(3700)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3740)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(3790)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3830)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(3880)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(3920)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(3970)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(4020)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(4070)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(4120)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(4170)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(4220)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(4270)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(4320)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(4370)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(4420)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(4480)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(4530)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(4590)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(4640)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(4700)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(4750)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(4810)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(4870)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(4930)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(4990)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(5050)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(5110)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(5170)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(5230)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(5300)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(5360)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(5420)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(5490)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(5560)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(5620)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(5690)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(5760)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(5830)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(5900)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(5970)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(6040)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(6120)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(6190)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(6260)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(6340)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(6420)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(6490)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(6570)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(6650)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(6730)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(6810)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(6900)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(6980)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(7060)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(7150)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(7230)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(7320)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(7410)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(7500)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(7590)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(7680)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(7770)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(7870)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(7960)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(8060)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(8160)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(8250)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(8350)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(8450)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(8560)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(8660)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(8760)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(8870)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(8980)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(9090)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(9200)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(9310)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(9420)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(9530)" Condition="SerieType &gt;=48"/>
-        <Execute Statement="AddValue(9650)" Condition="SerieType &gt;=192"/>
-        <Execute Statement="AddValue(9760)" Condition="SerieType &gt;=96"/>
-        <Execute Statement="AddValue(9880)" Condition="SerieType &gt;=192"/>
-      </Block>
-    </Function>
-    <Function Identifier="CreateSerie" Type="TSerie">
-      <Parameters>
-        <Parameter Identifier="SerieType" Type="UInt32"/>
+        <Parameter Identifier="Value" Type="UInt64"/>
       </Parameters>
       <Block>
         <Choose>
-          <When Expression="SerieType &gt;= 48">
-            <Execute Statement="Result:= CreateSerie3(SerieType)"/>
+          <When Expression="Value &gt; Tail.Value">
+            <RepeatUntilLoop Expression="Value &lt;= Tail.Value">
+              <Exit Result="ObjNil" Condition="Value mod 10 &lt;&gt; 0"/>
+              <Execute Statement="Value:= Value div 10"/>
+              <rep:Reporter.Information Text="Format('Value: %d', Value)" Condition="IsDebugging"/>
+            </RepeatUntilLoop>
           </When>
-          <Otherwise>
-            <Execute Statement="Result:= CreateSerie2(SerieType)"/>
-          </Otherwise>
+          <When Expression="Value = 0">
+            <Exit Result="ObjNil"/>
+          </When>
+          <When Expression="Value &lt; Head.Value">
+            <RepeatUntilLoop Expression="Value &gt;= Head.Value">
+              <Execute Statement="Value:= Value * 10"/>
+              <rep:Reporter.Information Text="Format('Value: %d', Value)" Condition="IsDebugging"/>
+            </RepeatUntilLoop>
+          </When>
         </Choose>
+        <rep:Reporter.Information Text="Format('Value: %d', Value)" Condition="IsDebugging"/>
+
+        <Execute Statement="Result:= Root"/>
+        <WhileLoop Expression="Assigned(Result)">
+          <rep:Reporter.Information Text="Format('Result: %d', Result.Value)" Condition="IsDebugging"/>
+          <Choose>
+            <When Expression="Value &lt; Result.Value">
+              <Execute Statement="Result:= Result.Less"/>
+            </When>
+            <When Expression="Value &gt; Result.Value">
+              <Execute Statement="Result:= Result.More"/>
+            </When>
+            <Otherwise>
+              <Exit/>
+            </Otherwise>
+          </Choose>
+        </WhileLoop>
       </Block>
     </Function>
-    <Function Identifier="GetSerieValue" Type="Extended">
+
+    <Function Identifier="TSerie.MatchNode" Type="TSerieNode">
+      <Parameters>
+        <Parameter Identifier="Value" Type="Int64"/>
+        <Parameter Identifier="MatchedValue" Type="Int64" Direction="Output"/>
+        <Parameter Identifier="MatchedKind" Type="TMatchValueKind"/>
+      </Parameters>
+      <Variables>
+        <!--Values equal or below can be scaled one more time -->
+        <Variable Identifier="Less" Type="TSerieNode"/>
+        <Variable Identifier="More" Type="TSerieNode"/>
+        <Variable Identifier="OverFlowFactor" Type="Int64"/>
+        <Variable Identifier="MatchFactor" Type="Int64" Init="1"/>
+        <Variable Identifier="ValueFactor" Type="Int64" Init="1"/>
+        <Variable Identifier="ValueDivisor" Type="Int64" Init="1"/>
+        <Variable Identifier="ScaledValue" Type="Int64" Init="Value"/>
+        <Variable Identifier="MoreValue" Type="Int64"/>
+        <Variable Identifier="LessValue" Type="Int64"/>
+        <Variable Identifier="LessValueFactor" Type="Int64"/>
+      </Variables>
+      <Block>
+        <rep:Reporter.Information Text="Format('Value: %d', Value)" Condition="IsDebugging"/>
+        <Choose>
+          <When Expression="Value &gt;= Tail.Value">
+            <!-- 
+            Tail.Value * 10 is max value when rapped
+            Tail.Value * 10 * 10 because this value must be able to be scaled
+            -->
+            <Execute Statement="OverFlowFactor:= MaxInt64 div (Tail.Value * 100)" />
+            <rep:Reporter.Information Text="Format('OverFlowFactor: %d', OverFlowFactor)" Condition="IsDebugging"/>
+            <RepeatUntilLoop Expression="ScaledValue &lt;= Tail.Value * MatchFactor">
+              <rep:Reporter.Information Text="Format('ScaledValue: %d', ScaledValue)" Condition="IsDebugging"/>
+              <Choose>
+                <When Expression="MatchFactor &gt; OverFlowFactor">
+                  <rep:Reporter.Information Text="Format('MatchFactor would overflow: %d', MatchFactor)" Condition="IsDebugging"/>
+                  <Execute Statement="ValueDivisor:= ValueDivisor * 10"/>
+                  <Case Expression="MatchedKind" Optimalisation="integermapping">
+                    <On Select="TMatchValueKind.LessOrEqual">
+                      <Execute Statement="ScaledValue:= Value div ValueDivisor"/>
+                    </On>
+                    <On Select="TMatchValueKind.MoreOrEqual">
+                      <Execute Statement="ScaledValue:= (Value + ValueDivisor - 1) div ValueDivisor"/>
+                    </On>
+                    <Otherwise>
+                      <Execute Statement="ScaledValue:= (Value + ValueDivisor shr 1) div ValueDivisor"/>
+                    </Otherwise>
+                  </Case>
+                </When>
+                <Otherwise>
+                  <Execute Statement="MatchFactor:= MatchFactor * 10"/>
+                </Otherwise>
+              </Choose>
+              <rep:Reporter.Information Text="Format('ScaledValue: %d; MatchFactor: %d', ScaledValue, MatchFactor)" Condition="IsDebugging"/>
+            </RepeatUntilLoop>
+          </When>
+          <When Expression="Value = 0">
+            <Execute Statement="MatchedValue:= 0"/>
+            <Exit Result="ObjNil"/>
+          </When>
+          <When Expression="Value &lt; Head.Value">
+            <RepeatUntilLoop Expression="ScaledValue &gt;= Head.Value">
+              <Execute Statement="ValueFactor:= ValueFactor * 10"/>
+              <Execute Statement="ScaledValue:= Value * ValueFactor"/>
+              <rep:Reporter.Information Text="Format('ScaledValue: %d', ScaledValue)" Condition="IsDebugging"/>
+            </RepeatUntilLoop>
+          </When>
+        </Choose>
+        <rep:Reporter.Information Text="Format('ScaledValue: %d; MatchFactor: %d; ValueFactor: %d; ValueDivisor: %d', ScaledValue, MatchFactor, ValueFactor, ValueDivisor)" Condition="IsDebugging"/>
+
+        <Execute Statement="Result:= Root"/>
+        <WhileLoop Expression="Assigned(Result)">
+          <rep:Reporter.Information Text="Format('Result: %d', Result.Value)" Condition="IsDebugging"/>
+          <Choose>
+            <When Expression="ScaledValue &lt; Result.Value * MatchFactor">
+              <Execute Statement="More:= Result"/>
+              <Execute Statement="Result:= Result.Less"/>
+            </When>
+            <When Expression="ScaledValue &gt; Result.Value * MatchFactor">
+              <Execute Statement="Less:= Result"/>
+              <Execute Statement="Result:= Result.More"/>
+            </When>
+            <Otherwise>
+              <rep:Reporter.Information Text="'Perfect match'" Condition="IsDebugging"/>
+              <Case Expression="MatchedKind" Optimalisation="integermapping">
+                <On Select="TMatchValueKind.LessOrEqual">
+                  <Execute Statement="MatchedValue:= (Result.Value * MatchFactor) div ValueFactor * ValueDivisor"/>
+                </On>
+                <On Select="TMatchValueKind.MoreOrEqual">
+                  <Execute Statement="MatchedValue:= (Result.Value * MatchFactor + ValueFactor - 1) div ValueFactor * ValueDivisor"/>
+                </On>
+                <Otherwise>
+                  <Execute Statement="MatchedValue:= (Result.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
+                </Otherwise>
+              </Case>
+              <Exit/>
+            </Otherwise>
+          </Choose>
+        </WhileLoop>
+        <rep:Reporter.Information Text="'Inperfect match'" Condition="IsDebugging"/>
+        <Case Expression="MatchedKind" Optimalisation="integermapping">
+          <On Select="TMatchValueKind.LessOrEqual">
+            <Block Condition="IsEmpty(Less)">
+              <Execute Statement="ValueFactor:= ValueFactor * 10"/>
+              <Execute Statement="Less:= Tail"/>
+              <rep:Reporter.Information Text="'Less:= Tail'" Condition="IsDebugging"/>
+            </Block>
+            <rep:Reporter.Information Text="Format('Less: %d', Less.Value)" Condition="IsDebugging"/>
+            <Execute Statement="Result:= Less"/>
+            <Execute Statement="MatchedValue:= (Result.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
+          </On>
+          <On Select="TMatchValueKind.MoreOrEqual">
+            <Block Condition="IsEmpty(More)">
+              <Execute Statement="MatchFactor:= MatchFactor * 10"/>
+              <Execute Statement="More:= Head"/>
+            </Block>
+            <rep:Reporter.Information Text="Format('More: %d', More.Value)" Condition="IsDebugging"/>
+            <Execute Statement="Result:= More"/>
+            <Execute Statement="MatchedValue:= (Result.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
+          </On>
+          <Otherwise>
+            <Execute Statement="LessValueFactor:= ValueFactor"/>
+            <Block Condition="IsEmpty(Less)">
+              <rep:Reporter.Information Text="'Less:= Head'" Condition="IsDebugging"/>
+              <Execute Statement="LessValueFactor:= LessValueFactor * 10"/>
+              <Execute Statement="Less:= Tail"/>
+            </Block>
+            <rep:Reporter.Information Text="Format('Less: %d', Less.Value)" Condition="IsDebugging"/>
+            <Execute Statement="LessValue:= (Less.Value * MatchFactor + LessValueFactor shr 1) div LessValueFactor * ValueDivisor"/>
+            <Block Condition="IsEmpty(More)">
+              <rep:Reporter.Information Text="'More:= Tail'" Condition="IsDebugging"/>
+              <Execute Statement="MatchFactor:= MatchFactor * 10"/>
+              <Execute Statement="More:= Head"/>
+            </Block>
+            <rep:Reporter.Information Text="Format('More: %d', More.Value)" Condition="IsDebugging"/>
+            <Execute Statement="MoreValue:= (More.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
+            <rep:Reporter.Information Text="Format('%d vs %d', LessValue, MoreValue)" Condition="IsDebugging"/>
+            <Choose>
+              <When Expression="(Value - LessValue) &lt; (MoreValue - Value)">
+                <Execute Statement="Result:= Less"/>
+                <Execute Statement="MatchedValue:= LessValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= More"/>
+                <Execute Statement="MatchedValue:= MoreValue"/>
+              </Otherwise>
+            </Choose>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Constructor Identifier="TSerie.Create">
+      <Parameters>
+        <Parameter Identifier="SerieType" Type="TESerie"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Head" Type="TSerieNode" />
+        <Variable Identifier="Tail" Type="TSerieNode" />
+      </Variables>
+      <Procedures>
+
+        <Procedure Identifier="AddValue">
+          <Parameters>
+            <Parameter Identifier="Value" Type="UInt32"/>
+            <Parameter Identifier="LowSerie" Type="TESerie"/>
+          </Parameters>
+          <Variables>
+            <Variable Identifier="NewNode" Type="TSerieNode" Init="TSerieNode.Create(Value, LowSerie)"/>
+          </Variables>
+          <Block>
+            <Choose>
+              <When Expression="IsEmpty(Head)">
+                <Execute Statement="Head:= NewNode"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="NewNode.Previous:= Tail"/>
+                <Execute Statement="Tail.Next:= NewNode"/>
+              </Otherwise>
+            </Choose>
+            <Execute Statement="Tail:= NewNode"/>
+          </Block>
+        </Procedure>
+
+        <Procedure Identifier="InitESerie2">
+          <Block>
+            <Execute Statement="Self.Scale:= 10"/>
+            <Execute Statement="AddValue(10, TESerie.E3)"  Condition="SerieType &gt;=TESerie.E3"/>
+            <Execute Statement="AddValue(11, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(12, TESerie.E12)" Condition="SerieType &gt;=TESerie.E12"/>
+            <Execute Statement="AddValue(13, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(15, TESerie.E6)"  Condition="SerieType &gt;=TESerie.E6"/>
+            <Execute Statement="AddValue(16, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(18, TESerie.E12)" Condition="SerieType &gt;=TESerie.E12"/>
+            <Execute Statement="AddValue(20, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(22, TESerie.E3)"  Condition="SerieType &gt;=TESerie.E3"/>
+            <Execute Statement="AddValue(24, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(27, TESerie.E12)" Condition="SerieType &gt;=TESerie.E12"/>
+            <Execute Statement="AddValue(30, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(33, TESerie.E6)"  Condition="SerieType &gt;=TESerie.E6"/>
+            <Execute Statement="AddValue(36, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(39, TESerie.E12)" Condition="SerieType &gt;=TESerie.E12"/>
+            <Execute Statement="AddValue(43, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(47, TESerie.E3)"  Condition="SerieType &gt;=TESerie.E3"/>
+            <Execute Statement="AddValue(51, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(56, TESerie.E12)" Condition="SerieType &gt;=TESerie.E12"/>
+            <Execute Statement="AddValue(62, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(68, TESerie.E6)"  Condition="SerieType &gt;=TESerie.E6"/>
+            <Execute Statement="AddValue(75, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+            <Execute Statement="AddValue(82, TESerie.E12)" Condition="SerieType &gt;=TESerie.E12"/>
+            <Execute Statement="AddValue(91, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
+          </Block>
+        </Procedure>
+
+        <Procedure Identifier="InitESerie3">
+          <Block>
+            <Execute Statement="Self.Scale:= 100"/>
+            <Execute Statement="AddValue(100, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(101, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(102, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(104, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(105, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(106, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(107, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(109, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(110, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(111, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(113, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(114, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(115, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(117, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(118, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(120, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(121, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(123, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(124, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(126, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(127, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(129, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(130, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(132, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(133, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(135, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(137, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(138, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(140, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(142, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(143, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(145, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(147, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(149, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(150, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(152, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(154, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(156, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(158, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(160, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(162, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(164, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(165, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(167, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(169, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(172, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(174, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(176, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(178, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(180, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(182, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(184, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(187, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(189, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(191, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(193, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(196, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(198, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(200, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(203, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(205, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(208, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(210, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(213, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(215, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(218, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(221, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(223, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(226, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(229, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(232, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(234, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(237, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(240, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(243, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(246, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(249, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(252, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(255, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(258, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(261, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(264, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(267, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(271, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(274, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(277, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(280, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(284, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(287, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(291, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(294, TESerie.E96)" Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(298, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(301, TESerie.E48)" Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(305, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(309, TESerie.E96)" Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(312, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(316, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(320, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(324, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(328, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(332, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(336, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(340, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(344, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(348, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(352, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(357, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(361, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(365, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(370, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(374, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(379, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(383, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(388, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(392, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(397, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(402, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(407, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(412, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(417, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(422, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(427, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(432, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(437, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(442, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(448, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(453, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(459, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(464, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(470, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(475, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(481, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(487, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(493, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(499, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(505, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(511, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(517, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(523, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(530, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(536, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(542, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(549, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(556, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(562, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(569, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(576, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(583, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(590, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(597, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(604, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(612, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(619, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(626, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(634, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(642, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(649, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(657, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(665, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(673, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(681, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(690, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(698, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(706, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(715, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(723, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(732, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(741, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(750, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(759, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(768, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(777, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(787, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(796, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(806, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(816, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(825, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(835, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(845, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(856, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(866, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(876, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(887, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(898, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(909, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(920, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(931, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(942, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(953, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
+            <Execute Statement="AddValue(965, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+            <Execute Statement="AddValue(976, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
+            <Execute Statement="AddValue(988, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
+          </Block>
+        </Procedure>
+
+        <FunctionHeader Identifier="GetRootNode" Type="TSerieNode">
+          <Parameters>
+            <Parameter Identifier="Head" Type="TSerieNode"/>
+            <Parameter Identifier="Tail" Type="TSerieNode"/>
+          </Parameters>
+        </FunctionHeader>
+        <Implementation Identifier="GetRootNode">
+          <Variables>
+            <Variable Identifier="Head2x" Type="TSerieNode"/>
+          </Variables>
+          <Block>
+            <!--
+Result := Head;
+  if Head = Tail then
+  begin
+    Result^.RecLess := nil;
+    Result^.RecMore := nil;
+    Exit;
+  end;
+            -->
+            <Execute Statement="Result:= Head"/>
+            <Block Condition="Head = Tail">
+              <Execute Statement="Result.Less := ObjNil"/>
+              <Execute Statement="Result.More := ObjNil"/>
+              <Exit/>
+            </Block>
+            <!--
+  Head2x := Head;
+Continue:
+  Head2x := Head2x^.RecNext;
+  if Head2x = Tail then
+    goto Done;
+  Head2x := Head2x^.RecNext;
+  Result := Result^.RecNext;
+  if Head2x = Tail then
+    goto Done;
+  goto Continue;
+Done:
+            -->
+            <Execute Statement="Head2x:= Head"/>
+            <RepeatUntilLoop Expression="Head2x = Tail">
+              <Execute Statement="Head2x:= Head2x.Next"/>
+              <Break Condition="Head2x = Tail"/>
+              <Execute Statement="Head2x:= Head2x.Next"/>
+              <Execute Statement="Result:= Result.Next"/>
+            </RepeatUntilLoop>
+            <!--
+  Result^.RecLess := nil;
+  Result^.RecMore := nil;
+  if Result <> Head then
+  begin
+    Result^.RecLess := GetRootNode(Head, Result^.RecPrev);
+  end;
+  if Result <> Tail then
+  begin
+    Result^.RecMore := GetRootNode(Result^.RecNext, Tail);
+  end;
+            -->
+            <Choose>
+              <When Expression="Result &lt;&gt; Head">
+                <Execute Statement="Result.Less := GetRootNode(Head, Result.Previous)"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result.Less := ObjNil"/>
+              </Otherwise>
+            </Choose>
+            <Choose>
+              <When Expression="Result &lt;&gt; Tail">
+                <Execute Statement="Result.More := GetRootNode(Result.Next, Tail)"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result.More := ObjNil"/>
+              </Otherwise>
+            </Choose>
+          </Block>
+        </Implementation>
+
+      </Procedures>
+      <Block>
+        <Choose>
+          <When Expression="SerieType &gt;= TESerie.E48">
+            <Execute Statement="InitESerie3"/>
+          </When>
+          <Otherwise>
+            <Execute Statement="InitESerie2"/>
+          </Otherwise>
+        </Choose>
+        <Execute Statement="Self.Head:= Head"/>
+        <Execute Statement="Self.Tail:= Tail"/>
+        <Execute Statement="Self.Root:= GetRootNode(Head, Tail)"/>
+      </Block>
+    </Constructor>
+
+    <!--<Function Identifier="GetSerieValue" Type="Extended">
       <Parameters>
         <Parameter Identifier="Value" Type="Extended"/>
         <Parameter Identifier="Serie" Type="TSerie"/>
@@ -2328,8 +2596,8 @@
         <Variable Identifier="Scale" Type="Int64" Init="1"/>
         <Variable Identifier="ScaledValue" Type="Int64" Init="Round(Scale * Value)"/>
         <Variable Identifier="SerieScale" Type="Int64" Init="1"/>
-        <Variable Identifier="RunningValue" Type="TScaledSerieValue" Init="Serie.FirstValue"/>
-        <Variable Identifier="PrevRunningValue" Type="TScaledSerieValue" Init="ObjNil"/>
+        <Variable Identifier="RunningValue" Type="TSerieNode" Init="Serie.FirstValue"/>
+        <Variable Identifier="PrevRunningValue" Type="TSerieNode" Init="ObjNil"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= 0.0"/>
@@ -2343,19 +2611,27 @@
           <When Expression="ScaledValue &lt; Serie.FirstValue.Value">
             <RepeatUntilLoop Expression="ScaledValue &gt;= Serie.FirstValue.Value">
               <Execute Statement="Scale:= Scale * 10"/>
-              <!--<rep:Reporter.Information Text="Format('  Serie.FirstValue.Value: %d', Serie.FirstValue.Value)" Condition="IsVerbose"/>
+              -->
+    <!--<rep:Reporter.Information Text="Format('  Serie.FirstValue.Value: %d', Serie.FirstValue.Value)" Condition="IsVerbose"/>
               <rep:Reporter.Information Text="Format('  Scale: %d', Scale)" Condition="IsVerbose"/>-->
+    <!--
               <Execute Statement="ScaledValue:= Round(Scale * Value)"/>
-              <!--<rep:Reporter.Information Text="Format('  ScaledValue: %d', ScaledValue)" Condition="IsVerbose"/>-->
+              -->
+    <!--<rep:Reporter.Information Text="Format('  ScaledValue: %d', ScaledValue)" Condition="IsVerbose"/>-->
+    <!--
             </RepeatUntilLoop>
           </When>
           <Otherwise>
             <WhileLoop Expression="ScaledValue &gt; Serie.LastValue.Value">
               <Execute Statement="SerieScale:= SerieScale * 10"/>
-              <!--<rep:Reporter.Information Text="Format('  Serie.LastValue.Value: %d', Serie.LastValue.Value)" Condition="IsVerbose"/>
+              -->
+    <!--<rep:Reporter.Information Text="Format('  Serie.LastValue.Value: %d', Serie.LastValue.Value)" Condition="IsVerbose"/>
               <rep:Reporter.Information Text="Format('  SerieScale: %d', SerieScale)" Condition="IsVerbose"/>-->
+    <!--
               <Execute Statement="ScaledValue:= Round(Value / SerieScale)"/>
-              <!--<rep:Reporter.Information Text="Format('  ScaledValue: %d', ScaledValue)" Condition="IsVerbose"/>-->
+              -->
+    <!--<rep:Reporter.Information Text="Format('  ScaledValue: %d', ScaledValue)" Condition="IsVerbose"/>-->
+    <!--
             </WhileLoop>
           </Otherwise>
         </Choose>
@@ -2394,25 +2670,110 @@
         </Choose>
       </Block>
 
-    </Function>
-    <Procedure Identifier="ReportSerie">
+    </Function>-->
+    <Function Identifier="GetESerie" Type="TSerie">
       <Parameters>
-        <Parameter Identifier="Serie" Type="TSerie"/>
+        <Parameter Identifier="ESerie" Type="TESerie"/>
       </Parameters>
+      <Block>
+        <Case Expression="ESerie" Optimalisation="integermapping">
+          <On Select="TESerie.E3">
+            <Choose>
+              <When Expression="IsEmpty(E3Serie)">
+                <Execute Statement="Result:= TSerie.Create(ESerie)"/>
+                <Execute Statement="E3Serie:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= E3Serie"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TESerie.E6">
+            <Choose>
+              <When Expression="IsEmpty(E6Serie)">
+                <Execute Statement="Result:= TSerie.Create(ESerie)"/>
+                <Execute Statement="E6Serie:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= E6Serie"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TESerie.E12">
+            <Choose>
+              <When Expression="IsEmpty(E12Serie)">
+                <Execute Statement="Result:= TSerie.Create(ESerie)"/>
+                <Execute Statement="E12Serie:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= E12Serie"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TESerie.E24">
+            <Choose>
+              <When Expression="IsEmpty(E24Serie)">
+                <Execute Statement="Result:= TSerie.Create(ESerie)"/>
+                <Execute Statement="E24Serie:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= E24Serie"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TESerie.E48">
+            <Choose>
+              <When Expression="IsEmpty(E48Serie)">
+                <Execute Statement="Result:= TSerie.Create(ESerie)"/>
+                <Execute Statement="E48Serie:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= E48Serie"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TESerie.E96">
+            <Choose>
+              <When Expression="IsEmpty(E96Serie)">
+                <Execute Statement="Result:= TSerie.Create(ESerie)"/>
+                <Execute Statement="E96Serie:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= E96Serie"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TESerie.E192">
+            <Choose>
+              <When Expression="IsEmpty(E192Serie)">
+                <Execute Statement="Result:= TSerie.Create(ESerie)"/>
+                <Execute Statement="E192Serie:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= E192Serie"/>
+              </Otherwise>
+            </Choose>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TSerie.Report">
       <Variables>
-        <Variable Identifier="RunningValue" Type="TScaledSerieValue" Init="Serie.FirstValue"/>
+        <Variable Identifier="RunningValue" Type="TSerieNode" Init="Head"/>
+        <Variable Identifier="Scale" Type="UInt32" Init="Self.Scale"/>
       </Variables>
       <Block>
         <Choose>
-          <When Expression="Serie.Scale &gt;= 1000">
+          <When Expression="Scale &gt;= 100">
             <WhileLoop Expression="Assigned(RunningValue)">
-              <rep:Reporter.Information Text="Format('%d: %.2f',  RunningValue.Value, RunningValue.Value / Serie.Scale)"/>
+              <rep:Reporter.Information Text="Format('%d: %.2f',  RunningValue.Value, RunningValue.Value / Scale)"/>
               <Execute Statement="RunningValue:= RunningValue.Next"/>
             </WhileLoop>
           </When>
           <Otherwise>
             <WhileLoop Expression="Assigned(RunningValue)">
-              <rep:Reporter.Information Text="Format('%d: %.1f',  RunningValue.Value, RunningValue.Value / Serie.Scale)"/>
+              <rep:Reporter.Information Text="Format('%d: %.1f',  RunningValue.Value, RunningValue.Value / Scale)"/>
               <Execute Statement="RunningValue:= RunningValue.Next"/>
             </WhileLoop>
           </Otherwise>
@@ -2420,23 +2781,4 @@
       </Block>
     </Procedure>
   </Procedures>
-  <Initialization>
-    <Execute Statement="E192Serie:= CreateSerie(192)"/>
-    <Execute Statement="E96Serie:= CreateSerie(96)"/>
-    <Execute Statement="E48Serie:= CreateSerie(48)"/>
-    <Execute Statement="E24Serie:= CreateSerie(24)"/>
-    <Execute Statement="E12Serie:= CreateSerie(12)"/>
-    <Execute Statement="E6Serie:= CreateSerie(6)"/>
-    <Execute Statement="E3Serie:= CreateSerie(3)"/>
-    <!--<Execute Statement="ReportSerie(E24Serie)" Condition="IsVerbose"/>-->
-  </Initialization>
-  <Finalization>
-    <Free Identifier="E3Serie"/>
-    <Free Identifier="E6Serie"/>
-    <Free Identifier="E12Serie"/>
-    <Free Identifier="E24Serie"/>
-    <Free Identifier="E48Serie"/>
-    <Free Identifier="E96Serie"/>
-    <Free Identifier="E192Serie"/>
-  </Finalization>
 </pkg:Library>

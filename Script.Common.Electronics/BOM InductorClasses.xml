@@ -255,6 +255,7 @@
     <Procedure Identifier="TInductorSpec.GetSpecificationValues">
       <Parameters>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
+        <Parameter Identifier="ESerie" Type="string" Direction="Output"/>
         <Parameter Identifier="AmperageRating" Type="string" Direction="Output"/>
         <Parameter Identifier="Tolerance" Type="string" Direction="Output"/>
         <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
@@ -267,6 +268,7 @@
           </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
             <Execute Statement="Value:= FormatFemtoHenry(Self.Inductance)"/>
+            <Execute Statement="ESerie:= ESerieOfValue(Self.Inductance)"/>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
             <Execute Statement="Value:= '!' + ErrorInductance + '!'"/>
@@ -309,18 +311,20 @@
       </Parameters>
       <Variables>
         <Variable Identifier="Value" Type="string" Init="''"/>
+        <Variable Identifier="ESerie" Type="string" Init="''"/>
         <Variable Identifier="AmpRating" Type="string" Init="''"/>
         <Variable Identifier="Tolerance" Type="string" Init="''"/>
         <Variable Identifier="Footprint" Type="string" Init="''"/>
         <Variable Identifier="PartNumberModel" Type="string" Init="''"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, AmpRating, Tolerance, Footprint, PartNumberModel)"/>
+        <Execute Statement="GetSpecificationValues(Value, ESerie, AmpRating, Tolerance, Footprint, PartNumberModel)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
             <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
             <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
+            <Execute Statement="ESerie:= ESerie + ' '" Condition="ESerie &lt;&gt; ''"/>
             <Execute Statement="Tolerance:= Tolerance + ' '" Condition="Tolerance &lt;&gt; ''"/>
             <Execute Statement="AmpRating:= AmpRating + ' '" Condition="AmpRating &lt;&gt; ''"/>
             <Execute Statement="Footprint:= Footprint + ' '" Condition="Footprint &lt;&gt; ''"/>
@@ -328,6 +332,7 @@
             <Choose>
               <When Expression="ReportContext.Measure">
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.Value, 1, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.ESerie, 1, Length(ESerie))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.AmpRating, 1, Length(AmpRating))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.Tolerance, 1, Length(Tolerance))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.FootPrint, 1, Length(Footprint))"/>
@@ -335,8 +340,9 @@
                 <Execute Statement="Result:= ''"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= Format('%*s%*s%*s%*s%-*s%-*s',
+                <Execute Statement="Result:= Format('%*s%*s%*s%*s%*s%-*s%-*s',
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.Value, 1), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.ESerie, 1), ESerie,
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.AmpRating, 1), AmpRating,
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.Tolerance, 1), Tolerance,
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.None1, 1), '',
