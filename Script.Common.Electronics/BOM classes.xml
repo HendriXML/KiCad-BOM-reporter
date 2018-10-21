@@ -37,12 +37,12 @@
 
     <Enumeration Identifier="TSpecFormatType" Elements="Compressed, Fixed"/>
 
-    <Enumeration Identifier="TResistorSpecColumns"      Elements="Value, ESerie, PowerRating,   Tolerance, Technology, FootPrint, PartNumberModel"/>
-    <Enumeration Identifier="TCapacitorSpecColumns"     Elements="Value, ESerie, VoltageRating, Tolerance, Technology, FootPrint, PartNumberModel"/>
-    <Enumeration Identifier="TZenerDiodeSpecColumns"    Elements="Value, ESerie, PowerRating,   Tolerance, None1,      FootPrint, PartNumberModel"/>
-    <Enumeration Identifier="TInductorSpecColumns"      Elements="Value, ESerie, AmpRating,     Tolerance, None1,      FootPrint, PartNumberModel"/>
-    <Enumeration Identifier="TConnectorSpecColumns"     Elements="Value, SpanA2, SpanA3,        AmpRating, SpanB2,     FootPrint, PartNumberModel"/>
-    <Enumeration Identifier="TGenComponentSpecColumns"  Elements="Value, SpanA2, SpanA3,        SpanA4,    SpanA5,     FootPrint, PartNumberModel" LowAlias="Min" HighAlias="Max"/>
+    <Enumeration Identifier="TResistorSpecColumns"      Elements="Value, ESerie, PowerRating,   MaxAmpVolt, Tolerance, Technology, FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TCapacitorSpecColumns"     Elements="Value, ESerie, VoltageRating, SpanA1,     Tolerance, Technology, FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TZenerDiodeSpecColumns"    Elements="Value, ESerie, PowerRating,   MaxAmp,     Tolerance, None1,      FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TInductorSpecColumns"      Elements="Value, ESerie, AmpRating,     SpanA1,     Tolerance, None1,      FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TConnectorSpecColumns"     Elements="Value, SpanA2, SpanA3,        SpanA4,     AmpRating, SpanB2,     FootPrint, PartNumberModel"/>
+    <Enumeration Identifier="TGenComponentSpecColumns"  Elements="Value, SpanA2, SpanA3,        SpanA4,     SpanA5,    SpanA6,     FootPrint, PartNumberModel" LowAlias="Min" HighAlias="Max"/>
 
     <DataClass Identifier="TSchemaComponent" DefaultConstructor="none">
       <Field Identifier="Reference" Type="string"/>
@@ -163,9 +163,12 @@
     <Variable Identifier="CustomFieldsIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
     <Variable Identifier="ComponentKindIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
     <Variable Identifier="FootprintIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
-    <Variable Identifier="E192Serie" Type="TSerie"/>
-    <Variable Identifier="E24Serie" Type="TSerie"/>
+    <Variable Identifier="E192Serie" Type="TSerie" Init="GetESerie(TESerie.E192)"/>
+    <Variable Identifier="E24Serie" Type="TSerie" Init="GetESerie(TESerie.E24)"/>
     <Variable Identifier="HideESerieOfValue" Type="Boolean" Init="False"/>
+    <Variable Identifier="HideResistorMaxAmpVolt" Type="Boolean" Init="False"/>
+    <Variable Identifier="HideZenerDiodeMaxAmp" Type="Boolean" Init="False"/>
+    <Variable Identifier="MaxShowResistorMicroVoltage" Type="Int64" Init="1000*facToMicro"/>
   </Variables>
 
   <Procedures>
@@ -695,7 +698,7 @@
               </When>
               <Otherwise>
                 <Execute Statement="Result:= Format('%*s%*s%*s',
-                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 5), '',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 6), '',
                          ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.FootPrint, 1), FootPrint,
                          ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
               </Otherwise>
@@ -1063,7 +1066,7 @@
           <Execute Statement="RunningComponent:= RunningComponent.Next"/>
           <Execute Statement="DoSeperate:= True"/>
         </lil:LinkedList.Iterate>
-        <rep:Reporter.Information Text="Format('%3dx %-*s(%s)', TotCount, StockContext.SpecContext.ColumnManager.GetColumnWidth(1, 6), SpecAsString, StockDescriptions)"/>
+        <rep:Reporter.Information Text="Format('%3dx %-*s(%s)', TotCount, StockContext.SpecContext.ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max + 1), SpecAsString, StockDescriptions)"/>
       </Block>
     </Procedure>
 
@@ -1093,7 +1096,7 @@
             <Execute Statement="TotCount:= TotCount + Count"/>
             <Execute Statement="DoSeperate:= True"/>
           </lil:LinkedList.Iterate>
-          <rep:Reporter.Information Text="Format('%3dx %-*s(%s)', TotCount, SchemaContext.SpecContext.ColumnManager.GetColumnWidth(1, 6), SpecAsString, ComponentDesignators)" Markup="Header4"/>
+          <rep:Reporter.Information Text="Format('%3dx %-*s(%s)', TotCount, SchemaContext.SpecContext.ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max + 1), SpecAsString, ComponentDesignators)" Markup="Header4"/>
         </Block>
       </Block>
     </Procedure>
@@ -1454,8 +1457,6 @@
   </Procedures>
 
   <Initialization>
-    <Execute Statement="E24Serie:= GetESerie(TESerie.E24)"/>
-    <Execute Statement="E192Serie:= GetESerie(TESerie.E192)"/>
     <Execute Statement="InitCustomFieldIndex(CustomFieldsIndex)"/>
     <Execute Statement="InitComponentKindIndex(ComponentKindIndex)"/>
     <Execute Statement="InitFootprintIndex(FootprintIndex)"/>

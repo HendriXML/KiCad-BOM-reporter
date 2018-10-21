@@ -333,7 +333,7 @@
               <When Expression="ReportContext.Measure">
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.Value, 1, Length(Value))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.ESerie, 1, Length(ESerie))"/>
-                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.AmpRating, 1, Length(AmpRating))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.AmpRating, 2, Length(AmpRating))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.Tolerance, 1, Length(Tolerance))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.FootPrint, 1, Length(Footprint))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
@@ -343,7 +343,7 @@
                 <Execute Statement="Result:= Format('%*s%*s%*s%*s%*s%-*s%-*s',
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.Value, 1), Value,
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.ESerie, 1), ESerie,
-                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.AmpRating, 1), AmpRating,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.AmpRating, 2), AmpRating,
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.Tolerance, 1), Tolerance,
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.None1, 1), '',
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.FootPrint, 1), Footprint,

@@ -40,12 +40,6 @@
   <Constants>
     <Constant Identifier="MaxInt64" Type="Int64" Expression="9223372036854775807"/>
     <Constant Identifier="CopperResistivity" Type="Extended" Expression="1.75E-8"/>
-    <Constant Identifier="nano" Type="Extended" Expression="1/1000000000"/>
-    <Constant Identifier="micro" Type="Extended" Expression="1/1000000"/>
-    <Constant Identifier="Milli" Type="Extended" Expression="1/1000"/>
-    <Constant Identifier="k" Type="Integer" Expression="1000"/>
-    <Constant Identifier="M" Type="Integer" Expression="1000 * k"/>
-    <Constant Identifier="G" Type="Integer" Expression="1000 * M"/>
 
     <Constant Identifier="cYotta" Type="Char" Expression="'Y'"/>
     <Constant Identifier="cZetta" Type="Char" Expression="'Z'"/>
@@ -69,14 +63,14 @@
     <Constant Identifier="cAtto" Type="Char" Expression="'a'"/>
     <Constant Identifier="cZepto" Type="Char" Expression="'z'"/>
     <Constant Identifier="cYocto" Type="Char" Expression="'y'"/>
-    <Constant Identifier="cKibi" Type="string" Expression="'Ki'"/>
-    <Constant Identifier="cMebi" Type="string" Expression="'Mi'"/>
-    <Constant Identifier="cGibi" Type="string" Expression="'Gi'"/>
-    <Constant Identifier="cTebi" Type="string" Expression="'Ti'"/>
-    <Constant Identifier="cPebi" Type="string" Expression="'Pi'"/>
-    <Constant Identifier="cExbi" Type="string" Expression="'Ei'"/>
-    <Constant Identifier="cZebi" Type="string" Expression="'Zi'"/>
-    <Constant Identifier="cYobi" Type="string" Expression="'Yi'"/>
+    <Constant Identifier="sKibi" Type="string" Expression="'Ki'"/>
+    <Constant Identifier="sMebi" Type="string" Expression="'Mi'"/>
+    <Constant Identifier="sGibi" Type="string" Expression="'Gi'"/>
+    <Constant Identifier="sTebi" Type="string" Expression="'Ti'"/>
+    <Constant Identifier="sPebi" Type="string" Expression="'Pi'"/>
+    <Constant Identifier="sExbi" Type="string" Expression="'Ei'"/>
+    <Constant Identifier="sZebi" Type="string" Expression="'Zi'"/>
+    <Constant Identifier="sYobi" Type="string" Expression="'Yi'"/>
 
     <Constant Identifier="cOhm" Type="Char" Expression="'Ω'"/>
     <Constant Identifier="cWatt" Type="Char" Expression="'W'"/>
@@ -85,7 +79,12 @@
     <Constant Identifier="cVolt" Type="Char" Expression="'V'"/>
     <Constant Identifier="cAmp" Type="Char" Expression="'A'"/>
     <Constant Identifier="cPerc" Type="Char" Expression="'%'"/>
+    <Constant Identifier="cHz" Type="string" Expression="'hz'"/>
+    <Constant Identifier="cMeter" Type="Char" Expression="'m'"/>
 
+    <Constant Identifier="k" Type="Integer" Expression="1000"/>
+    <Constant Identifier="M" Type="Integer" Expression="1000 * k"/>
+    <Constant Identifier="G" Type="Integer" Expression="1000 * M"/>
     <Constant Identifier="facMicroToMicro" Type="Int64" Expression="1"/>
     <Constant Identifier="facMilliToMicro" Type="Int64" Expression="k*facMicroToMicro"/>
     <Constant Identifier="facToMicro" Type="Int64" Expression="k*facMilliToMicro"/>
@@ -100,15 +99,19 @@
     <Constant Identifier="facMilliToFemto" Type="Int64" Expression="k*facMicroToFemto"/>
     <Constant Identifier="facToFemto" Type="Int64" Expression="k*facMilliToFemto"/>
     <Constant Identifier="facKiloToFemto" Type="Int64" Expression="k*facToFemto"/>
+    
+    <Constant Identifier="nano" Type="Extended" Expression="1/1000000000"/>
+    <Constant Identifier="micro" Type="Extended" Expression="1/1000000"/>
+    <Constant Identifier="Milli" Type="Extended" Expression="1/1000"/>
   </Constants>
   <sys:Variables>
-    <sys:Variable Identifier="E192Serie" Type="TSerie"/>
-    <sys:Variable Identifier="E96Serie" Type="TSerie"/>
-    <sys:Variable Identifier="E48Serie" Type="TSerie"/>
-    <sys:Variable Identifier="E24Serie" Type="TSerie"/>
-    <sys:Variable Identifier="E12Serie" Type="TSerie"/>
-    <sys:Variable Identifier="E6Serie" Type="TSerie"/>
-    <sys:Variable Identifier="E3Serie" Type="TSerie"/>
+    <sys:Variable Identifier="_E192Serie" Type="TSerie"/>
+    <sys:Variable Identifier="_E96Serie" Type="TSerie"/>
+    <sys:Variable Identifier="_E48Serie" Type="TSerie"/>
+    <sys:Variable Identifier="_E24Serie" Type="TSerie"/>
+    <sys:Variable Identifier="_E12Serie" Type="TSerie"/>
+    <sys:Variable Identifier="_E6Serie" Type="TSerie"/>
+    <sys:Variable Identifier="_E3Serie" Type="TSerie"/>
   </sys:Variables>
   <Procedures>
     <Function Identifier="DecodeReference" Type="Boolean">
@@ -778,6 +781,16 @@
 
     </Function>
 
+    <Function Identifier="StrToMicroWatts" Type="Int64" IsDeterministic="true">
+      <Parameters>
+        <Parameter Identifier="TextValue" Type="string"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="Valid" Type="Boolean" Init="StrToMicroWatts(TextValue, Result)"/>
+        <Raise Expression="Exception.Create(Format('Invalid wattage: %s', TextValue))" Condition="not Valid"/>
+      </Block>
+    </Function>
+
     <!--Standard micro formatting-->
     <Function Identifier="StrToMicroVolts" Type="Boolean">
       <Parameters>
@@ -961,6 +974,16 @@
             <Exit Result="True"/>
           </On>
         </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="StrToMicroVolts" Type="Int64" IsDeterministic="true">
+      <Parameters>
+        <Parameter Identifier="TextValue" Type="string"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="Valid" Type="Boolean" Init="StrToMicroVolts(TextValue, Result)"/>
+        <Raise Expression="Exception.Create(Format('Invalid voltage: %s', TextValue))" Condition="not Valid"/>
       </Block>
     </Function>
 
@@ -1873,27 +1896,28 @@
     <Function Identifier="CreatePrefix" Type="string" IsDeterministic="1">
       <Parameters>
         <Parameter Identifier="Value" Type="Extended"/>
-        <Parameter Identifier="aUnit" Type="string"/>
+        <Parameter Identifier="aUnit"/>
         <Parameter Identifier="IsCapacitance" Type="Boolean"/>
       </Parameters>
       <Variables>
         <Variable Identifier="Prefix" Type="string" Init="''"/>
       </Variables>
       <Block>
+        <rep:Reporter.Information Text="'CreatePrefix'" Condition="IsDebugging"/>
         <Choose>
           <When Expression="(Value &gt;= M) or (Value &lt;= -M)">
-            <Execute Statement="Prefix:= 'M'"/>
+            <Execute Statement="Prefix:= cMega"/>
             <Execute Statement="Value:= Value / M"/>
           </When>
           <When Expression="(Value &gt;= k) or (Value &lt;= -k)">
-            <Execute Statement="Prefix:= 'k'"/>
+            <Execute Statement="Prefix:= cKilo"/>
             <Execute Statement="Value:= Value / k"/>
           </When>
           <When Expression="(Value &gt;= 1) or (Value &lt;= -1)">
             <Execute Statement="Prefix:= ''"/>
           </When>
           <When Expression="((Value &gt;= Milli) or (Value &lt;= -Milli)) and not IsCapacitance">
-            <Execute Statement="Prefix:= 'm'"/>
+            <Execute Statement="Prefix:= cMilli"/>
             <Execute Statement="Value:= Value * 1000"/>
           </When>
           <When Expression="(Value &gt;= micro) or (Value &lt;= -micro)">
@@ -1901,7 +1925,7 @@
             <Execute Statement="Value:= Value * 1000000"/>
           </When>
           <When Expression="(Value &gt;= nano) or (Value &lt;= -nano)">
-            <Execute Statement="Prefix:= 'n'"/>
+            <Execute Statement="Prefix:= cNano"/>
             <Execute Statement="Value:= Value * 1000000000"/>
           </When>
         </Choose>
@@ -1913,7 +1937,7 @@
         <Parameter Identifier="voltValue" Type="Extended"/>
       </Parameters>
       <Block>
-        <Execute Statement="Result:= CreatePrefix(voltValue, 'V', False)"/>
+        <Execute Statement="Result:= CreatePrefix(voltValue, cVolt, False)"/>
       </Block>
     </Function>
     <Function Identifier="FormatDistance" Type="string" IsDeterministic="1">
@@ -1921,7 +1945,7 @@
         <Parameter Identifier="mValue" Type="Extended"/>
       </Parameters>
       <Block>
-        <Execute Statement="Result:= CreatePrefix(mValue, 'm', False)"/>
+        <Execute Statement="Result:= CreatePrefix(mValue, cMeter, False)"/>
       </Block>
     </Function>
     <Function Identifier="FormatCurrent" Type="string" IsDeterministic="1">
@@ -1929,7 +1953,7 @@
         <Parameter Identifier="ampValue" Type="Extended"/>
       </Parameters>
       <Block>
-        <Execute Statement="Result:= CreatePrefix(ampValue, 'A', False)"/>
+        <Execute Statement="Result:= CreatePrefix(ampValue, cAmp, False)"/>
       </Block>
     </Function>
     <Function Identifier="FormatFrequency" Type="string" IsDeterministic="1">
@@ -1937,7 +1961,7 @@
         <Parameter Identifier="freqValue" Type="Extended"/>
       </Parameters>
       <Block>
-        <Execute Statement="Result:= CreatePrefix(freqValue, 'hz', False)"/>
+        <Execute Statement="Result:= CreatePrefix(freqValue, cHz, False)"/>
       </Block>
     </Function>
     <Function Identifier="FormatCapacitance" Type="string" IsDeterministic="1">
@@ -1945,7 +1969,7 @@
         <Parameter Identifier="faradValue" Type="Extended"/>
       </Parameters>
       <Block>
-        <Execute Statement="Result:= CreatePrefix(faradValue, 'F', True)"/>
+        <Execute Statement="Result:= CreatePrefix(faradValue, cFarad, True)"/>
       </Block>
     </Function>
     <Function Identifier="FormatPower" Type="string" IsDeterministic="1">
@@ -1953,7 +1977,7 @@
         <Parameter Identifier="wattValue" Type="Extended"/>
       </Parameters>
       <Block>
-        <Execute Statement="Result:= CreatePrefix(wattValue, 'W', False)"/>
+        <Execute Statement="Result:= CreatePrefix(wattValue, cWatt, False)"/>
       </Block>
     </Function>
     <Function Identifier="FormatResistance" Type="string" IsDeterministic="1">
@@ -2006,37 +2030,21 @@
       </Block>
     </Function>
 
-    <Function Identifier="GetEValue" Type="Extended" IsDeterministic="1">
+    <Function Identifier="SignificantTrunc" Type="Int64" IsDeterministic="1">
       <Parameters>
-        <Parameter Identifier="RequestedValue" Type="Extended"/>
-        <Parameter Identifier="ERange" Type="Integer"/>
+        <Parameter Identifier="Value" Type="Int64"/>
+        <Parameter Identifier="OrderValue" Type="Int64"/>
       </Parameters>
       <Variables>
-        <Variable Identifier="Factor" Type="Extended" Init="1"/>
+        <Variable Identifier="Modulus" Type="Int64" Init="1"/>
+        <Variable Identifier="Factor" Type="Int64" Init="1"/>
       </Variables>
       <Block>
-        <Choose>
-          <When Expression="RequestedValue = 0">
-
-          </When>
-          <When Expression="(RequestedValue &gt; 0)">
-            <Choose>
-              <When Expression="RequestedValue &lt; 1">
-
-              </When>
-              <When Expression="RequestedValue &lt; 10">
-
-              </When>
-            </Choose>
-          </When>
-          <When Expression="(RequestedValue &lt; 0)">
-
-          </When>
-          <Otherwise>
-            <Execute Statement="Result:= 0"/>
-            <Exit/>
-          </Otherwise>
-        </Choose>
+        <WhileLoop Expression="(Value div OrderValue) &gt; 0">
+          <Execute Statement="OrderValue:= OrderValue * 10"/>
+          <Execute Statement="Factor:= Factor * 10"/>
+        </WhileLoop>
+        <Execute Statement="Result:= Value div Factor * Factor"/>
       </Block>
     </Function>
 
@@ -2087,7 +2095,7 @@
       <Parameters>
         <Parameter Identifier="Value" Type="Int64"/>
         <Parameter Identifier="MatchedValue" Type="Int64" Direction="Output"/>
-        <Parameter Identifier="MatchedKind" Type="TMatchValueKind"/>
+        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
       </Parameters>
       <Variables>
         <!--Values equal or below can be scaled one more time -->
@@ -2118,7 +2126,7 @@
                 <When Expression="MatchFactor &gt; OverFlowFactor">
                   <rep:Reporter.Information Text="Format('MatchFactor would overflow: %d', MatchFactor)" Condition="IsDebugging"/>
                   <Execute Statement="ValueDivisor:= ValueDivisor * 10"/>
-                  <Case Expression="MatchedKind" Optimalisation="integermapping">
+                  <Case Expression="MatchKind" Optimalisation="integermapping">
                     <On Select="TMatchValueKind.LessOrEqual">
                       <Execute Statement="ScaledValue:= Value div ValueDivisor"/>
                     </On>
@@ -2165,7 +2173,7 @@
             </When>
             <Otherwise>
               <rep:Reporter.Information Text="'Perfect match'" Condition="IsDebugging"/>
-              <Case Expression="MatchedKind" Optimalisation="integermapping">
+              <Case Expression="MatchKind" Optimalisation="integermapping">
                 <On Select="TMatchValueKind.LessOrEqual">
                   <Execute Statement="MatchedValue:= (Result.Value * MatchFactor) div ValueFactor * ValueDivisor"/>
                 </On>
@@ -2181,7 +2189,7 @@
           </Choose>
         </WhileLoop>
         <rep:Reporter.Information Text="'Inperfect match'" Condition="IsDebugging"/>
-        <Case Expression="MatchedKind" Optimalisation="integermapping">
+        <Case Expression="MatchKind" Optimalisation="integermapping">
           <On Select="TMatchValueKind.LessOrEqual">
             <Block Condition="IsEmpty(Less)">
               <Execute Statement="ValueFactor:= ValueFactor * 10"/>
@@ -2230,6 +2238,20 @@
             </Choose>
           </Otherwise>
         </Case>
+      </Block>
+    </Function>
+    
+    <Function Identifier="TSerie.ValueMicro" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="Value" Type="Extended"/>
+        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="MatchedValue" Type="Int64"/>
+      </Variables>
+      <Block>
+        <Execute Statement="MatchNode(Round(Value * facToMicro), MatchedValue, MatchKind)"/>
+        <Execute Statement="Result:= MatchedValue * micro"/>
       </Block>
     </Function>
 
@@ -2679,78 +2701,78 @@ Done:
         <Case Expression="ESerie" Optimalisation="integermapping">
           <On Select="TESerie.E3">
             <Choose>
-              <When Expression="IsEmpty(E3Serie)">
+              <When Expression="IsEmpty(_E3Serie)">
                 <Execute Statement="Result:= TSerie.Create(ESerie)"/>
-                <Execute Statement="E3Serie:= Result"/>
+                <Execute Statement="_E3Serie:= Result"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= E3Serie"/>
+                <Execute Statement="Result:= _E3Serie"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TESerie.E6">
             <Choose>
-              <When Expression="IsEmpty(E6Serie)">
+              <When Expression="IsEmpty(_E6Serie)">
                 <Execute Statement="Result:= TSerie.Create(ESerie)"/>
-                <Execute Statement="E6Serie:= Result"/>
+                <Execute Statement="_E6Serie:= Result"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= E6Serie"/>
+                <Execute Statement="Result:= _E6Serie"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TESerie.E12">
             <Choose>
-              <When Expression="IsEmpty(E12Serie)">
+              <When Expression="IsEmpty(_E12Serie)">
                 <Execute Statement="Result:= TSerie.Create(ESerie)"/>
-                <Execute Statement="E12Serie:= Result"/>
+                <Execute Statement="_E12Serie:= Result"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= E12Serie"/>
+                <Execute Statement="Result:= _E12Serie"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TESerie.E24">
             <Choose>
-              <When Expression="IsEmpty(E24Serie)">
+              <When Expression="IsEmpty(_E24Serie)">
                 <Execute Statement="Result:= TSerie.Create(ESerie)"/>
-                <Execute Statement="E24Serie:= Result"/>
+                <Execute Statement="_E24Serie:= Result"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= E24Serie"/>
+                <Execute Statement="Result:= _E24Serie"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TESerie.E48">
             <Choose>
-              <When Expression="IsEmpty(E48Serie)">
+              <When Expression="IsEmpty(_E48Serie)">
                 <Execute Statement="Result:= TSerie.Create(ESerie)"/>
-                <Execute Statement="E48Serie:= Result"/>
+                <Execute Statement="_E48Serie:= Result"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= E48Serie"/>
+                <Execute Statement="Result:= _E48Serie"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TESerie.E96">
             <Choose>
-              <When Expression="IsEmpty(E96Serie)">
+              <When Expression="IsEmpty(_E96Serie)">
                 <Execute Statement="Result:= TSerie.Create(ESerie)"/>
-                <Execute Statement="E96Serie:= Result"/>
+                <Execute Statement="_E96Serie:= Result"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= E96Serie"/>
+                <Execute Statement="Result:= _E96Serie"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TESerie.E192">
             <Choose>
-              <When Expression="IsEmpty(E192Serie)">
+              <When Expression="IsEmpty(_E192Serie)">
                 <Execute Statement="Result:= TSerie.Create(ESerie)"/>
-                <Execute Statement="E192Serie:= Result"/>
+                <Execute Statement="_E192Serie:= Result"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= E192Serie"/>
+                <Execute Statement="Result:= _E192Serie"/>
               </Otherwise>
             </Choose>
           </On>

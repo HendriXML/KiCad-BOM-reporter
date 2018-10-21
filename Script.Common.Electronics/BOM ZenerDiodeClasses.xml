@@ -199,6 +199,7 @@
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
         <Parameter Identifier="ESerie" Type="string" Direction="Output"/>
         <Parameter Identifier="PowerRating" Type="string" Direction="Output"/>
+        <Parameter Identifier="MaxAmp" Type="string" Direction="Output"/>
         <Parameter Identifier="Tolerance" Type="string" Direction="Output"/>
         <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
         <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
@@ -223,6 +224,21 @@
           </On>
           <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
             <Execute Statement="PowerRating:= FormatMicroWatt(Self.PowerRating)"/>
+            <Block Condition="not HideZenerDiodeMaxAmp and (ZenerVoltage &gt; 0)">
+              <Case Expression="ZenerVoltageVT">
+                <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                  <Variable Identifier="MaxMicroAmp" Type="Int64" Init="(Self.PowerRating * facToMicro) div ZenerVoltage "/>
+                  <Choose>
+                    <When Expression="IsError(MaxMicroAmp)">
+                      <Execute Statement="MaxAmp:= '?'"/>
+                    </When>
+                    <Otherwise>
+                      <Execute Statement="MaxAmp:= FormatMicroAmp(SignificantTrunc(MaxMicroAmp, 1000))"/>
+                    </Otherwise>
+                  </Choose>
+                </On>
+              </Case>
+            </Block>
           </On>
           <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
             <Execute Statement="PowerRating:= '!' + ErrorPowerRating + '!'"/>
@@ -254,12 +270,13 @@
         <Variable Identifier="Value" Type="string"/>
         <Variable Identifier="ESerie" Type="string" Init="''"/>
         <Variable Identifier="PowerRating" Type="string"/>
+        <Variable Identifier="MaxAmp" Type="string" Init="''"/>
         <Variable Identifier="Tolerance" Type="string"/>
         <Variable Identifier="Footprint" Type="string"/>
         <Variable Identifier="PartNumberModel" Type="string"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, ESerie, PowerRating, Tolerance, Footprint, PartNumberModel)"/>
+        <Execute Statement="GetSpecificationValues(Value, ESerie, PowerRating, MaxAmp, Tolerance, Footprint, PartNumberModel)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
@@ -275,16 +292,18 @@
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.Value, 1, Length(Value))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.ESerie, 1, Length(ESerie))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.PowerRating, 1, Length(PowerRating))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.MaxAmp, 1, Length(MaxAmp))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.Tolerance, 1, Length(Tolerance))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.FootPrint, 1, Length(Footprint))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
                 <Execute Statement="Result:= ''"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= Format('%*s%*s%*s%*s%*s%-*s%-*s',
+                <Execute Statement="Result:= Format('%*s%*s%*s%-*s%*s%*s%-*s%-*s',
                          ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.Value, 1), Value,
                          ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.ESerie, 1), ESerie,
                          ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.PowerRating, 1), PowerRating,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.MaxAmp, 1), MaxAmp,
                          ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.Tolerance, 1), Tolerance,
                          ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.None1, 1), '',
                          ColumnManager.GetColumnWidth(ColumnOffset + TZenerDiodeSpecColumns.FootPrint, 1), Footprint,

@@ -139,28 +139,28 @@
             <Execute Statement="Result:= Result + cYocto"/>
           </On>
           <On Select="TPartKeeprPrefix.Kibi">
-            <Execute Statement="Result:= Result + cKibi"/>
+            <Execute Statement="Result:= Result + sKibi"/>
           </On>
           <On Select="TPartKeeprPrefix.Mebi">
-            <Execute Statement="Result:= Result + cMebi"/>
+            <Execute Statement="Result:= Result + sMebi"/>
           </On>
           <On Select="TPartKeeprPrefix.Gibi">
-            <Execute Statement="Result:= Result + cGibi"/>
+            <Execute Statement="Result:= Result + sGibi"/>
           </On>
           <On Select="TPartKeeprPrefix.Tebi">
-            <Execute Statement="Result:= Result + cTebi"/>
+            <Execute Statement="Result:= Result + sTebi"/>
           </On>
           <On Select="TPartKeeprPrefix.Pebi">
-            <Execute Statement="Result:= Result + cPebi"/>
+            <Execute Statement="Result:= Result + sPebi"/>
           </On>
           <On Select="TPartKeeprPrefix.Exbi">
-            <Execute Statement="Result:= Result + cExbi"/>
+            <Execute Statement="Result:= Result + sExbi"/>
           </On>
           <On Select="TPartKeeprPrefix.Zebi">
-            <Execute Statement="Result:= Result + cZebi"/>
+            <Execute Statement="Result:= Result + sZebi"/>
           </On>
           <On Select="TPartKeeprPrefix.Yobi">
-            <Execute Statement="Result:= Result + cYobi"/>
+            <Execute Statement="Result:= Result + sYobi"/>
           </On>
         </Case>
       </Block>

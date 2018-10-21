@@ -25,11 +25,16 @@
     <pkg:Target Identifier="Warnings" Description="Waarschuwingen"/>-->
   </pkg:ReportTargets>
   <pkg:Config xml:space="preserve">[Settings]
-BomFilename=F:\Software development\Constructie\FumeExtracter\eSchemas.Project\FumeExtracter.xml
+BomFilename=F:\Software development\XmlScripts\Projects\ElectronicsCalculations\Resources.Project\ESeriesBOM.xml
+;BomFilename=F:\Software development\Constructie\FumeExtracter\eSchemas.Project\FumeExtracter.xml
 BomCount=1
 ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr
 ExportProjectID=?
+[Display]
 HideESerieOfValue=0
+HideResistorMaxAmpVolt=0
+HideZenerDiodeMaxAmp=0
+MaxShowResistorMicroVoltage=1MV
 
 [Template.Resistor.THT]
 PowerRating = 250mW
@@ -38,7 +43,7 @@ Technology = metal film
 Footprint = THT
 
 
-[Template.Resistor.Variable.THT]
+[Template.Resistor.Variable.THT.rem]
 ;PowerRating = 250mW
 
 [Template.PolarisedCapacitor.THT]
@@ -47,7 +52,7 @@ VoltageRating = 50V
 Technology = electrolytic
 Footprint = THT
 
-[Template.Capacitor.THT]
+[Template.Capacitor.THT.rem]
 ;Tolerance = 10%
 VoltageRating = 50V
 Technology = ceramic
@@ -56,7 +61,7 @@ Footprint = THT
 [Template.ZenderDiode.THT]
 ;Tolerance = 10%
 PowerRating = 1W
-Footprint = THT
+;Footprint = THT
 
   </pkg:Config>
   <Imports>
@@ -75,6 +80,7 @@ Footprint = THT
     <Import Identifier="PartKeeprProjectExport" Filename="..\Script.Common.Electronics\BOM PartKeeprProjectExport.xml"/>
   </Imports>
   <Uses>
+    <Use Identifier="ElectronicUtils"/>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
     <Use Identifier="CategoryContainer"/>
@@ -85,11 +91,15 @@ Footprint = THT
   <Constants>
     <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
     <Constant Identifier="secSettings" Type="string" Expression="'Settings'"/>
+    <Constant Identifier="secDisplay" Type="string" Expression="'Display'"/>
     <Constant Identifier="keyBomFilename" Type="string" Expression="'BomFilename'"/>
     <Constant Identifier="keyBomCount" Type="string" Expression="'BomCount'"/>
     <Constant Identifier="keyConnectionString" Type="string" Expression="'ConnectionString'"/>
     <Constant Identifier="keyExportProjectID" Type="string" Expression="'ExportProjectID'"/>
     <Constant Identifier="keyHideESerieOfValue" Type="string" Expression="'HideESerieOfValue'"/>
+    <Constant Identifier="keyHideResistorMaxAmpVolt" Type="string" Expression="'HideResistorMaxAmpVolt'"/>
+    <Constant Identifier="keyHideZenerDiodeMaxAmp" Type="string" Expression="'HideZenerDiodeMaxAmp'"/>
+    <Constant Identifier="keyMaxShowResistorMicroVoltage" Type="string" Expression="'MaxShowResistorMicroVoltage'"/>
   </Constants>
   <Variables>
     <Variable Identifier="ConnectionString" Type="string" Init="connsPartKeepr"/>
@@ -104,7 +114,11 @@ Footprint = THT
     <Variable Identifier="StartTime" Type="Int64" Init="QueryPerformanceCounter" />
 
     <rep:Reporter.DefaultTarget Identifier="Info"/>
-    <Execute Statement="HideESerieOfValue:= ConfigInifile.ReadBool(secSettings, keyHideESerieOfValue, HideESerieOfValue)"/>
+    <Execute Statement="HideESerieOfValue:= ConfigInifile.ReadBool(secDisplay, keyHideESerieOfValue, HideESerieOfValue)"/>
+    <Execute Statement="HideResistorMaxAmpVolt:= ConfigInifile.ReadBool(secDisplay, keyHideResistorMaxAmpVolt, HideESerieOfValue)"/>
+    <Execute Statement="HideZenerDiodeMaxAmp:= ConfigInifile.ReadBool(secDisplay, keyHideZenerDiodeMaxAmp, HideESerieOfValue)"/>
+    <Variable Identifier="MaxShowResistorMicroVoltageS" Type="string" Init="ConfigInifile.ReadString(secDisplay, keyMaxShowResistorMicroVoltage, FormatMicroVolt(MaxShowResistorMicroVoltage))"/>
+    <Raise Expression="Exception.Create('Invalid voltage: ' + MaxShowResistorMicroVoltageS)" Condition="not StrToMicroVolts(MaxShowResistorMicroVoltageS, MaxShowResistorMicroVoltage)"/>
     <Execute Statement="ConnectionString:= ConfigInifile.ReadString(secSettings, keyConnectionString, ConnectionString)"/>
     <ConditionalBlock Expression="not CommandlineVariables.GetValue(keyBomFilename, BomFilename)">
       <Execute Statement="BomFilename:= ConfigInifile.ReadString(secSettings, keyBomFilename, BomFilename)"/>

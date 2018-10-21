@@ -552,7 +552,7 @@
             <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
             <Choose>
               <When Expression="ReportContext.Measure">
-                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.Value, 3, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.Value, 4, Length(Value))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.AmpRating, 2, Length(AmpRating))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.FootPrint, 1, Length(FootPrint))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
@@ -560,7 +560,7 @@
               </When>
               <Otherwise>
                 <Execute Statement="Result:= Format('%-*s%*s%*s%-*s',
-                         ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.Value, 3), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.Value, 4), Value,
                          ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.AmpRating, 2), AmpRating,
                          ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.FootPrint, 1), FootPrint,
                          ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.PartNumberModel, 1), PartNumberModel)"/>

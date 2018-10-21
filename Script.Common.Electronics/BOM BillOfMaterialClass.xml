@@ -238,7 +238,7 @@
                 </Choose>
                 <rep:Reporter.Information Text="Format('%-*s%-*s%-*s', 
                                           ColumnManager.GetColumnWidth(0, 1), Component.Reference,
-                                          ColumnManager.GetColumnWidth(1, 1), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max+1), ComponentSpecAsString,
                                           ColumnManager.GetColumnWidth(7, 1), ComponentKindNameString(ComponentSpec.ComponentKind) 
                                           )"/>
               </lil:LinkedList.Iterate>

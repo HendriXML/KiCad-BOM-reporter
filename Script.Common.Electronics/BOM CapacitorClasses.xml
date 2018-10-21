@@ -418,7 +418,7 @@
               <When Expression="ReportContext.Measure">
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.Value, 1, Length(Value))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.ESerie, 1, Length(ESerie))"/>
-                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.VoltageRating, 1, Length(VoltageRating))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.VoltageRating, 2, Length(VoltageRating))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.Tolerance, 1, Length(Tolerance))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.Technology, 1, Length(Technology))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TCapacitorSpecColumns.FootPrint, 1, Length(Footprint))"/>
@@ -429,7 +429,7 @@
                 <Execute Statement="Result:= Format('%*s%*s%*s%*s%-*s%-*s%-*s',
                          ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.Value, 1), Value,
                          ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.ESerie, 1), ESerie,
-                         ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.VoltageRating, 1), VoltageRating,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.VoltageRating, 2), VoltageRating,
                          ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.Tolerance, 1), Tolerance,
                          ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.Technology, 1), Technology,
                          ColumnManager.GetColumnWidth(ColumnOffset + TCapacitorSpecColumns.FootPrint, 1), Footprint,
