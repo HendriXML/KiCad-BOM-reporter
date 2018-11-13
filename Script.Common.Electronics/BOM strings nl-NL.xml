@@ -17,37 +17,161 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   >
   <Constants>
+    <!--<-<Constants.ComponentKind.Strings-->
+    <Constant Identifier="sNoneDescription" Expression="''"/>
+    <Constant Identifier="sNoneHeader" Expression="''"/>
+    <Constant Identifier="sResistorDescription" Expression="'weerstand'"/>
+    <Constant Identifier="sResistorHeader" Expression="'Weerstanden'"/>
+    <Constant Identifier="sVariableResistorDescription" Expression="'variabele weerstand'"/>
+    <Constant Identifier="sVariableResistorHeader" Expression="'Variabele weerstanden'"/>
+    <Constant Identifier="sCapacitorDescription" Expression="'condensator'"/>
+    <Constant Identifier="sCapacitorHeader" Expression="'Condensatoren'"/>
+    <Constant Identifier="sPolarisedCapacitorDescription" Expression="'gepolariseerde condensator'"/>
+    <Constant Identifier="sPolarisedCapacitorHeader" Expression="'Gepolariseerde condensatoren'"/>
+    <Constant Identifier="sVariableCapacitorDescription" Expression="'variable condensator'"/>
+    <Constant Identifier="sVariableCapacitorHeader" Expression="'Variable condensatoren'"/>
+    <Constant Identifier="sInductorDescription" Expression="'spoel'"/>
+    <Constant Identifier="sInductorHeader" Expression="'Spoelen'"/>
+    <Constant Identifier="sBridgeRectifierDescription" Expression="'gelijkrichter'"/>
+    <Constant Identifier="sBridgeRectifierHeader" Expression="'Gelijkrichters'"/>
+    <Constant Identifier="sZenerDiodeDescription" Expression="'zenerdiode'"/>
+    <Constant Identifier="sZenerDiodeHeader" Expression="'Zenerdiodes'"/>
+    <Constant Identifier="sDiodeDescription" Expression="'diode'"/>
+    <Constant Identifier="sDiodeHeader" Expression="'Diodes'"/>
+    <Constant Identifier="sSchottkyDiodeDescription" Expression="'schottkydiode'"/>
+    <Constant Identifier="sSchottkyDiodeHeader" Expression="'Schottkydiodes'"/>
+    <Constant Identifier="sLaserdiodeDescription" Expression="'laserdiode'"/>
+    <Constant Identifier="sLaserdiodeHeader" Expression="'Laserdiodes'"/>
+    <Constant Identifier="sPhotodiodeDescription" Expression="'photodiode'"/>
+    <Constant Identifier="sPhotodiodeHeader" Expression="'Photodiodes'"/>
+    <Constant Identifier="sSpecialDiodeDescription" Expression="'speciale diode'"/>
+    <Constant Identifier="sSpecialDiodeHeader" Expression="'Speciale diodes'"/>
+    <Constant Identifier="sDualDiodeDescription" Expression="'dual diode'"/>
+    <Constant Identifier="sDualDiodeHeader" Expression="'Dual diodes'"/>
+    <Constant Identifier="sNPNTransistorDescription" Expression="'npn transistor'"/>
+    <Constant Identifier="sNPNTransistorHeader" Expression="'NPN transistors'"/>
+    <Constant Identifier="sPNPTransistorDescription" Expression="'pnp transistor'"/>
+    <Constant Identifier="sPNPTransistorHeader" Expression="'PNP transistors'"/>
+    <Constant Identifier="sNFETDescription" Expression="'n-fet'"/>
+    <Constant Identifier="sNFETHeader" Expression="'N-FET''s'"/>
+    <Constant Identifier="sPFETDescription" Expression="'p-fet'"/>
+    <Constant Identifier="sPFETHeader" Expression="'P-FET''s'"/>
+    <Constant Identifier="sNIGBTDescription" Expression="'n-igbt'"/>
+    <Constant Identifier="sNIGBTHeader" Expression="'N-IGBT''s'"/>
+    <Constant Identifier="sNJFETDescription" Expression="'njfet'"/>
+    <Constant Identifier="sNJFETHeader" Expression="'N-JFET''s'"/>
+    <Constant Identifier="sPJFETDescription" Expression="'p-jfet'"/>
+    <Constant Identifier="sPJFETHeader" Expression="'P-JFET''s'"/>
+    <Constant Identifier="sNMOSFETDescription" Expression="'n-mosfet'"/>
+    <Constant Identifier="sNMOSFETHeader" Expression="'N-MOSFET''s'"/>
+    <Constant Identifier="sPMOSFETDescription" Expression="'pmosfet'"/>
+    <Constant Identifier="sPMOSFETHeader" Expression="'P-MOSFET''s'"/>
+    <Constant Identifier="sPUJTDescription" Expression="'pujt'"/>
+    <Constant Identifier="sPUJTHeader" Expression="'P-UJT''s'"/>
+    <Constant Identifier="sNUJTDescription" Expression="'nujt'"/>
+    <Constant Identifier="sNUJTHeader" Expression="'N-UJT''s'"/>
+    <Constant Identifier="sOpAmpDescription" Expression="'opamp'"/>
+    <Constant Identifier="sOpAmpHeader" Expression="'Opamps'"/>
+    <Constant Identifier="sComparatorDescription" Expression="'comparator'"/>
+    <Constant Identifier="sComparatorHeader" Expression="'Comparators'"/>
+    <Constant Identifier="sDiacDescription" Expression="'diac'"/>
+    <Constant Identifier="sDiacHeader" Expression="'Diac''s'"/>
+    <Constant Identifier="sSCRDescription" Expression="'scr'"/>
+    <Constant Identifier="sSCRHeader" Expression="'SCR''s'"/>
+    <Constant Identifier="sTRIACDescription" Expression="'triac'"/>
+    <Constant Identifier="sTRIACHeader" Expression="'TRIAC''s'"/>
+    <Constant Identifier="sLEDDescription" Expression="'led'"/>
+    <Constant Identifier="sLEDHeader" Expression="'LED''s'"/>
+    <Constant Identifier="sFuseDescription" Expression="'zekering'"/>
+    <Constant Identifier="sFuseHeader" Expression="'Zekeringen'"/>
+    <Constant Identifier="sPolyfuseDescription" Expression="'Terugstelbare zekering'"/>
+    <Constant Identifier="sPolyfuseHeader" Expression="'Terugstelbare zekeringen'"/>
+    <Constant Identifier="sAntennaDescription" Expression="'antenne'"/>
+    <Constant Identifier="sAntennaHeader" Expression="'Antennes'"/>
+    <Constant Identifier="sCrystalDescription" Expression="'kristal'"/>
+    <Constant Identifier="sCrystalHeader" Expression="'Kristallen'"/>
+    <Constant Identifier="sDelayLineDescription" Expression="'delay line'"/>
+    <Constant Identifier="sDelayLineHeader" Expression="'Delay lines'"/>
+    <Constant Identifier="sEmiFilterDescription" Expression="'emifilter'"/>
+    <Constant Identifier="sEmiFilterHeader" Expression="'Emifilters'"/>
+    <Constant Identifier="sFerriteBeadDescription" Expression="'ferrietkraal'"/>
+    <Constant Identifier="sFerriteBeadHeader" Expression="'Ferrietkralen'"/>
+    <Constant Identifier="sFrequencyCounterDescription" Expression="'frequentie teller'"/>
+    <Constant Identifier="sFrequencyCounterHeader" Expression="'Frequentie tellers'"/>
+    <Constant Identifier="sPhotoTransistorDescription" Expression="'phototransistor'"/>
+    <Constant Identifier="sPhotoTransistorHeader" Expression="'Phototransistors'"/>
+    <Constant Identifier="sHallGeneratorDescription" Expression="'hallgenerator'"/>
+    <Constant Identifier="sHallGeneratorHeader" Expression="'Hall generators'"/>
+    <Constant Identifier="sThermistorDescription" Expression="'thermistor'"/>
+    <Constant Identifier="sThermistorHeader" Expression="'Thermistors'"/>
+    <Constant Identifier="sPhotoResistorDescription" Expression="'lichtgevoelige weerstand'"/>
+    <Constant Identifier="sPhotoResistorHeader" Expression="'Lichtgevoelige weerstanden'"/>
+    <Constant Identifier="sVaristorDescription" Expression="'varistor'"/>
+    <Constant Identifier="sVaristorHeader" Expression="'Varistors'"/>
+    <Constant Identifier="sMicrophoneDescription" Expression="'microfoon'"/>
+    <Constant Identifier="sMicrophoneHeader" Expression="'Microfoons'"/>
+    <Constant Identifier="sMemristorDescription" Expression="'memristor'"/>
+    <Constant Identifier="sMemristorHeader" Expression="'Memristors'"/>
+    <Constant Identifier="sResistorNetworkDescription" Expression="'weerstandnetwerk'"/>
+    <Constant Identifier="sResistorNetworkHeader" Expression="'Weerstandnetwerken'"/>
+    <Constant Identifier="sResistorPackDescription" Expression="'weerstandspakket'"/>
+    <Constant Identifier="sResistorPackHeader" Expression="'Weerstandspakketten'"/>
+    <Constant Identifier="sResonatorDescription" Expression="'resonator'"/>
+    <Constant Identifier="sResonatorHeader" Expression="'Resonatoren'"/>
+    <Constant Identifier="sRFShieldDescription" Expression="'rf schild'"/>
+    <Constant Identifier="sRFShieldHeader" Expression="'RF schild'"/>
+    <Constant Identifier="sRotaryEncoderDescription" Expression="'rotary encoder'"/>
+    <Constant Identifier="sRotaryEncoderHeader" Expression="'Rotary encoders'"/>
+    <Constant Identifier="sThermocoupleDescription" Expression="'thermokoppel'"/>
+    <Constant Identifier="sThermocoupleHeader" Expression="'Thermokoppels'"/>
+    <Constant Identifier="sVoltageDividerDescription" Expression="'spanningsdeler'"/>
+    <Constant Identifier="sVoltageDividerHeader" Expression="'Spanningsdelers'"/>
+    <Constant Identifier="sJumperDescription" Expression="'jumper'"/>
+    <Constant Identifier="sJumperHeader" Expression="'Jumpers'"/>
+    <Constant Identifier="sConnectorDescription" Expression="'connector'"/>
+    <Constant Identifier="sConnectorHeader" Expression="'Connectoren'"/>
+    <Constant Identifier="sSolarCellDescription" Expression="'zonnecel'"/>
+    <Constant Identifier="sSolarCellHeader" Expression="'Zonnecellen'"/>
+    <Constant Identifier="sBatteryDescription" Expression="'batterij'"/>
+    <Constant Identifier="sBatteryHeader" Expression="'Batterijen'"/>
+    <Constant Identifier="sAdapterDescription" Expression="'adapter'"/>
+    <Constant Identifier="sAdapterHeader" Expression="'Adapters'"/>
+    <Constant Identifier="sTransformerDescription" Expression="'transformator'"/>
+    <Constant Identifier="sTransformerHeader" Expression="'Transformatoren'"/>
+    <Constant Identifier="sPeltierDescription" Expression="'peltier'"/>
+    <Constant Identifier="sPeltierHeader" Expression="'Peltiers'"/>
+    <Constant Identifier="sSpeakerDescription" Expression="'speaker'"/>
+    <Constant Identifier="sSpeakerHeader" Expression="'Speakers'"/>
+    <Constant Identifier="sBuzzerDescription" Expression="'buzzer'"/>
+    <Constant Identifier="sBuzzerHeader" Expression="'Buzzers'"/>
+    <Constant Identifier="sEarphoneDescription" Expression="'oortelefoon'"/>
+    <Constant Identifier="sEarphoneHeader" Expression="'Oortelefoons'"/>
+    <Constant Identifier="sLampDescription" Expression="'lamp'"/>
+    <Constant Identifier="sLampHeader" Expression="'Lampen'"/>
+    <Constant Identifier="sHeaterDescription" Expression="'verwarmer'"/>
+    <Constant Identifier="sHeaterHeader" Expression="'Verwarmers'"/>
+    <Constant Identifier="sElectromagneticActorDescription" Expression="'elektromagnetische actor'"/>
+    <Constant Identifier="sElectromagneticActorHeader" Expression="'Elektromagnetische actoren'"/>
+    <Constant Identifier="sMeasuringDeviceDescription" Expression="'meetapparaat'"/>
+    <Constant Identifier="sMeasuringDeviceHeader" Expression="'Meetapparaten'"/>
+    <Constant Identifier="sTimerDescription" Expression="'timer'"/>
+    <Constant Identifier="sTimerHeader" Expression="'Timers'"/>
+    <Constant Identifier="sSchmittTriggerDescription" Expression="'schmitt-trigger'"/>
+    <Constant Identifier="sSchmittTriggerHeader" Expression="'Schmitt-triggers'"/>
+    <Constant Identifier="sOptocouplerDescription" Expression="'optocoupler'"/>
+    <Constant Identifier="sOptocouplerHeader" Expression="'Optocouplers'"/>
+    <Constant Identifier="sComponentDescription" Expression="'component'"/>
+    <Constant Identifier="sComponentHeader" Expression="'Componenten'"/>
+    <Constant Identifier="sModuleDescription" Expression="'module'"/>
+    <Constant Identifier="sModuleHeader" Expression="'Modules'"/>
+    <Constant Identifier="sNonComponentDescription" Expression="'niet component'"/>
+    <Constant Identifier="sNonComponentHeader" Expression="'Niet componenten'"/>
+    <!-->->-->
     <Constant Identifier="sBOMHeader" Type="string" Expression="'Lijst van materialen'"/>
     <Constant Identifier="sStockHeader" Type="string" Expression="'Lijst van beschikbare materialen'"/>
     <Constant Identifier="sDesignatorReport" Type="string" Expression="'Designator specificaties'"/>
     <Constant Identifier="sTitleField" Type="string" Expression="'Titel: %s'"/>
     <Constant Identifier="sCountField" Type="string" Expression="'Aantal: %dx'"/>
-
-    <Constant Identifier="sResistorHeader" Type="string" Expression="'Weerstanden'"/>
-    <Constant Identifier="sComponentHeader" Type="string" Expression="'Componenten'"/>
-    <Constant Identifier="sOpAmpHeader" Type="string" Expression="'OpAmps'"/>
-    <Constant Identifier="sConnectorHeader" Type="string" Expression="'Connectoren'"/>
-    <Constant Identifier="sVariableResistorHeader" Type="string" Expression="'Variabele weerstanden'"/>
-    <Constant Identifier="sCapacitorHeader" Type="string" Expression="'Condensators'"/>
-    <Constant Identifier="sInductorHeader" Type="string" Expression="'Spoelen'"/>
-    <Constant Identifier="sBipolarJunctionTransitorHeader" Type="string" Expression="'Transistors'"/>
-    <Constant Identifier="sFieldEffectTransitorHeader" Type="string" Expression="'FET transistors'"/>
-    <Constant Identifier="sPolarisedCapacitorHeader" Type="string" Expression="'Gepolariseerde condensators'"/>
-    <Constant Identifier="sDiodeHeader" Type="string" Expression="'Diodes'"/>
-    <Constant Identifier="sZenerDiodeHeader" Type="string" Expression="'Zener diodes'"/>
-
-    <Constant Identifier="sResistorName" Type="string" Expression="'weerstand'"/>
-    <Constant Identifier="sComponentName" Type="string" Expression="'component'"/>
-    <Constant Identifier="sOpAmpName" Type="string" Expression="'opamp'"/>
-    <Constant Identifier="sConnectorName" Type="string" Expression="'connector'"/>
-    <Constant Identifier="sVariableResistorName" Type="string" Expression="'variabele weerstand'"/>
-    <Constant Identifier="sCapacitorName" Type="string" Expression="'condensator'"/>
-    <Constant Identifier="sInductorName" Type="string" Expression="'spoel'"/>
-    <Constant Identifier="sBipolarJunctionTransitorName" Type="string" Expression="'transistors'"/>
-    <Constant Identifier="sFieldEffectTransitorName" Type="string" Expression="'fet transistor'"/>
-    <Constant Identifier="sPolarisedCapacitorName" Type="string" Expression="'gepolariseerde condensator'"/>
-    <Constant Identifier="sDiodeName" Type="string" Expression="'diode'"/>
-    <Constant Identifier="sZenerDiodeName" Type="string" Expression="'zener diode'"/>
 
     <Constant Identifier="sMissingComponentHeader" Type="string" Expression="'Component klasse naam niet vermeld'"/>
     <Constant Identifier="sResistorTechnologyMetalFilm" Type="string" Expression="'metaalfilm'"/>
@@ -68,14 +192,60 @@
     <Constant Identifier="sRemoveGroupHeader" Type="string" Expression="'Verwijderen'"/>
     <Constant Identifier="sAddGroupHeader" Type="string" Expression="'Toevoegen'"/>
 
-    <Constant Identifier="sRemovePart" Type="string" Expression="'Verwijder %s'"/>
+    <Constant Identifier="sRemovePart" Type="string" Expression="'Verwijder van project: %s'"/>
     <Constant Identifier="sRemovingPart" Type="string" Expression="'%s wordt verwijderd'"/>
-    <Constant Identifier="sAddPart" Type="string" Expression="'Toevoegen %s'"/>
+    <Constant Identifier="sAddPart" Type="string" Expression="'Toevoegen aan project: %s'"/>
     <Constant Identifier="sAddingPart" Type="string" Expression="'%s wordt toegevoegd'"/>
 
     <Constant Identifier="sProjectPartsTaskMsg" Type="string" Expression="'Geef aan welke taken er op de project lijst zullen worden uitgevoerd...'"/>
     <Constant Identifier="sDoneMsg" Type="string" Expression="'Klaar!'"/>
     <Constant Identifier="sUnmatched" Type="string" Expression="'Niet gematcht %d x'"/>
     <Constant Identifier="sPartKeeprProjectsHeader" Type="string" Expression="'PartKeepr projecten'"/>
+    <Constant Identifier="sPartKeeprStorageLocationsHeader" Type="string" Expression="'Opslaglocaties'"/>
+
+    <Constant Identifier="sReadingKnownUnits" Type="string" Expression="'Lezen bekende eenheden..'"/>
+    <Constant Identifier="sReadingKnownFootPrints" Type="string" Expression="'Lezen bekende footprints..'"/>
+    <Constant Identifier="sReadingStock" Type="string" Expression="'Lezen stock componenten...'"/>
+    <Constant Identifier="sConsolidatingSchema" Type="string" Expression="'Consolideren schemacomponenten...'"/>
+    <Constant Identifier="sConsolidatingStock" Type="string" Expression="'Consolideren voorraadcomponenten...'"/>
+    <Constant Identifier="sMatchComponents" Type="string" Expression="'Matchen schema and voorraadcomponenten...'"/>
+    <Constant Identifier="sReportBOM" Type="string" Expression="'Raporteren bill of materials...'"/>
+    <Constant Identifier="sReportStock" Type="string" Expression="'Raporteren voorraadcomponenten...'"/>
+    <Constant Identifier="sReportDesignators" Type="string" Expression="'Raporteren designators...'"/>
+    <Constant Identifier="sProcessingUnmatchedComponents" Type="string" Expression="'Verwerken niet gematchte componenten...'"/>
+    <Constant Identifier="sProcessingProjectComponents" Type="string" Expression="'Verwerken project componenten...'"/>
+    <Constant Identifier="sReportingStorageLocations" Type="string" Expression="'Raporteren opslaglocaties...'"/>
+    <Constant Identifier="sReportingProjects" Type="string" Expression="'Raporteren projecten...'"/>
+    <Constant Identifier="sProcessingBOMFile" Type="string" Expression="'Raporteren BOM file...'"/>
+    <Constant Identifier="sTemplatesFromIniFile" Type="string" Expression="'Verwerken templates from inifiles...'"/>
+
+    <Constant Identifier="sDone" Type="string" Expression="'Done!'"/>
+
+    <Constant Identifier="sCreateNumericParameter" Type="string" Expression="'Aanmaken numerieke parameter: %s=%s'"/>
+    <Constant Identifier="sCreateStringParameter" Type="string" Expression="'Aanmaken string parameter: %s=%s'"/>
+    <Constant Identifier="sCreatePart" Type="string" Expression="'Aanmaken part: %s'"/>
+    <Constant Identifier="sUnmatchedHeader" Type="string" Expression="'Niet gematchte componenten'"/>
+    <Constant Identifier="sChangePartDescriptions" Type="string" Expression="'Verwerken voorraadcomponenten voor omschrijving aanpassingen...'"/>
+    <Constant Identifier="sTaskExecuting" Type="string" Expression="'Uitvoeren %s...'"/>
+    <Constant Identifier="sCheckTaskMsg" Type="string" Expression="'Vink de taken die zullen worden uitgevoerd...'"/>
+    <Constant Identifier="sUpdateDescription" Type="string" Expression="'Omschrijving %s (#%d) aanpassen van &quot;%s&quot; naar &quot;%s&quot;'"/>
+    <Constant Identifier="sResistorTechnologyCarbonFilm" Type="string" Expression="'koolfilm'"/>
+    <Constant Identifier="sResistorTechnologyWirewound" Type="string" Expression="'draadgewonden'"/>
+    <Constant Identifier="sResistorTechnologyCarbonComposition" Type="string" Expression="'koolcomposiet'"/>
+
+    <Constant Identifier="sUpdateName" Type="string" Expression="'Naam %s (#%d) aanpassen van &quot;%s&quot; naar &quot;%s&quot;'"/>
+    <Constant Identifier="sChangePartNames" Type="string" Expression="'Verwerken voorraadcomponenten voor naam aanpassingen...'"/>
+
+    <Constant Identifier="sFuseSpeedVeryFast" Type="string" Expression="'zeer snel'"/>
+    <Constant Identifier="sFuseSpeedFast" Type="string" Expression="'snel'"/>
+    <Constant Identifier="sFuseSpeedMedium" Type="string" Expression="'normaal'"/>
+    <Constant Identifier="sFuseSpeedSlow" Type="string" Expression="'langzaam'"/>
+    <Constant Identifier="sFuseSpeedVerySlow" Type="string" Expression="'zeer langzaam'"/>
+
+    <Constant Identifier="sMsgMappingExistingSymbol" Type="string" Expression="'Fout bij het mappen van symbool %s naar %s deze is al geregistreerd met component soort %s'"/>
+    <Constant Identifier="sMsgMissingSymbolComponentKind" Type="string" Expression="'Component soort %s voor symbool %s kon niet worden gevonden'"/>
+    <Constant Identifier="sMsgMissingLibraryComponentKind" Type="string" Expression="'Component soort %s voor bibliotheek %s kon niet worden gevonden'"/>
+    <Constant Identifier="sMsgMappingExistingLibrary" Type="string" Expression="'Fout bij het mappen van bibliotheek %s naar %s deze is al geregistreerd met component soort %s'"/>
+    <Constant Identifier="sMsgMissingLibrarysymbolMapping" Type="string" Expression="'Onderdeel &quot;%s&quot; heeft geen component soort mapping, en krijgt dus component als soort'"/>
   </Constants>
 </pkg:Library>

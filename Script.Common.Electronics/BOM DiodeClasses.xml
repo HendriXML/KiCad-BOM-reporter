@@ -1,0 +1,629 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="BomStrings"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="GenericComponentClasses"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TDiodeSpec" Inherit="TGenericComponentSpec" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmHandleField" Override="true"/>
+      <VirtualMethod Identifier="vmCheckComponentKind" Override="true"/>
+      <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
+      <VirtualMethod Identifier="vmApplyTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
+      <Field Identifier="ReverseVoltageVT" Type="TValueType"/>
+      <Field Identifier="ReverseVoltage" Type="Int64"/>
+      <Field Identifier="ErrorReverseVoltage" Type="string"/>
+      
+      <Field Identifier="AmperageRatingVT" Type="TValueType"/>
+      <Field Identifier="AmperageRating" Type="Int64"/>
+      <Field Identifier="ErrorAmperageRating" Type="string"/>
+      
+      <Field Identifier="ForwardVoltageVT" Type="TValueType"/>
+      <Field Identifier="ForwardVoltage" Type="Int64"/>
+      <Field Identifier="ErrorForwardVoltage" Type="string"/>
+    </DataClass>
+
+    <DataClass Identifier="TDiodeCategory" Inherit="TGenericComponentCategory">
+      <VirtualMethod Identifier="vmCreateSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmIsValidSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmIndexSearchSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmCompareSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmLoadTemplatesFromIniFile" Override="true"/>
+      <VirtualMethod Identifier="vmGetTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile" Override="true"/>
+      <Field Identifier="TemplateTHT" Type="TDiodeSpec"/>
+    </DataClass>
+  </Type>
+  
+  <Variables>
+    <Variable Identifier="DiodeForwardVoltageConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoVolt)"/>
+    <Variable Identifier="DiodeAmperageRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoAmp)"/>
+    <Variable Identifier="DiodeReverseVoltageConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoVolt)"/>
+  </Variables>
+
+  <Procedures>
+
+    <Function Identifier="TDiodeSpec.CheckComponentKind" VirtualMethod="vmCheckComponentKind" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="ComponentKind" Optimalisation="integermapping">
+          <On Select="TComponentKind.Diode, TComponentKind.SchottkyDiode">
+            <Execute Statement="Result:= True"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TDiodeSpec.DoesMatchSpecification" VirtualMethod="vmDoesMatchSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
+        <Case Expression="ForwardVoltageVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Exit Condition="not (ComponentSpec is TDiodeSpec)"/>
+            <Case Expression="TDiodeSpec(ComponentSpec).ForwardVoltageVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ForwardVoltage &gt; TDiodeSpec(ComponentSpec).ForwardVoltage"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="AmperageRatingVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Exit Condition="not (ComponentSpec is TDiodeSpec)"/>
+            <Case Expression="TDiodeSpec(ComponentSpec).AmperageRatingVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="AmperageRating &gt; TDiodeSpec(ComponentSpec).AmperageRating"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="ReverseVoltageVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Exit Condition="not (ComponentSpec is TDiodeSpec)"/>
+            <Case Expression="TDiodeSpec(ComponentSpec).ReverseVoltageVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ReverseVoltage &gt; TDiodeSpec(ComponentSpec).ReverseVoltage"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TDiodeSpec.CategoryMatchScore" VirtualMethod="vmCategoryMatchScore" Type="Int64">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+
+        <Exit Condition="not (ComponentSpec is TDiodeSpec)"/>
+
+        <Case Expression="ComponentKindVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ComponentKindVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ForwardVoltageVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="TDiodeSpec(ComponentSpec).ForwardVoltageVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ForwardVoltage &lt;&gt; TDiodeSpec(ComponentSpec).ForwardVoltage" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="AmperageRatingVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="TDiodeSpec(ComponentSpec).AmperageRatingVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="AmperageRating &lt;&gt; TDiodeSpec(ComponentSpec).AmperageRating" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="FootprintVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.FootprintVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="Footprint &lt;&gt; ComponentSpec.Footprint" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ReverseVoltageVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="TDiodeSpec(ComponentSpec).ReverseVoltageVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ReverseVoltage &lt;&gt; TDiodeSpec(ComponentSpec).ReverseVoltage" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="PartNumberVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.PartNumberVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="not SameText(PartNumber, ComponentSpec.PartNumber)" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ManufacturerVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ManufacturerVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="not SameText(Manufacturer, ComponentSpec.Manufacturer)" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TDiodeSpec.HandleField" VirtualMethod="vmHandleField">
+      <Parameters>
+        <Parameter Identifier="CustomField" Type="TCustomField"/>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="Clear" Type="Boolean"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="LocForwardVoltage" Type="Int64"/>
+        <Variable Identifier="LocAmperageRating" Type="Int64"/>
+        <Variable Identifier="LocReverseVoltage" Type="Int64"/>
+      </Variables>
+      <Block>
+        <Case Expression="CustomField" Optimalisation="integermapping">
+          <On Select="TCustomField.ReverseVoltage">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="ReverseVoltageVT:= TValueType.Cleared"/>
+                <Execute Statement="ReverseVoltage:= -1"/>
+              </When>
+              <When Expression="DiodeReverseVoltageConv.StrToIntValue(Value, LocReverseVoltage)">
+                <rep:Reporter.Information Text="Format('ReverseVoltage: %s', DiodeReverseVoltageConv.IntValueToStr(LocReverseVoltage))" Condition="IsVerbose"/>
+                <Execute Statement="ReverseVoltageVT:= TValueType.Specified"/>
+                <Execute Statement="ReverseVoltage:= LocReverseVoltage"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('ReverseVoltage could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
+                <Execute Statement="ReverseVoltageVT:= TValueType.Error"/>
+                <Execute Statement="ErrorReverseVoltage:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.AmperageRating">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="AmperageRatingVT:= TValueType.Cleared"/>
+                <Execute Statement="AmperageRating:= -1"/>
+              </When>
+              <When Expression="DiodeAmperageRatingConv.StrToIntValue(Value, LocAmperageRating)">
+                <rep:Reporter.Information Text="Format('AmperageRating: %s', DiodeAmperageRatingConv.IntValueToStr(LocAmperageRating))" Condition="IsVerbose"/>
+                <Execute Statement="AmperageRatingVT:= TValueType.Specified"/>
+                <Execute Statement="AmperageRating:= LocAmperageRating"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('AmperageRating could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
+                <Execute Statement="AmperageRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorAmperageRating:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.ForwardVoltage">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="ForwardVoltageVT:= TValueType.Cleared"/>
+                <Execute Statement="ForwardVoltage:= -1"/>
+              </When>
+              <When Expression="DiodeForwardVoltageConv.StrToIntValue(Value, LocForwardVoltage)">
+                <Execute Statement="ForwardVoltageVT:= TValueType.Specified"/>
+                <Execute Statement="ForwardVoltage:= LocForwardVoltage"/>
+                <rep:Reporter.Information Text="Format('ForwardVoltage %s', DiodeForwardVoltageConv.IntValueToStr(LocForwardVoltage))" Condition="IsVerbose"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('ForwardVoltage could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
+                <Execute Statement="ForwardVoltageVT:= TValueType.Error"/>
+                <Execute Statement="ErrorForwardVoltage:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <Otherwise>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Procedure>
+
+
+    <Procedure Identifier="TDiodeSpec.GetSpecificationValues">
+      <Parameters>
+        <Parameter Identifier="Value" Type="string" Direction="Output"/>
+        <Parameter Identifier="ReverseVoltage" Type="string" Direction="Output"/>
+        <Parameter Identifier="AmperageRating" Type="string" Direction="Output"/>
+        <Parameter Identifier="ForwardVoltage" Type="string" Direction="Output"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
+        <Parameter Identifier="InternalPartNumber" Type="string" Direction="Output"/>
+        <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Case Expression="ReverseVoltageVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="ReverseVoltage:= ''"/>
+          </On>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="ReverseVoltage:= DiodeReverseVoltageConv.IntValueToStr(Self.ReverseVoltage)"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="ReverseVoltage:= '!' + ErrorReverseVoltage + '!'"/>
+          </On>
+        </Case>
+
+        <Case Expression="AmperageRatingVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="AmperageRating:= ''"/>
+          </On>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="AmperageRating:= DiodeAmperageRatingConv.IntValueToStr(Self.AmperageRating)"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!'"/>
+          </On>
+        </Case>
+
+        <Case Expression="ForwardVoltageVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="ForwardVoltage:= ''"/>
+          </On>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="ForwardVoltage:= DiodeForwardVoltageConv.IntValueToStr(Self.ForwardVoltage)"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="ForwardVoltage:= '!' + ErrorForwardVoltage + '!'"/>
+          </On>
+        </Case>
+
+        <Execute Statement="inherited GetSpecificationValues(Value, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TDiodeSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="ReportContext" Type="TSpecReportContext"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Value" Type="string"/>
+        <Variable Identifier="ReverseVoltage" Type="string"/>
+        <Variable Identifier="AmperageRating" Type="string"/>
+        <Variable Identifier="ForwardVoltage" Type="string"/>
+        <Variable Identifier="Footprint" Type="string"/>
+        <Variable Identifier="PartNumberModel" Type="string"/>
+        <Variable Identifier="InternalPartNumber" Type="string"/>
+        <Variable Identifier="ComponentKind" Type="string"/>
+      </Variables>
+      <Block>
+        <Execute Statement="GetSpecificationValues(Value, ReverseVoltage, AmperageRating, ForwardVoltage, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Case Expression="FormatType" Optimalisation="integermapping">
+          <On Select="TSpecFormatType.Fixed">
+            <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
+            <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
+            <Execute Statement="Value:= Value + ' '" Condition="IsNonEmptyString(Value)"/>
+            <Execute Statement="ReverseVoltage:= ReverseVoltage + ' '" Condition="IsNonEmptyString(ReverseVoltage)"/>
+            <Execute Statement="AmperageRating:= AmperageRating + ' '" Condition="IsNonEmptyString(AmperageRating)"/>
+            <Execute Statement="ForwardVoltage:= ForwardVoltage + ' '" Condition="IsNonEmptyString(ForwardVoltage)"/>
+            <Execute Statement="Footprint:= Footprint + ' '" Condition="IsNonEmptyString(Footprint)"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="IsNonEmptyString(PartNumberModel)"/>
+            <Execute Statement="InternalPartNumber:= InternalPartNumber + ' '" Condition="IsNonEmptyString(InternalPartNumber)"/>
+            <Choose>
+              <When Expression="ReportContext.Measure">
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TDiodeSpecColumns.Value, 2, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TDiodeSpecColumns.ReverseVoltage, 1, Length(ReverseVoltage))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TDiodeSpecColumns.SpanB2, 1, 0)"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TDiodeSpecColumns.AmperageRating, 1, Length(AmperageRating))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TDiodeSpecColumns.ForwardVoltage, 1, Length(ForwardVoltage))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TDiodeSpecColumns.FootPrint, 1, Length(Footprint))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TDiodeSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TDiodeSpecColumns.InternalPartNumber, 1, Length(InternalPartNumber))"/>
+                <Execute Statement="Result:= ''"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= Format('%-*s%*s%*s%*s%*s%-*s%-*s%-*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TDiodeSpecColumns.Value, 2), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TDiodeSpecColumns.ReverseVoltage, 1), ReverseVoltage,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TDiodeSpecColumns.SpanB2, 1), '',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TDiodeSpecColumns.AmperageRating, 1), AmperageRating,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TDiodeSpecColumns.ForwardVoltage, 1), ForwardVoltage,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TDiodeSpecColumns.FootPrint, 1), Footprint,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TDiodeSpecColumns.PartNumberModel, 1), PartNumberModel,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TDiodeSpecColumns.InternalPartNumber, 1), InternalPartNumber)"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TSpecFormatType.Description">
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, ReverseVoltage, AmperageRating, ForwardVoltage, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+          </On>
+          <On Select="TSpecFormatType.Name">
+            <Execute Statement="Result:= Value"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TDiodeSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
+      <Variables>
+        <Variable Identifier="locTemplate" Type="TDiodeSpec"/>
+      </Variables>
+      <Block>
+        <Exit Condition="not Assigned(Template)"/>
+        <ConditionalBlock Expression="Template is TDiodeSpec">
+          <Execute Statement="locTemplate:= TDiodeSpec(Template)"/>
+          <Case Expression="ReverseVoltageVT" Optimalisation="integermapping">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+              <Case Expression="locTemplate.ReverseVoltageVT" Optimalisation="integermapping">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <Execute Statement="ReverseVoltage:= locTemplate.ReverseVoltage"/>
+                  <Execute Statement="ReverseVoltageVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorReverseVoltage:= locTemplate.ErrorReverseVoltage"/>
+                  <Execute Statement="ReverseVoltageVT:= TValueType.ErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+          <Case Expression="AmperageRatingVT" Optimalisation="integermapping">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+              <Case Expression="locTemplate.AmperageRatingVT" Optimalisation="integermapping">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <Execute Statement="AmperageRating:= locTemplate.AmperageRating"/>
+                  <Execute Statement="AmperageRatingVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorAmperageRating:= locTemplate.ErrorAmperageRating"/>
+                  <Execute Statement="AmperageRatingVT:= TValueType.ErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+          <Case Expression="ForwardVoltageVT" Optimalisation="integermapping">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+              <Case Expression="locTemplate.ForwardVoltageVT" Optimalisation="integermapping">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <Execute Statement="ForwardVoltage:= locTemplate.ForwardVoltage"/>
+                  <Execute Statement="ForwardVoltageVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorForwardVoltage:= locTemplate.ErrorForwardVoltage"/>
+                  <Execute Statement="ForwardVoltageVT:= TValueType.ErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+        </ConditionalBlock>
+        <Execute Statement="inherited ApplyTemplate"/>
+      </Block>
+    </Procedure>
+
+    <Constructor Identifier="TDiodeCategory.Create">
+      <Block>
+      </Block>
+    </Constructor>
+
+    <Function Identifier="TDiodeCategory.IndexSearchSpecifications" VirtualMethod="vmIndexSearchSpecifications" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Parameter Identifier="Specifications" Type="TSpecificationLink" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TDiodeCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="sSectionDiodeTHT" Type="string" Expression="'Template.Diode.THT'"/>
+      </Constants>
+      <Block>
+        <ConditionalBlock Expression="IniFile.SectionExists(sSectionDiodeTHT)">
+          <Execute Statement="TemplateTHT:= TDiodeSpec.Create"/>
+          <Execute Statement="TemplateTHT.LoadFromIniFileSection(IniFile, sSectionDiodeTHT)"/>
+        </ConditionalBlock>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TDiodeCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
+      <Block>
+        <Execute Statement="Result:= TDiodeSpec.Create"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TDiodeCategory.IsValidSpecification" VirtualMethod="vmIsValidSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Specification.ComponentKindVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate"/>
+          <Otherwise>
+            <Exit Result="False"/>
+          </Otherwise>
+        </Case>
+        <Case Expression="Specification.ComponentKind">
+          <On Select="TComponentKind.Diode, TComponentKind.SchottkyDiode"/>
+          <Otherwise>
+            <Exit Result="False"/>
+          </Otherwise>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TDiodeCategory.GetTemplate" VirtualMethod="vmGetTemplate" Type="TComponentSpec">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ObjNil"/>
+        <Case Expression="Specification.ComponentKind">
+          <On Select="TComponentKind.Diode">
+            <Execute Statement="Result:= TemplateTHT"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TDiodeCategory.CompareSpecifications" Type="Integer" VirtualMethod="vmCompareSpecifications">
+      <Parameters>
+        <Parameter Identifier="A" Type="TDiodeSpec"/>
+        <Parameter Identifier="B" Type="TDiodeSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.ReverseVoltage, A.ReverseVoltageVT, B.ID, B.ReverseVoltage, B.ReverseVoltageVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.AmperageRating, A.AmperageRatingVT, B.ID, B.AmperageRating, B.AmperageRatingVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValue(A.ID, A.ForwardVoltage, A.ForwardVoltageVT, B.ID, B.ForwardVoltage, B.ForwardVoltageVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TDiodeCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="cDiode" Type="string" Expression="'Diode'"/>
+      </Constants>
+      <Block>
+        <Execute Statement="Result:= IniFile.SectionExists(cDiode)"/>
+        <Block Condition="Result">
+          <Execute Statement="ComponentSpec:= TDiodeSpec.Create"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cDiode)"/>
+        </Block>
+      </Block>
+    </Function>
+
+  </Procedures>
+
+</pkg:Library>

@@ -24,6 +24,8 @@
     <Use Identifier="CapacitorClasses"/>
     <Use Identifier="InductorClasses"/>
     <Use Identifier="ZenerDiodeClasses"/>
+    <Use Identifier="DiodeClasses"/>
+    <Use Identifier="FuseClasses"/>
     <Use Identifier="ConnectorClasses"/>
     <Use Identifier="GenericComponentClasses"/>
   </Uses>
@@ -34,6 +36,8 @@
       <Field Identifier="Capacitors" Type="TCapacitorCategory"/>
       <Field Identifier="Inductors" Type="TInductorCategory"/>
       <Field Identifier="ZenerDiodes" Type="TZenerDiodeCategory"/>
+      <Field Identifier="Diodes" Type="TDiodeCategory"/>
+      <Field Identifier="Fuses" Type="TFuseCategory"/>
       <Field Identifier="Connectors" Type="TConnectorCategory"/>
       <Field Identifier="GenericComponents" Type="TGenericComponentCategory"/>
     </DataClass>
@@ -49,12 +53,16 @@
         <Execute Statement="Capacitors:= TCapacitorCategory.Create"/>
         <Execute Statement="Inductors:= TInductorCategory.Create"/>
         <Execute Statement="ZenerDiodes:= TZenerDiodeCategory.Create"/>
+        <Execute Statement="Diodes:= TDiodeCategory.Create"/>
+        <Execute Statement="Fuses:= TFuseCategory.Create"/>
         <Execute Statement="Connectors:= TConnectorCategory.Create"/>
         <Execute Statement="GenericComponents:= TGenericComponentCategory.Create"/>
         <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Resistors" TailLinkStatement="Tail.Next:= Item"/>
         <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Capacitors" TailLinkStatement="Tail.Next:= Item"/>
         <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Inductors" TailLinkStatement="Tail.Next:= Item"/>
         <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="ZenerDiodes" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Diodes" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Fuses" TailLinkStatement="Tail.Next:= Item"/>
         <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Connectors" TailLinkStatement="Tail.Next:= Item"/>
         <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="GenericComponents" TailLinkStatement="Tail.Next:= Item"/>
         <Execute Statement="CategoryHead:= Head"/>

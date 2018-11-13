@@ -17,13 +17,63 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   >
   <Uses>
+    <Use Identifier="ElectronicUtils"/>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
+    <Use Identifier="ResistorClasses"/>
+    <Use Identifier="CapacitorClasses"/>
+    <Use Identifier="InductorClasses"/>
+    <Use Identifier="ZenerDiodeClasses"/>
+    <Use Identifier="DiodeClasses"/>
+    <Use Identifier="FuseClasses"/>
+    <Use Identifier="ConnectorClasses"/>
+    <Use Identifier="GenericComponentClasses"/>
     <Use Identifier="BillOfMaterialClass"/>
     <Use Identifier="CategoryContainer"/>
+    <Use Identifier="StockManager"/>
   </Uses>
+  <Type>
+    <Enumeration Identifier="TPartKeeprTask" Elements="None=0, ReportStorageLocations=1, ReportPartKeeprProjects=2, CreateUnmatchedParts=3, ChangeProjectParts=4, ChangePartNames=5, ChangePartDescriptions=6"/>
+
+    <Enumeration Identifier="TComponentProperty" Elements="Name, Description"/>
+
+    <DataClass Identifier="TPartKeeprPart">
+      <Field Identifier="SchemaSpec" Type="TComponentSpec"/>
+      <!--Initialized in task-->
+      <Field Identifier="Name" Type="string"/>
+      <Field Identifier="StockCategory" Type="TStockCategory"/>
+      <Field Identifier="FootPrintInfo" Type="TFootprintInfo"/>
+      <Field Identifier="InternalPartNumber" Type="string"/>
+      <Field Identifier="Error" Type="Boolean"/>
+      <!--Initialized in create task-->
+      <Field Identifier="ID" Type="Integer"/>
+    </DataClass>
+
+    <DataClass Identifier="TExportSpecLink">
+      <Field Identifier="SchemaSpec" Type="TComponentSpec"/>
+      <Field Identifier="StockCategory" Type="TStockCategory"/>
+      <Field Identifier="Next" Type="TExportSpecLink"/>
+    </DataClass>
+
+    <DataClass Identifier="TBasicPartParameter">
+      <Field Identifier="Part" Type="TPartKeeprPart"/>
+      <Field Identifier="Field" Type="TCustomField"/>
+    </DataClass>
+
+    <DataClass Identifier="TNumericPartParameter" Inherit="TBasicPartParameter" DefaultConstructor="createandsetfields">
+      <Field Identifier="Value" Type="Int64"/>
+      <Field Identifier="Convertor" Type="TUnitConvertor"/>
+    </DataClass>
+
+    <DataClass Identifier="TStringPartParameter" Inherit="TBasicPartParameter" DefaultConstructor="createandsetfields">
+      <Field Identifier="Value" Type="string"/>
+    </DataClass>
+
+
+  </Type>
   <Constants>
-    <Constant Identifier="cLF" Type="string"  Expression="#13#10"/>
+    <Constant Identifier="cLF" Type="string"  Expression="#10"/>
+    <!--<Constant Identifier="cLF" Type="string"  Expression="#13#10"/>-->
     <Constant Identifier="sqlInsertProjectPart"  Type="string" Expression="
               'INSERT INTO ProjectPart' + cLF + 
               '       (part_id, project_id, quantity, remarks, overageType,          lotNumber) ' + cLF + 
@@ -43,9 +93,131 @@
               ',      name' + cLF + 
               ',      description' + cLF + 
               'FROM   Project'"/>
+    <Constant Identifier="sqlStorageLocation"  Type="string" Expression="
+              'SELECT id' + cLF + 
+              ',      category_id' + cLF + 
+              ',      name' + cLF + 
+              'FROM   StorageLocation'"/>
+
+    <Constant Identifier="sqlInsertPart"  Type="string" Expression="
+              'Select id' + cLF + 
+              ', category_id' + cLF + 
+              ', name' + cLF + 
+              ', description' + cLF + 
+              ', footprint_id' + cLF + 
+              ', comment' + cLF + 
+              ', stockLevel' + cLF + 
+              ', minStockLevel' + cLF + 
+              ', averagePrice' + cLF + 
+              ', needsReview' + cLF + 
+              ', internalPartNumber' + cLF + 
+              ', removals' + cLF + 
+              ', lowStock' + cLF + 
+              ', storageLocation_id' + cLF + 
+              ', createDate' + cLF + 
+              ', partUnit_id' + cLF + 
+              ', status' + cLF + 
+              'FROM Part WHERE 0'"/>
+    <Constant Identifier="sqlInsertNumericParameter"  Type="string" Expression="
+              'INSERT INTO PartParameter' + cLF + 
+              '  (part_id, unit_id, name, description, value, normalizedValue, stringValue, valueType, siPrefix_id) ' + cLF + 
+              'VALUES ' + cLF + 
+              '  (?,       ?,       ?,    '''',           ?,     ?,               '''',          ''numeric'', ?         )'"/>
+    <Constant Identifier="sqlInsertStringParameter"  Type="string" Expression="
+              'INSERT INTO PartParameter' + cLF + 
+              '  (part_id, name, description, stringValue, valueType) ' + cLF + 
+              'VALUES ' + cLF + 
+              '  (?,       ?,    '''',           ?,          ''string'')'"/>
+    <Constant Identifier="sqlFetchID"  Type="string" Expression="'SELECT LAST_INSERT_ID() INTO ?'"/>
+
+    <Constant Identifier="sqlPartUpdateDescription"  Type="string" Expression="'UPDATE Part SET description = ? WHERE id = ?'"/>
+
+    <Constant Identifier="sqlPartUpdateName"  Type="string" Expression="'UPDATE Part SET name = ? WHERE id = ?'"/>
   </Constants>
 
+  <Variables>
+    <Variable Identifier="UnmatchedComponentsStorageID" Type="Integer" Init="-1"/>
+
+    <Variable Identifier="cmdInsertNumericParameter" Type="Command"/>
+    <Variable Identifier="cmdInsertNumericParameter_part_id" Type="Parameter"/>
+    <Variable Identifier="cmdInsertNumericParameter_unit_id" Type="Parameter"/>
+    <Variable Identifier="cmdInsertNumericParameter_name" Type="Parameter"/>
+    <Variable Identifier="cmdInsertNumericParameter_value" Type="Parameter"/>
+    <Variable Identifier="cmdInsertNumericParameter_normalizedValue" Type="Parameter"/>
+    <Variable Identifier="cmdInsertNumericParameter_siPrefix_id" Type="Parameter"/>
+
+    <Variable Identifier="cmdInsertStringParameter" Type="Command"/>
+    <Variable Identifier="cmdInsertStringParameter_part_id" Type="Parameter"/>
+    <Variable Identifier="cmdInsertStringParameter_name" Type="Parameter"/>
+    <Variable Identifier="cmdInsertStringParameter_stringValue" Type="Parameter"/>
+
+    <Variable Identifier="cmdInsertPart" Type="Command"/>
+  </Variables>
+
   <Procedures>
+    <Procedure Identifier="InitInsertNumericParameterCommand">
+      <Parameters>
+        <Parameter Identifier="InitCommand" Type="Command"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="cmdInsertNumericParameter:= InitCommand"/>
+        <!--<Execute Statement="cmdInsertNumericParameter.Prepared:= True"/>-->
+        <Execute Statement="cmdInsertNumericParameter_part_id:= cmdInsertNumericParameter.CreateParameter('', adInteger, adParamInput, 0, 0)"/>
+        <Execute Statement="cmdInsertNumericParameter.Parameters.Append(cmdInsertNumericParameter_part_id)"/>
+
+        <Execute Statement="cmdInsertNumericParameter_unit_id:= cmdInsertNumericParameter.CreateParameter('', adInteger, adParamInput, 0, 0)"/>
+        <Execute Statement="cmdInsertNumericParameter.Parameters.Append(cmdInsertNumericParameter_unit_id)"/>
+
+        <Execute Statement="cmdInsertNumericParameter_name:= cmdInsertNumericParameter.CreateParameter('', adVarWChar, adParamInput, 255, '')"/>
+        <Execute Statement="cmdInsertNumericParameter.Parameters.Append(cmdInsertNumericParameter_name)"/>
+
+        <Execute Statement="cmdInsertNumericParameter_value:= cmdInsertNumericParameter.CreateParameter('', adDouble, adParamInput, 0, 0)"/>
+        <Execute Statement="cmdInsertNumericParameter.Parameters.Append(cmdInsertNumericParameter_value)"/>
+
+        <Execute Statement="cmdInsertNumericParameter_normalizedValue:= cmdInsertNumericParameter.CreateParameter('', adDouble, adParamInput, 0, 0)"/>
+        <Execute Statement="cmdInsertNumericParameter.Parameters.Append(cmdInsertNumericParameter_normalizedValue)"/>
+
+        <Execute Statement="cmdInsertNumericParameter_siPrefix_id:= cmdInsertNumericParameter.CreateParameter('', adInteger, adParamInput, 0, 0)"/>
+        <Execute Statement="cmdInsertNumericParameter.Parameters.Append(cmdInsertNumericParameter_siPrefix_id)"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="InitInsertStringParameterCommand">
+      <Parameters>
+        <Parameter Identifier="InitCommand" Type="Command"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="cmdInsertStringParameter:= InitCommand"/>
+        <Execute Statement="cmdInsertStringParameter.Prepared:= True"/>
+        <Execute Statement="cmdInsertStringParameter_part_id:= cmdInsertStringParameter.Parameters[0]"/>
+        <Execute Statement="cmdInsertStringParameter_name:= cmdInsertStringParameter.Parameters[1]"/>
+        <Execute Statement="cmdInsertStringParameter_stringValue:= cmdInsertStringParameter.Parameters[2]"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="ReportStorageLocations">
+      <Parameters>
+        <Parameter Identifier="DBConnection" Type="Connection"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="ID"/>
+        <Variable Identifier="Name"/>
+      </Variables>
+      <Block>
+        <rep:Reporter.Information Text="''"/>
+        <rep:Reporter.Information Text="sPartKeeprStorageLocationsHeader" Markup="Header2"/>
+        <ado:Command.CreateBlock  CommandText="sqlStorageLocation" CommandType="adCmdText" Connection="DBConnection" Command="Command">
+          <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+            <ado:Recordset.Iterate>
+              <ado:Field.GetValue Name="id" Identifier="ID"/>
+              <ado:Field.GetValue Name="name" Identifier="Name"/>
+              <rep:Reporter.Information Text="Format('%d: %s', ID, Name)"/>
+            </ado:Recordset.Iterate>
+          </ado:Recordset.OpenBlock>
+        </ado:Command.CreateBlock>
+        <rep:Reporter.Information Text="''"/>
+      </Block>
+    </Procedure>
 
     <Procedure Identifier="ReportPartKeeprProjects">
       <Parameters>
@@ -87,10 +259,19 @@
           <Field Identifier="Next" Type="TTaskObject"/>
         </DataClass>
 
-        <DataClass Identifier="TAddPartObject" Inherit="TTaskObject">
-          <Field Identifier="PartID" Type="Variant"/>
+        <DataClass Identifier="TBaseAddPartObject" Inherit="TTaskObject">
           <Field Identifier="Quantity" Type="Integer"/>
           <Field Identifier="Remarks" Type="string"/>
+        </DataClass>
+
+        <DataClass Identifier="TAddPartObject" Inherit="TBaseAddPartObject">
+          <Field Identifier="PartID" Type="Integer"/>
+          <Field Identifier="Quantity" Type="Integer"/>
+          <Field Identifier="Remarks" Type="string"/>
+        </DataClass>
+
+        <DataClass Identifier="TCreateAndAddPartObject" Inherit="TBaseAddPartObject">
+          <Field Identifier="Part" Type="TPartKeeprPart"/>
         </DataClass>
 
         <DataClass Identifier="TDeletePartObject" Inherit="TTaskObject">
@@ -133,8 +314,8 @@
                 <Parameter Identifier="Spec" Type="TComponentSpec"/>
               </Parameters>
               <Variables>
-                <Variable Identifier="AddPartHead" Type="TAddPartObject"/>
-                <Variable Identifier="AddPartTail" Type="TAddPartObject"/>
+                <Variable Identifier="AddPartHead" Type="TBaseAddPartObject"/>
+                <Variable Identifier="AddPartTail" Type="TBaseAddPartObject"/>
               </Variables>
               <Procedures>
                 <Procedure Identifier="ExportStockComponents">
@@ -153,7 +334,7 @@
                       <Execute Statement="HasStock:= True"/>
                       <Execute Statement="AddPart:= TAddPartObject.Create"/>
                       <Execute Statement="AddPart.PartID := RunningComponent.ID"/>
-                      <Execute Statement="AddPart.Description := Format('%d x %s (#%d)', SchemaCount, Spec.SpecificationAsString(TSpecFormatType.Compressed, ObjNil), RunningComponent.ID)"/>
+                      <Execute Statement="AddPart.Description := Format('%d x %s (#%d)', SchemaCount, Spec.SpecificationAsString(TSpecFormatType.Description, ObjNil), RunningComponent.ID)"/>
                       <Execute Statement="AddPart.Quantity := SchemaCount"/>
                       <Execute Statement="AddPart.Remarks := Designators"/>
                       <lil:LinkedList.LinkUp Head="AddPartHead" Tail="AddPartTail" Item="AddPart" TailLinkStatement="AddPartTail.Next:= Item"/>
@@ -166,7 +347,7 @@
                 <Variable Identifier="ComponentDesignators" Type="string" Init="''"/>
                 <Variable Identifier="DoSeperate" Type="Boolean" Init="False"/>
                 <Variable Identifier="TaskObject" Type="TTaskObject"/>
-                <Variable Identifier="AddPart" Type="TAddPartObject"/>
+                <Variable Identifier="AddPart" Type="TCreateAndAddPartObject"/>
                 <Variable Identifier="GroupObject" Type="TGroupObject"/>
               </Variables>
               <Block>
@@ -180,14 +361,15 @@
                   <Execute Statement="ExportStockComponents(RunningSpecLink.StockComponentSpec, TotCount, ComponentDesignators)"/>
                 </lil:LinkedList.Iterate>
                 <Block Condition="IsEmpty(AddPartHead)">
-                  <Execute Statement="AddPartHead:= TAddPartObject.Create"/>
-                  <Execute Statement="AddPartHead.PartID := Null"/>
-                  <Execute Statement="AddPartHead.Description := Format(sUnmatched, TotCount)"/>
-                  <Execute Statement="AddPartHead.Quantity := TotCount"/>
-                  <Execute Statement="AddPartHead.Remarks := ComponentDesignators"/>
+                  <Execute Statement="AddPart:= TCreateAndAddPartObject.Create()"/>
+                  <Execute Statement="AddPartHead:= AddPart"/>
+                  <Execute Statement="AddPart.Part := TPartKeeprPart.Create(Spec)"/>
+                  <Execute Statement="AddPart.Description := Format(sUnmatched, TotCount)"/>
+                  <Execute Statement="AddPart.Quantity := TotCount"/>
+                  <Execute Statement="AddPart.Remarks := ComponentDesignators"/>
                 </Block>
                 <Execute Statement="GroupObject:= TGroupObject.Create"/>
-                <Execute Statement="GroupObject.Description := Format('%s (%s)', Spec.SpecificationAsString(TSpecFormatType.Compressed, ObjNil), ComponentDesignators)"/>
+                <Execute Statement="GroupObject.Description := Format('%s (%s)', Spec.SpecificationAsString(TSpecFormatType.Description, ObjNil), ComponentDesignators)"/>
                 <Execute Statement="GroupObject.FirstChild := AddPartHead"/>
                 <lil:LinkedList.LinkUp Head="SchemaSpecHead" Tail="SchemaSpecTail" Item="GroupObject" TailLinkStatement="SchemaSpecTail.Next:= Item"/>
               </Block>
@@ -197,12 +379,12 @@
             <Variable Identifier="PrevComponentKind" Type="TComponentKind"/>
           </Variables>
           <Block>
-            <lil:LinkedList.Iterate Head="Category.FComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
+            <lil:LinkedList.Iterate Head="Category.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
               <Choose>
                 <When Expression="IsEmpty(PrevComponentKind)"/>
                 <When Expression="PrevComponentKind &lt;&gt; RunningSpec.ComponentKind">
                   <Execute Statement="ComponentKindGroup:= TGroupObject.Create"/>
-                  <Execute Statement="ComponentKindGroup.Description:= ComponentKindHeaderString(PrevComponentKind)"/>
+                  <Execute Statement="ComponentKindGroup.Description:= ComponentKindHeader(PrevComponentKind)"/>
                   <Execute Statement="ComponentKindGroup.FirstChild:= SchemaSpecHead"/>
                   <lil:LinkedList.LinkUp Head="AddComponentKindHead" Tail="AddComponentKindTail" Item="ComponentKindGroup" TailLinkStatement="AddComponentKindTail.Next:= Item"/>
                   <Execute Statement="SchemaSpecHead:= EmptyValue"/>
@@ -213,7 +395,7 @@
             </lil:LinkedList.Iterate>
             <Block Condition="not IsEmpty(PrevComponentKind)">
               <Execute Statement="ComponentKindGroup:= TGroupObject.Create"/>
-              <Execute Statement="ComponentKindGroup.Description:= ComponentKindHeaderString(PrevComponentKind)"/>
+              <Execute Statement="ComponentKindGroup.Description:= ComponentKindHeader(PrevComponentKind)"/>
               <Execute Statement="ComponentKindGroup.FirstChild:= SchemaSpecHead"/>
               <lil:LinkedList.LinkUp Head="AddComponentKindHead" Tail="AddComponentKindTail" Item="ComponentKindGroup" TailLinkStatement="AddComponentKindTail.Next:= Item"/>
             </Block>
@@ -257,17 +439,21 @@
             <Variable Identifier="InstanceObject" Type="TGroupObject" Init="Task.InstanceObject"/>
           </Variables>
           <Init>
+            <Task.Kind Expression="TTaskKind.tkCategory"/>
             <Task.Description Expression="InstanceObject.Description"/>
             <lil:LinkedList.Iterate Head="InstanceObject.FirstChild" ItemType="TTaskObject" RunningItem="RunningItem" Next="RunningItem.Next">
               <Choose>
                 <When Expression="RunningItem is TGroupObject">
-                  <Task.AddDependency Task="GroupTask" InstanceObject="RunningItem"/>
+                  <Task.AddDependency Task="GroupTask" InstanceObject="RunningItem" IgnoreFailure="True"/>
                 </When>
                 <When Expression="RunningItem is TDeletePartObject">
-                  <Task.AddDependency Task="DeletePartTask" InstanceObject="RunningItem"/>
+                  <Task.AddDependency Task="DeletePartTask" InstanceObject="RunningItem" IgnoreFailure="True"/>
                 </When>
                 <When Expression="RunningItem is TAddPartObject">
-                  <Task.AddDependency Task="AddPartTask" InstanceObject="RunningItem"/>
+                  <Task.AddDependency Task="AddPartTask" InstanceObject="RunningItem" IgnoreFailure="True"/>
+                </When>
+                <When Expression="RunningItem is TCreateAndAddPartObject">
+                  <Task.AddDependency Task="AddCreatedPartTask" InstanceObject="RunningItem" IgnoreFailure="True"/>
                 </When>
               </Choose>
             </lil:LinkedList.Iterate>
@@ -286,7 +472,24 @@
             <Execute Statement="cmdInsertProjectPart_quantity.Value:= InstanceObject.Quantity"/>
             <Execute Statement="cmdInsertProjectPart_remarks.Value:= InstanceObject.Remarks"/>
             <Execute Statement="cmdInsertProjectPart_part_id.Value:= InstanceObject.PartID"/>
-            <ado:Command.Execute Command="cmdInsertProjectPart"/>
+            <ado:Command.Execute Command="cmdInsertProjectPart"  Condition="not IsSimulate"/>
+          </Block>
+        </Task>
+
+        <Task Identifier="AddCreatedPartTask">
+          <Variables>
+            <Variable Identifier="InstanceObject" Type="TCreateAndAddPartObject" Init="Task.InstanceObject"/>
+          </Variables>
+          <Init>
+            <Task.Description Expression="Format(sAddPart, InstanceObject.Description)"/>
+            <Task.AddDependency Task="ExportSpecificationTask" InstanceObject="InstanceObject.Part"/>
+          </Init>
+          <Block>
+            <sts:ShowStatus.Information Text="Format(sAddingPart, InstanceObject.Description)"/>
+            <Execute Statement="cmdInsertProjectPart_quantity.Value:= InstanceObject.Quantity"/>
+            <Execute Statement="cmdInsertProjectPart_remarks.Value:= InstanceObject.Remarks"/>
+            <Execute Statement="cmdInsertProjectPart_part_id.Value:= InstanceObject.Part.ID"/>
+            <ado:Command.Execute Command="cmdInsertProjectPart" Condition="not IsSimulate"/>
           </Block>
         </Task>
 
@@ -300,7 +503,7 @@
           <Block>
             <sts:ShowStatus.Information Text="Format(sRemovingPart, InstanceObject.Description)"/>
             <Execute Statement="cmdDeleteProjectPart_id.Value:= InstanceObject.ID"/>
-            <ado:Command.Execute Command="cmdDeleteProjectPart"/>
+            <ado:Command.Execute Command="cmdDeleteProjectPart" Condition="not IsSimulate"/>
           </Block>
         </Task>
       </Procedures>
@@ -331,20 +534,920 @@
             <Execute Statement="cmdDeleteProjectPart.Prepared:= True"/>
             <Execute Statement="cmdDeleteProjectPart_id:= cmdDeleteProjectPart.Parameters[0]"/>
           </ado:Command.CreateBlock>
-          <sts:ShowStatus.Information Text="sProjectPartsTaskMsg"/>
+          <ado:Command.CreateBlock CommandText="sqlInsertNumericParameter" CommandType="adCmdText" Connection="DBConnection" Command="Command" >
+            <Execute Statement="InitInsertNumericParameterCommand(Command)"/>
+            <ado:Command.CreateBlock CommandText="sqlInsertStringParameter" CommandType="adCmdText" Connection="DBConnection" Command="Command" >
+              <Execute Statement="InitInsertStringParameterCommand(Command)"/>
+              <ado:Command.CreateBlock CommandText="sqlInsertPart" CommandType="adCmdText" Connection="DBConnection" Command="Command" >
+                <Execute Statement="cmdInsertPart:= Command"/>
+                <Execute Statement="cmdInsertPart.Prepared:= True"/>
+
+                <sts:ShowStatus.Information Text="sProjectPartsTaskMsg"/>
+                <ExecuteTasks ExecutableTasksInSelectionOnly="False">
+                  <Task Identifier="GroupTask" InstanceObject="DeleteRootGroup"/>
+                  <Task Identifier="GroupTask" InstanceObject="AddRootGroup"/>
+                  <SelectionSuspend>
+                    <Resume.ResumeRequest/>
+                    <Resume.BreakRequest IssueExit="True">
+                      <sts:ShowStatus.Information Text="''"/>
+                    </Resume.BreakRequest>
+                  </SelectionSuspend>
+                  <BeforeExecuteTask Identifier="Task">
+                    <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
+                      <sts:ShowStatus.Information Text="Format(sTaskExecuting, Task.Description)"/>
+                      <rep:Reporter.Information Text="Task.Description" Target="TaskOutput"/>
+                    </Block>
+                  </BeforeExecuteTask>
+                </ExecuteTasks>
+                <sts:ShowStatus.Information Text="sDoneMsg"/>
+
+              </ado:Command.CreateBlock>
+            </ado:Command.CreateBlock>
+          </ado:Command.CreateBlock>
+        </ado:Command.CreateBlock>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="MatchUnmatchedSchemaComponentsToCategories">
+      <Parameters>
+        <Parameter Identifier="DBConnection" Type="Connection"/>
+        <Parameter Identifier="BillOfMaterials" Type="TBillOfMaterials"/>
+        <Parameter Identifier="StockManager" Type="TStockManager"/>
+        <Parameter Identifier="ExecuteTasks" Type="Boolean"/>
+      </Parameters>
+      <Type>
+        <DataClass Identifier="TExportCategory">
+          <Field Identifier="StockCategory" Type="TStockCategory"/>
+          <Field Identifier="StockSpec" Type="TComponentSpec"/>
+          <Field Identifier="SchemaSpecHead" Type="TExportSpecLink"/>
+          <Field Identifier="SchemaSpecTail" Type="TExportSpecLink"/>
+          <Field Identifier="Next" Type="TExportCategory"/>
+        </DataClass>
+      </Type>
+      <Procedures>
+        <Procedure Identifier="ProcessCategories">
+          <Parameters>
+            <Parameter Identifier="ExportCategoryHead" Type="TExportCategory" Direction="Output"/>
+          </Parameters>
+          <Variables>
+            <Variable Identifier="NewExportCategory" Type="TExportCategory"/>
+            <Variable Identifier="ExportCategoryTail" Type="TExportCategory"/>
+            <Variable Identifier="StockCategory" Type="TStockCategory"/>
+          </Variables>
+          <Block>
+            <ForLoop Indexer="I" From="0" To="StockManager.CategoryList.Count - 1">
+              <Execute Statement="StockCategory:= StockManager.CategoryList[I]"/>
+              <Block Condition="not StockCategory.SpecsAreInherited">
+                <Execute Statement="NewExportCategory:= TExportCategory.Create(StockCategory, StockCategory.ComponentSpec)"/>
+                <lil:LinkedList.LinkUp Head="ExportCategoryHead" Item="NewExportCategory" Tail="ExportCategoryTail" TailLinkStatement="ExportCategoryTail.Next:= Item"/>
+              </Block>
+            </ForLoop>
+          </Block>
+        </Procedure>
+        <Procedure Identifier="MatchWithCategories">
+          <Parameters>
+            <Parameter Identifier="ExportCategoryHead" Type="TExportCategory" />
+          </Parameters>
+          <Variables>
+            <Variable Identifier="MaxScore" Type="Int64"/>
+            <Variable Identifier="CurrentScore" Type="Int64"/>
+            <Variable Identifier="NewLink" Type="TExportCategory"/>
+            <Variable Identifier="BestCategory" Type="TExportCategory" DisabledChecks="empty"/>
+          </Variables>
+          <Block>
+            <lil:LinkedList.Iterate Head="BillOfMaterials.CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
+              <lil:LinkedList.Iterate Head="RunningCategory.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
+                <Block Condition="not Assigned(RunningSpec.MatchedSpecLinkHead)">
+                  <Execute Statement="BestCategory:= EmptyValue"/>
+                  <rep:Reporter.Information Text="RunningSpec.SpecificationAsString(TSpecFormatType.Description, ObjNil)"/>
+                  <lil:LinkedList.Iterate Head="ExportCategoryHead" ItemType="TExportCategory" RunningItem="ExportCategory" Next="ExportCategory.Next" >
+                    <Execute Statement="CurrentScore:= ExportCategory.StockSpec.CategoryMatchScore(RunningSpec)"/>
+                    <rep:Reporter.Information Text="Format('  %d - ', CurrentScore) + ExportCategory.StockCategory.Name + ': ' + ExportCategory.StockSpec.SpecificationAsString(TSpecFormatType.Description, ObjNil)" Condition="IsVerbose"/>
+                    <Choose>
+                      <When Expression="CurrentScore = 0"/>
+                      <When Expression="IsEmpty(BestCategory)">
+                        <Execute Statement="MaxScore:= CurrentScore"/>
+                        <Execute Statement="BestCategory:= ExportCategory"/>
+                      </When>
+                      <When Expression="CurrentScore &gt; MaxScore">
+                        <Execute Statement="MaxScore:= CurrentScore"/>
+                        <Execute Statement="BestCategory:= ExportCategory"/>
+                      </When>
+                    </Choose>
+                  </lil:LinkedList.Iterate>
+                  <Block Condition="not IsEmpty(BestCategory)">
+                    <Execute Statement="RunningSpec.MatchedStockCategory:= BestCategory.StockCategory"/>
+                    <Execute Statement="NewLink:= TExportSpecLink.Create(RunningSpec, BestCategory.StockCategory)"/>
+                    <Choose>
+                      <When Expression="Assigned(BestCategory.SchemaSpecHead)">
+                        <Execute Statement="BestCategory.SchemaSpecTail.Next:= NewLink"/>
+                      </When>
+                      <Otherwise>
+                        <Execute Statement="BestCategory.SchemaSpecHead:= NewLink"/>
+                      </Otherwise>
+                    </Choose>
+                    <Execute Statement="BestCategory.SchemaSpecTail:= NewLink"/>
+                    <rep:Reporter.Information Text="Format('%d - ', MaxScore) + BestCategory.StockCategory.Name + ': ' + BestCategory.StockSpec.SpecificationAsString(TSpecFormatType.Description, ObjNil)" Markup="Header4"/>
+                  </Block>
+                  <rep:Reporter.Information Text="''"/>
+                </Block>
+              </lil:LinkedList.Iterate>
+            </lil:LinkedList.Iterate>
+          </Block>
+        </Procedure>
+
+        <Task Identifier="ExportCategory">
+          <Variables>
+            <Variable Identifier="ExportCategory" Type="TExportCategory" Init="Task.InstanceObject"/>
+          </Variables>
+          <Init>
+            <Task.Kind Expression="TTaskKind.tkCategory"/>
+            <Task.Description Expression="ExportCategory.StockCategory.Name + ': ' + ExportCategory.StockSpec.SpecificationAsString(TSpecFormatType.Description, ObjNil)"/>
+            <lil:LinkedList.Iterate Head="ExportCategory.SchemaSpecHead" ItemType="TExportSpecLink" RunningItem="ExportSpecLink" Next="ExportSpecLink.Next" >
+              <Task.AddDependency Task="ExportSpecificationTask" InstanceObject="TPartKeeprPart.Create(ExportSpecLink.SchemaSpec)" IgnoreFailure="True"/>
+            </lil:LinkedList.Iterate>
+          </Init>
+        </Task>
+
+        <Task Identifier="Root">
+          <Variables>
+            <Variable Identifier="ExportCategoryHead" Type="TExportCategory" Init="Task.InstanceObject"/>
+          </Variables>
+          <Init>
+            <Task.Kind Expression="TTaskKind.tkCategory"/>
+            <Task.Description Expression="sUnmatchedHeader"/>
+            <lil:LinkedList.Iterate Head="ExportCategoryHead" ItemType="TExportCategory" RunningItem="ExportCategory" Next="ExportCategory.Next" >
+              <Task.AddDependency Task="ExportCategory" InstanceObject="ExportCategory" Condition="Assigned(ExportCategory.SchemaSpecHead)" IgnoreFailure="True"/>
+            </lil:LinkedList.Iterate>
+          </Init>
+        </Task>
+      </Procedures>
+      <Variables>
+        <Variable Identifier="ExportCategoryHead" Type="TExportCategory"/>
+      </Variables>
+      <Block>
+        <Execute Statement="ProcessCategories(ExportCategoryHead)"/>
+        <Execute Statement="MatchWithCategories(ExportCategoryHead)"/>
+        <ado:Command.CreateBlock CommandText="sqlInsertNumericParameter" CommandType="adCmdText" Connection="DBConnection" Command="Command" >
+          <Execute Statement="InitInsertNumericParameterCommand(Command)"/>
+          <ado:Command.CreateBlock CommandText="sqlInsertStringParameter" CommandType="adCmdText" Connection="DBConnection" Command="Command" >
+            <Execute Statement="InitInsertStringParameterCommand(Command)"/>
+            <ado:Command.CreateBlock CommandText="sqlInsertPart" CommandType="adCmdText" Connection="DBConnection" Command="Command" >
+              <Execute Statement="cmdInsertPart:= Command"/>
+              <Execute Statement="cmdInsertPart.Prepared:= True"/>
+              <Block Condition="ExecuteTasks">
+                <sts:ShowStatus.Information Text="sCheckTaskMsg"/>
+                <ExecuteTasks ExecutableTasksInSelectionOnly="False">
+                  <Task Identifier="Root" InstanceObject="ExportCategoryHead"/>
+                  <SelectionSuspend>
+                    <Resume.ResumeRequest/>
+                    <Resume.BreakRequest IssueExit="True">
+                      <sts:ShowStatus.Information Text="''"/>
+                    </Resume.BreakRequest>
+                  </SelectionSuspend>
+                  <BeforeExecuteTask Identifier="Task">
+                    <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
+                      <sts:ShowStatus.Information Text="Format(sTaskExecuting, Task.Description)"/>
+                      <rep:Reporter.Information Text="Task.Description" Target="TaskOutput"/>
+                    </Block>
+                  </BeforeExecuteTask>
+                </ExecuteTasks>
+              </Block>
+            </ado:Command.CreateBlock>
+          </ado:Command.CreateBlock>
+        </ado:Command.CreateBlock>
+        <sts:ShowStatus.Information Text="sDoneMsg"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="NumericValue" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="Value" Type="Int64"/>
+        <Parameter Identifier="Convertor" Type="TUnitConvertor"/>
+        <Parameter Identifier="ScaledValue" Type="Extended" Direction="Output"/>
+        <Parameter Identifier="ScaledValuePrefix" Type="TPartKeeprPrefix" Direction="Output"/>
+        <Parameter Identifier="ScaledUnitInfo" Type="TUnitInfo" Direction="Output"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="IsNegative" Type="Boolean" Init="False"/>
+        <Variable Identifier="Scale" Type="Integer"/>
+        <Variable Identifier="Prefix" Type="TPrefix"/>
+        <Variable Identifier="NumValue" Type="Int64" Init="0"/>
+        <Variable Identifier="StartPrefix" Type="TPrefix"/>
+        <Variable Identifier="EndPrefix" Type="TPrefix"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Scale:= Convertor.GetScale(Value, Prefix)"/>
+        <Execute Statement="ScaledValue:= Value * Power(10, Scale)"/>
+        <Execute Statement="Result:= Value * Convertor.ToExtendedFactor"/>
+        <Case Expression="Convertor.SiUnit" Optimalisation="integermapping">
+          <On Select="TSiUnit.Ohm">
+            <Execute Statement="ScaledUnitInfo:= UnitOhm"/>
+          </On>
+          <On Select="TSiUnit.Watt">
+            <Execute Statement="ScaledUnitInfo:= UnitWatt"/>
+          </On>
+          <On Select="TSiUnit.Farad">
+            <Execute Statement="ScaledUnitInfo:= UnitFarad"/>
+          </On>
+          <On Select="TSiUnit.Henry">
+            <Execute Statement="ScaledUnitInfo:= UnitHenry"/>
+          </On>
+          <On Select="TSiUnit.Volt">
+            <Execute Statement="ScaledUnitInfo:= UnitVolt"/>
+          </On>
+          <On Select="TSiUnit.Amp">
+            <Execute Statement="ScaledUnitInfo:= UnitAmp"/>
+          </On>
+          <On Select="TSiUnit.Perc">
+            <Execute Statement="ScaledUnitInfo:= UnitPercentage"/>
+          </On>
+        </Case>
+        <Case Expression="Prefix" Optimalisation="integermapping">
+          <On Select="TPrefix.Tera">
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Tera"/>
+          </On>
+          <On Select="TPrefix.Giga">
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Giga"/>
+          </On>
+          <On Select="TPrefix.Mega">
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Mega"/>
+          </On>
+          <On Select="TPrefix.Kilo">
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Kilo"/>
+          </On>
+          <On Select="TPrefix.None">
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.None"/>
+          </On>
+          <On Select="TPrefix.Milli">
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Milli"/>
+          </On>
+          <On Select="TPrefix.Micro">
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Micro"/>
+          </On>
+          <On Select="TPrefix.Nano">
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Nano"/>
+          </On>
+          <On Select="TPrefix.Pico">
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Pico"/>
+          </On>
+          <On Select="TPrefix.Femto">
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Femto"/>
+          </On>
+          <Otherwise>
+            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.None"/>
+            <Execute Statement="ScaledValue:= Result"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="NumericParameterNeeded" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="PartValue" Type="Int64" />
+        <Parameter Identifier="PartVT" Type="TValueType" />
+        <Parameter Identifier="CatValue" Type="Int64" />
+        <Parameter Identifier="CatVT" Type="TValueType" />
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="PartVT" Optimalisation="integermapping">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="CatVT" Optimalisation="integermapping">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= True" Condition="PartValue &lt;&gt; CatValue"/>
+              </On>
+              <Otherwise>
+                <Execute Statement="Result:= True"/>
+              </Otherwise>
+            </Case>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="StringParameterNeeded" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="PartValue" Type="string" />
+        <Parameter Identifier="PartVT" Type="TValueType" />
+        <Parameter Identifier="CatValue" Type="string" />
+        <Parameter Identifier="CatVT" Type="TValueType" />
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="PartVT" Optimalisation="integermapping">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="CatVT" Optimalisation="integermapping">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= True" Condition="not SameText(PartValue,  CatValue)"/>
+              </On>
+              <Otherwise>
+                <Execute Statement="Result:= True"/>
+              </Otherwise>
+            </Case>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Task Identifier="CreatePartKeeprPart">
+      <Variables>
+        <Variable Identifier="PartKeeprPart" Type="TPartKeeprPart" Init="Task.InstanceObject"/>
+        <Variable Identifier="Footprint" Type="string" Init="''"/>
+      </Variables>
+      <Init>
+        <Execute Statement="Footprint:= PartKeeprPart.FootprintInfo.Name" Condition="Assigned(PartKeeprPart.FootprintInfo)"/>
+        <Task.Description Expression="Format(sCreatePart, ConcatExt(' - ', True, PartKeeprPart.Name, Footprint, PartKeeprPart.InternalPartNumber))"/>
+        <Task.MarkFailed Condition="PartKeeprPart.Error"/>
+      </Init>
+      <Block>
+        <ado:Recordset.OpenBlock Command="cmdInsertPart" CursorType="adOpenDynamic" LockType="adLockOptimistic" CursorLocation="adUseClient" Recordset="rsInsertPart" Condition="not IsSimulate">
+          <ado:Recordset.AddNew/>
+          <ado:Field.SetValue Name="category_id" Value="PartKeeprPart.StockCategory.ID"/>
+          <ado:Field.SetValue Name="name" Value="PartKeeprPart.Name"/>
+          <ado:Field.SetValue Name="footprint_id" Value="PartKeeprPart.FootprintInfo.ID" Condition="Assigned(PartKeeprPart.FootprintInfo)"/>
+          <ado:Field.SetValue Name="storageLocation_id" Value="UnmatchedComponentsStorageID"/>
+          <Choose>
+            <When Expression="IsNonEmptyString(PartKeeprPart.InternalPartNumber)" >
+              <ado:Field.SetValue Name="internalPartNumber" Value="PartKeeprPart.InternalPartNumber"/>
+            </When>
+            <Otherwise>
+              <ado:Field.SetValue Name="internalPartNumber" Value="Null"/>
+            </Otherwise>
+          </Choose>
+          <ado:Field.SetValue Name="comment" Value="''"/>
+          <ado:Field.SetValue Name="stockLevel" Value="0"/>
+          <ado:Field.SetValue Name="minStockLevel" Value="0"/>
+          <ado:Field.SetValue Name="averagePrice" Value="0.0"/>
+          <ado:Field.SetValue Name="needsReview" Value="0"/>
+          <ado:Field.SetValue Name="removals" Value="0"/>
+          <ado:Field.SetValue Name="lowStock" Value="0"/>
+          <ado:Field.SetValue Name="createDate" Value="Now"/>
+          <ado:Field.SetValue Name="partUnit_id" Value="1"/>
+          <ado:Field.SetValue Name="status" Value="''"/>
+          <ado:Recordset.Update/>
+          <Variable Identifier="ID"/>
+          <ado:Field.GetValue Name="id" Identifier="ID"/>
+          <Execute Statement="PartKeeprPart.ID:= ID"/>
+        </ado:Recordset.OpenBlock>
+      </Block>
+    </Task>
+
+    <Task Identifier="CreateNumericParameterTask">
+      <Variables>
+        <Variable Identifier="PartParameter" Type="TNumericPartParameter" Init="Task.InstanceObject"/>
+        <Variable Identifier="Convertor" Type="TUnitConvertor" Init="PartParameter.Convertor"/>
+        <Variable Identifier="FieldName" Type="string" Init="GetCustomFieldName(PartParameter.Field)"/>
+        <Variable Identifier="Value" Type="Extended"/>
+        <Variable Identifier="ScaledValue" Type="Extended"/>
+        <Variable Identifier="ScaledUnitInfo" Type="TUnitInfo" Init="ObjNil"/>
+        <Variable Identifier="ScaledValuePrefix" Type="TPartKeeprPrefix"/>
+      </Variables>
+      <Init>
+        <Task.AddDependency Task="CreatePartKeeprPart" InstanceObject="PartParameter.Part"/>
+        <Execute Statement="Value:= NumericValue(PartParameter.Value, Convertor, ScaledValue, ScaledValuePrefix, ScaledUnitInfo)"/>
+        <Task.Description Expression="Format(sCreateNumericParameter, FieldName, Convertor.IntValueToStr(PartParameter.Value))"/>
+        <Block Condition="not Assigned(ScaledUnitInfo)">
+          <Task.MarkFailed/>
+          <Exit/>
+        </Block>
+      </Init>
+      <Block>
+        <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_part_id.Value:= %d', PartParameter.Part.ID)" Condition="IsDebugging"/>
+        <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_unit_id.Value:= %d', ScaledUnitInfo.ID)" Condition="IsDebugging"/>
+        <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_name.Value:= %s', FieldName)" Condition="IsDebugging"/>
+        <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_value.Value:= %g', ScaledValue)" Condition="IsDebugging"/>
+        <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_normalizedValue.Value:= %g', Value)" Condition="IsDebugging"/>
+        <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_siPrefix_id.Value:= %d', ScaledValuePrefix)" Condition="IsDebugging"/>
+        <Execute Statement="cmdInsertNumericParameter_part_id.Value:= PartParameter.Part.ID"/>
+        <Execute Statement="cmdInsertNumericParameter_unit_id.Value:= ScaledUnitInfo.ID"/>
+        <Execute Statement="cmdInsertNumericParameter_name.Value:= FieldName"/>
+        <Execute Statement="cmdInsertNumericParameter_value.Value:= ScaledValue"/>
+        <Execute Statement="cmdInsertNumericParameter_normalizedValue.Value:= Value"/>
+        <Execute Statement="cmdInsertNumericParameter_siPrefix_id.Value:= ScaledValuePrefix"/>
+        <ado:Command.Execute Command="cmdInsertNumericParameter" Condition="not IsSimulate"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="CreateStringParameterTask">
+      <Variables>
+        <Variable Identifier="PartParameter" Type="TStringPartParameter" Init="Task.InstanceObject"/>
+        <Variable Identifier="Value" Type="string" Init="PartParameter.Value"/>
+        <Variable Identifier="FieldName" Type="string" Init="GetCustomFieldName(PartParameter.Field)"/>
+      </Variables>
+      <Init>
+        <Task.AddDependency Task="CreatePartKeeprPart" InstanceObject="PartParameter.Part"/>
+        <Task.Description Expression="Format(sCreateStringParameter, FieldName, Value)"/>
+      </Init>
+      <Block>
+        <Execute Statement="cmdInsertStringParameter_part_id.Value:= PartParameter.Part.ID"/>
+        <Execute Statement="cmdInsertStringParameter_name.Value:= FieldName"/>
+        <Execute Statement="cmdInsertStringParameter_stringValue.Value:= Value"/>
+        <ado:Command.Execute Command="cmdInsertStringParameter" Condition="not IsSimulate"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="ExportSpecificationTask">
+      <Variables>
+        <Variable Identifier="Part" Type="TPartKeeprPart" Init="Task.InstanceObject"/>
+        <Variable Identifier="SchemaSpec" Type="TComponentSpec" Init="Part.SchemaSpec"/>
+        <Variable Identifier="StockSpec" Type="TComponentSpec"/>
+        <Variable Identifier="NumericPartParameter" Type="TNumericPartParameter"/>
+        <Variable Identifier="StringPartParameter" Type="TStringPartParameter"/>
+        <Variable Identifier="FootprintInfo" Type="TFootprintInfo"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+      </Variables>
+      <Init>
+        <Task.Kind Expression="TTaskKind.tkCategory"/>
+        <Block Condition="not Assigned(SchemaSpec.MatchedStockCategory)">
+          <Task.MarkFailed/>
+          <Exit/>
+        </Block>
+        <Execute Statement="StockSpec:= SchemaSpec.MatchedStockCategory.ComponentSpec"/>
+        <Execute Statement="Part.StockCategory:= SchemaSpec.MatchedStockCategory"/>
+        <Case Expression="SchemaSpec.InternalPartNumberVT" Optimalisation="integermapping">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Part.InternalPartNumber:= SchemaSpec.InternalPartNumber"/>
+          </On>
+        </Case>
+        <Block Condition="NumericParameterNeeded(SchemaSpec.FootPrint, SchemaSpec.FootPrintVT, StockSpec.FootPrint, StockSpec.FootPrintVT)">
+          <inx:Index.FindValue Index="FootPrintToFootPrintInfoMapping" Key="SchemaSpec.Footprint" Value="FootprintInfo" Found="Found" Flags="NoErrorOnNotFound"/>
+          <Execute Statement="Part.FootprintInfo:= FootprintInfo" Condition="Found"/>
+        </Block>
+        <Block Condition="StringParameterNeeded(SchemaSpec.PartNumber, SchemaSpec.PartNumberVT, StockSpec.PartNumber, StockSpec.PartNumberVT)">
+          <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.PartNumber, SchemaSpec.PartNumber)"/>
+          <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+        </Block>
+        <Block Condition="StringParameterNeeded(SchemaSpec.Manufacturer, SchemaSpec.ManufacturerVT, StockSpec.Manufacturer, StockSpec.ManufacturerVT)">
+          <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Manufacturer, SchemaSpec.Manufacturer)"/>
+          <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+        </Block>
+        <Task.AddDependency Task="CreatePartKeeprPart" InstanceObject="Part"/>
+        <Task.Description Expression="SchemaSpec.SpecificationAsString(TSpecFormatType.Description, ObjNil)"/>
+        <Choose>
+          <When Expression="SchemaSpec is TResistorSpec">
+            <Case Expression="TResistorSpec(SchemaSpec).ResistanceVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Part.Name:= ResistorResistanceConv.IntValueToStr(TResistorSpec(SchemaSpec).Resistance)"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Execute Statement="Part.Name:= TResistorSpec(SchemaSpec).ErrorResistance"/>
+                <Execute Statement="Part.Error:= True"/>
+              </On>
+            </Case>
+            <Choose>
+              <When Expression="StockSpec is TResistorSpec">
+                <Block Condition="NumericParameterNeeded(TResistorSpec(SchemaSpec).PowerRating, TResistorSpec(SchemaSpec).PowerRatingVT, TResistorSpec(StockSpec).PowerRating, TResistorSpec(StockSpec).PowerRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.PowerRating, TResistorSpec(SchemaSpec).PowerRating, ResistorPowerRatingConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+                <Block Condition="NumericParameterNeeded(TResistorSpec(SchemaSpec).Tolerance, TResistorSpec(SchemaSpec).ToleranceVT, TResistorSpec(StockSpec).Tolerance, TResistorSpec(StockSpec).ToleranceVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TResistorSpec(SchemaSpec).Tolerance, ResistorToleranceConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+                <Block Condition="NumericParameterNeeded(TResistorSpec(SchemaSpec).Technology, TResistorSpec(SchemaSpec).TechnologyVT, TResistorSpec(StockSpec).Technology, TResistorSpec(StockSpec).TechnologyVT)">
+                  <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Technology, ResistorTechnologyName(TResistorSpec(SchemaSpec).Technology))"/>
+                  <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+                </Block>
+              </When>
+              <Otherwise>
+                <Case Expression="TResistorSpec(SchemaSpec).PowerRatingVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.PowerRating, TResistorSpec(SchemaSpec).PowerRating, ResistorPowerRatingConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+                <Case Expression="TResistorSpec(SchemaSpec).ToleranceVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TResistorSpec(SchemaSpec).Tolerance, ResistorToleranceConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+                <Case Expression="TResistorSpec(SchemaSpec).TechnologyVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Technology, ResistorTechnologyName(TResistorSpec(SchemaSpec).Technology))"/>
+                    <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+                  </On>
+                </Case>
+              </Otherwise>
+            </Choose>
+          </When>
+          <When Expression="SchemaSpec is TCapacitorSpec">
+            <Case Expression="TCapacitorSpec(SchemaSpec).CapacitanceVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Part.Name:= CapacitorCapacitanceConv.IntValueToStr(TCapacitorSpec(SchemaSpec).Capacitance)"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Execute Statement="Part.Name:= TCapacitorSpec(SchemaSpec).ErrorCapacitance"/>
+                <Execute Statement="Part.Error:= True"/>
+              </On>
+            </Case>
+            <Choose>
+              <When Expression="StockSpec is TCapacitorSpec">
+                <Block Condition="NumericParameterNeeded(TCapacitorSpec(SchemaSpec).VoltageRating, TCapacitorSpec(SchemaSpec).VoltageRatingVT, TCapacitorSpec(StockSpec).VoltageRating, TCapacitorSpec(StockSpec).VoltageRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.VoltageRating, TCapacitorSpec(SchemaSpec).VoltageRating, CapacitorVoltageRatingConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+                <Block Condition="NumericParameterNeeded(TCapacitorSpec(SchemaSpec).Tolerance, TCapacitorSpec(SchemaSpec).ToleranceVT, TCapacitorSpec(StockSpec).Tolerance, TCapacitorSpec(StockSpec).ToleranceVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TCapacitorSpec(SchemaSpec).Tolerance, CapacitorToleranceConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+                <Block Condition="NumericParameterNeeded(TCapacitorSpec(SchemaSpec).Technology, TCapacitorSpec(SchemaSpec).TechnologyVT, TCapacitorSpec(StockSpec).Technology, TCapacitorSpec(StockSpec).TechnologyVT)">
+                  <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Technology, CapacitorTechnologyName(TCapacitorSpec(SchemaSpec).Technology))"/>
+                  <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+                </Block>
+              </When>
+              <Otherwise>
+                <Case Expression="TCapacitorSpec(SchemaSpec).VoltageRatingVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.VoltageRating, TCapacitorSpec(SchemaSpec).VoltageRating, CapacitorVoltageRatingConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+                <Case Expression="TCapacitorSpec(SchemaSpec).ToleranceVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TCapacitorSpec(SchemaSpec).Tolerance, CapacitorToleranceConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+                <Case Expression="TCapacitorSpec(SchemaSpec).TechnologyVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Technology, CapacitorTechnologyName(TCapacitorSpec(SchemaSpec).Technology))"/>
+                    <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+                  </On>
+                </Case>
+              </Otherwise>
+            </Choose>
+          </When>
+          <When Expression="SchemaSpec is TZenerDiodeSpec">
+            <Case Expression="TZenerDiodeSpec(SchemaSpec).ZenerVoltageVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Part.Name:= ZenerDiodeZenerVoltageConv.IntValueToStr(TZenerDiodeSpec(SchemaSpec).ZenerVoltage)"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Execute Statement="Part.Name:= TZenerDiodeSpec(SchemaSpec).ErrorZenerVoltage"/>
+                <Execute Statement="Part.Error:= True"/>
+              </On>
+            </Case>
+            <Choose>
+              <When Expression="StockSpec is TZenerDiodeSpec">
+                <Block Condition="NumericParameterNeeded(TZenerDiodeSpec(SchemaSpec).PowerRating, TZenerDiodeSpec(SchemaSpec).PowerRatingVT, TZenerDiodeSpec(StockSpec).PowerRating, TZenerDiodeSpec(StockSpec).PowerRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.PowerRating, TZenerDiodeSpec(SchemaSpec).PowerRating, ZenerDiodePowerRatingConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+                <Block Condition="NumericParameterNeeded(TZenerDiodeSpec(SchemaSpec).Tolerance, TZenerDiodeSpec(SchemaSpec).ToleranceVT, TZenerDiodeSpec(StockSpec).Tolerance, TZenerDiodeSpec(StockSpec).ToleranceVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TZenerDiodeSpec(SchemaSpec).Tolerance, ZenerDiodeToleranceConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+              </When>
+              <Otherwise>
+                <Case Expression="TZenerDiodeSpec(SchemaSpec).PowerRatingVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.PowerRating, TZenerDiodeSpec(SchemaSpec).PowerRating, ZenerDiodePowerRatingConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+                <Case Expression="TZenerDiodeSpec(SchemaSpec).ToleranceVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TZenerDiodeSpec(SchemaSpec).Tolerance, ZenerDiodeToleranceConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+              </Otherwise>
+            </Choose>
+          </When>
+          <When Expression="SchemaSpec is TDiodeSpec">
+            <Case Expression="TDiodeSpec(SchemaSpec).ValueVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Part.Name:= TDiodeSpec(SchemaSpec).Value"/>
+              </On>
+            </Case>
+            <Choose>
+              <When Expression="StockSpec is TDiodeSpec">
+                <Block Condition="NumericParameterNeeded(TDiodeSpec(SchemaSpec).ReverseVoltage, TDiodeSpec(SchemaSpec).ReverseVoltageVT, TDiodeSpec(StockSpec).ReverseVoltage, TDiodeSpec(StockSpec).ReverseVoltageVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ReverseVoltage, TDiodeSpec(SchemaSpec).ReverseVoltage, DiodeReverseVoltageConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+                <Block Condition="NumericParameterNeeded(TDiodeSpec(SchemaSpec).AmperageRating, TDiodeSpec(SchemaSpec).AmperageRatingVT, TDiodeSpec(StockSpec).AmperageRating, TDiodeSpec(StockSpec).AmperageRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TDiodeSpec(SchemaSpec).AmperageRating, DiodeAmperageRatingConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+                <Block Condition="NumericParameterNeeded(TDiodeSpec(SchemaSpec).ForwardVoltage, TDiodeSpec(SchemaSpec).ForwardVoltageVT, TDiodeSpec(StockSpec).ForwardVoltage, TDiodeSpec(StockSpec).ForwardVoltageVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ForwardVoltage, TDiodeSpec(SchemaSpec).ForwardVoltage, DiodeForwardVoltageConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+              </When>
+              <Otherwise>
+                <Case Expression="TDiodeSpec(SchemaSpec).ReverseVoltageVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ReverseVoltage, TDiodeSpec(SchemaSpec).ReverseVoltage, DiodeReverseVoltageConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+                <Case Expression="TDiodeSpec(SchemaSpec).AmperageRatingVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TDiodeSpec(SchemaSpec).AmperageRating, DiodeAmperageRatingConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+                <Case Expression="TDiodeSpec(SchemaSpec).ForwardVoltageVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ForwardVoltage, TDiodeSpec(SchemaSpec).ForwardVoltage, DiodeForwardVoltageConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+              </Otherwise>
+            </Choose>
+          </When>
+          <When Expression="SchemaSpec is TInductorSpec">
+            <Case Expression="TInductorSpec(SchemaSpec).InductanceVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Part.Name:= InductorInductanceConv.IntValueToStr(TInductorSpec(SchemaSpec).Inductance)"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Execute Statement="Part.Name:= TInductorSpec(SchemaSpec).ErrorInductance"/>
+                <Execute Statement="Part.Error:= True"/>
+              </On>
+            </Case>
+            <Choose>
+              <When Expression="StockSpec is TInductorSpec">
+                <Block Condition="NumericParameterNeeded(TInductorSpec(SchemaSpec).AmperageRating, TInductorSpec(SchemaSpec).AmperageRatingVT, TInductorSpec(StockSpec).AmperageRating, TInductorSpec(StockSpec).AmperageRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TInductorSpec(SchemaSpec).AmperageRating, InductorAmperageRatingConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+                <Block Condition="NumericParameterNeeded(TInductorSpec(SchemaSpec).Tolerance, TInductorSpec(SchemaSpec).ToleranceVT, TInductorSpec(StockSpec).Tolerance, TInductorSpec(StockSpec).ToleranceVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TInductorSpec(SchemaSpec).Tolerance, InductorToleranceConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+              </When>
+              <Otherwise>
+                <Case Expression="TInductorSpec(SchemaSpec).AmperageRatingVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TInductorSpec(SchemaSpec).AmperageRating, InductorAmperageRatingConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+                <Case Expression="TInductorSpec(SchemaSpec).ToleranceVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TInductorSpec(SchemaSpec).Tolerance, InductorToleranceConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+              </Otherwise>
+            </Choose>
+          </When>
+          <When Expression="SchemaSpec is TConnectorSpec">
+            <Case Expression="TConnectorSpec(SchemaSpec).PinsVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Part.Name:= PinsToString(TConnectorSpec(SchemaSpec).PinRowsLow, TConnectorSpec(SchemaSpec).PinColsLow, TConnectorSpec(SchemaSpec).PinRowsHigh, TConnectorSpec(SchemaSpec).PinColsHigh)"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Execute Statement="Part.Name:= TConnectorSpec(SchemaSpec).ErrorPins"/>
+                <Execute Statement="Part.Error:= True"/>
+              </On>
+            </Case>
+            <Choose>
+              <When Expression="StockSpec is TConnectorSpec">
+                <Block Condition="NumericParameterNeeded(TConnectorSpec(SchemaSpec).AmperageRating, TConnectorSpec(SchemaSpec).AmperageRatingVT, TConnectorSpec(StockSpec).AmperageRating, TConnectorSpec(StockSpec).AmperageRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TConnectorSpec(SchemaSpec).AmperageRating, ConnectorAmperageRatingConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+              </When>
+              <Otherwise>
+                <Case Expression="TConnectorSpec(SchemaSpec).AmperageRatingVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TConnectorSpec(SchemaSpec).AmperageRating, ConnectorAmperageRatingConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+              </Otherwise>
+            </Choose>
+          </When>
+          <When Expression="SchemaSpec is TFuseSpec">
+            <Case Expression="TFuseSpec(SchemaSpec).AmperageVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Part.Name:= FuseAmperageConv.IntValueToStr(TFuseSpec(SchemaSpec).Amperage)"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Execute Statement="Part.Name:= TFuseSpec(SchemaSpec).ErrorAmperage"/>
+                <Execute Statement="Part.Error:= True"/>
+              </On>
+            </Case>
+            <Choose>
+              <When Expression="StockSpec is TFuseSpec">
+                <Block Condition="NumericParameterNeeded(TFuseSpec(SchemaSpec).VoltageRating, TFuseSpec(SchemaSpec).VoltageRatingVT, TFuseSpec(StockSpec).VoltageRating, TFuseSpec(StockSpec).VoltageRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.VoltageRating, TFuseSpec(SchemaSpec).VoltageRating, FuseVoltageRatingConv)"/>
+                  <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                </Block>
+                <Block Condition="NumericParameterNeeded(TFuseSpec(SchemaSpec).BreakSpeed, TFuseSpec(SchemaSpec).BreakSpeedVT, TFuseSpec(StockSpec).BreakSpeed, TFuseSpec(StockSpec).BreakSpeedVT)">
+                  <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.BreakSpeed, FuseBreakSpeedName(TFuseSpec(SchemaSpec).BreakSpeed))"/>
+                  <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+                </Block>
+                <Block Condition="StringParameterNeeded(TFuseSpec(SchemaSpec).Dimensions, TFuseSpec(SchemaSpec).DimensionsVT, TFuseSpec(StockSpec).Dimensions, TFuseSpec(StockSpec).DimensionsVT)">
+                  <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Dimensions, TFuseSpec(SchemaSpec).Dimensions)"/>
+                  <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+                </Block>
+              </When>
+              <Otherwise>
+                <Case Expression="TFuseSpec(SchemaSpec).VoltageRatingVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.VoltageRating, TFuseSpec(SchemaSpec).VoltageRating, FuseVoltageRatingConv)"/>
+                    <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
+                  </On>
+                </Case>
+                <Case Expression="TFuseSpec(SchemaSpec).BreakSpeedVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.BreakSpeed, FuseBreakSpeedName(TFuseSpec(SchemaSpec).BreakSpeed))"/>
+                    <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+                  </On>
+                </Case>
+                <Case Expression="TFuseSpec(SchemaSpec).DimensionsVT">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Dimensions, TFuseSpec(SchemaSpec).Dimensions)"/>
+                    <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+                  </On>
+                </Case>
+              </Otherwise>
+            </Choose>
+          </When>
+          <When Expression="SchemaSpec is TGenericComponentSpec">
+            <Case Expression="TGenericComponentSpec(SchemaSpec).ValueVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Part.Name:= TGenericComponentSpec(SchemaSpec).Value"/>
+              </On>
+            </Case>
+          </When>
+          <Otherwise>
+            <Execute Statement="Part.Error:= True"/>
+            <Exit/>
+          </Otherwise>
+        </Choose>
+
+        <Task.MarkFailed Condition="Part.Error"/>
+      </Init>
+    </Task>
+
+    <Procedure Identifier="ChangePartDescriptions">
+      <Parameters>
+        <Parameter Identifier="DBConnection" Type="Connection"/>
+        <Parameter Identifier="StockManager" Type="TStockManager"/>
+        <Parameter Identifier="ComponentProperty" Type="TComponentProperty"/>
+      </Parameters>
+      <Type>
+
+        <DataClass Identifier="TComponentKindGroup">
+          <Field Identifier="ComponentKind" Type="TComponentKind"/>
+          <Field Identifier="ComponentSpecHead" Type="TSpecificationLink"/>
+          <Field Identifier="ComponentSpecTail" Type="TSpecificationLink"/>
+        </DataClass>
+
+        <DataClass Identifier="TComponentTask">
+          <Field Identifier="Component" Type="TStockComponent"/>
+          <Field Identifier="UpdatedValue" Type="string"/>
+        </DataClass>
+
+      </Type>
+      <Variables>
+        <Variable Identifier="cmdPartUpdateDescription" Type="Command"/>
+        <Variable Identifier="cmdPartUpdateDescription_description" Type="Parameter"/>
+        <Variable Identifier="cmdPartUpdateDescription_id" Type="Parameter"/>
+        <Variable Identifier="cmdPartUpdateName" Type="Command"/>
+        <Variable Identifier="cmdPartUpdateName_name" Type="Parameter"/>
+        <Variable Identifier="cmdPartUpdateName_id" Type="Parameter"/>
+      </Variables>
+
+      <Procedures>
+        <Task Identifier="UpdateComponentDescriptionTask">
+          <Variables>
+            <Variable Identifier="ComponentTask" Type="TComponentTask" Init="Task.InstanceObject"/>
+            <Variable Identifier="Component" Type="TStockComponent" Init="ComponentTask.Component"/>
+            <Variable Identifier="ID" Type="Integer"/>
+          </Variables>
+          <Init>
+            <Task.Description Expression="Format(sUpdateDescription, Component.Name, Component.ID, Component.Description, ComponentTask.UpdatedValue)"/>
+            <Task.MarkHandled Condition="Component.Description = ComponentTask.UpdatedValue"/>
+          </Init>
+          <Block>
+            <Execute Statement="cmdPartUpdateDescription_id.Value:= Component.ID"/>
+            <Execute Statement="cmdPartUpdateDescription_description.Value:= ComponentTask.UpdatedValue"/>
+            <ado:Command.Execute Command="cmdPartUpdateDescription" Condition="not IsSimulate"/>
+          </Block>
+        </Task>
+
+        <Task Identifier="UpdateComponentNameTask">
+          <Variables>
+            <Variable Identifier="ComponentTask" Type="TComponentTask" Init="Task.InstanceObject"/>
+            <Variable Identifier="Component" Type="TStockComponent" Init="ComponentTask.Component"/>
+            <Variable Identifier="ID" Type="Integer"/>
+          </Variables>
+          <Init>
+            <Task.Description Expression="Format(sUpdateName, Component.Name, Component.ID, Component.Name, ComponentTask.UpdatedValue)"/>
+            <Task.MarkHandled Condition="Component.Name = ComponentTask.UpdatedValue"/>
+          </Init>
+          <Block>
+            <Execute Statement="cmdPartUpdateName_id.Value:= Component.ID"/>
+            <Execute Statement="cmdPartUpdateName_name.Value:= ComponentTask.UpdatedValue"/>
+            <ado:Command.Execute Command="cmdPartUpdateName" Condition="not IsSimulate"/>
+          </Block>
+        </Task>
+
+        <Task Identifier="SpecificationTask" >
+          <Variables>
+            <Variable Identifier="ComponentSpec" Type="TComponentSpec" Init="Task.InstanceObject"/>
+            <Variable Identifier="SpecificationString" Type="string" Init="ComponentSpec.SpecificationAsString(TSpecFormatType.Description, ObjNil)"/>
+          </Variables>
+          <Init>
+            <Task.Kind Expression="TTaskKind.tkCategory"/>
+            <Task.Description Expression="SpecificationString"/>
+            <lil:LinkedList.Iterate Head="ComponentSpec.StockComponentHead" ItemType="TStockComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
+              <Case Expression="ComponentProperty">
+                <On Select="TComponentProperty.Name">
+                  <Task.AddDependency Task="UpdateComponentNameTask" InstanceObject="TComponentTask.Create(RunningComponent, ComponentSpec.SpecificationAsString(TSpecFormatType.Name, ObjNil))"/>
+                </On>
+                <On Select="TComponentProperty.Description">
+                  <Task.AddDependency Task="UpdateComponentDescriptionTask" InstanceObject="TComponentTask.Create(RunningComponent, SpecificationString)"/>
+                </On>
+              </Case>
+            </lil:LinkedList.Iterate>
+          </Init>
+        </Task>
+
+        <Task Identifier="ComponentKindTask" >
+          <Variables>
+            <Variable Identifier="ComponentKindGroup" Type="TComponentKindGroup" Init="Task.InstanceObject"/>
+          </Variables>
+          <Init>
+            <Task.Kind Expression="TTaskKind.tkCategory"/>
+            <Task.Description Expression="ComponentKindHeader(ComponentKindGroup.ComponentKind)"/>
+            <lil:LinkedList.Iterate Head="ComponentKindGroup.ComponentSpecHead" ItemType="TSpecificationLink" RunningItem="RunningSpecificationLink" Next="RunningSpecificationLink.Next">
+              <Task.AddDependency Task="SpecificationTask" InstanceObject="RunningSpecificationLink.StockComponentSpec"/>
+            </lil:LinkedList.Iterate>
+          </Init>
+        </Task>
+
+        <Task Identifier="RootTask" >
+          <Variables>
+            <Variable Identifier="StockManager" Type="TStockManager" Init="Task.InstanceObject"/>
+            <Variable Identifier="ComponentKind" Type="TComponentKind" Init="TComponentKind.None"/>
+            <Variable Identifier="ComponentKindGroup" Type="TComponentKindGroup"/>
+            <Variable Identifier="SpecificationLink" Type="TSpecificationLink"/>
+          </Variables>
+          <Init>
+            <Task.Description Expression="sComponentHeader"/>
+            <Task.Kind Expression="TTaskKind.tkCategory"/>
+            <lil:LinkedList.Iterate Head="StockManager.CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
+              <lil:LinkedList.Iterate Head="RunningCategory.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
+                <Execute Statement="SpecificationLink:= TSpecificationLink.Create(RunningSpec)"/>
+                <Choose>
+                  <When Expression="RunningSpec.ComponentKind &lt;&gt; ComponentKind">
+                    <Execute Statement="ComponentKind:= RunningSpec.ComponentKind"/>
+                    <Execute Statement="ComponentKindGroup:= TComponentKindGroup.Create(ComponentKind, SpecificationLink, SpecificationLink)"/>
+                    <Task.AddDependency Task="ComponentKindTask" InstanceObject="ComponentKindGroup"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ComponentKindGroup.ComponentSpecTail.Next:= SpecificationLink"/>
+                    <Execute Statement="ComponentKindGroup.ComponentSpecTail:= SpecificationLink"/>
+                  </Otherwise>
+                </Choose>
+              </lil:LinkedList.Iterate>
+            </lil:LinkedList.Iterate>
+          </Init>
+        </Task>
+      </Procedures>
+      <Block>
+        <ado:Command.CreateBlock CommandText="sqlPartUpdateName" CommandType="adCmdText" Connection="DBConnection" Command="Command" >
+          <Execute Statement="cmdPartUpdateName:= Command"/>
+          <Execute Statement="cmdPartUpdateName_name:= cmdPartUpdateName.CreateParameter('', adVarWChar, adParamInput, 255, '')"/>
+          <Execute Statement="cmdPartUpdateName.Parameters.Append(cmdPartUpdateName_name)"/>
+          <Execute Statement="cmdPartUpdateName_id:= cmdPartUpdateName.CreateParameter('', adInteger, adParamInput, 0, 0)"/>
+          <Execute Statement="cmdPartUpdateName.Parameters.Append(cmdPartUpdateName_id)"/>
+          <ado:Command.CreateBlock CommandText="sqlPartUpdateDescription" CommandType="adCmdText" Connection="DBConnection" Command="Command" >
+            <Execute Statement="cmdPartUpdateDescription:= Command"/>
+            <Execute Statement="cmdPartUpdateDescription_description:= cmdPartUpdateDescription.CreateParameter('', adVarWChar, adParamInput, 255, '')"/>
+            <Execute Statement="cmdPartUpdateDescription.Parameters.Append(cmdPartUpdateDescription_description)"/>
+            <Execute Statement="cmdPartUpdateDescription_id:= cmdPartUpdateDescription.CreateParameter('', adInteger, adParamInput, 0, 0)"/>
+            <Execute Statement="cmdPartUpdateDescription.Parameters.Append(cmdPartUpdateDescription_id)"/>
+          </ado:Command.CreateBlock>
+          <sts:ShowStatus.Information Text="sCheckTaskMsg"/>
           <ExecuteTasks ExecutableTasksInSelectionOnly="False">
-            <Task Identifier="GroupTask" InstanceObject="DeleteRootGroup"/>
-            <Task Identifier="GroupTask" InstanceObject="AddRootGroup"/>
+            <Task Identifier="RootTask" InstanceObject="StockManager"/>
             <SelectionSuspend>
               <Resume.ResumeRequest/>
               <Resume.BreakRequest IssueExit="True">
                 <sts:ShowStatus.Information Text="''"/>
               </Resume.BreakRequest>
             </SelectionSuspend>
+            <BeforeExecuteTask Identifier="Task">
+              <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
+                <sts:ShowStatus.Information Text="Format(sTaskExecuting, Task.Description)"/>
+                <rep:Reporter.Information Text="Task.Description" Target="TaskOutput"/>
+              </Block>
+            </BeforeExecuteTask>
           </ExecuteTasks>
           <sts:ShowStatus.Information Text="sDoneMsg"/>
         </ado:Command.CreateBlock>
       </Block>
     </Procedure>
+
   </Procedures>
 </pkg:Library>

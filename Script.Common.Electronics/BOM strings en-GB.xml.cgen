@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns="urn:schemas-www-wisware.nl-codegen-document"
+ xmlns:doc="urn:schemas-www-wisware.nl-codegen-document"
+ xmlns:scg="urn:schemas-www-wisware.nl-codegen-scriptcodegenerator"
+ xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+ xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+ xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+ xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+ xmlns:indx="urn:schemas-www-wisware.nl-xmlscripting-index"
+ xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+ xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+ xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+ xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+ xsi:schemaLocation="urn:schemas-www-wisware.nl-codegen-document ..\XmlSchemas.Common.CodeGen\CodeGen.xsd"
+   Codepage="0" NameEncapsulation="xml">
+  <CodeGenerators>
+    <scg:ScriptCodeGenerator Description="Generate string constants">
+      <pkg:Program xmlns="urn:schemas-www-wisware.nl-xmlscripting">
+        <pkg:ReportTargets>
+          <pkg:Target Identifier="Constants.ComponentKind.Strings"/>
+        </pkg:ReportTargets>
+
+        <Variables>
+          <Variable Identifier="XmlDoc" Type="IXmlDomDocument"/>
+        </Variables>
+
+        <Procedures>
+
+          <Procedure Identifier="GenerateComponentKindStrings">
+            <Parameters>
+              <Parameter Identifier="UseLangID" Type="string"/>
+            </Parameters>
+            <Variables>
+              <Variable Identifier="Description" Type="string" DisabledChecks="empty"/>
+              <Variable Identifier="Header" Type="string" DisabledChecks="empty"/>
+            </Variables>
+            <Block>
+              <msx:Node.IterateChilds Node="XmlDoc.DocumentElement">
+                <msx:OnElement baseName="'ComponentKind'">
+                  <msx:Attribute baseName="'Name'"/>
+                  <msx:Block>
+                    <Execute Statement="Description:= EmptyValue"/>
+                    <Execute Statement="Header:= EmptyValue"/>
+                    <msx:Node.IterateChilds Node="Node">
+                      <msx:OnElement baseName="'Language'">
+                        <msx:Attribute baseName="'LangID'" />
+                        <msx:Block>
+                          <msx:Node.IterateChilds Node="Node" Condition="LangID.Text=UseLangID">
+                            <msx:OnElement baseName="'Name'">
+                              <msx:Attribute baseName="'Text'" />
+                              <msx:Block>
+                                <Execute Statement="Description:= Text.Text"/>
+                              </msx:Block>
+                            </msx:OnElement>
+                            <msx:OnElement baseName="'Header'">
+                              <msx:Attribute baseName="'Text'" />
+                              <msx:Block>
+                                <Execute Statement="Header:= Text.Text"/>
+                              </msx:Block>
+                            </msx:OnElement>
+                          </msx:Node.IterateChilds>
+                        </msx:Block>
+                      </msx:OnElement>
+                    </msx:Node.IterateChilds>
+                    <rep:Reporter.Information Text="Format('&lt;Constant Identifier=&quot;s%sDescription&quot; Expression=&quot;%s&quot;/&gt;', Name.Text, EncodeDelphiString(Description))" Condition="not IsEmpty(Description)"/>
+                    <rep:Reporter.Information Text="Format('&lt;Constant Identifier=&quot;s%sHeader&quot; Expression=&quot;%s&quot;/&gt;', Name.Text, EncodeDelphiString(Header))" Condition="not IsEmpty(Header)"/>
+                  </msx:Block>
+                </msx:OnElement>
+              </msx:Node.IterateChilds>
+            </Block>
+          </Procedure>
+
+        </Procedures>
+
+        <Block>
+          <msx:Document.Create Identifier="XmlDoc"/>
+          <msx:Document.LoadFromFile Document="XmlDoc" Filename="GetFilenameFromBase(ExtractFilePath(ScriptFilename), 'ComponentKinds.xml')"/>
+
+          <rep:Reporter.DefaultTarget Identifier="Constants.ComponentKind.Strings"/>
+          <rep:Reporter.Information Text="''"/>
+          <Execute Statement="GenerateComponentKindStrings('en-GB')"/>
+        </Block>
+      </pkg:Program>
+    </scg:ScriptCodeGenerator>
+  </CodeGenerators>
+</Document>

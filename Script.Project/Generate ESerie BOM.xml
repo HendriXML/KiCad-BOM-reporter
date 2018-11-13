@@ -11,7 +11,6 @@
             xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
             xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
             xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
-            xmlns:obj="urn:schemas-www-wisware.nl-xmlscripting-objectlayer"
             xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
             xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd">
   <pkg:ReportTargets>
@@ -39,6 +38,12 @@ BomFilename=F:\Software development\XmlScripts\Projects\ElectronicsCalculations\
       <Field Identifier="ZenderDiodeCount" Type="Integer"/>
     </DataClass>
   </Type>
+  
+  <Variables>
+    <Variable Identifier="ResistorResistanceConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.MicroOhm)"/>
+    <Variable Identifier="ZenerDiodeZenerVoltageConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoVolt)"/>
+    <Variable Identifier="CapacitorCapacitanceConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.FemtoFarad)"/>
+  </Variables>
 
   <Procedures>
     <Procedure Identifier="TSerieBOM.InitStructure">
@@ -71,13 +76,13 @@ BomFilename=F:\Software development\XmlScripts\Projects\ElectronicsCalculations\
         <Variable Identifier="ComponentXE" Type="IXmlDomElement"/>
         <Variable Identifier="ValueXE" Type="IXmlDomElement"/>
         <Variable Identifier="LibSourceXE" Type="IXmlDomElement"/>
-        <Raise Expression="Exception.Create('Invalid value: ' + FirstValue)" Condition="not StrToMicroOhms(FirstValue, FirstValueInt)"/>
+        <Raise Expression="Exception.Create('Invalid value: ' + FirstValue)" Condition="not ResistorResistanceConv.StrToIntValue(FirstValue, FirstValueInt)"/>
         <Variable Identifier="Factor" Type="Int64" Init="FirstValueInt div Serie.Head.Value"/>
         <lil:LinkedList.Iterate Head="Serie.Head" RunningItem="RunningNode" ItemType="TSerieNode" Next="RunningNode.Next">
           <msx:Document.CreateElement Element="ComponentXE" Document="XmlDoc" Name="comp" ParentElement="ComponentsXE" />
           <msx:Element.SetAttribute Element="ComponentXE" Name="ref" Value="Format('R%d', ResistorCount)"/>
           <msx:Document.CreateElement Element="ValueXE" Document="XmlDoc" Name="value" ParentElement="ComponentXE" />
-          <Execute Statement="Value:= FormatMicroOhm(Factor * RunningNode.Value)"/>
+          <Execute Statement="Value:= ResistorResistanceConv.IntValueToStr(Factor * RunningNode.Value)"/>
           <Execute Statement="ValueXE.Text:= Value"/>
           <rep:Reporter.Information Text="Value" Target="Resistors"/>
           <msx:Document.CreateElement Element="LibSourceXE" Document="XmlDoc" Name="libsource" ParentElement="ComponentXE" />
@@ -100,13 +105,13 @@ BomFilename=F:\Software development\XmlScripts\Projects\ElectronicsCalculations\
         <Variable Identifier="ComponentXE" Type="IXmlDomElement"/>
         <Variable Identifier="ValueXE" Type="IXmlDomElement"/>
         <Variable Identifier="LibSourceXE" Type="IXmlDomElement"/>
-        <Raise Expression="Exception.Create('Invalid value: ' + FirstValue)" Condition="not StrToMicroVolts(FirstValue, FirstValueInt)"/>
+        <Raise Expression="Exception.Create('Invalid value: ' + FirstValue)" Condition="not ZenerDiodeZenerVoltageConv.StrToIntValue(FirstValue, FirstValueInt)"/>
         <Variable Identifier="Factor" Type="Int64" Init="FirstValueInt div Serie.Head.Value"/>
         <lil:LinkedList.Iterate Head="Serie.Head" RunningItem="RunningNode" ItemType="TSerieNode" Next="RunningNode.Next">
           <msx:Document.CreateElement Element="ComponentXE" Document="XmlDoc" Name="comp" ParentElement="ComponentsXE" />
           <msx:Element.SetAttribute Element="ComponentXE" Name="ref" Value="Format('D%d', ZenderDiodeCount)"/>
           <msx:Document.CreateElement Element="ValueXE" Document="XmlDoc" Name="value" ParentElement="ComponentXE" />
-          <Execute Statement="Value:= FormatMicroVolt(Factor * RunningNode.Value)"/>
+          <Execute Statement="Value:= ZenerDiodeZenerVoltageConv.IntValueToStr(Factor * RunningNode.Value)"/>
           <Execute Statement="ValueXE.Text:= Value"/>
           <rep:Reporter.Information Text="Value" Target="Zenerdiodes"/>
           <msx:Document.CreateElement Element="LibSourceXE" Document="XmlDoc" Name="libsource" ParentElement="ComponentXE" />
@@ -130,13 +135,13 @@ BomFilename=F:\Software development\XmlScripts\Projects\ElectronicsCalculations\
         <Variable Identifier="ComponentXE" Type="IXmlDomElement"/>
         <Variable Identifier="ValueXE" Type="IXmlDomElement"/>
         <Variable Identifier="LibSourceXE" Type="IXmlDomElement"/>
-        <Raise Expression="Exception.Create('Invalid value: ' + FirstValue)" Condition="not StrToFemtoFarads(FirstValue, FirstValueInt)"/>
+        <Raise Expression="Exception.Create('Invalid value: ' + FirstValue)" Condition="not CapacitorCapacitanceConv.StrToIntValue(FirstValue, FirstValueInt)"/>
         <Variable Identifier="Factor" Type="Int64" Init="FirstValueInt div Serie.Head.Value"/>
         <lil:LinkedList.Iterate Head="Serie.Head" RunningItem="RunningNode" ItemType="TSerieNode" Next="RunningNode.Next">
           <msx:Document.CreateElement Element="ComponentXE" Document="XmlDoc" Name="comp" ParentElement="ComponentsXE" />
           <msx:Element.SetAttribute Element="ComponentXE" Name="ref" Value="Format('C%d', CapacitorCount)"/>
           <msx:Document.CreateElement Element="ValueXE" Document="XmlDoc" Name="value" ParentElement="ComponentXE" />
-          <Execute Statement="Value:= FormatFemtoFarad(Factor * RunningNode.Value)"/>
+          <Execute Statement="Value:= CapacitorCapacitanceConv.IntValueToStr(Factor * RunningNode.Value)"/>
           <Execute Statement="ValueXE.Text:= Value"/>
           <rep:Reporter.Information Text="Value" Target="Capacitors"/>
           <msx:Document.CreateElement Element="LibSourceXE" Document="XmlDoc" Name="libsource" ParentElement="ComponentXE" />

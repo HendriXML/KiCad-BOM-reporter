@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns="urn:schemas-www-wisware.nl-codegen-document"
+ xmlns:doc="urn:schemas-www-wisware.nl-codegen-document"
+ xmlns:scg="urn:schemas-www-wisware.nl-codegen-scriptcodegenerator"
+ xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+ xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+ xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+ xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+ xmlns:indx="urn:schemas-www-wisware.nl-xmlscripting-index"
+ xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+ xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+ xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+ xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+ xsi:schemaLocation="urn:schemas-www-wisware.nl-codegen-document ..\XmlSchemas.Common.CodeGen\CodeGen.xsd"
+   Codepage="0" NameEncapsulation="xml">
+  <CodeGenerators>
+    <scg:ScriptCodeGenerator Description="Genereer functies">
+      <pkg:Program xmlns="urn:schemas-www-wisware.nl-xmlscripting">
+        <pkg:ReportTargets>
+          <pkg:Target Identifier="Type.TComponentKind"/>
+          <pkg:Target Identifier="Procedures.ComponentKindName.Case"/>
+          <pkg:Target Identifier="Procedures.ComponentKindDescription.Case"/>
+          <pkg:Target Identifier="Procedures.ComponentKindHeader.Case"/>
+        </pkg:ReportTargets>
+
+        <Variables>
+          <Variable Identifier="XmlDoc" Type="IXmlDomDocument"/>
+        </Variables>
+
+        <Procedures>
+
+          <Procedure Identifier="GenerateComponentKindEnumeration">
+            <Variables>
+              <Variable Identifier="OutString" Type="string"/>
+              <Variable Identifier="ShouldSeperate" Type="Boolean" Init="False"/>
+            </Variables>
+            <Block>
+              <Execute Statement="OutString:= '    &lt;Enumeration Identifier=&quot;TComponentKind&quot; Elements=&quot;'"/>
+              <msx:Node.IterateChilds Node="XmlDoc.DocumentElement">
+                <msx:OnElement baseName="'ComponentKind'">
+                  <msx:Attribute baseName="'Name'"/>
+                  <msx:Block>
+                    <Execute Statement="OutString:= OutString + ', '" Condition="ShouldSeperate"/>
+                    <Block Condition="Length(OutString) &gt; 200">
+                      <rep:Reporter.Information Text="OutString"/>
+                      <Execute Statement="OutString:= '        '"/>
+                    </Block>
+                    <Execute Statement="OutString:= OutString + Name.Text"/>
+                    <Execute Statement="ShouldSeperate:= True"/>
+                  </msx:Block>
+                </msx:OnElement>
+              </msx:Node.IterateChilds>
+              <Execute Statement="OutString:= OutString + '&quot; LowAlias=&quot;Low&quot; HighAlias=&quot;High&quot;/&gt;'"/>
+              <rep:Reporter.Information Text="OutString"/>
+            </Block>
+          </Procedure>
+
+          <Procedure Identifier="GenerateComponentKindNameCase">
+            <Block>
+              <msx:Node.IterateChilds Node="XmlDoc.DocumentElement">
+                <msx:OnElement baseName="'ComponentKind'">
+                  <msx:Attribute baseName="'Name'"/>
+                  <msx:Block>
+                    <rep:Reporter.Information Text="Format('&lt;On Select=&quot;TComponentKind.%s&quot;&gt;', Name.Text)"/>
+                    <rep:Reporter.Information Text="Format('&lt;Execute Statement=&quot;Result:= %s&quot;/&gt;', EncodeDelphistring(Name.Text))"/>
+                    <rep:Reporter.Information Text="Format('&lt;/On&gt;')"/>
+                  </msx:Block>
+                </msx:OnElement>
+              </msx:Node.IterateChilds>
+            </Block>
+          </Procedure>
+
+          <Procedure Identifier="GenerateComponentKindMappingCase">
+            <Parameters>
+              <Parameter Identifier="PostFix" Type="string"/>
+            </Parameters>
+            <Block>
+              <msx:Node.IterateChilds Node="XmlDoc.DocumentElement">
+                <msx:OnElement baseName="'ComponentKind'">
+                  <msx:Attribute baseName="'Name'"/>
+                  <msx:Block>
+                    <rep:Reporter.Information Text="Format('&lt;On Select=&quot;TComponentKind.%s&quot;&gt;', Name.Text)"/>
+                    <rep:Reporter.Information Text="Format('&lt;Execute Statement=&quot;Result:= s%s%s&quot;/&gt;', Name.Text, PostFix)"/>
+                    <rep:Reporter.Information Text="Format('&lt;/On&gt;')"/>
+                  </msx:Block>
+                </msx:OnElement>
+              </msx:Node.IterateChilds>
+            </Block>
+          </Procedure>
+
+        </Procedures>
+
+        <Block>
+          <msx:Document.Create Identifier="XmlDoc"/>
+          <msx:Document.LoadFromFile Document="XmlDoc" Filename="GetFilenameFromBase(ExtractFilePath(ScriptFilename), 'ComponentKinds.xml')"/>
+
+          <rep:Reporter.DefaultTarget Identifier="Type.TComponentKind"/>
+          <rep:Reporter.Information Text="''"/>
+          <Execute Statement="GenerateComponentKindEnumeration"/>
+          
+          <rep:Reporter.DefaultTarget Identifier="Procedures.ComponentKindName.Case"/>
+          <rep:Reporter.Information Text="''"/>
+          <Execute Statement="GenerateComponentKindNameCase"/>
+
+          <rep:Reporter.DefaultTarget Identifier="Procedures.ComponentKindDescription.Case"/>
+          <rep:Reporter.Information Text="''"/>
+          <Execute Statement="GenerateComponentKindMappingCase('Description')"/>
+
+          <rep:Reporter.DefaultTarget Identifier="Procedures.ComponentKindHeader.Case"/>
+          <rep:Reporter.Information Text="''"/>
+          <Execute Statement="GenerateComponentKindMappingCase('Header')"/>
+        </Block>
+      </pkg:Program>
+    </scg:ScriptCodeGenerator>
+  </CodeGenerators>
+</Document>

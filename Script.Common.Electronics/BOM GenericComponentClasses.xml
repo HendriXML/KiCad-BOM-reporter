@@ -26,6 +26,7 @@
       <VirtualMethod Identifier="vmHandleField" Override="true"/>
       <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
       <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
       <Field Identifier="Value" Type="string"/>
       <Field Identifier="ValueVT" Type="TValueType"/>
     </DataClass>
@@ -54,22 +55,95 @@
         <Execute Statement="Result:= False"/>
         <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
         <Case Expression="ValueVT">
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Exit Condition="not (ComponentSpec is TGenericComponentSpec)"/>
             <Case Expression="TGenericComponentSpec(ComponentSpec).ValueVT">
-              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-                <Exit Condition="CompareText(Value, TGenericComponentSpec(ComponentSpec).Value) &lt;&gt; 0"/>
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="not SameText(Value, TGenericComponentSpec(ComponentSpec).Value)"/>
               </On>
               <Otherwise>
                 <Exit/>
               </Otherwise>
             </Case>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
         <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TGenericComponentSpec.CategoryMatchScore" VirtualMethod="vmCategoryMatchScore" Type="Int64">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Case Expression="ComponentKindVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ComponentKindVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="PartNumberVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.PartNumberVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="SameText(PartNumber, ComponentSpec.PartNumber)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ManufacturerVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ManufacturerVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="SameText(Manufacturer, ComponentSpec.Manufacturer)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="FootprintVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.FootprintVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
       </Block>
     </Function>
 
@@ -78,15 +152,24 @@
         <Parameter Identifier="CustomField" Type="TCustomField"/>
         <Parameter Identifier="Name" Type="string"/>
         <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="Clear" Type="Boolean"/>
       </Parameters>
       <Block>
         <Case Expression="CustomField" Optimalisation="integermapping">
-          <On Select="TCustomField.cfValue">
-            <Execute Statement="Self.Value:= Value"/>
-            <Execute Statement="ValueVT:= TValueType.vtSpecified"/>
+          <On Select="TCustomField.Value">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="ValueVT:= TValueType.Cleared"/>
+                <Execute Statement="Self.Value:= '-'"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Self.Value:= Value"/>
+                <Execute Statement="ValueVT:= TValueType.Specified"/>
+              </Otherwise>
+            </Choose>
           </On>
           <Otherwise>
-            <Execute Statement="inherited HandleField(CustomField, Name, Value)"/>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
           </Otherwise>
         </Case>
       </Block>
@@ -97,20 +180,22 @@
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
         <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
         <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
+        <Parameter Identifier="InternalPartNumber" Type="string" Direction="Output"/>
+        <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
         <Case Expression="ValueVT">
-          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Value:= ''"/>
           </On>
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Execute Statement="Value:= Self.Value"/>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="Value:= '!!'"/>
           </On>
         </Case>
-        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel)"/>
+        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
 
@@ -123,33 +208,46 @@
         <Variable Identifier="Value" Type="string"/>
         <Variable Identifier="Footprint" Type="string"/>
         <Variable Identifier="PartNumberModel" Type="string"/>
+        <Variable Identifier="InternalPartNumber" Type="string"/>
+        <Variable Identifier="ComponentKind" Type="string"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, Footprint, PartNumberModel)"/>
+        <Execute Statement="GetSpecificationValues(Value, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
             <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
-            <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
-            <Execute Statement="Footprint:= Footprint + ' '" Condition="Footprint &lt;&gt; ''"/>
-            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
+            <Execute Statement="Value:= Value + ' '" Condition="IsNonEmptyString(Value)"/>
+            <Execute Statement="Footprint:= Footprint + ' '" Condition="IsNonEmptyString(Footprint)"/>
+            <Execute Statement="InternalPartNumber:= InternalPartNumber + ' '" Condition="IsNonEmptyString(InternalPartNumber)"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="IsNonEmptyString(PartNumberModel)"/>
             <Choose>
               <When Expression="ReportContext.Measure">
-                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 5, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 6, Length(Value))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.FootPrint, 1, Length(Footprint))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TGenComponentSpecColumns.InternalPartNumber, 1, Length(InternalPartNumber))"/>
                 <Execute Statement="Result:= ''"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= Format('%-*s%-*s%-*s',
-                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 5), Value,
+                <Execute Statement="Result:= Format('%-*s%-*s%-*s%-*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.Value, 6), Value,
                          ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.FootPrint, 1), Footprint,
-                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.PartNumberModel, 1), PartNumberModel,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TGenComponentSpecColumns.InternalPartNumber, 1), InternalPartNumber)"/>
               </Otherwise>
             </Choose>
           </On>
-          <On Select="TSpecFormatType.Compressed">
-            <Execute Statement="Result:= ConcatExt(' ', True, Value, Footprint, PartNumberModel)"/>
+          <On Select="TSpecFormatType.Description">
+            <Case Expression="ComponentKindVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="ComponentKind:= ''" Condition="(Self.ComponentKind = TComponentKind.Component) or (Self.ComponentKind = TComponentKind.Module) or (SameText(ComponentKind, Value))"/>
+              </On>
+            </Case>
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+          </On>
+          <On Select="TSpecFormatType.Name">
+            <Execute Statement="Result:= Value"/>
           </On>
         </Case>
       </Block>
@@ -163,7 +261,7 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Case Expression="ComponentSpec.ValueVT" Optimalisation="integermapping">
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Execute Statement="Result:= True"/>
             <Execute Statement="Key:= ComponentSpec.Value"/>
           </On>
@@ -185,7 +283,7 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Choose>
-          <When Expression="GenericComponentValueSpecificationIndex.GetLinks(ComponentSpec, FComponentSpecHead, Specifications)">
+          <When Expression="GenericComponentValueSpecificationIndex.GetLinks(ComponentSpec, ComponentSpecHead, Specifications)">
             <Execute Statement="Result:= True"/>
           </When>
         </Choose>

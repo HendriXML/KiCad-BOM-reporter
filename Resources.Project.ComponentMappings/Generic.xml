@@ -1,0 +1,23 @@
+<Devices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../XmlSchemas.Common.KiCadBOMReporter/ComponentMapping.xsd"> 
+  <Library Name="Amplifier_Operational" Component="OpAmp">
+  </Library>
+  <Library Name="Connector_Generic" Component="Connector">
+  </Library>
+  <Library Name="Connector" Component="Connector">
+  </Library>
+  <Library Name="Comparator" Component="Comparator">
+  </Library>
+  <Library Name="Diode">
+    <Part Part="1N5817" Component="SchottkyDiode"/>
+    <Part Part="1N5818" Component="SchottkyDiode"/>
+    <Part Part="1N5819" Component="SchottkyDiode"/>
+  </Library>
+  <Library Name="Transistor_BJT">
+    <Part Part="2N3906" Component="PNPTransistor"/>
+    <Part Part="TIP125" Component="PNPTransistor"/>
+  </Library>
+  <Library Name="Transistor_FET">
+    <Part Part="2N7000" Component="NMOSFET"/>
+    <Part Part="IRLZ44N" Component="NMOSFET"/>
+  </Library>
+</Devices>

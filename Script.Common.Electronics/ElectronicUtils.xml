@@ -13,34 +13,98 @@
   xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
   xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
   xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages">
-  <sys:Type>
-    <Enumeration Identifier="TPrefix" Elements="pfTera, pfGiga, pfMega, pfKilo, pfNone, pfMilli, pfMicro, pfNano, pfPico, pfFemto"/>
-    <Enumeration Identifier="TDisplayUnitType" Elements="duMicroVoltage, duMicroAmp, duMicroResistance, duFemtoCapacitance, duFemtoInductance, duMicroPercentage, duMicroPower"/>
-    <Enumeration Identifier="TFactorType" Elements="ftFemto, ftMicro, ftMicroAsSingle"/>
+  <Type>
+    <Enumeration Identifier="TPrefix" Elements="Tera, Giga, Mega, Kilo, None, Milli, Micro, Nano, Pico, Femto" LowAlias="Low" HighAlias="High"/>
+
+    <Enumeration Identifier="TSiUnit" Elements="Ohm, Watt, Farad, Henry, Volt, Amp, Perc, Hz, Meter" LowAlias="Low" HighAlias="High"/>
+
+    <Enumeration Identifier="TGranularity" Elements="Femto, Pico, Micro"/>
+
+    <Enumeration Identifier="TConvertorKind" Elements="PicoVolt, PicoAmp, MicroOhm, FemtoFarad, FemtoHenry, MicroPerc, PicoWatt, PicoMeter, MicroHz" LowAlias="Low" HighAlias="High"/>
+    <!--
+PicoVolt
+PicoAmp
+MicroOhm
+FemtoFarad
+FemtoHenry
+MicroPerc
+PicoWatt
+PicoMeter
+MicroHz
+      -->
+
     <Enumeration Identifier="TESerie" Elements="E3, E6, E12, E24, E48, E96, E192"/>
+
     <Enumeration Identifier="TMatchValueKind" Elements="LessOrEqual, MoreOrEqual, Closest"/>
 
-    <sys:DataClass Identifier="TSerieNode">
-      <sys:Field Identifier="Value" Type="UInt32"/>
-      <sys:Field Identifier="LowSerie" Type="TESerie"/>
-      <sys:Field Identifier="Previous" Type="TSerieNode"/>
-      <sys:Field Identifier="Next" Type="TSerieNode"/>
-      <sys:Field Identifier="Less" Type="TSerieNode"/>
-      <sys:Field Identifier="More" Type="TSerieNode"/>
-    </sys:DataClass>
+    <DataClass Identifier="TSerieNode">
+      <Field Identifier="Value" Type="UInt32"/>
+      <Field Identifier="LowSerie" Type="TESerie"/>
+      <Field Identifier="Previous" Type="TSerieNode"/>
+      <Field Identifier="Next" Type="TSerieNode"/>
+      <Field Identifier="Less" Type="TSerieNode"/>
+      <Field Identifier="More" Type="TSerieNode"/>
+    </DataClass>
 
-    <sys:DataClass Identifier="TSerie" DefaultConstructor="none">
-      <sys:Field Identifier="Scale" Type="UInt32"/>
-      <sys:Field Identifier="Head" Type="TSerieNode"/>
-      <sys:Field Identifier="Tail" Type="TSerieNode"/>
-      <sys:Field Identifier="Root" Type="TSerieNode"/>
-      <sys:Field Identifier="OverFlowFactor" Type="Int64"/>
-    </sys:DataClass>
-  </sys:Type>
+    <DataClass Identifier="TSerie" DefaultConstructor="none">
+      <Field Identifier="Scale" Type="UInt32"/>
+      <Field Identifier="Head" Type="TSerieNode"/>
+      <Field Identifier="Tail" Type="TSerieNode"/>
+      <Field Identifier="Root" Type="TSerieNode"/>
+      <Field Identifier="OverFlowFactor" Type="Int64"/>
+    </DataClass>
+
+    <DataClass Identifier="TUnitConvertor" DefaultConstructor="none">
+      <Field Identifier="SiUnit" Type="TSiUnit"/>
+      <Field Identifier="Granularity" Type="TGranularity"/>
+      <Field Identifier="BaseScale" Type="Integer"/>
+      <Field Identifier="ConvertorKind" Type="TConvertorKind"/>
+      <Field Identifier="UnitS" Type="string"/>
+      <Field Identifier="FactorPrefixNone" Type="Int64"/>
+      <Field Identifier="ToExtendedFactor" Type="Extended"/>
+      <Field Identifier="FromExtendedFactor" Type="Extended"/>
+      <!--<-<TUnitConvertor.Fields-->
+      <Field Identifier="AllowPrefixTera" Type="Boolean"/>
+      <Field Identifier="AllowPrefixGiga" Type="Boolean"/>
+      <Field Identifier="AllowPrefixMega" Type="Boolean"/>
+      <Field Identifier="AllowPrefixKilo" Type="Boolean"/>
+      <Field Identifier="AllowPrefixMilli" Type="Boolean"/>
+      <Field Identifier="AllowPrefixMicro" Type="Boolean"/>
+      <Field Identifier="AllowPrefixNano" Type="Boolean"/>
+      <Field Identifier="AllowPrefixPico" Type="Boolean"/>
+      <Field Identifier="AllowPrefixFemto" Type="Boolean"/>
+      <!-->->-->
+    </DataClass>
+  </Type>
   <Constants>
     <Constant Identifier="MaxInt64" Type="Int64" Expression="9223372036854775807"/>
+    <Constant Identifier="MaxInt64Div10" Type="Int64" Expression="9223372036854775807 div 10"/>
     <Constant Identifier="CopperResistivity" Type="Extended" Expression="1.75E-8"/>
 
+    <Constant Identifier="cDeca1" Type="Char" Expression="'d'"/>
+    <Constant Identifier="cDeca2" Type="Char" Expression="'a'"/>
+    <!--
+Yotta
+Zetta
+Exa
+Peta
+Tera
+Giga
+Mega
+Kilo
+Hecto
+Deca
+Deci
+Centi
+Milli
+Micro
+Nano
+Pico
+Femto
+Atto
+Zepto
+Yocto
+    -->
     <Constant Identifier="cYotta" Type="Char" Expression="'Y'"/>
     <Constant Identifier="cZetta" Type="Char" Expression="'Z'"/>
     <Constant Identifier="cExa" Type="Char" Expression="'E'"/>
@@ -50,19 +114,24 @@
     <Constant Identifier="cMega" Type="Char" Expression="'M'"/>
     <Constant Identifier="cKilo" Type="Char" Expression="'k'"/>
     <Constant Identifier="cHecto" Type="Char" Expression="'h'"/>
-    <Constant Identifier="cDeca" Type="string" Expression="'da'"/>
+    <Constant Identifier="cDeca" Type="string" Expression="cDeca1 + cDeca2"/>
     <Constant Identifier="cDeci" Type="Char" Expression="'d'"/>
     <Constant Identifier="cCenti" Type="Char" Expression="'c'"/>
     <Constant Identifier="cMilli" Type="Char" Expression="'m'"/>
     <Constant Identifier="cMicro" Type="Char" Expression="'μ'"/>
-    <Constant Identifier="cMicroAlt" Type="Char" Expression="'µ'"/>
-    <Constant Identifier="cMicroAlt2" Type="Char" Expression="'u'"/>
     <Constant Identifier="cNano" Type="Char" Expression="'n'"/>
     <Constant Identifier="cPico" Type="Char" Expression="'p'"/>
     <Constant Identifier="cFemto" Type="Char" Expression="'f'"/>
     <Constant Identifier="cAtto" Type="Char" Expression="'a'"/>
     <Constant Identifier="cZepto" Type="Char" Expression="'z'"/>
     <Constant Identifier="cYocto" Type="Char" Expression="'y'"/>
+
+    <Constant Identifier="cMicroAlt" Type="Char" Expression="'µ'"/>
+    <Constant Identifier="cMicroAlt2" Type="Char" Expression="'u'"/>
+    <Constant Identifier="cR" Type="Char" Expression="'R'"/>
+    <Constant Identifier="cE" Type="Char" Expression="'E'"/>
+
+
     <Constant Identifier="sKibi" Type="string" Expression="'Ki'"/>
     <Constant Identifier="sMebi" Type="string" Expression="'Mi'"/>
     <Constant Identifier="sGibi" Type="string" Expression="'Gi'"/>
@@ -72,6 +141,28 @@
     <Constant Identifier="sZebi" Type="string" Expression="'Zi'"/>
     <Constant Identifier="sYobi" Type="string" Expression="'Yi'"/>
 
+    <Constant Identifier="cSpace" Type="Char" Expression="' '"/>
+    <Constant Identifier="cTab" Type="Char" Expression="#9"/>
+    <Constant Identifier="c0" Type="Char" Expression="'0'"/>
+    <Constant Identifier="cOrd0" Type="UInt32" Expression="CharOrd(c0)"/>
+    <Constant Identifier="c1" Type="Char" Expression="'1'"/>
+    <Constant Identifier="c9" Type="Char" Expression="'9'"/>
+    <Constant Identifier="cMilliOrMeter" Type="Char" Expression="cMilli"/>
+    <Constant Identifier="cDecimalSep1" Type="Char" Expression="'.'"/>
+    <Constant Identifier="cDecimalSep2" Type="Char" Expression="','"/>
+    <Constant Identifier="cNegative" Type="Char" Expression="'-'"/>
+    <Constant Identifier="cPositive" Type="Char" Expression="'+'"/>
+    <!--
+Ohm
+Watt
+Farad
+Henry
+Volt
+Amp
+Perc
+Hz
+Meter
+-->
     <Constant Identifier="cOhm" Type="Char" Expression="'Ω'"/>
     <Constant Identifier="cWatt" Type="Char" Expression="'W'"/>
     <Constant Identifier="cFarad" Type="Char" Expression="'F'"/>
@@ -79,8 +170,35 @@
     <Constant Identifier="cVolt" Type="Char" Expression="'V'"/>
     <Constant Identifier="cAmp" Type="Char" Expression="'A'"/>
     <Constant Identifier="cPerc" Type="Char" Expression="'%'"/>
-    <Constant Identifier="cHz" Type="string" Expression="'hz'"/>
+    <Constant Identifier="sHz" Type="string" Expression="'hz'"/>
+    <Constant Identifier="cHz" Type="Char" Expression="'h'"/>
+    <Constant Identifier="cHz2" Type="Char" Expression="'z'"/>
     <Constant Identifier="cMeter" Type="Char" Expression="'m'"/>
+    <Constant Identifier="cPercentage" Type="Char" Expression="'%'"/>
+
+    <Constant Identifier="cScaleYotta" Type="Integer" Expression="24"/>
+    <Constant Identifier="cScaleZetta" Type="Integer" Expression="21"/>
+    <Constant Identifier="cScaleExa" Type="Integer" Expression="18"/>
+    <Constant Identifier="cScalePeta" Type="Integer" Expression="15"/>
+    <Constant Identifier="cScaleTera" Type="Integer" Expression="12"/>
+    <Constant Identifier="cScaleGiga" Type="Integer" Expression="9"/>
+    <Constant Identifier="cScaleMega" Type="Integer" Expression="6"/>
+    <Constant Identifier="cScaleKilo" Type="Integer" Expression="3"/>
+    <Constant Identifier="cScaleHecto" Type="Integer" Expression="2"/>
+    <Constant Identifier="cScaleDeca" Type="Integer" Expression="1"/>
+    <Constant Identifier="cScaleNone" Type="Integer" Expression="0"/>
+    <Constant Identifier="cScaleDeci" Type="Integer" Expression="-1"/>
+    <Constant Identifier="cScaleCenti" Type="Integer" Expression="-2"/>
+    <Constant Identifier="cScaleMilli" Type="Integer" Expression="-3"/>
+    <Constant Identifier="cScaleMicro" Type="Integer" Expression="-6"/>
+    <Constant Identifier="cScaleNano" Type="Integer" Expression="-9"/>
+    <Constant Identifier="cScalePico" Type="Integer" Expression="-12"/>
+    <Constant Identifier="cScaleFemto" Type="Integer" Expression="-15"/>
+    <Constant Identifier="cScaleAtto" Type="Integer" Expression="-18"/>
+    <Constant Identifier="cScaleZepto" Type="Integer" Expression="-21"/>
+    <Constant Identifier="cScaleYocto" Type="Integer" Expression="-24"/>
+
+
 
     <Constant Identifier="k" Type="Integer" Expression="1000"/>
     <Constant Identifier="M" Type="Integer" Expression="1000 * k"/>
@@ -99,20 +217,80 @@
     <Constant Identifier="facMilliToFemto" Type="Int64" Expression="k*facMicroToFemto"/>
     <Constant Identifier="facToFemto" Type="Int64" Expression="k*facMilliToFemto"/>
     <Constant Identifier="facKiloToFemto" Type="Int64" Expression="k*facToFemto"/>
-    
+
     <Constant Identifier="nano" Type="Extended" Expression="1/1000000000"/>
     <Constant Identifier="micro" Type="Extended" Expression="1/1000000"/>
     <Constant Identifier="Milli" Type="Extended" Expression="1/1000"/>
+
+    <Constant Identifier="cScaleFactor00" Type="UInt64" Expression="1"/>
+    <Constant Identifier="cScaleFactor01" Type="UInt64" Expression="10"/>
+    <Constant Identifier="cScaleFactor02" Type="UInt64" Expression="100"/>
+    <Constant Identifier="cScaleFactor03" Type="UInt64" Expression="1000"/>
+    <Constant Identifier="cScaleFactor04" Type="UInt64" Expression="10000"/>
+    <Constant Identifier="cScaleFactor05" Type="UInt64" Expression="100000"/>
+    <Constant Identifier="cScaleFactor06" Type="UInt64" Expression="1000000"/>
+    <Constant Identifier="cScaleFactor07" Type="UInt64" Expression="10000000"/>
+    <Constant Identifier="cScaleFactor08" Type="UInt64" Expression="100000000"/>
+    <Constant Identifier="cScaleFactor09" Type="UInt64" Expression="1000000000"/>
+    <Constant Identifier="cScaleFactor10" Type="UInt64" Expression="10000000000"/>
+    <Constant Identifier="cScaleFactor11" Type="UInt64" Expression="100000000000"/>
+    <Constant Identifier="cScaleFactor12" Type="UInt64" Expression="1000000000000"/>
+    <Constant Identifier="cScaleFactor13" Type="UInt64" Expression="10000000000000"/>
+    <Constant Identifier="cScaleFactor14" Type="UInt64" Expression="100000000000000"/>
+    <Constant Identifier="cScaleFactor15" Type="UInt64" Expression="1000000000000000"/>
+    <Constant Identifier="cScaleFactor16" Type="UInt64" Expression="10000000000000000"/>
+    <Constant Identifier="cScaleFactor17" Type="UInt64" Expression="100000000000000000"/>
+    <Constant Identifier="cScaleFactor18" Type="UInt64" Expression="1000000000000000000"/>
+    <Constant Identifier="cScaleFactor19" Type="UInt64" Expression="10000000000000000000"/>
+
+    <Constant Identifier="cFactorFromExa" Type="UInt64" Expression="cScaleFactor18"/>
+    <Constant Identifier="cFactorFromPeta" Type="UInt64" Expression="cScaleFactor15"/>
+    <Constant Identifier="cFactorFromTera" Type="UInt64" Expression="cScaleFactor12"/>
+    <Constant Identifier="cFactorFromGiga" Type="UInt64" Expression="cScaleFactor09"/>
+    <Constant Identifier="cFactorFromMega" Type="UInt64" Expression="cScaleFactor06"/>
+    <Constant Identifier="cFactorFromKilo" Type="UInt64" Expression="cScaleFactor03"/>
+    <Constant Identifier="cFactorFromHecto" Type="UInt64" Expression="cScaleFactor02"/>
+    <Constant Identifier="cFactorFromDeca" Type="UInt64" Expression="cScaleFactor01"/>
+
+    <Constant Identifier="cFactorToNone" Type="UInt64" Expression="cScaleFactor00"/>
+    <Constant Identifier="cFactorToDeci" Type="UInt64" Expression="cScaleFactor01"/>
+    <Constant Identifier="cFactorToCenti" Type="UInt64" Expression="cScaleFactor02"/>
+    <Constant Identifier="cFactorToMilli" Type="UInt64" Expression="cScaleFactor03"/>
+    <Constant Identifier="cFactorToMicro" Type="UInt64" Expression="cScaleFactor06"/>
+    <Constant Identifier="cFactorToNano" Type="UInt64" Expression="cScaleFactor09"/>
+    <Constant Identifier="cFactorToPico" Type="UInt64" Expression="cScaleFactor12"/>
+    <Constant Identifier="cFactorToFemto" Type="UInt64" Expression="cScaleFactor15"/>
+    <Constant Identifier="cFactorToAtto" Type="UInt64" Expression="cScaleFactor18"/>
+
+    <Constant Identifier="facMegaToPico" Type="Int64"  Expression="cFactorFromMega * cFactorToPico"/>
+    <Constant Identifier="facMicroToPico" Type="Int64"  Expression="cFactorToPico div cFactorToMicro"/>
+
+    <Constant Identifier="facFromPico" Type="Extended" Expression="1/cFactorToPico"/>
+    <Constant Identifier="facFromFemto" Type="Extended" Expression="1/cFactorToFemto"/>
+    <Constant Identifier="facFromMicro" Type="Extended" Expression="1/cFactorToMicro"/>
+
+
   </Constants>
-  <sys:Variables>
-    <sys:Variable Identifier="_E192Serie" Type="TSerie"/>
-    <sys:Variable Identifier="_E96Serie" Type="TSerie"/>
-    <sys:Variable Identifier="_E48Serie" Type="TSerie"/>
-    <sys:Variable Identifier="_E24Serie" Type="TSerie"/>
-    <sys:Variable Identifier="_E12Serie" Type="TSerie"/>
-    <sys:Variable Identifier="_E6Serie" Type="TSerie"/>
-    <sys:Variable Identifier="_E3Serie" Type="TSerie"/>
-  </sys:Variables>
+  <Variables>
+    <Variable Identifier="_E192Serie" Type="TSerie"/>
+    <Variable Identifier="_E96Serie" Type="TSerie"/>
+    <Variable Identifier="_E48Serie" Type="TSerie"/>
+    <Variable Identifier="_E24Serie" Type="TSerie"/>
+    <Variable Identifier="_E12Serie" Type="TSerie"/>
+    <Variable Identifier="_E6Serie" Type="TSerie"/>
+    <Variable Identifier="_E3Serie" Type="TSerie"/>
+    <!--<-<Variables.Converters-->
+    <Variable Identifier="_PicoVoltConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_PicoAmpConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_MicroOhmConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_FemtoFaradConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_FemtoHenryConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_MicroPercConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_PicoWattConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_PicoMeterConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_MicroHzConverter" Type="TUnitConvertor"/>
+    <!-->->-->
+  </Variables>
   <Procedures>
     <Function Identifier="DecodeReference" Type="Boolean">
       <Parameters>
@@ -194,1705 +372,6 @@
       </Block>
     </Function>
 
-    <!--Non standard micro formatting-->
-    <Function Identifier="StrToMicroOhms" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-        <Parameter Identifier="MicroValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Type>
-        <Enumeration Identifier="TState" Elements="stStart, stInNum, stAfterPrefix, stInPrefixFrac, stAfterDecimalChar, stInDecimalFrac, stAfterDecimalPrefix, stFinal"/>
-      </Type>
-      <Constants>
-        <Constant Identifier="cUnit" Type="Char" Expression="cOhm"/>
-      </Constants>
-      <Variables>
-        <Variable Identifier="State" Type="TState" Init="TState.stStart"/>
-        <Variable Identifier="Num" Type="UInt64"/>
-        <Variable Identifier="Factor" Type="UInt64" Init="facToMicro"/>
-        <Variable Identifier="Frac" Type="UInt64"/>
-        <Variable Identifier="FracValue" Type="UInt64"/>
-        <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
-      </Variables>
-      <Block>
-        <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
-          <Case Expression="State" Optimalisation="integermapping">
-            <On Select="TState.stStart">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.stInNum"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInNum">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= Num * 10 + ChrI - CharOrd('0')"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facGigaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMegaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="'R', 'E'">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="',', '.'">
-                  <Execute Statement="State:= TState.stAfterDecimalChar"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterPrefix">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInPrefixFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterDecimalChar">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInDecimalFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInPrefixFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= FracDiv * 10"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInDecimalFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= FracDiv * 10"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="State:= TState.stAfterDecimalPrefix"/>
-                  <Execute Statement="Factor:= facGigaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="State:= TState.stAfterDecimalPrefix"/>
-                  <Execute Statement="Factor:= facMegaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterDecimalPrefix"/>
-                  <Execute Statement="Factor:= facKiloToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stFinal">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.stStart">
-            <Exit Result="False"/>
-          </On>
-          <On Select="TState.stInNum, TState.stFinal, TState.stAfterPrefix, TState.stInPrefixFrac, TState.stAfterDecimalPrefix, TState.stInDecimalFrac">
-            <Choose>
-              <When Expression="IsEmpty(Frac)">
-                <Execute Statement="CheckMicroValue:= Num * Factor"/>
-              </When>
-              <Otherwise>
-                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
-                  <Execute Statement="Frac:= Frac div 10"/>
-                  <Execute Statement="FracDiv:= FracDiv div 10"/>
-                </WhileLoop>
-                <Exit Condition="FracDiv &gt; Factor" Result="False"/>
-                <Execute Statement="CheckMicroValue:= Num * Factor + (Factor div FracDiv) * Frac"/>
-              </Otherwise>
-            </Choose>
-            <Exit Condition="IsError(CheckMicroValue)"/>
-            <Execute Statement="MicroValue:= CheckMicroValue"/>
-            <Exit Result="True"/>
-          </On>
-        </Case>
-      </Block>
-    </Function>
-
-    <Function Identifier="StrValueToMicroVolts" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-        <Parameter Identifier="MicroValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Type>
-        <Enumeration Identifier="TState" Elements="stStart, stInNum, stAfterPrefix, stAfterUnit, stInPrefixFrac, stAfterDecimalChar, stInDecimalFrac, stAfterDecimalPrefix, stFinal"/>
-      </Type>
-      <Constants>
-        <Constant Identifier="cUnit" Type="Char" Expression="cVolt"/>
-      </Constants>
-      <Variables>
-        <Variable Identifier="State" Type="TState" Init="TState.stStart"/>
-        <Variable Identifier="Num" Type="UInt64"/>
-        <Variable Identifier="Factor" Type="UInt64" Init="facToMicro"/>
-        <Variable Identifier="Frac" Type="UInt64"/>
-        <Variable Identifier="FracValue" Type="UInt64"/>
-        <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
-      </Variables>
-      <Block>
-        <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
-          <Case Expression="State" Optimalisation="integermapping">
-            <On Select="TState.stStart">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.stInNum"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInNum">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= Num * 10 + ChrI - CharOrd('0')"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stAfterUnit"/>
-                  <rep:Reporter.Information Text="'Unit'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="',', '.'">
-                  <Execute Statement="State:= TState.stAfterDecimalChar"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterUnit">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInPrefixFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="' ', #9">
-                  <Execute Statement="State:= TState.stFinal"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterPrefix">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInPrefixFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterDecimalChar">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInDecimalFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInPrefixFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= FracDiv * 10"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInDecimalFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= FracDiv * 10"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterDecimalPrefix"/>
-                  <Execute Statement="Factor:= facKiloToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stFinal">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.stStart">
-            <Exit Result="False"/>
-          </On>
-          <On Select="TState.stInNum, TState.stFinal, TState.stAfterPrefix, TState.stInPrefixFrac, TState.stAfterDecimalPrefix, TState.stInDecimalFrac, TState.stAfterUnit">
-            <Choose>
-              <When Expression="IsEmpty(Frac)">
-                <Execute Statement="CheckMicroValue:= Num * Factor"/>
-              </When>
-              <Otherwise>
-                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
-                  <Execute Statement="Frac:= Frac div 10"/>
-                  <Execute Statement="FracDiv:= FracDiv div 10"/>
-                </WhileLoop>
-                <Exit Condition="FracDiv &gt; Factor" Result="False"/>
-                <Execute Statement="CheckMicroValue:= Num * Factor + (Factor div FracDiv) * Frac"/>
-              </Otherwise>
-            </Choose>
-            <Exit Condition="IsError(CheckMicroValue)"/>
-            <Execute Statement="MicroValue:= CheckMicroValue"/>
-            <Exit Result="True"/>
-          </On>
-        </Case>
-      </Block>
-    </Function>
-
-    <!--Standard micro formatting-->
-    <Function Identifier="StrToMicroWatts" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-        <Parameter Identifier="MicroValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Type>
-        <Enumeration Identifier="TState" Elements="stStart, stInNum, stAfterDecimalChar, stInDecimalFrac, stAfterDecimalPrefix, stAfterPrefix, stFinal"/>
-      </Type>
-      <Constants>
-        <Constant Identifier="cUnit" Type="Char" Expression="cWatt"/>
-      </Constants>
-      <Variables>
-        <Variable Identifier="State" Type="TState" Init="TState.stStart"/>
-        <Variable Identifier="Num" Type="UInt64"/>
-        <Variable Identifier="Factor" Type="UInt64" Init="facToMicro"/>
-        <Variable Identifier="Frac" Type="UInt64"/>
-        <Variable Identifier="FracValue" Type="UInt64"/>
-        <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
-      </Variables>
-      <Block>
-        <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
-          <Case Expression="State" Optimalisation="integermapping">
-            <On Select="TState.stStart">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.stInNum"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInNum">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= Num * 10 + ChrI - CharOrd('0')"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facGigaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMegaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMicroToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="',', '.'">
-                  <Execute Statement="State:= TState.stAfterDecimalChar"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterDecimalChar">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInDecimalFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInDecimalFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= FracDiv * 10"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facGigaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMegaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMicroToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterPrefix">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stFinal">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.stStart">
-            <Exit Result="False"/>
-          </On>
-          <On Select="TState.stInNum, TState.stFinal, TState.stAfterPrefix, TState.stInDecimalFrac">
-            <Choose>
-              <When Expression="IsEmpty(Frac)">
-                <Execute Statement="CheckMicroValue:= Num * Factor"/>
-              </When>
-              <Otherwise>
-                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
-                  <Execute Statement="Frac:= Frac div 10"/>
-                  <Execute Statement="FracDiv:= FracDiv div 10"/>
-                </WhileLoop>
-                <Exit Condition="FracDiv &gt; Factor" Result="False"/>
-                <Execute Statement="CheckMicroValue:= Num * Factor + (Factor div FracDiv) * Frac"/>
-              </Otherwise>
-            </Choose>
-            <Exit Condition="IsError(CheckMicroValue)"/>
-            <Execute Statement="MicroValue:= CheckMicroValue"/>
-            <Exit Result="True"/>
-          </On>
-        </Case>
-      </Block>
-
-    </Function>
-
-    <Function Identifier="StrToMicroWatts" Type="Int64" IsDeterministic="true">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-      </Parameters>
-      <Block>
-        <Variable Identifier="Valid" Type="Boolean" Init="StrToMicroWatts(TextValue, Result)"/>
-        <Raise Expression="Exception.Create(Format('Invalid wattage: %s', TextValue))" Condition="not Valid"/>
-      </Block>
-    </Function>
-
-    <!--Standard micro formatting-->
-    <Function Identifier="StrToMicroVolts" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-        <Parameter Identifier="MicroValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Type>
-        <Enumeration Identifier="TState" Elements="stStart, stInNum, stAfterDecimalChar, stInDecimalFrac, stAfterDecimalPrefix, stAfterPrefix, stFinal"/>
-      </Type>
-      <Constants>
-        <Constant Identifier="cUnit" Type="Char" Expression="cVolt"/>
-      </Constants>
-      <Variables>
-        <Variable Identifier="State" Type="TState" Init="TState.stStart"/>
-        <Variable Identifier="Num" Type="UInt64"/>
-        <Variable Identifier="Factor" Type="UInt64" Init="facToMicro"/>
-        <Variable Identifier="Frac" Type="UInt64"/>
-        <Variable Identifier="FracValue" Type="UInt64"/>
-        <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
-      </Variables>
-      <Block>
-        <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
-          <Case Expression="State" Optimalisation="integermapping">
-            <On Select="TState.stStart">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.stInNum"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInNum">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= Num * 10 + ChrI - CharOrd('0')"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facGigaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMegaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMicroToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="',', '.'">
-                  <Execute Statement="State:= TState.stAfterDecimalChar"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterDecimalChar">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInDecimalFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInDecimalFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= FracDiv * 10"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facGigaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMegaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMicroToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterPrefix">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stFinal">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.stStart">
-            <Exit Result="False"/>
-          </On>
-          <On Select="TState.stInNum, TState.stFinal, TState.stAfterPrefix, TState.stInDecimalFrac">
-            <Choose>
-              <When Expression="IsEmpty(Frac)">
-                <Execute Statement="CheckMicroValue:= Num * Factor"/>
-              </When>
-              <Otherwise>
-                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
-                  <Execute Statement="Frac:= Frac div 10"/>
-                  <Execute Statement="FracDiv:= FracDiv div 10"/>
-                </WhileLoop>
-                <Exit Condition="FracDiv &gt; Factor" Result="False"/>
-                <Execute Statement="CheckMicroValue:= Num * Factor + (Factor div FracDiv) * Frac"/>
-              </Otherwise>
-            </Choose>
-            <Exit Condition="IsError(CheckMicroValue)"/>
-            <Execute Statement="MicroValue:= CheckMicroValue"/>
-            <Exit Result="True"/>
-          </On>
-        </Case>
-      </Block>
-    </Function>
-
-    <Function Identifier="StrToMicroVolts" Type="Int64" IsDeterministic="true">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-      </Parameters>
-      <Block>
-        <Variable Identifier="Valid" Type="Boolean" Init="StrToMicroVolts(TextValue, Result)"/>
-        <Raise Expression="Exception.Create(Format('Invalid voltage: %s', TextValue))" Condition="not Valid"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="StrToMicroAmps" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-        <Parameter Identifier="MicroValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Type>
-        <Enumeration Identifier="TState" Elements="stStart, stInNum, stAfterDecimalChar, stInDecimalFrac, stAfterDecimalPrefix, stAfterPrefix, stFinal"/>
-      </Type>
-      <Constants>
-        <Constant Identifier="cUnit" Type="Char" Expression="cAmp"/>
-      </Constants>
-      <Variables>
-        <Variable Identifier="State" Type="TState" Init="TState.stStart"/>
-        <Variable Identifier="Num" Type="UInt64"/>
-        <Variable Identifier="Factor" Type="UInt64" Init="facToMicro"/>
-        <Variable Identifier="Frac" Type="UInt64"/>
-        <Variable Identifier="FracValue" Type="UInt64"/>
-        <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
-      </Variables>
-      <Block>
-        <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
-          <Case Expression="State" Optimalisation="integermapping">
-            <On Select="TState.stStart">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.stInNum"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInNum">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= Num * 10 + ChrI - CharOrd('0')"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facGigaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMegaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMicroToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="',', '.'">
-                  <Execute Statement="State:= TState.stAfterDecimalChar"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterDecimalChar">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInDecimalFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInDecimalFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= FracDiv * 10"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facGigaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMegaToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMicroToMicro"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterPrefix">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stFinal">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.stStart">
-            <Exit Result="False"/>
-          </On>
-          <On Select="TState.stInNum, TState.stFinal, TState.stAfterPrefix, TState.stInDecimalFrac">
-            <Choose>
-              <When Expression="IsEmpty(Frac)">
-                <Execute Statement="CheckMicroValue:= Num * Factor"/>
-              </When>
-              <Otherwise>
-                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
-                  <Execute Statement="Frac:= Frac div 10"/>
-                  <Execute Statement="FracDiv:= FracDiv div 10"/>
-                </WhileLoop>
-                <Exit Condition="FracDiv &gt; Factor" Result="False"/>
-                <Execute Statement="CheckMicroValue:= Num * Factor + (Factor div FracDiv) * Frac"/>
-              </Otherwise>
-            </Choose>
-            <Exit Condition="IsError(CheckMicroValue)"/>
-            <Execute Statement="MicroValue:= CheckMicroValue"/>
-            <Exit Result="True"/>
-          </On>
-        </Case>
-      </Block>
-    </Function>
-
-    <!--Non standard micro formatting-->
-    <Function Identifier="StrToMicroPerc" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-        <Parameter Identifier="MicroValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Type>
-        <Enumeration Identifier="TState" Elements="stStart, stInNum, stAfterDecimalChar, stInDecimalFrac, stFinal"/>
-      </Type>
-      <Constants>
-        <Constant Identifier="cUnit" Type="Char" Expression="cPerc"/>
-      </Constants>
-      <Variables>
-        <Variable Identifier="State" Type="TState" Init="TState.stStart"/>
-        <Variable Identifier="Num" Type="UInt64"/>
-        <Variable Identifier="Factor" Type="UInt64" Init="facToMicro"/>
-        <Variable Identifier="Frac" Type="UInt64"/>
-        <Variable Identifier="FracValue" Type="UInt64"/>
-        <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckMicroValue" Type="Int64" DisabledChecks="error"/>
-      </Variables>
-      <Block>
-        <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
-          <Case Expression="State" Optimalisation="integermapping">
-            <On Select="TState.stStart">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.stInNum"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInNum">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= Num * 10 + ChrI - CharOrd('0')"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="',', '.'">
-                  <Execute Statement="State:= TState.stAfterDecimalChar"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterDecimalChar">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInDecimalFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInDecimalFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= FracDiv * 10"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stFinal">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.stStart">
-            <Exit Result="False"/>
-          </On>
-          <On Select="TState.stInNum, TState.stFinal, TState.stInDecimalFrac">
-            <Choose>
-              <When Expression="IsEmpty(Frac)">
-                <Execute Statement="CheckMicroValue:= Num * Factor"/>
-              </When>
-              <Otherwise>
-                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
-                  <Execute Statement="Frac:= Frac div 10"/>
-                  <Execute Statement="FracDiv:= FracDiv div 10"/>
-                </WhileLoop>
-                <Exit Condition="FracDiv &gt; Factor" Result="False"/>
-                <Execute Statement="CheckMicroValue:= Num * Factor + (Factor div FracDiv) * Frac"/>
-              </Otherwise>
-            </Choose>
-            <Exit Condition="IsError(CheckMicroValue)"/>
-            <Execute Statement="MicroValue:= CheckMicroValue"/>
-            <Exit Result="True"/>
-          </On>
-        </Case>
-      </Block>
-    </Function>
-
-    <!--Standard Femto formatting-->
-    <Function Identifier="StrToFemtoFarads" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-        <Parameter Identifier="FemtoValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Type>
-        <Enumeration Identifier="TState" Elements="stStart, stInNum, stAfterDecimalChar, stInDecimalFrac, stAfterDecimalPrefix, stAfterPrefix, stFinal"/>
-      </Type>
-      <Constants>
-        <Constant Identifier="cUnit" Type="Char" Expression="cFarad"/>
-      </Constants>
-      <Variables>
-        <Variable Identifier="State" Type="TState" Init="TState.stStart"/>
-        <Variable Identifier="Num" Type="UInt64"/>
-        <Variable Identifier="Factor" Type="UInt64" Init="facToFemto"/>
-        <Variable Identifier="Frac" Type="UInt64"/>
-        <Variable Identifier="FracValue" Type="UInt64"/>
-        <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckFemtoValue" Type="Int64" DisabledChecks="error"/>
-      </Variables>
-      <Block>
-        <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
-          <Case Expression="State" Optimalisation="integermapping">
-            <On Select="TState.stStart">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.stInNum"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInNum">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= Num * 10 + ChrI - CharOrd('0')"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMicroToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cNano">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facNanoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cPico">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facPicoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cFemto">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facFemtoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="',', '.'">
-                  <Execute Statement="State:= TState.stAfterDecimalChar"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterDecimalChar">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInDecimalFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInDecimalFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= FracDiv * 10"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMicroToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cNano">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facNanoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cPico">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facPicoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cFemto">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facFemtoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterPrefix">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stFinal">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.stStart">
-            <Exit Result="False"/>
-          </On>
-          <On Select="TState.stInNum, TState.stFinal, TState.stAfterPrefix, TState.stInDecimalFrac">
-            <Choose>
-              <When Expression="IsEmpty(Frac)">
-                <Execute Statement="CheckFemtoValue:= Num * Factor"/>
-              </When>
-              <Otherwise>
-                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
-                  <Execute Statement="Frac:= Frac div 10"/>
-                  <Execute Statement="FracDiv:= FracDiv div 10"/>
-                </WhileLoop>
-                <Exit Condition="FracDiv &gt; Factor" Result="False"/>
-                <Execute Statement="CheckFemtoValue:= Num * Factor + (Factor div FracDiv) * Frac"/>
-              </Otherwise>
-            </Choose>
-            <Exit Condition="IsError(CheckFemtoValue)"/>
-            <Execute Statement="FemtoValue:= CheckFemtoValue"/>
-            <Exit Result="True"/>
-          </On>
-        </Case>
-      </Block>
-    </Function>
-
-    <Function Identifier="StrToFemtoHenry" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-        <Parameter Identifier="FemtoValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Type>
-        <Enumeration Identifier="TState" Elements="stStart, stInNum, stAfterDecimalChar, stInDecimalFrac, stAfterDecimalPrefix, stAfterPrefix, stFinal"/>
-      </Type>
-      <Constants>
-        <Constant Identifier="cUnit" Type="Char" Expression="cHenry"/>
-      </Constants>
-      <Variables>
-        <Variable Identifier="State" Type="TState" Init="TState.stStart"/>
-        <Variable Identifier="Num" Type="UInt64"/>
-        <Variable Identifier="Factor" Type="UInt64" Init="facToFemto"/>
-        <Variable Identifier="Frac" Type="UInt64"/>
-        <Variable Identifier="FracValue" Type="UInt64"/>
-        <Variable Identifier="FracDiv" Type="UInt64"/>
-        <Variable Identifier="CheckFemtoValue" Type="Int64" DisabledChecks="error"/>
-      </Variables>
-      <Block>
-        <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
-          <Case Expression="State" Optimalisation="integermapping">
-            <On Select="TState.stStart">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.stInNum"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInNum">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Num:= Num * 10 + ChrI - CharOrd('0')"/>
-                  <rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMicroToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cNano">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facNanoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cPico">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facPicoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cFemto">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facFemtoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="',', '.'">
-                  <Execute Statement="State:= TState.stAfterDecimalChar"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterDecimalChar">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= 10"/>
-                  <Execute Statement="State:= TState.stInDecimalFrac"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInDecimalFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'0'..'9'">
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd('0')"/>
-                  <Execute Statement="FracDiv:= FracDiv * 10"/>
-                  <rep:Reporter.Information Text="Format('Frac: %d', Frac)" Condition="IsVerbose"/>
-                  <rep:Reporter.Information Text="Format('FracDiv: %d', FracDiv)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facKiloToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMilli">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMilliToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facMicroToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cNano">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facNanoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cPico">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facPicoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <On Select="cFemto">
-                  <Execute Statement="State:= TState.stAfterPrefix"/>
-                  <Execute Statement="Factor:= facFemtoToFemto"/>
-                  <rep:Reporter.Information Text="Format('Factor: %d', Factor)" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stAfterPrefix">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cUnit">
-                  <Execute Statement="State:= TState.stFinal"/>
-                  <rep:Reporter.Information Text="'Final'" Condition="IsVerbose"/>
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stFinal">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <Otherwise>
-                  <Exit Result="False"/>
-                </Otherwise>
-              </Case>
-            </On>
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.stStart">
-            <Exit Result="False"/>
-          </On>
-          <On Select="TState.stInNum, TState.stFinal, TState.stAfterPrefix, TState.stInDecimalFrac">
-            <Choose>
-              <When Expression="IsEmpty(Frac)">
-                <Execute Statement="CheckFemtoValue:= Num * Factor"/>
-              </When>
-              <Otherwise>
-                <WhileLoop Expression="(Frac &gt; 0) and ((Frac mod 10) = 0)">
-                  <Execute Statement="Frac:= Frac div 10"/>
-                  <Execute Statement="FracDiv:= FracDiv div 10"/>
-                </WhileLoop>
-                <Exit Condition="FracDiv &gt; Factor" Result="False"/>
-                <Execute Statement="CheckFemtoValue:= Num * Factor + (Factor div FracDiv) * Frac"/>
-              </Otherwise>
-            </Choose>
-            <Exit Condition="IsError(CheckFemtoValue)"/>
-            <Execute Statement="FemtoValue:= CheckFemtoValue"/>
-            <Exit Result="True"/>
-          </On>
-        </Case>
-      </Block>
-    </Function>
-
-    <Function Identifier="FormatUnitValue">
-      <Parameters>
-        <Parameter Identifier="Value" Type="Int64"/>
-        <Parameter Identifier="UnitType" Type="TDisplayUnitType"/>
-      </Parameters>
-      <Variables>
-        <Variable Identifier="Factor" Type="Int64"/>
-        <Variable Identifier="FactorType" Type="TFactorType" Init="TFactorType.ftMicro"/>
-        <Variable Identifier="Prefix" Type="TPrefix"/>
-        <Variable Identifier="NumValue" Type="Int64" Init="0"/>
-        <Variable Identifier="UnitS" Type="Char"/>
-        <Variable Identifier="StartPrefix" Type="TPrefix"/>
-        <Variable Identifier="EndPrefix" Type="TPrefix"/>
-      </Variables>
-      <Block>
-        <Case Expression="UnitType" Optimalisation="integermapping">
-          <On Select="TDisplayUnitType.duMicroVoltage">
-            <Execute Statement="UnitS:= cVolt"/>
-          </On>
-          <On Select="TDisplayUnitType.duMicroAmp">
-            <Execute Statement="UnitS:= cAmp"/>
-          </On>
-          <On Select="TDisplayUnitType.duMicroResistance">
-            <Execute Statement="UnitS:= cOhm"/>
-          </On>
-          <On Select="TDisplayUnitType.duFemtoCapacitance">
-            <Execute Statement="UnitS:= cFarad"/>
-            <Execute Statement="FactorType:= TFactorType.ftFemto"/>
-          </On>
-          <On Select="TDisplayUnitType.duFemtoInductance">
-            <Execute Statement="UnitS:= cHenry"/>
-            <Execute Statement="FactorType:= TFactorType.ftFemto"/>
-          </On>
-          <On Select="TDisplayUnitType.duMicroPercentage">
-            <Execute Statement="FactorType:= TFactorType.ftMicroAsSingle"/>
-            <Execute Statement="UnitS:= cPerc"/>
-          </On>
-          <On Select="TDisplayUnitType.duMicroPower">
-            <Execute Statement="UnitS:= cWatt"/>
-          </On>
-        </Case>
-        <Exit Result="'0' + UnitS" Condition="Value = 0"/>
-        <Case Expression="FactorType" Optimalisation="integermapping">
-          <On Select="TFactorType.ftFemto">
-            <Execute Statement="StartPrefix:= TPrefix.pfKilo"/>
-            <Execute Statement="Factor:= facKiloToFemto"/>
-            <Execute Statement="EndPrefix:= TPrefix.pfPico"/>
-          </On>
-          <On Select="TFactorType.ftMicro">
-            <Execute Statement="StartPrefix:= TPrefix.pfGiga"/>
-            <Execute Statement="Factor:= facGigaToMicro"/>
-            <Execute Statement="EndPrefix:= TPrefix.pfMicro"/>
-          </On>
-          <On Select="TFactorType.ftMicroAsSingle">
-            <Execute Statement="StartPrefix:= TPrefix.pfNone"/>
-            <Execute Statement="Factor:= facToMicro"/>
-            <Execute Statement="EndPrefix:= TPrefix.pfNone"/>
-          </On>
-        </Case>
-        <Execute Statement="Prefix:= EndPrefix"/>
-        <ForLoop Indexer="Index" From="StartPrefix" To="EndPrefix">
-          <Execute Statement="Factor:= Factor div k" Condition="Index &lt;&gt; StartPrefix"/>
-          <Execute Statement="NumValue:= Value div Factor"/>
-          <ConditionalBlock Expression="NumValue &gt; 0">
-            <Execute Statement="Prefix:= Index"/>
-            <Break/>
-          </ConditionalBlock>
-        </ForLoop>
-        <Case Expression="UnitType" Optimalisation="integermapping">
-          <On Select="TDisplayUnitType.duFemtoCapacitance">
-            <Case Expression="Prefix" Optimalisation="integermapping">
-              <On Select="TPrefix.pfMilli">
-                <Choose>
-                  <When Expression="NumValue &gt;= 100">
-                    <Execute Statement="Factor:= Factor * k"/>
-                    <Execute Statement="NumValue:= Value div Factor"/>
-                    <Execute Statement="Prefix:= TPrefix.pfNone"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="Factor:= Factor div k"/>
-                    <Execute Statement="NumValue:= Value div Factor"/>
-                    <Execute Statement="Prefix:= TPrefix.pfMicro"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <On Select="TPrefix.pfKilo">
-                <Execute Statement="Factor:= Factor div k"/>
-                <Execute Statement="NumValue:= Value div Factor"/>
-                <Execute Statement="Prefix:= TPrefix.pfNone"/>
-              </On>
-            </Case>
-          </On>
-        </Case>
-        <Execute Statement="Result:= Format('%d', NumValue)"/>
-        <Execute Statement="Value:= Value - (NumValue * Factor)"/>
-        <Execute Statement="Factor:= Factor div 10"/>
-        <ConditionalBlock Expression="Value &gt; 0">
-          <Execute Statement="Result:= Result + ','"/>
-          <RepeatUntilLoop Expression="Value = 0">
-            <Execute Statement="NumValue:= Value div Factor"/>
-            <Execute Statement="Value:= Value - (NumValue * Factor)"/>
-            <Execute Statement="Result:= Result + Format('%d', NumValue)"/>
-            <Execute Statement="Factor:= Factor div 10"/>
-          </RepeatUntilLoop>
-        </ConditionalBlock>
-        <Case Expression="Prefix" Optimalisation="integermapping">
-          <On Select="TPrefix.pfTera">
-            <Execute Statement="Result:= Result + cTera + UnitS"/>
-          </On>
-          <On Select="TPrefix.pfGiga">
-            <Execute Statement="Result:= Result + cGiga + UnitS"/>
-          </On>
-          <On Select="TPrefix.pfMega">
-            <Execute Statement="Result:= Result + cMega + UnitS"/>
-          </On>
-          <On Select="TPrefix.pfKilo">
-            <Execute Statement="Result:= Result + cKilo + UnitS"/>
-          </On>
-          <On Select="TPrefix.pfNone">
-            <Execute Statement="Result:= Result + UnitS"/>
-          </On>
-          <On Select="TPrefix.pfMilli">
-            <Execute Statement="Result:= Result + cMilli + UnitS"/>
-          </On>
-          <On Select="TPrefix.pfMicro">
-            <Execute Statement="Result:= Result + cMicro + UnitS"/>
-          </On>
-          <On Select="TPrefix.pfNano">
-            <Execute Statement="Result:= Result + cNano + UnitS"/>
-          </On>
-          <On Select="TPrefix.pfPico">
-            <Execute Statement="Result:= Result + cPico + UnitS"/>
-          </On>
-          <On Select="TPrefix.pfFemto">
-            <Execute Statement="Result:= Result + cFemto + UnitS"/>
-          </On>
-        </Case>
-      </Block>
-    </Function>
-
-    <Function Identifier="FormatMicroOhm">
-      <Parameters>
-        <Parameter Identifier="MicroValue" Type="Int64"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= FormatUnitValue(MicroValue, TDisplayUnitType.duMicroResistance)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="FormatMicroWatt">
-      <Parameters>
-        <Parameter Identifier="MicroValue" Type="Int64"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= FormatUnitValue(MicroValue, TDisplayUnitType.duMicroPower)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="FormatMicroVolt">
-      <Parameters>
-        <Parameter Identifier="MicroValue" Type="Int64"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= FormatUnitValue(MicroValue, TDisplayUnitType.duMicroVoltage)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="FormatMicroAmp">
-      <Parameters>
-        <Parameter Identifier="MicroValue" Type="Int64"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= FormatUnitValue(MicroValue, TDisplayUnitType.duMicroAmp)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="FormatFemtoFarad">
-      <Parameters>
-        <Parameter Identifier="FemtoValue" Type="Int64"/>
-      </Parameters>
-      <Block>
-        <Exit Result="'0µF'" Condition="FemtoValue = 0"/>
-        <Execute Statement="Result:= FormatUnitValue(FemtoValue, TDisplayUnitType.duFemtoCapacitance)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="FormatFemtoHenry">
-      <Parameters>
-        <Parameter Identifier="FemtoValue" Type="Int64"/>
-      </Parameters>
-      <Block>
-        <Exit Result="'0mH'" Condition="FemtoValue = 0"/>
-        <Execute Statement="Result:= FormatUnitValue(FemtoValue, TDisplayUnitType.duFemtoInductance)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="FormatMicroPercentage">
-      <Parameters>
-        <Parameter Identifier="MicroValue" Type="Int64"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= FormatUnitValue(MicroValue, TDisplayUnitType.duMicroPercentage)"/>
-      </Block>
-    </Function>
-
     <Function Identifier="CreatePrefix" Type="string" IsDeterministic="1">
       <Parameters>
         <Parameter Identifier="Value" Type="Extended"/>
@@ -1903,7 +382,6 @@
         <Variable Identifier="Prefix" Type="string" Init="''"/>
       </Variables>
       <Block>
-        <rep:Reporter.Information Text="'CreatePrefix'" Condition="IsDebugging"/>
         <Choose>
           <When Expression="(Value &gt;= M) or (Value &lt;= -M)">
             <Execute Statement="Prefix:= cMega"/>
@@ -2058,7 +536,6 @@
             <RepeatUntilLoop Expression="Value &lt;= Tail.Value">
               <Exit Result="ObjNil" Condition="Value mod 10 &lt;&gt; 0"/>
               <Execute Statement="Value:= Value div 10"/>
-              <rep:Reporter.Information Text="Format('Value: %d', Value)" Condition="IsDebugging"/>
             </RepeatUntilLoop>
           </When>
           <When Expression="Value = 0">
@@ -2067,15 +544,12 @@
           <When Expression="Value &lt; Head.Value">
             <RepeatUntilLoop Expression="Value &gt;= Head.Value">
               <Execute Statement="Value:= Value * 10"/>
-              <rep:Reporter.Information Text="Format('Value: %d', Value)" Condition="IsDebugging"/>
             </RepeatUntilLoop>
           </When>
         </Choose>
-        <rep:Reporter.Information Text="Format('Value: %d', Value)" Condition="IsDebugging"/>
 
         <Execute Statement="Result:= Root"/>
         <WhileLoop Expression="Assigned(Result)">
-          <rep:Reporter.Information Text="Format('Result: %d', Result.Value)" Condition="IsDebugging"/>
           <Choose>
             <When Expression="Value &lt; Result.Value">
               <Execute Statement="Result:= Result.Less"/>
@@ -2111,7 +585,6 @@
         <Variable Identifier="LessValueFactor" Type="Int64"/>
       </Variables>
       <Block>
-        <rep:Reporter.Information Text="Format('Value: %d', Value)" Condition="IsDebugging"/>
         <Choose>
           <When Expression="Value &gt;= Tail.Value">
             <!-- 
@@ -2119,12 +592,9 @@
             Tail.Value * 10 * 10 because this value must be able to be scaled
             -->
             <Execute Statement="OverFlowFactor:= MaxInt64 div (Tail.Value * 100)" />
-            <rep:Reporter.Information Text="Format('OverFlowFactor: %d', OverFlowFactor)" Condition="IsDebugging"/>
             <RepeatUntilLoop Expression="ScaledValue &lt;= Tail.Value * MatchFactor">
-              <rep:Reporter.Information Text="Format('ScaledValue: %d', ScaledValue)" Condition="IsDebugging"/>
               <Choose>
                 <When Expression="MatchFactor &gt; OverFlowFactor">
-                  <rep:Reporter.Information Text="Format('MatchFactor would overflow: %d', MatchFactor)" Condition="IsDebugging"/>
                   <Execute Statement="ValueDivisor:= ValueDivisor * 10"/>
                   <Case Expression="MatchKind" Optimalisation="integermapping">
                     <On Select="TMatchValueKind.LessOrEqual">
@@ -2142,7 +612,6 @@
                   <Execute Statement="MatchFactor:= MatchFactor * 10"/>
                 </Otherwise>
               </Choose>
-              <rep:Reporter.Information Text="Format('ScaledValue: %d; MatchFactor: %d', ScaledValue, MatchFactor)" Condition="IsDebugging"/>
             </RepeatUntilLoop>
           </When>
           <When Expression="Value = 0">
@@ -2153,15 +622,12 @@
             <RepeatUntilLoop Expression="ScaledValue &gt;= Head.Value">
               <Execute Statement="ValueFactor:= ValueFactor * 10"/>
               <Execute Statement="ScaledValue:= Value * ValueFactor"/>
-              <rep:Reporter.Information Text="Format('ScaledValue: %d', ScaledValue)" Condition="IsDebugging"/>
             </RepeatUntilLoop>
           </When>
         </Choose>
-        <rep:Reporter.Information Text="Format('ScaledValue: %d; MatchFactor: %d; ValueFactor: %d; ValueDivisor: %d', ScaledValue, MatchFactor, ValueFactor, ValueDivisor)" Condition="IsDebugging"/>
 
         <Execute Statement="Result:= Root"/>
         <WhileLoop Expression="Assigned(Result)">
-          <rep:Reporter.Information Text="Format('Result: %d', Result.Value)" Condition="IsDebugging"/>
           <Choose>
             <When Expression="ScaledValue &lt; Result.Value * MatchFactor">
               <Execute Statement="More:= Result"/>
@@ -2172,7 +638,6 @@
               <Execute Statement="Result:= Result.More"/>
             </When>
             <Otherwise>
-              <rep:Reporter.Information Text="'Perfect match'" Condition="IsDebugging"/>
               <Case Expression="MatchKind" Optimalisation="integermapping">
                 <On Select="TMatchValueKind.LessOrEqual">
                   <Execute Statement="MatchedValue:= (Result.Value * MatchFactor) div ValueFactor * ValueDivisor"/>
@@ -2188,15 +653,12 @@
             </Otherwise>
           </Choose>
         </WhileLoop>
-        <rep:Reporter.Information Text="'Inperfect match'" Condition="IsDebugging"/>
         <Case Expression="MatchKind" Optimalisation="integermapping">
           <On Select="TMatchValueKind.LessOrEqual">
             <Block Condition="IsEmpty(Less)">
               <Execute Statement="ValueFactor:= ValueFactor * 10"/>
               <Execute Statement="Less:= Tail"/>
-              <rep:Reporter.Information Text="'Less:= Tail'" Condition="IsDebugging"/>
             </Block>
-            <rep:Reporter.Information Text="Format('Less: %d', Less.Value)" Condition="IsDebugging"/>
             <Execute Statement="Result:= Less"/>
             <Execute Statement="MatchedValue:= (Result.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
           </On>
@@ -2205,27 +667,21 @@
               <Execute Statement="MatchFactor:= MatchFactor * 10"/>
               <Execute Statement="More:= Head"/>
             </Block>
-            <rep:Reporter.Information Text="Format('More: %d', More.Value)" Condition="IsDebugging"/>
             <Execute Statement="Result:= More"/>
             <Execute Statement="MatchedValue:= (Result.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
           </On>
           <Otherwise>
             <Execute Statement="LessValueFactor:= ValueFactor"/>
             <Block Condition="IsEmpty(Less)">
-              <rep:Reporter.Information Text="'Less:= Head'" Condition="IsDebugging"/>
               <Execute Statement="LessValueFactor:= LessValueFactor * 10"/>
               <Execute Statement="Less:= Tail"/>
             </Block>
-            <rep:Reporter.Information Text="Format('Less: %d', Less.Value)" Condition="IsDebugging"/>
             <Execute Statement="LessValue:= (Less.Value * MatchFactor + LessValueFactor shr 1) div LessValueFactor * ValueDivisor"/>
             <Block Condition="IsEmpty(More)">
-              <rep:Reporter.Information Text="'More:= Tail'" Condition="IsDebugging"/>
               <Execute Statement="MatchFactor:= MatchFactor * 10"/>
               <Execute Statement="More:= Head"/>
             </Block>
-            <rep:Reporter.Information Text="Format('More: %d', More.Value)" Condition="IsDebugging"/>
             <Execute Statement="MoreValue:= (More.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
-            <rep:Reporter.Information Text="Format('%d vs %d', LessValue, MoreValue)" Condition="IsDebugging"/>
             <Choose>
               <When Expression="(Value - LessValue) &lt; (MoreValue - Value)">
                 <Execute Statement="Result:= Less"/>
@@ -2240,18 +696,38 @@
         </Case>
       </Block>
     </Function>
-    
-    <Function Identifier="TSerie.ValueMicro" Type="Extended">
+
+    <Function Identifier="TSerie.ExtendedValue" Type="Extended">
       <Parameters>
         <Parameter Identifier="Value" Type="Extended"/>
         <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
       </Parameters>
       <Variables>
         <Variable Identifier="MatchedValue" Type="Int64"/>
+        <Variable Identifier="Factor" Type="Int64" Init="1"/>
+        <Variable Identifier="Dividor" Type="Int64" Init="1"/>
       </Variables>
       <Block>
-        <Execute Statement="MatchNode(Round(Value * facToMicro), MatchedValue, MatchKind)"/>
-        <Execute Statement="Result:= MatchedValue * micro"/>
+        <Choose>
+          <When Expression="Value = 0">
+            <Execute Statement="MatchNode(0, MatchedValue, MatchKind)"/>
+            <Execute Statement="Result:= MatchedValue"/>
+          </When>
+          <When Expression="Value &gt; MaxInt64 - 1">
+            <RepeatUntilLoop Expression="Value / Dividor &gt;= MaxInt64 - 1">
+              <Execute Statement="Dividor:= Dividor * 10"/>
+            </RepeatUntilLoop>
+            <Execute Statement="MatchNode(Round(Value / Dividor), MatchedValue, MatchKind)"/>
+            <Execute Statement="Result:= MatchedValue * Dividor"/>
+          </When>
+          <Otherwise>
+            <WhileLoop Expression="Value * Factor &lt; MaxInt64Div10 - 1">
+              <Execute Statement="Factor:= Factor * 10"/>
+            </WhileLoop>
+            <Execute Statement="MatchNode(Round(Value * Factor), MatchedValue, MatchKind)"/>
+            <Execute Statement="Result:= MatchedValue / Factor"/>
+          </Otherwise>
+        </Choose>
       </Block>
     </Function>
 
@@ -2608,91 +1084,28 @@ Done:
       </Block>
     </Constructor>
 
-    <!--<Function Identifier="GetSerieValue" Type="Extended">
-      <Parameters>
-        <Parameter Identifier="Value" Type="Extended"/>
-        <Parameter Identifier="Serie" Type="TSerie"/>
-        <Parameter Identifier="IsMinimal" Type="Boolean"/>
-      </Parameters>
+    <Procedure Identifier="TSerie.Report">
       <Variables>
-        <Variable Identifier="Scale" Type="Int64" Init="1"/>
-        <Variable Identifier="ScaledValue" Type="Int64" Init="Round(Scale * Value)"/>
-        <Variable Identifier="SerieScale" Type="Int64" Init="1"/>
-        <Variable Identifier="RunningValue" Type="TSerieNode" Init="Serie.FirstValue"/>
-        <Variable Identifier="PrevRunningValue" Type="TSerieNode" Init="ObjNil"/>
+        <Variable Identifier="RunningValue" Type="TSerieNode" Init="Head"/>
+        <Variable Identifier="Scale" Type="UInt32" Init="Self.Scale"/>
       </Variables>
       <Block>
-        <Execute Statement="Result:= 0.0"/>
-        <rep:Reporter.Information Text="Format('ScaledValue: %d', ScaledValue)" Condition="IsVerbose" Markup="Header2"/>
-        <rep:Reporter.Information Text="Format('  Value: %f', Value)" Condition="IsVerbose"/>
         <Choose>
-          <When Expression="Value = 0">
-            <Execute Statement="Result:= 0"/>
-            <Exit/>
-          </When>
-          <When Expression="ScaledValue &lt; Serie.FirstValue.Value">
-            <RepeatUntilLoop Expression="ScaledValue &gt;= Serie.FirstValue.Value">
-              <Execute Statement="Scale:= Scale * 10"/>
-              -->
-    <!--<rep:Reporter.Information Text="Format('  Serie.FirstValue.Value: %d', Serie.FirstValue.Value)" Condition="IsVerbose"/>
-              <rep:Reporter.Information Text="Format('  Scale: %d', Scale)" Condition="IsVerbose"/>-->
-    <!--
-              <Execute Statement="ScaledValue:= Round(Scale * Value)"/>
-              -->
-    <!--<rep:Reporter.Information Text="Format('  ScaledValue: %d', ScaledValue)" Condition="IsVerbose"/>-->
-    <!--
-            </RepeatUntilLoop>
+          <When Expression="Scale &gt;= 100">
+            <WhileLoop Expression="Assigned(RunningValue)">
+              <rep:Reporter.Information Text="Format('%d: %.2f',  RunningValue.Value, RunningValue.Value / Scale)"/>
+              <Execute Statement="RunningValue:= RunningValue.Next"/>
+            </WhileLoop>
           </When>
           <Otherwise>
-            <WhileLoop Expression="ScaledValue &gt; Serie.LastValue.Value">
-              <Execute Statement="SerieScale:= SerieScale * 10"/>
-              -->
-    <!--<rep:Reporter.Information Text="Format('  Serie.LastValue.Value: %d', Serie.LastValue.Value)" Condition="IsVerbose"/>
-              <rep:Reporter.Information Text="Format('  SerieScale: %d', SerieScale)" Condition="IsVerbose"/>-->
-    <!--
-              <Execute Statement="ScaledValue:= Round(Value / SerieScale)"/>
-              -->
-    <!--<rep:Reporter.Information Text="Format('  ScaledValue: %d', ScaledValue)" Condition="IsVerbose"/>-->
-    <!--
+            <WhileLoop Expression="Assigned(RunningValue)">
+              <rep:Reporter.Information Text="Format('%d: %.1f',  RunningValue.Value, RunningValue.Value / Scale)"/>
+              <Execute Statement="RunningValue:= RunningValue.Next"/>
             </WhileLoop>
           </Otherwise>
         </Choose>
-        <WhileLoop Expression="Assigned(RunningValue)">
-          <Break Condition="ScaledValue &lt;= RunningValue.Value"/>
-          <Execute Statement="PrevRunningValue:= RunningValue"/>
-          <Execute Statement="RunningValue:= RunningValue.Next"/>
-        </WhileLoop>
-        <Choose>
-          <When Expression="IsMinimal">
-            <Choose>
-              <When Expression="not Assigned(RunningValue)">
-                <Execute Statement="Result:= Serie.LastValue.Value * SerieScale / (Scale * 10)"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= RunningValue.Value * SerieScale / Scale"/>
-              </Otherwise>
-            </Choose>
-          </When>
-          <Otherwise>
-            <Choose>
-              <When Expression="not Assigned(PrevRunningValue)">
-                <Execute Statement="Result:= Serie.LastValue.Value * SerieScale / (Scale * 10)"/>
-              </When>
-              <When Expression="not Assigned(RunningValue)">
-                <Execute Statement="Result:= Serie.LastValue.Value * SerieScale / (Scale * 10)"/>
-              </When>
-              <When Expression="ScaledValue = RunningValue.Value">
-                <Execute Statement="Result:= RunningValue.Value * SerieScale / Scale"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= PrevRunningValue.Value * SerieScale / Scale"/>
-              </Otherwise>
-            </Choose>
-          </Otherwise>
-        </Choose>
       </Block>
-
-    </Function>-->
+    </Procedure>
     <Function Identifier="GetESerie" Type="TSerie">
       <Parameters>
         <Parameter Identifier="ESerie" Type="TESerie"/>
@@ -2776,31 +1189,1294 @@ Done:
               </Otherwise>
             </Choose>
           </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(Format('Invalid Eserie: %d', ESerie))"/>
+          </Otherwise>
         </Case>
       </Block>
     </Function>
 
-    <Procedure Identifier="TSerie.Report">
+    <Function Identifier="TUnitConvertor.StrToIntValue" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="TextValue" Type="string"/>
+        <Parameter Identifier="IntValue" Type="Int64" Direction="Output"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TState" Elements="Start, AfterSign, InNum, AfterDecimalChar, InDecimalFrac, AfterDecimalPrefix, AfterMilliOrMeter, AfterPrefix, InPrefixFrac, AfterFirstUnitChar, Final"/>
+      </Type>
       <Variables>
-        <Variable Identifier="RunningValue" Type="TSerieNode" Init="Head"/>
-        <Variable Identifier="Scale" Type="UInt32" Init="Self.Scale"/>
+        <Variable Identifier="State" Type="TState" Init="TState.Start"/>
+        <Variable Identifier="Num" Type="UInt64"/>
+        <Variable Identifier="Scale" Type="Integer" Init="0"/>
+        <Variable Identifier="FracScale" Type="Integer" Init="0"/>
+        <Variable Identifier="Frac" Type="UInt64"/>
+        <Variable Identifier="CheckIntValue" Type="Int64" DisabledChecks="error"/>
+        <Variable Identifier="FracNumScale" Type="Integer" Init="0"/>
+        <Variable Identifier="NumNumScale" Type="Integer" Init="0"/>
+        <Variable Identifier="IsNegative" Type="Boolean" Init="False"/>
       </Variables>
       <Block>
+        <Execute Statement="Result:= False"/>
+        <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
+          <Case Expression="State" Optimalisation="integermapping">
+            <!--<-<TUnitConvertor.StrToIntValue.StringLoop-->
+            <On Select="TState.Start">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="cSpace, cTab">
+                </On>
+                <On Select="cNegative">
+                  <Execute Statement="IsNegative:= True"/>
+                  <Execute Statement="State:= TState.AfterSign"/>
+                </On>
+                <On Select="cPositive">
+                  <Execute Statement="State:= TState.AfterSign"/>
+                </On>
+                <On Select="c0">
+                  <Execute Statement="Num:= 0"/>
+                  <Execute Statement="NumNumScale:= 0"/>
+                  <Execute Statement="State:= TState.InNum"/>
+                </On>
+                <On Select="c1..c9">
+                  <Execute Statement="Num:= ChrI - CharOrd(c0)"/>
+                  <Execute Statement="NumNumScale:= 0"/>
+                  <Execute Statement="State:= TState.InNum"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterSign">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="c0">
+                  <Execute Statement="Num:= 0"/>
+                  <Execute Statement="NumNumScale:= 0"/>
+                  <Execute Statement="State:= TState.InNum"/>
+                </On>
+                <On Select="c1..c9">
+                  <Execute Statement="Num:= ChrI - CharOrd(c0)"/>
+                  <Execute Statement="NumNumScale:= 0"/>
+                  <Execute Statement="State:= TState.InNum"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.InNum">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="cSpace, cTab">
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="c0">
+                  <Execute Statement="NumNumScale:= NumNumScale + 1"/>
+                </On>
+                <On Select="c1..c9">
+                  <ForLoop Indexer="I" From="0" To="NumNumScale - 1">
+                    <Execute Statement="Num:= Num * 10"/>
+                  </ForLoop>
+                  <Execute Statement="NumNumScale:= 0"/>
+                  <Execute Statement="Num:= Num * 10 + ChrI - CharOrd(c0)"/>
+                </On>
+                <On Select="cDecimalSep1, cDecimalSep2">
+                  <Execute Statement="State:= TState.AfterDecimalChar"/>
+                </On>
+                <On Select="cTera">
+                  <Execute Statement="Scale:= cScaleTera"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cGiga">
+                  <Execute Statement="Scale:= cScaleGiga"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cMega">
+                  <Execute Statement="Scale:= cScaleMega"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cKilo">
+                  <Execute Statement="Scale:= cScaleKilo"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cR, cE">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cMilliOrMeter">
+                  <Choose>
+                    <When Expression="SiUnit = TSiUnit.Meter">
+                      <Execute Statement="State:= TState.AfterMilliOrMeter"/>
+                    </When>
+                    <Otherwise>
+                      <Execute Statement="Scale:= cScaleMilli"/>
+                      <Execute Statement="State:= TState.AfterPrefix"/>
+                    </Otherwise>
+                  </Choose>
+                </On>
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
+                  <Execute Statement="Scale:= cScaleMicro"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cNano">
+                  <Execute Statement="Scale:= cScaleNano"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cPico">
+                  <Execute Statement="Scale:= cScalePico"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cFemto">
+                  <Execute Statement="Scale:= cScaleFemto"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cOhm">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cWatt">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cFarad">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cHenry">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cVolt">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cAmp">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cPerc">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cHz">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterDecimalChar">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="c0">
+                  <Execute Statement="Frac:= 0"/>
+                  <Execute Statement="FracScale:= - NumNumScale"/>
+                  <Execute Statement="FracNumScale:= 1"/>
+                  <Execute Statement="State:= TState.InDecimalFrac"/>
+                </On>
+                <On Select="c1..c9">
+                  <Execute Statement="Frac:= ChrI - CharOrd(c0)"/>
+                  <Execute Statement="FracScale:= -1 - NumNumScale"/>
+                  <Execute Statement="FracNumScale:= 0"/>
+                  <Execute Statement="State:= TState.InDecimalFrac"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.InDecimalFrac">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="cSpace, cTab">
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="c0">
+                  <Execute Statement="FracNumScale:= FracNumScale + 1"/>
+                </On>
+                <On Select="c1..c9">
+                  <ForLoop Indexer="I" From="0" To="FracNumScale - 1">
+                    <Execute Statement="Frac:= Frac * 10"/>
+                    <Execute Statement="FracScale:= FracScale - 1"/>
+                  </ForLoop>
+                  <Execute Statement="FracScale:= FracScale - 1"/>
+                  <Execute Statement="FracNumScale:= 0"/>
+                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd(c0)"/>
+                </On>
+                <On Select="cTera">
+                  <Execute Statement="Scale:= cScaleTera"/>
+                  <Execute Statement="State:= TState.AfterDecimalPrefix"/>
+                </On>
+                <On Select="cGiga">
+                  <Execute Statement="Scale:= cScaleGiga"/>
+                  <Execute Statement="State:= TState.AfterDecimalPrefix"/>
+                </On>
+                <On Select="cMega">
+                  <Execute Statement="Scale:= cScaleMega"/>
+                  <Execute Statement="State:= TState.AfterDecimalPrefix"/>
+                </On>
+                <On Select="cKilo">
+                  <Execute Statement="Scale:= cScaleKilo"/>
+                  <Execute Statement="State:= TState.AfterDecimalPrefix"/>
+                </On>
+                <On Select="cR, cE">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                  <Execute Statement="State:= TState.AfterDecimalPrefix"/>
+                </On>
+                <On Select="cMilliOrMeter">
+                  <Execute Statement="Scale:= cScaleMilli"/>
+                  <Execute Statement="State:= TState.AfterDecimalPrefix"/>
+                </On>
+                <On Select="cMicro, cMicroAlt, cMicroAlt2">
+                  <Execute Statement="Scale:= cScaleMicro"/>
+                  <Execute Statement="State:= TState.AfterDecimalPrefix"/>
+                </On>
+                <On Select="cNano">
+                  <Execute Statement="Scale:= cScaleNano"/>
+                  <Execute Statement="State:= TState.AfterDecimalPrefix"/>
+                </On>
+                <On Select="cPico">
+                  <Execute Statement="Scale:= cScalePico"/>
+                  <Execute Statement="State:= TState.AfterDecimalPrefix"/>
+                </On>
+                <On Select="cFemto">
+                  <Execute Statement="Scale:= cScaleFemto"/>
+                  <Execute Statement="State:= TState.AfterDecimalPrefix"/>
+                </On>
+                <On Select="cOhm">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cWatt">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cFarad">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cHenry">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cVolt">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cAmp">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cPerc">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cHz">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterDecimalPrefix">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="cSpace, cTab">
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cMeter">
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cOhm">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cWatt">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cFarad">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cHenry">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cVolt">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cAmp">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cPerc">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cHz">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterMilliOrMeter">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="cSpace, cTab">
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cMeter">
+                  <Execute Statement="Scale:= cScaleMilli"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterPrefix">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="cSpace, cTab">
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="c0">
+                  <Execute Statement="Frac:= 0"/>
+                  <Execute Statement="FracScale:= - NumNumScale"/>
+                  <Execute Statement="FracNumScale:= 1"/>
+                  <Execute Statement="State:= TState.InPrefixFrac"/>
+                </On>
+                <On Select="c1..c9">
+                  <Execute Statement="Frac:= ChrI - CharOrd(c0)"/>
+                  <Execute Statement="FracScale:= -1 - NumNumScale"/>
+                  <Execute Statement="FracNumScale:= 0"/>
+                  <Execute Statement="State:= TState.InPrefixFrac"/>
+                </On>
+                <On Select="cMeter">
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cOhm">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cWatt">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cFarad">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cHenry">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cVolt">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cAmp">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cPerc">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cHz">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.InPrefixFrac">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="cSpace, cTab">
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="c0">
+                  <Execute Statement="FracNumScale:= FracNumScale + 1"/>
+                </On>
+                <On Select="c1..c9">
+                  <ForLoop Indexer="I" From="0" To="FracNumScale - 1">
+                    <Execute Statement="Frac:= Frac * 10"/>
+                    <Execute Statement="FracScale:= FracScale - 1"/>
+                  </ForLoop>
+                  <Execute Statement="FracScale:= FracScale - 1"/>
+                  <Execute Statement="FracNumScale:= 0"/>
+                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd(c0)"/>
+                </On>
+                <On Select="cMeter">
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cOhm">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cWatt">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cFarad">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cHenry">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cVolt">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cAmp">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cPerc">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <On Select="cHz">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.AfterFirstUnitChar">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="cHz2">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                  <Execute Statement="State:= TState.Final"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TState.Final">
+              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                <On Select="cSpace, cTab">
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <!-->->-->
+          </Case>
+        </StringLoop>
+        <Case Expression="State" Optimalisation="integermapping">
+          <On Select="TState.InNum, TState.InDecimalFrac, TState.AfterMilliOrMeter, TState.AfterPrefix, TState.InPrefixFrac, TState.AfterDecimalPrefix, TState.Final">
+            <!--<rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsDebugging"/>
+            <rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>
+            <rep:Reporter.Information Text="Format('NumNumScale: %d', NumNumScale)" Condition="IsDebugging"/>
+            <rep:Reporter.Information Text="Format('BaseScale: %d', BaseScale)" Condition="IsDebugging"/>-->
+            <Execute Statement="Scale:= Scale + NumNumScale - BaseScale"/>
+            <!--<rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>-->
+            <Case Expression="Scale" Optimalisation="integermapping">
+              <!--<-<TUnitConvertor.StrToIntValue.NumScaling-->
+              <On Select="-19">
+                <Exit Condition="(Num mod cScaleFactor19) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor19"/>
+              </On>
+              <On Select="-18">
+                <Exit Condition="(Num mod cScaleFactor18) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor18"/>
+              </On>
+              <On Select="-17">
+                <Exit Condition="(Num mod cScaleFactor17) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor17"/>
+              </On>
+              <On Select="-16">
+                <Exit Condition="(Num mod cScaleFactor16) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor16"/>
+              </On>
+              <On Select="-15">
+                <Exit Condition="(Num mod cScaleFactor15) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor15"/>
+              </On>
+              <On Select="-14">
+                <Exit Condition="(Num mod cScaleFactor14) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor14"/>
+              </On>
+              <On Select="-13">
+                <Exit Condition="(Num mod cScaleFactor13) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor13"/>
+              </On>
+              <On Select="-12">
+                <Exit Condition="(Num mod cScaleFactor12) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor12"/>
+              </On>
+              <On Select="-11">
+                <Exit Condition="(Num mod cScaleFactor11) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor11"/>
+              </On>
+              <On Select="-10">
+                <Exit Condition="(Num mod cScaleFactor10) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor10"/>
+              </On>
+              <On Select="-9">
+                <Exit Condition="(Num mod cScaleFactor09) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor09"/>
+              </On>
+              <On Select="-8">
+                <Exit Condition="(Num mod cScaleFactor08) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor08"/>
+              </On>
+              <On Select="-7">
+                <Exit Condition="(Num mod cScaleFactor07) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor07"/>
+              </On>
+              <On Select="-6">
+                <Exit Condition="(Num mod cScaleFactor06) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor06"/>
+              </On>
+              <On Select="-5">
+                <Exit Condition="(Num mod cScaleFactor05) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor05"/>
+              </On>
+              <On Select="-4">
+                <Exit Condition="(Num mod cScaleFactor04) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor04"/>
+              </On>
+              <On Select="-3">
+                <Exit Condition="(Num mod cScaleFactor03) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor03"/>
+              </On>
+              <On Select="-2">
+                <Exit Condition="(Num mod cScaleFactor02) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor02"/>
+              </On>
+              <On Select="-1">
+                <Exit Condition="(Num mod cScaleFactor01) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor01"/>
+              </On>
+              <On Select="1">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor01"/>
+              </On>
+              <On Select="2">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor02"/>
+              </On>
+              <On Select="3">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor03"/>
+              </On>
+              <On Select="4">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor04"/>
+              </On>
+              <On Select="5">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor05"/>
+              </On>
+              <On Select="6">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor06"/>
+              </On>
+              <On Select="7">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor07"/>
+              </On>
+              <On Select="8">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor08"/>
+              </On>
+              <On Select="9">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor09"/>
+              </On>
+              <On Select="10">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor10"/>
+              </On>
+              <On Select="11">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor11"/>
+              </On>
+              <On Select="12">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor12"/>
+              </On>
+              <On Select="13">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor13"/>
+              </On>
+              <On Select="14">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor14"/>
+              </On>
+              <On Select="15">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor15"/>
+              </On>
+              <On Select="16">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor16"/>
+              </On>
+              <On Select="17">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor17"/>
+              </On>
+              <On Select="18">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor18"/>
+              </On>
+              <On Select="19">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor19"/>
+              </On>
+              <!-->->-->
+              <On Select="0">
+                <Execute Statement="CheckIntValue:= Num"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+            <rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>
+            <Block Condition="FracScale &lt; 0">
+              <!--<rep:Reporter.Information Text="'*****************'" Condition="IsDebugging"/>
+              <rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>
+              <rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>
+              <rep:Reporter.Information Text="Format('FracNumScale: %d', FracNumScale)" Condition="IsDebugging"/>-->
+              <Execute Statement="FracScale:= Scale + FracScale"/>
+              <!--<rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>-->
+              <Case Expression="FracScale" Optimalisation="integermapping">
+                <!--<-<TUnitConvertor.StrToIntValue.FracScaling-->
+                <On Select="-19">
+                  <Exit Condition="(Frac mod cScaleFactor19) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor19"/>
+                </On>
+                <On Select="-18">
+                  <Exit Condition="(Frac mod cScaleFactor18) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor18"/>
+                </On>
+                <On Select="-17">
+                  <Exit Condition="(Frac mod cScaleFactor17) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor17"/>
+                </On>
+                <On Select="-16">
+                  <Exit Condition="(Frac mod cScaleFactor16) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor16"/>
+                </On>
+                <On Select="-15">
+                  <Exit Condition="(Frac mod cScaleFactor15) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor15"/>
+                </On>
+                <On Select="-14">
+                  <Exit Condition="(Frac mod cScaleFactor14) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor14"/>
+                </On>
+                <On Select="-13">
+                  <Exit Condition="(Frac mod cScaleFactor13) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor13"/>
+                </On>
+                <On Select="-12">
+                  <Exit Condition="(Frac mod cScaleFactor12) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor12"/>
+                </On>
+                <On Select="-11">
+                  <Exit Condition="(Frac mod cScaleFactor11) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor11"/>
+                </On>
+                <On Select="-10">
+                  <Exit Condition="(Frac mod cScaleFactor10) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor10"/>
+                </On>
+                <On Select="-9">
+                  <Exit Condition="(Frac mod cScaleFactor09) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor09"/>
+                </On>
+                <On Select="-8">
+                  <Exit Condition="(Frac mod cScaleFactor08) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor08"/>
+                </On>
+                <On Select="-7">
+                  <Exit Condition="(Frac mod cScaleFactor07) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor07"/>
+                </On>
+                <On Select="-6">
+                  <Exit Condition="(Frac mod cScaleFactor06) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor06"/>
+                </On>
+                <On Select="-5">
+                  <Exit Condition="(Frac mod cScaleFactor05) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor05"/>
+                </On>
+                <On Select="-4">
+                  <Exit Condition="(Frac mod cScaleFactor04) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor04"/>
+                </On>
+                <On Select="-3">
+                  <Exit Condition="(Frac mod cScaleFactor03) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor03"/>
+                </On>
+                <On Select="-2">
+                  <Exit Condition="(Frac mod cScaleFactor02) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor02"/>
+                </On>
+                <On Select="-1">
+                  <Exit Condition="(Frac mod cScaleFactor01) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor01"/>
+                </On>
+                <On Select="1">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor01"/>
+                </On>
+                <On Select="2">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor02"/>
+                </On>
+                <On Select="3">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor03"/>
+                </On>
+                <On Select="4">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor04"/>
+                </On>
+                <On Select="5">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor05"/>
+                </On>
+                <On Select="6">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor06"/>
+                </On>
+                <On Select="7">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor07"/>
+                </On>
+                <On Select="8">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor08"/>
+                </On>
+                <On Select="9">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor09"/>
+                </On>
+                <On Select="10">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor10"/>
+                </On>
+                <On Select="11">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor11"/>
+                </On>
+                <On Select="12">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor12"/>
+                </On>
+                <On Select="13">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor13"/>
+                </On>
+                <On Select="14">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor14"/>
+                </On>
+                <On Select="15">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor15"/>
+                </On>
+                <On Select="16">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor16"/>
+                </On>
+                <On Select="17">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor17"/>
+                </On>
+                <On Select="18">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor18"/>
+                </On>
+                <On Select="19">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor19"/>
+                </On>
+                <!-->->-->
+                <On Select="0">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac"/>
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </Block>
+            <Execute Statement="CheckIntValue:= -CheckIntValue" Condition="IsNegative"/>
+            <Exit Condition="IsError(CheckIntValue)"/>
+            <Execute Statement="IntValue:= CheckIntValue"/>
+            <Exit Result="True"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TUnitConvertor.GetScale" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="Value" Type="Int64"/>
+        <Parameter Identifier="Prefix" Type="TPrefix" Direction="Output"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Factor" Type="Int64"/>
+        <!--<Variable Identifier="Prefix" Type="TPrefix"/>-->
+        <Variable Identifier="NumValue" Type="Int64" Init="0"/>
+        <Variable Identifier="IntScale" Type="Integer"/>
+        <Variable Identifier="Scale" Type="Integer"/>
+        <Variable Identifier="PrefixScale" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Value:= -Value" Condition="Value &lt; 0"/>
+        <Case Expression="Value">
+          <On Select="0">
+            <Execute Statement="IntScale  := 0"/>
+            <Execute Statement="Prefix:= TPrefix.None"/>
+            <Exit Result="0"/>
+          </On>
+          <!--<-<TUnitConvertor.GetScale.DetermineScale-->
+          <On Select="cScaleFactor00..cScaleFactor01 - 1">
+            <Execute Statement="IntScale  := 0"/>
+          </On>
+          <On Select="cScaleFactor01..cScaleFactor02 - 1">
+            <Execute Statement="IntScale  := 1"/>
+          </On>
+          <On Select="cScaleFactor02..cScaleFactor03 - 1">
+            <Execute Statement="IntScale  := 2"/>
+          </On>
+          <On Select="cScaleFactor03..cScaleFactor04 - 1">
+            <Execute Statement="IntScale  := 3"/>
+          </On>
+          <On Select="cScaleFactor04..cScaleFactor05 - 1">
+            <Execute Statement="IntScale  := 4"/>
+          </On>
+          <On Select="cScaleFactor05..cScaleFactor06 - 1">
+            <Execute Statement="IntScale  := 5"/>
+          </On>
+          <On Select="cScaleFactor06..cScaleFactor07 - 1">
+            <Execute Statement="IntScale  := 6"/>
+          </On>
+          <On Select="cScaleFactor07..cScaleFactor08 - 1">
+            <Execute Statement="IntScale  := 7"/>
+          </On>
+          <On Select="cScaleFactor08..cScaleFactor09 - 1">
+            <Execute Statement="IntScale  := 8"/>
+          </On>
+          <On Select="cScaleFactor09..cScaleFactor10 - 1">
+            <Execute Statement="IntScale  := 9"/>
+          </On>
+          <On Select="cScaleFactor10..cScaleFactor11 - 1">
+            <Execute Statement="IntScale  := 10"/>
+          </On>
+          <On Select="cScaleFactor11..cScaleFactor12 - 1">
+            <Execute Statement="IntScale  := 11"/>
+          </On>
+          <On Select="cScaleFactor12..cScaleFactor13 - 1">
+            <Execute Statement="IntScale  := 12"/>
+          </On>
+          <On Select="cScaleFactor13..cScaleFactor14 - 1">
+            <Execute Statement="IntScale  := 13"/>
+          </On>
+          <On Select="cScaleFactor14..cScaleFactor15 - 1">
+            <Execute Statement="IntScale  := 14"/>
+          </On>
+          <On Select="cScaleFactor15..cScaleFactor16 - 1">
+            <Execute Statement="IntScale  := 15"/>
+          </On>
+          <On Select="cScaleFactor16..cScaleFactor17 - 1">
+            <Execute Statement="IntScale  := 16"/>
+          </On>
+          <On Select="cScaleFactor17..cScaleFactor18 - 1">
+            <Execute Statement="IntScale  := 17"/>
+          </On>
+          <On Select="cScaleFactor18..cScaleFactor19 - 1">
+            <Execute Statement="IntScale  := 18"/>
+          </On>
+          <!-->->-->
+          <Otherwise>
+            <Execute Statement="IntScale:= 19"/>
+          </Otherwise>
+        </Case>
+        <Execute Statement="Scale:= IntScale + BaseScale"/>
+        <RepeatUntilLoop Expression="True" >
+          <!--<-<TUnitConvertor.GetScale.DeterminePrefix-->
+          <Block Condition="AllowPrefixTera">
+            <Block Condition="(Scale &gt;= cScaleTera)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleTera) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Tera"/>
+                <Execute Statement="PrefixScale:= cScaleTera"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Tera"/>
+            <Execute Statement="PrefixScale:= cScaleTera"/>
+          </Block>
+          <Block Condition="AllowPrefixGiga">
+            <Block Condition="(Scale &gt;= cScaleGiga)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleGiga) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Giga"/>
+                <Execute Statement="PrefixScale:= cScaleGiga"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Giga"/>
+            <Execute Statement="PrefixScale:= cScaleGiga"/>
+          </Block>
+          <Block Condition="AllowPrefixMega">
+            <Block Condition="(Scale &gt;= cScaleMega)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMega) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Mega"/>
+                <Execute Statement="PrefixScale:= cScaleMega"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Mega"/>
+            <Execute Statement="PrefixScale:= cScaleMega"/>
+          </Block>
+          <Block Condition="AllowPrefixKilo">
+            <Block Condition="(Scale &gt;= cScaleKilo)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleKilo) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Kilo"/>
+                <Execute Statement="PrefixScale:= cScaleKilo"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Kilo"/>
+            <Execute Statement="PrefixScale:= cScaleKilo"/>
+          </Block>
+          <Block Condition="(Scale &gt;= 0)">
+            <Execute Statement="Prefix:= TPrefix.None"/>
+            <Execute Statement="PrefixScale:= 0"/>
+            <Break/>
+          </Block>
+          <Execute Statement="Prefix:= TPrefix.None"/>
+          <Execute Statement="PrefixScale:= 0"/>
+          <Block Condition="AllowPrefixMilli">
+            <Block Condition="(Scale &gt;= cScaleMilli)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMilli) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Milli"/>
+                <Execute Statement="PrefixScale:= cScaleMilli"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Milli"/>
+            <Execute Statement="PrefixScale:= cScaleMilli"/>
+          </Block>
+          <Block Condition="AllowPrefixMicro">
+            <Block Condition="(Scale &gt;= cScaleMicro)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMicro) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Micro"/>
+                <Execute Statement="PrefixScale:= cScaleMicro"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Micro"/>
+            <Execute Statement="PrefixScale:= cScaleMicro"/>
+          </Block>
+          <Block Condition="AllowPrefixNano">
+            <Block Condition="(Scale &gt;= cScaleNano)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleNano) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Nano"/>
+                <Execute Statement="PrefixScale:= cScaleNano"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Nano"/>
+            <Execute Statement="PrefixScale:= cScaleNano"/>
+          </Block>
+          <Block Condition="AllowPrefixPico">
+            <Block Condition="(Scale &gt;= cScalePico)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScalePico) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Pico"/>
+                <Execute Statement="PrefixScale:= cScalePico"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Pico"/>
+            <Execute Statement="PrefixScale:= cScalePico"/>
+          </Block>
+          <Block Condition="AllowPrefixFemto">
+            <Block Condition="(Scale &gt;= cScaleFemto)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleFemto) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Femto"/>
+                <Execute Statement="PrefixScale:= cScaleFemto"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Femto"/>
+            <Execute Statement="PrefixScale:= cScaleFemto"/>
+          </Block>
+          <!-->->-->
+        </RepeatUntilLoop>
+        <Execute Statement="Scale:= BaseScale - PrefixScale"/>
+        <Execute Statement="Result:= Scale"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TUnitConvertor.IntValueToStr" Type="string">
+      <Parameters>
+        <Parameter Identifier="Value" Type="Int64"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Prefix" Type="TPrefix"/>
+        <Variable Identifier="Scale" Type="Integer"/>
+        <Variable Identifier="ModVal" Type="UInt32"/>
+        <Variable Identifier="MandatoryDecimal" Type="Boolean"/>
+        <Variable Identifier="IsNegative" Type="Boolean" Init="False"/>
+      </Variables>
+      <Block>
+        <Block Condition="Value &lt; 0">
+          <Execute Statement="IsNegative:= True"/>
+          <Execute Statement="Value:= -Value"/>
+        </Block>
+        <Execute Statement="Scale:= GetScale(Value, Prefix)"/>
+        <Case Expression="Prefix" Optimalisation="integermapping">
+          <!--<-<TUnitConvertor.IntValueToStr.PrefixLookup-->
+          <On Select="TPrefix.Tera">
+            <Execute Statement="Result:= cTera"/>
+          </On>
+          <On Select="TPrefix.Giga">
+            <Execute Statement="Result:= cGiga"/>
+          </On>
+          <On Select="TPrefix.Mega">
+            <Execute Statement="Result:= cMega"/>
+          </On>
+          <On Select="TPrefix.Kilo">
+            <Execute Statement="Result:= cKilo"/>
+          </On>
+          <On Select="TPrefix.None">
+            <Execute Statement="Result:= ''"/>
+          </On>
+          <On Select="TPrefix.Milli">
+            <Execute Statement="Result:= cMilli"/>
+          </On>
+          <On Select="TPrefix.Micro">
+            <Execute Statement="Result:= cMicro"/>
+          </On>
+          <On Select="TPrefix.Nano">
+            <Execute Statement="Result:= cNano"/>
+          </On>
+          <On Select="TPrefix.Pico">
+            <Execute Statement="Result:= cPico"/>
+          </On>
+          <On Select="TPrefix.Femto">
+            <Execute Statement="Result:= cFemto"/>
+          </On>
+          <!-->->-->
+        </Case>
+        <Execute Statement="Result:= Result + UnitS"/>
         <Choose>
-          <When Expression="Scale &gt;= 100">
-            <WhileLoop Expression="Assigned(RunningValue)">
-              <rep:Reporter.Information Text="Format('%d: %.2f',  RunningValue.Value, RunningValue.Value / Scale)"/>
-              <Execute Statement="RunningValue:= RunningValue.Next"/>
-            </WhileLoop>
+          <When Expression="Scale = 0">
+            <Execute Statement="Result:= '0' + Result"/>
+          </When>
+          <When Expression="Scale &lt; 0">
+            <Execute Statement="MandatoryDecimal:= False"/>
+            <ForLoop Indexer="I" From="Scale" To="-1">
+              <Execute Statement="ModVal:= Value mod 10"/>
+              <Execute Statement="MandatoryDecimal:= True" Condition="ModVal &gt; 0"/>
+              <Execute Statement="Value:= Value div 10"/>
+              <Execute Statement="Result:= ToChar(ModVal + cOrd0) + Result" Condition="MandatoryDecimal"/>
+            </ForLoop>
+            <Execute Statement="Result:= ',' + Result" Condition="MandatoryDecimal"/>
+            <RepeatUntilLoop Expression="Value = 0">
+              <Execute Statement="ModVal:= Value mod 10"/>
+              <Execute Statement="Value:= Value div 10"/>
+              <Execute Statement="Result:= ToChar(ModVal + cOrd0) + Result"/>
+            </RepeatUntilLoop>
           </When>
           <Otherwise>
-            <WhileLoop Expression="Assigned(RunningValue)">
-              <rep:Reporter.Information Text="Format('%d: %.1f',  RunningValue.Value, RunningValue.Value / Scale)"/>
-              <Execute Statement="RunningValue:= RunningValue.Next"/>
-            </WhileLoop>
+            <ForLoop Indexer="I" From="0" To="Scale-1">
+              <Execute Statement="Value:= Value * 10"/>
+            </ForLoop>
+            <Execute Statement="Result:= StrToInt(Value) + Result"/>
           </Otherwise>
         </Choose>
+        <Execute Statement="Result:= '-' + Result" Condition="IsNegative"/>
       </Block>
-    </Procedure>
+    </Function>
+
+    <Constructor Identifier="TUnitConvertor.Create">
+      <Parameters>
+        <Parameter Identifier="ConvertorKind" Type="TConvertorKind"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Self.ConvertorKind:= ConvertorKind"/>
+        <Case Expression="ConvertorKind" Optimalisation="integermapping">
+          <On Select="TConvertorKind.PicoVolt">
+            <Execute Statement="SiUnit:= TSiUnit.Volt"/>
+            <Execute Statement="UnitS:= cVolt"/>
+            <Execute Statement="Granularity:= TGranularity.Pico"/>
+          </On>
+          <On Select="TConvertorKind.PicoAmp">
+            <Execute Statement="SiUnit:= TSiUnit.Amp"/>
+            <Execute Statement="UnitS:= cAmp"/>
+            <Execute Statement="Granularity:= TGranularity.Pico"/>
+          </On>
+          <On Select="TConvertorKind.MicroOhm">
+            <Execute Statement="SiUnit:= TSiUnit.Ohm"/>
+            <Execute Statement="UnitS:= cOhm"/>
+            <Execute Statement="Granularity:= TGranularity.Micro"/>
+          </On>
+          <On Select="TConvertorKind.FemtoFarad">
+            <Execute Statement="SiUnit:= TSiUnit.Farad"/>
+            <Execute Statement="UnitS:= cFarad"/>
+            <Execute Statement="Granularity:= TGranularity.Femto"/>
+          </On>
+          <On Select="TConvertorKind.FemtoHenry">
+            <Execute Statement="SiUnit:= TSiUnit.Henry"/>
+            <Execute Statement="UnitS:= cHenry"/>
+            <Execute Statement="Granularity:= TGranularity.Femto"/>
+          </On>
+          <On Select="TConvertorKind.MicroPerc">
+            <Execute Statement="SiUnit:= TSiUnit.Perc"/>
+            <Execute Statement="UnitS:= cPerc"/>
+            <Execute Statement="Granularity:= TGranularity.Micro"/>
+          </On>
+          <On Select="TConvertorKind.PicoWatt">
+            <Execute Statement="SiUnit:= TSiUnit.Watt"/>
+            <Execute Statement="UnitS:= cWatt"/>
+            <Execute Statement="Granularity:= TGranularity.Pico"/>
+          </On>
+          <On Select="TConvertorKind.PicoMeter">
+            <Execute Statement="SiUnit:= TSiUnit.Meter"/>
+            <Execute Statement="UnitS:= cMeter"/>
+            <Execute Statement="Granularity:= TGranularity.Pico"/>
+          </On>
+          <On Select="TConvertorKind.MicroHz">
+            <Execute Statement="SiUnit:= TSiUnit.Hz"/>
+            <Execute Statement="UnitS:= sHz"/>
+            <Execute Statement="Granularity:= TGranularity.Micro"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(Format('TUnitConvertor.Create - unsupported ConvertorKind: %d', ConvertorKind))"/>
+          </Otherwise>
+        </Case>
+        <Case Expression="SiUnit" Optimalisation="integermapping">
+          <On Select="TSiUnit.Farad">
+            <Execute Statement="AllowPrefixMicro:= True"/>
+            <Execute Statement="AllowPrefixNano:= True"/>
+            <Execute Statement="AllowPrefixPico:= True"/>
+          </On>
+          <On Select="TSiUnit.Perc">
+          </On>
+          <Otherwise>
+            <Execute Statement="AllowPrefixTera:= False"/>
+            <Execute Statement="AllowPrefixGiga:= True"/>
+            <Execute Statement="AllowPrefixMega:= True"/>
+            <Execute Statement="AllowPrefixKilo:= True"/>
+            <Execute Statement="AllowPrefixMilli:= True"/>
+            <Execute Statement="AllowPrefixMicro:= True"/>
+            <Execute Statement="AllowPrefixNano:= True"/>
+            <Execute Statement="AllowPrefixPico:= True"/>
+            <Execute Statement="AllowPrefixFemto:= True"/>
+          </Otherwise>
+        </Case>
+        <Case Expression="Granularity">
+          <On Select="TGranularity.Micro">
+            <Execute Statement="BaseScale:= cScaleMicro"/>
+          </On>
+          <On Select="TGranularity.Femto">
+            <Execute Statement="BaseScale:= cScaleFemto"/>
+          </On>
+          <On Select="TGranularity.Pico">
+            <Execute Statement="BaseScale:= cScalePico"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(Format('TUnitConvertor.Create - unsupported granularity: %d', Granularity))"/>
+          </Otherwise>
+        </Case>
+        <Execute Statement="ToExtendedFactor:= Power(10, BaseScale)"/>
+        <Execute Statement="FromExtendedFactor:= Power(10, -BaseScale)"/>
+      </Block>
+    </Constructor>
+
+    <Function Identifier="GetUnitConvertor" Type="TUnitConvertor">
+      <Parameters>
+        <Parameter Identifier="ConvertorKind" Type="TConvertorKind"/>
+      </Parameters>
+      <Block>
+        <Case Expression="ConvertorKind" Optimalisation="integermapping">
+          <!--<-<GetConverter.Case-->
+          <On Select="TConvertorKind.PicoVolt">
+            <Choose>
+              <When Expression="IsEmpty(_PicoVoltConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_PicoVoltConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _PicoVoltConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.PicoAmp">
+            <Choose>
+              <When Expression="IsEmpty(_PicoAmpConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_PicoAmpConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _PicoAmpConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.MicroOhm">
+            <Choose>
+              <When Expression="IsEmpty(_MicroOhmConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_MicroOhmConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _MicroOhmConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.FemtoFarad">
+            <Choose>
+              <When Expression="IsEmpty(_FemtoFaradConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_FemtoFaradConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _FemtoFaradConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.FemtoHenry">
+            <Choose>
+              <When Expression="IsEmpty(_FemtoHenryConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_FemtoHenryConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _FemtoHenryConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.MicroPerc">
+            <Choose>
+              <When Expression="IsEmpty(_MicroPercConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_MicroPercConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _MicroPercConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.PicoWatt">
+            <Choose>
+              <When Expression="IsEmpty(_PicoWattConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_PicoWattConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _PicoWattConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.PicoMeter">
+            <Choose>
+              <When Expression="IsEmpty(_PicoMeterConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_PicoMeterConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _PicoMeterConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.MicroHz">
+            <Choose>
+              <When Expression="IsEmpty(_MicroHzConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_MicroHzConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _MicroHzConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <!-->->-->
+          <Otherwise>
+            <Raise Expression="Exception.Create(Format('Invalid ConvertorKind: %d', ConvertorKind))"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+
   </Procedures>
 </pkg:Library>

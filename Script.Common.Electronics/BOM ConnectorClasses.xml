@@ -29,6 +29,7 @@
       <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
       <VirtualMethod Identifier="vmApplyTemplate" Override="true"/>
       <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
       <Field Identifier="PinsVT" Type="TValueType"/>
       <Field Identifier="PinRowsLow" Type="Integer"/>
       <Field Identifier="PinColsLow" Type="Integer"/>
@@ -50,8 +51,31 @@
       <Field Identifier="TemplateConnector" Type="TConnectorSpec"/>
     </DataClass>
   </Type>
+  
+  <Variables>
+    <Variable Identifier="ConnectorAmperageRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoAmp)"/>
+  </Variables>
 
   <Procedures>
+    
+    <Function Identifier="PinsToString" Type="string">
+      <Parameters>
+        <Parameter Identifier="PinRowsLow" Type="Integer"/>
+        <Parameter Identifier="PinColsLow" Type="Integer"/>
+        <Parameter Identifier="PinRowsHigh" Type="Integer"/>
+        <Parameter Identifier="PinColsHigh" Type="Integer"/>
+      </Parameters>
+      <Block>
+        <Choose>
+          <When Expression="(PinRowsLow = PinRowsHigh) and (PinColsLow = PinColsHigh)">
+            <Execute Statement="Result:= Format('%.2dx%.2d', PinRowsLow, PinColsLow)"/>
+          </When>
+          <Otherwise>
+            <Execute Statement="Result:= Format('%.2dx%.2d..%.2dx%.2d', PinRowsLow, PinColsLow, PinRowsHigh, PinColsHigh)"/>
+          </Otherwise>
+        </Choose>
+      </Block>
+    </Function>
 
     <Function Identifier="StrValueToPins" Type="Boolean">
       <Parameters>
@@ -347,7 +371,7 @@
         <Parameter Identifier="DescriptionAttrib" Type="IXMLDomAttribute"/>
       </Parameters>
       <Variables>
-        <Variable Identifier="LocComponentKind" Type="TComponentKind" Init="TComponentKind.ckComponent"/>
+        <Variable Identifier="LocComponentKind" Type="TComponentKind" Init="TComponentKind.Component"/>
         <Variable Identifier="Found" Type="Boolean"/>
         <Variable Identifier="LocPinRows" Type="Integer"/>
         <Variable Identifier="LocPinCols" Type="Integer"/>
@@ -358,7 +382,7 @@
         <Execute Statement="inherited HandleLibSource(LibAttrib, PartAttrib, DescriptionAttrib)"/>
         <Choose>
           <When Expression="LibSourcePartToPins(PartAttrib.Text, LocPinRows, LocPinCols)">
-            <Execute Statement="PinsVT:= TValueType.vtSpecified"/>
+            <Execute Statement="PinsVT:= TValueType.Specified"/>
             <Execute Statement="PinRowsLow:= LocPinRows"/>
             <Execute Statement="PinColsLow:= LocPinCols"/>
             <Execute Statement="PinRowsHigh:= LocPinRows"/>
@@ -367,7 +391,7 @@
           </When>
           <Otherwise>
             <rep:Reporter.Error Text="Format('Pins could not be safely parsed from value: %s', PartAttrib.Text)" Condition="IsVerbose"/>
-            <Execute Statement="PinsVT:= TValueType.vtError"/>
+            <Execute Statement="PinsVT:= TValueType.Error"/>
             <Execute Statement="ErrorPins:= PartAttrib.Text"/>
           </Otherwise>
         </Choose>
@@ -381,7 +405,7 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Case Expression="ComponentKind" Optimalisation="integermapping">
-          <On Select="TComponentKind.ckConnector">
+          <On Select="TComponentKind.Connector">
             <Execute Statement="Result:= True"/>
           </On>
         </Case>
@@ -396,10 +420,10 @@
         <Execute Statement="Result:= False"/>
         <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
         <Case Expression="PinsVT">
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Exit Condition="not (ComponentSpec is TConnectorSpec)"/>
             <Case Expression="TConnectorSpec(ComponentSpec).PinsVT">
-              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                 <Exit Condition="PinRowsLow &lt; TConnectorSpec(ComponentSpec).PinRowsLow"/>
                 <Exit Condition="PinColsLow &lt; TConnectorSpec(ComponentSpec).PinColsLow"/>
                 <Exit Condition="PinRowsHigh &gt; TConnectorSpec(ComponentSpec).PinRowsHigh"/>
@@ -410,15 +434,15 @@
               </Otherwise>
             </Case>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
         <Case Expression="AmperageRatingVT">
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Exit Condition="not (ComponentSpec is TConnectorSpec)"/>
             <Case Expression="TConnectorSpec(ComponentSpec).AmperageRatingVT">
-              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                 <Exit Condition="AmperageRating &gt; TConnectorSpec(ComponentSpec).AmperageRating"/>
               </On>
               <Otherwise>
@@ -426,11 +450,84 @@
               </Otherwise>
             </Case>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
         <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TConnectorSpec.CategoryMatchScore" VirtualMethod="vmCategoryMatchScore" Type="Int64">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Case Expression="ComponentKindVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ComponentKindVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="PartNumberVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.PartNumberVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="SameText(PartNumber, ComponentSpec.PartNumber)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ManufacturerVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ManufacturerVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="SameText(Manufacturer, ComponentSpec.Manufacturer)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="FootprintVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.FootprintVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
       </Block>
     </Function>
 
@@ -439,6 +536,7 @@
         <Parameter Identifier="CustomField" Type="TCustomField"/>
         <Parameter Identifier="Name" Type="string"/>
         <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="Clear" Type="Boolean"/>
       </Parameters>
       <Variables>
         <Variable Identifier="LocPinRowsLow" Type="Integer"/>
@@ -449,10 +547,13 @@
       </Variables>
       <Block>
         <Case Expression="CustomField" Optimalisation="integermapping">
-          <On Select="TCustomField.cfPins">
+          <On Select="TCustomField.Pins">
             <Choose>
+              <When Expression="Clear">
+                <Execute Statement="PinsVT:= TValueType.Cleared"/>
+              </When>
               <When Expression="StrValueToPins(Value, LocPinRowsLow, LocPinColsLow, LocPinRowsHigh, LocPinColsHigh)">
-                <Execute Statement="PinsVT:= TValueType.vtSpecified"/>
+                <Execute Statement="PinsVT:= TValueType.Specified"/>
                 <Execute Statement="PinRowsLow:= LocPinRowsLow"/>
                 <Execute Statement="PinColsLow:= LocPinColsLow"/>
                 <Execute Statement="PinRowsHigh:= LocPinRowsHigh"/>
@@ -461,27 +562,31 @@
               </When>
               <Otherwise>
                 <rep:Reporter.Error Text="Format('Pins could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
-                <Execute Statement="PinsVT:= TValueType.vtError"/>
+                <Execute Statement="PinsVT:= TValueType.Error"/>
                 <Execute Statement="ErrorPins:= Value"/>
               </Otherwise>
             </Choose>
           </On>
-          <On Select="TCustomField.cfAmperageRating">
+          <On Select="TCustomField.AmperageRating">
             <Choose>
-              <When Expression="StrToMicroAmps(Value, LocAmperageRating)">
-                <rep:Reporter.Information Text="Format('AmperageRating: %s', FormatMicroAmp(LocAmperageRating))" Condition="IsVerbose"/>
-                <Execute Statement="AmperageRatingVT:= TValueType.vtSpecified"/>
+              <When Expression="Clear">
+                <Execute Statement="AmperageRatingVT:= TValueType.Cleared"/>
+                <Execute Statement="AmperageRating:= -1"/>
+              </When>
+              <When Expression="ConnectorAmperageRatingConv.StrToIntValue(Value, LocAmperageRating)">
+                <rep:Reporter.Information Text="Format('AmperageRating: %s', ConnectorAmperageRatingConv.IntValueToStr(LocAmperageRating))" Condition="IsVerbose"/>
+                <Execute Statement="AmperageRatingVT:= TValueType.Specified"/>
                 <Execute Statement="AmperageRating:= LocAmperageRating"/>
               </When>
               <Otherwise>
                 <rep:Reporter.Error Text="Format('AmperageRating could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
-                <Execute Statement="AmperageRatingVT:= TValueType.vtError"/>
+                <Execute Statement="AmperageRatingVT:= TValueType.Error"/>
                 <Execute Statement="ErrorAmperageRating:= Value"/>
               </Otherwise>
             </Choose>
           </On>
           <Otherwise>
-            <Execute Statement="inherited HandleField(CustomField, Name, Value)"/>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
           </Otherwise>
         </Case>
       </Block>
@@ -493,13 +598,15 @@
         <Parameter Identifier="AmperageRating" Type="string" Direction="Output"/>
         <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
         <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
+        <Parameter Identifier="InternalPartNumber" Type="string" Direction="Output"/>
+        <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
         <Case Expression="PinsVT">
-          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Value:= ''"/>
           </On>
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Choose>
               <When Expression="(PinRowsLow = PinRowsHigh) and (PinColsLow = PinColsHigh)">
                 <Execute Statement="Value:= Format('%.2dx%.2d', PinRowsLow, PinColsLow)"/>
@@ -509,23 +616,23 @@
               </Otherwise>
             </Choose>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="Value:= '!' + ErrorPins + '!'"/>
           </On>
         </Case>
 
         <Case Expression="AmperageRatingVT">
-          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="AmperageRating:= ''"/>
           </On>
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="AmperageRating:= FormatMicroAmp(Self.AmperageRating)"/>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="AmperageRating:= ConnectorAmperageRatingConv.IntValueToStr(Self.AmperageRating)"/>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!'"/>
           </On>
         </Case>
-        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel)"/>
+        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
 
@@ -539,36 +646,44 @@
         <Variable Identifier="AmpRating" Type="string"/>
         <Variable Identifier="FootPrint" Type="string"/>
         <Variable Identifier="PartNumberModel" Type="string"/>
+        <Variable Identifier="InternalPartNumber" Type="string"/>
+        <Variable Identifier="ComponentKind" Type="string"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, AmpRating, FootPrint, PartNumberModel)"/>
+        <Execute Statement="GetSpecificationValues(Value, AmpRating, FootPrint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
             <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
-            <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
-            <Execute Statement="AmpRating:= AmpRating + ' '" Condition="AmpRating &lt;&gt; ''"/>
-            <Execute Statement="FootPrint:= FootPrint + ' '" Condition="FootPrint &lt;&gt; ''"/>
-            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
+            <Execute Statement="Value:= Value + ' '" Condition="IsNonEmptyString(Value)"/>
+            <Execute Statement="AmpRating:= AmpRating + ' '" Condition="IsNonEmptyString(AmpRating)"/>
+            <Execute Statement="FootPrint:= FootPrint + ' '" Condition="IsNonEmptyString(FootPrint)"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="IsNonEmptyString(PartNumberModel)"/>
+            <Execute Statement="InternalPartNumber:= InternalPartNumber + ' '" Condition="IsNonEmptyString(InternalPartNumber)"/>
             <Choose>
               <When Expression="ReportContext.Measure">
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.Value, 4, Length(Value))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.AmpRating, 2, Length(AmpRating))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.FootPrint, 1, Length(FootPrint))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TConnectorSpecColumns.InternalPartNumber, 1, Length(InternalPartNumber))"/>
                 <Execute Statement="Result:= ''"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= Format('%-*s%*s%*s%-*s',
+                <Execute Statement="Result:= Format('%-*s%*s%*s%-*s%-*s',
                          ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.Value, 4), Value,
                          ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.AmpRating, 2), AmpRating,
                          ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.FootPrint, 1), FootPrint,
-                         ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
+                         ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.PartNumberModel, 1), PartNumberModel,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.InternalPartNumber, 1), InternalPartNumber)"/>
               </Otherwise>
             </Choose>
           </On>
-          <On Select="TSpecFormatType.Compressed">
-            <Execute Statement="Result:= ConcatExt(' ', True, Value, AmpRating, FootPrint, PartNumberModel)"/>
+          <On Select="TSpecFormatType.Description">
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, AmpRating, FootPrint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+          </On>
+          <On Select="TSpecFormatType.Name">
+            <Execute Statement="Result:= Value"/>
           </On>
         </Case>
       </Block>
@@ -583,32 +698,32 @@
         <Block Condition="Template is TConnectorSpec">
           <Execute Statement="locTemplate:= TConnectorSpec(Template)"/>
           <Case Expression="PinsVT" Optimalisation="integermapping">
-            <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
               <Case Expression="locTemplate.PinsVT" Optimalisation="integermapping">
-                <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                   <Execute Statement="PinRowsLow:= locTemplate.PinRowsLow"/>
                   <Execute Statement="PinColsLow:= locTemplate.PinColsLow"/>
                   <Execute Statement="PinRowsHigh:= locTemplate.PinRowsHigh"/>
                   <Execute Statement="PinColsHigh:= locTemplate.PinColsHigh"/>
-                  <Execute Statement="PinsVT:= TValueType.vtSpecifiedByTemplate"/>
+                  <Execute Statement="PinsVT:= TValueType.SpecifiedByTemplate"/>
                 </On>
-                <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                   <Execute Statement="ErrorPins:= locTemplate.ErrorPins"/>
-                  <Execute Statement="PinsVT:= TValueType.vtErrorByTemplate"/>
+                  <Execute Statement="PinsVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
           </Case>
           <Case Expression="AmperageRatingVT" Optimalisation="integermapping">
-            <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
               <Case Expression="locTemplate.AmperageRatingVT" Optimalisation="integermapping">
-                <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                   <Execute Statement="AmperageRating:= locTemplate.AmperageRating"/>
-                  <Execute Statement="AmperageRatingVT:= TValueType.vtSpecifiedByTemplate"/>
+                  <Execute Statement="AmperageRatingVT:= TValueType.SpecifiedByTemplate"/>
                 </On>
-                <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                   <Execute Statement="ErrorAmperageRating:= locTemplate.ErrorAmperageRating"/>
-                  <Execute Statement="AmperageRatingVT:= TValueType.vtErrorByTemplate"/>
+                  <Execute Statement="AmperageRatingVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
@@ -646,13 +761,13 @@
       </Parameters>
       <Block>
         <Case Expression="Specification.ComponentKindVT">
-          <On Select="TValueType.vtSpecified, TValueType.vtSpecifiedByTemplate"/>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate"/>
           <Otherwise>
             <Exit Result="False"/>
           </Otherwise>
         </Case>
         <Case Expression="Specification.ComponentKind">
-          <On Select="TComponentKind.ckConnector"/>
+          <On Select="TComponentKind.Connector"/>
           <Otherwise>
             <Exit Result="False"/>
           </Otherwise>
@@ -668,7 +783,7 @@
       <Block>
         <Execute Statement="Result:= ObjNil"/>
         <Case Expression="Specification.ComponentKind">
-          <On Select="TComponentKind.ckConnector">
+          <On Select="TComponentKind.Connector">
             <Execute Statement="Result:= TemplateConnector"/>
           </On>
         </Case>

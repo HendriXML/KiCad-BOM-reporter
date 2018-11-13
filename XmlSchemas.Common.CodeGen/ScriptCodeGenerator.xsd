@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns="urn:schemas-www-wisware.nl-codegen-scriptcodegenerator" 
+           xmlns:sys="urn:schemas-www-wisware.nl-codegen-system" 
+           xmlns:spk="urn:schemas-www-wisware.nl-scriptingpackages" 
+           xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" 
+           targetNamespace="urn:schemas-www-wisware.nl-codegen-scriptcodegenerator" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-codegen-system" schemaLocation="CodeGenSystem.xsd"/>
+  <xs:import namespace="urn:schemas-www-wisware.nl-scriptingpackages" schemaLocation="..\XmlSchemas.Common.XmlScript\XMLScripting.Packages.xsd"/>
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="..\XmlSchemas.Common.XmlScript\XMLScripting.xsd"/>
+  <xs:complexType name="TReportTargetMapping">
+    <xs:attribute name="ReportTarget" type="proc:reporttargetidentifier"/>
+    <xs:attribute name="CodeSection" type="sys:codesectionidentifier"/>
+  </xs:complexType>
+  <xs:complexType name="TReportTargetMappings">
+    <xs:sequence>
+      <xs:element name="ReportTargetMapping" type="TReportTargetMapping"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="T_ScriptCodeGenerator">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractGenerator">
+        <xs:sequence>
+          <xs:element ref="spk:Program"/>
+          <xs:element name="ReportTargetMappings" type="TReportTargetMappings" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="Description" use="required"/> 
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ScriptCodeGenerator" type="T_ScriptCodeGenerator" substitutionGroup="sys:AbstractGenerator"/>
+</xs:schema>

@@ -23,6 +23,8 @@
     <Use Identifier="CapacitorClasses"/>
     <Use Identifier="InductorClasses"/>
     <Use Identifier="ZenerDiodeClasses"/>
+    <Use Identifier="DiodeClasses"/>
+    <Use Identifier="FuseClasses"/>
     <Use Identifier="ConnectorClasses"/>
     <Use Identifier="GenericComponentClasses"/>
     <Use Identifier="StockManager"/>
@@ -59,6 +61,8 @@
           <When Expression="Capacitors.ProcessSchemaXml(Element, Reference, ID)"/>
           <When Expression="Inductors.ProcessSchemaXml(Element, Reference, ID)"/>
           <When Expression="ZenerDiodes.ProcessSchemaXml(Element, Reference, ID)"/>
+          <When Expression="Diodes.ProcessSchemaXml(Element, Reference, ID)"/>
+          <When Expression="Fuses.ProcessSchemaXml(Element, Reference, ID)"/>
           <When Expression="Connectors.ProcessSchemaXml(Element, Reference, ID)"/>
           <When Expression="GenericComponents.ProcessSchemaXml(Element, Reference, ID)"/>
           <Otherwise>
@@ -192,7 +196,7 @@
       </Variables>
       <Block>
         <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
-          <lil:LinkedList.Iterate Head="RunningCategory.FComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpecification" Next="RunningSpecification.Next">
+          <lil:LinkedList.Iterate Head="RunningCategory.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpecification" Next="RunningSpecification.Next">
             <lil:LinkedList.Iterate Head="RunningSpecification.SchemaComponentHead" ItemType="TSchemaComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
               <Execute Statement="DesignatorInfo:= TDesignatorInfo.Create(RunningComponent, RunningSpecification)"/>
               <lil:LinkedList.LinkUp Head="DesignatorInfoHead" Tail="DesignatorInfoTail" Item="DesignatorInfo" TailLinkStatement="DesignatorInfoTail.Next:= Item" />
@@ -215,7 +219,7 @@
                 <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
                 <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, Length(Component.Reference)+2)"/>
-                <Execute Statement="ColumnManager.RequestColumnWidth(7, 1, Length(ComponentKindNameString(ComponentSpec.ComponentKind)))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(TGenComponentSpecColumns.Max+3, 1, Length(ComponentKindDescription(ComponentSpec.ComponentKind)))"/>
               </lil:LinkedList.Iterate>
               <!--<ForLoop Indexer="I" From="0" To="ColumnManager.ColumnCount - 1">
                 <rep:Reporter.Information Text="Format('%*d: %d', 3, I, ColumnManager.GetColumnWidth(I, 1))"/>
@@ -229,7 +233,7 @@
                 <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
                 <Choose>
                   <When Expression="Component.Decoded">
-                    <rep:Reporter.Information Text="''" Condition="IsEmpty(PrevDecodedComponent) or (CompareText(PrevDecodedComponent.Prefix, Component.Prefix) &lt;&gt; 0)"/>
+                    <rep:Reporter.Information Text="''" Condition="IsEmpty(PrevDecodedComponent) or not SameText(PrevDecodedComponent.Prefix, Component.Prefix)"/>
                     <Execute Statement="PrevDecodedComponent:= Component"/>
                   </When>
                   <Otherwise>
@@ -238,8 +242,8 @@
                 </Choose>
                 <rep:Reporter.Information Text="Format('%-*s%-*s%-*s', 
                                           ColumnManager.GetColumnWidth(0, 1), Component.Reference,
-                                          ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max+1), ComponentSpecAsString,
-                                          ColumnManager.GetColumnWidth(7, 1), ComponentKindNameString(ComponentSpec.ComponentKind) 
+                                          ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max+2), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(TGenComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
                                           )"/>
               </lil:LinkedList.Iterate>
             </Object.Use>
@@ -253,13 +257,45 @@
       <Parameters>
         <Parameter Identifier="StockManager" Type="TStockManager"/>
       </Parameters>
+      <Variables>
+        <Variable Identifier="Value" Type="TSpecificationLinks" Init="TSpecificationLinks.Create"/>
+        <Variable Identifier="FoundValue" Type="TSpecificationLinks"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+        <Variable Identifier="Link" Type="TSpecificationLink"/>
+      </Variables>
       <Block>
-        <Execute Statement="Resistors.AssignStockSpecsFromCategory(StockManager.Resistors)"/>
-        <Execute Statement="Capacitors.AssignStockSpecsFromCategory(StockManager.Capacitors)"/>
-        <Execute Statement="Inductors.AssignStockSpecsFromCategory(StockManager.Capacitors)"/>
-        <Execute Statement="ZenerDiodes.AssignStockSpecsFromCategory(StockManager.ZenerDiodes)"/>
-        <Execute Statement="Connectors.AssignStockSpecsFromCategory(StockManager.Connectors)"/>
-        <Execute Statement="GenericComponents.AssignStockSpecsFromCategory(StockManager.GenericComponents)"/>
+        <Object.Use Identifier="InternalPartNumberIndex" Type="TMappingCaseInSensitiveUnicodeStringToObject" Expression="TMappingCaseInSensitiveUnicodeStringToObject.Create">
+          <lil:LinkedList.Iterate Head="StockManager.CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
+            <lil:LinkedList.Iterate Head="RunningItem.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
+              <Case Expression="RunningSpec.InternalPartNumberVT">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <inx:Index.MapValue Index="InternalPartNumberIndex" Key="RunningSpec.InternalPartNumber" PreviousValue="FoundValue" Found="Found" Value="Value" Flags="NoErrorOnExist DiscardOnExist"/>
+                  <Execute Statement="Link:= TSpecificationLink.Create(RunningSpec)"/>
+                  <Choose>
+                    <When Expression="Found">
+                      <Execute Statement="FoundValue.Tail.Next:= Link"/>
+                      <Execute Statement="FoundValue.Tail:= Link"/>
+                    </When>
+                    <Otherwise>
+                      <Execute Statement="Value.Head:= Link"/>
+                      <Execute Statement="Value.Tail:= Link"/>
+                      <Execute Statement="Value:= TSpecificationLinks.Create"/>
+                    </Otherwise>
+                  </Choose>
+                </On>
+              </Case>
+            </lil:LinkedList.Iterate>
+          </lil:LinkedList.Iterate>
+          <Free Expression="Value"/>
+          <Execute Statement="Resistors.AssignStockSpecsFromCategory(StockManager.Resistors, InternalPartNumberIndex)"/>
+          <Execute Statement="Capacitors.AssignStockSpecsFromCategory(StockManager.Capacitors, InternalPartNumberIndex)"/>
+          <Execute Statement="Inductors.AssignStockSpecsFromCategory(StockManager.Capacitors, InternalPartNumberIndex)"/>
+          <Execute Statement="ZenerDiodes.AssignStockSpecsFromCategory(StockManager.ZenerDiodes, InternalPartNumberIndex)"/>
+          <Execute Statement="Diodes.AssignStockSpecsFromCategory(StockManager.Diodes, InternalPartNumberIndex)"/>
+          <Execute Statement="Fuses.AssignStockSpecsFromCategory(StockManager.Fuses, InternalPartNumberIndex)"/>
+          <Execute Statement="Connectors.AssignStockSpecsFromCategory(StockManager.Connectors, InternalPartNumberIndex)"/>
+          <Execute Statement="GenericComponents.AssignStockSpecsFromCategory(StockManager.GenericComponents, InternalPartNumberIndex)"/>
+        </Object.Use>
       </Block>
     </Procedure>
 

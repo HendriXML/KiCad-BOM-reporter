@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="urn:schemas-www-wisware.nl-codegen-classwrappergenerator" xmlns:sys="urn:schemas-www-wisware.nl-codegen-system" targetNamespace="urn:schemas-www-wisware.nl-codegen-classwrappergenerator" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-codegen-system" schemaLocation="CodeGenSystem.xsd"/>
+  <xs:complexType name="T_ClassWrapperGenerator">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractGenerator">
+        <xs:sequence>
+          <xs:element name="Declarations" maxOccurs="unbounded">
+            <xs:complexType mixed="1">
+              <xs:attribute name="InterfaceName" type="xs:string"/>
+              <xs:attribute name="Deterministic" type="xs:boolean"/>
+              <xs:attribute name="ReturnOutvar" type="xs:boolean"/>
+              
+              <xs:attribute name="FunctionCallType" use="required">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="Normal"/>
+                    <xs:enumeration value="Event"/>
+                    <xs:enumeration value="Interface"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:attribute>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Target" use="required">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="ExpressionFunctions"/>
+              <xs:enumeration value="ProcessItems"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="ClassInterfaceSection" use="required"/>
+        <xs:attribute name="ClassImplementationSection" use="required"/>
+        <xs:attribute name="RegistrationImplementationSection" use="required"/>
+        <xs:attribute name="RegistrationInterfaceSection" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ClassWrapperGenerator" type="T_ClassWrapperGenerator" substitutionGroup="sys:AbstractGenerator"/>
+</xs:schema>

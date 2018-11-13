@@ -22,14 +22,13 @@
     <Use Identifier="BomStrings"/>
   </Uses>
   <Type>
-    <Enumeration Identifier="TInductorTechnology" Elements="ctUnspecified, ctElectrolytic, ctCeramic"/>
-
     <DataClass Identifier="TInductorSpec" Inherit="TComponentSpec" DefaultConstructor="createonly">
       <VirtualMethod Identifier="vmHandleField" Override="true"/>
       <VirtualMethod Identifier="vmCheckComponentKind" Override="true"/>
       <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
       <VirtualMethod Identifier="vmApplyTemplate" Override="true"/>
       <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
       <Field Identifier="InductanceVT" Type="TValueType"/>
       <Field Identifier="Inductance" Type="Int64"/>
       <Field Identifier="ErrorInductance" Type="string"/>
@@ -60,20 +59,12 @@
 
   <Variables>
     <Variable Identifier="InductorTechnologyIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
+    <Variable Identifier="InductorInductanceConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.FemtoHenry)"/>
+    <Variable Identifier="InductorAmperageRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoAmp)"/>
+    <Variable Identifier="InductorToleranceConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.MicroPerc)"/>
   </Variables>
 
   <Procedures>
-    <Procedure Identifier="InitInductorTechnologyIndex">
-      <Parameters>
-        <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
-      </Parameters>
-      <Block>
-        <inx:Index.MapValue Index="Index" Key="''" Value="TInductorTechnology.ctUnspecified"/>
-        <inx:Index.MapValue Index="Index" Key="'electrolytic'" Value="TInductorTechnology.ctElectrolytic"/>
-        <inx:Index.MapValue Index="Index" Key="'ceramic'" Value="TInductorTechnology.ctCeramic"/>
-      </Block>
-    </Procedure>
-
     <Function Identifier="TInductorSpec.CheckComponentKind" VirtualMethod="vmCheckComponentKind" Type="Boolean">
       <Parameters>
         <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
@@ -81,7 +72,7 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Case Expression="ComponentKind" Optimalisation="integermapping">
-          <On Select="TComponentKind.ckInductor">
+          <On Select="TComponentKind.Inductor">
             <Execute Statement="Result:= True"/>
           </On>
         </Case>
@@ -96,10 +87,10 @@
         <Execute Statement="Result:= False"/>
         <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
         <Case Expression="InductanceVT">
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Exit Condition="not (ComponentSpec is TInductorSpec)"/>
             <Case Expression="TInductorSpec(ComponentSpec).InductanceVT">
-              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                 <Exit Condition="Inductance &lt;&gt; TInductorSpec(ComponentSpec).Inductance"/>
               </On>
               <Otherwise>
@@ -107,15 +98,15 @@
               </Otherwise>
             </Case>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
         <Case Expression="AmperageRatingVT">
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Exit Condition="not (ComponentSpec is TInductorSpec)"/>
             <Case Expression="TInductorSpec(ComponentSpec).AmperageRatingVT">
-              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                 <Exit Condition="AmperageRating &gt; TInductorSpec(ComponentSpec).AmperageRating"/>
               </On>
               <Otherwise>
@@ -123,15 +114,15 @@
               </Otherwise>
             </Case>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
         <Case Expression="ToleranceVT">
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Exit Condition="not (ComponentSpec is TInductorSpec)"/>
             <Case Expression="TInductorSpec(ComponentSpec).ToleranceVT">
-              <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                 <Exit Condition="Tolerance &lt; TInductorSpec(ComponentSpec).Tolerance"/>
               </On>
               <Otherwise>
@@ -139,11 +130,147 @@
               </Otherwise>
             </Case>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
         <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TInductorSpec.CategoryMatchScore" VirtualMethod="vmCategoryMatchScore" Type="Int64">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+
+        <Exit Condition="not (ComponentSpec is TInductorSpec)"/>
+
+        <Case Expression="ComponentKindVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ComponentKindVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="InductanceVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="TInductorSpec(ComponentSpec).InductanceVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="Inductance &lt;&gt; TInductorSpec(ComponentSpec).Inductance" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="AmperageRatingVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="TInductorSpec(ComponentSpec).AmperageRatingVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="AmperageRating &lt;&gt; TInductorSpec(ComponentSpec).AmperageRating" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="FootprintVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.FootprintVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="Footprint &lt;&gt; ComponentSpec.Footprint" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ToleranceVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="TInductorSpec(ComponentSpec).ToleranceVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="Tolerance &lt;&gt; TInductorSpec(ComponentSpec).Tolerance" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="PartNumberVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.PartNumberVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="SameText(PartNumber, ComponentSpec.PartNumber)" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ManufacturerVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ManufacturerVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="not SameText(Manufacturer, ComponentSpec.Manufacturer)" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
       </Block>
     </Function>
 
@@ -152,60 +279,72 @@
         <Parameter Identifier="CustomField" Type="TCustomField"/>
         <Parameter Identifier="Name" Type="string"/>
         <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="Clear" Type="Boolean"/>
       </Parameters>
       <Variables>
         <Variable Identifier="LocInductance" Type="Int64"/>
         <Variable Identifier="LocAmperageRating" Type="Int64"/>
         <Variable Identifier="LocTolerance" Type="Int64"/>
-        <Variable Identifier="LocTechnology" Type="TInductorTechnology"/>
         <Variable Identifier="Found" Type="Boolean"/>
       </Variables>
       <Block>
         <Case Expression="CustomField" Optimalisation="integermapping">
-          <On Select="TCustomField.cfValue">
+          <On Select="TCustomField.Value">
             <Choose>
-              <When Expression="StrToFemtoHenry(Value, LocInductance)">
-                <Execute Statement="InductanceVT:= TValueType.vtSpecified"/>
+              <When Expression="Clear">
+                <Execute Statement="InductanceVT:= TValueType.Cleared"/>
+                <Execute Statement="Inductance:= -1"/>
+              </When>
+              <When Expression="InductorInductanceConv.StrToIntValue(Value, LocInductance)">
+                <Execute Statement="InductanceVT:= TValueType.Specified"/>
                 <Execute Statement="Inductance:= LocInductance"/>
-                <rep:Reporter.Information Text="Format('Inductance: %s', FormatFemtoHenry(LocInductance))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('Inductance: %s', InductorInductanceConv.IntValueToStr(LocInductance))" Condition="IsVerbose"/>
               </When>
               <Otherwise>
                 <rep:Reporter.Error Text="Format('Inductance could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
-                <Execute Statement="InductanceVT:= TValueType.vtError"/>
+                <Execute Statement="InductanceVT:= TValueType.Error"/>
                 <Execute Statement="ErrorInductance:= Value"/>
               </Otherwise>
             </Choose>
           </On>
-          <On Select="TCustomField.cfTolerance">
+          <On Select="TCustomField.Tolerance">
             <Choose>
-              <When Expression="StrToMicroPerc(Value, LocTolerance)">
-                <rep:Reporter.Information Text="Format('Tolerance: %s', FormatMicroPercentage(LocTolerance))" Condition="IsVerbose"/>
-                <Execute Statement="ToleranceVT:= TValueType.vtSpecified"/>
+              <When Expression="Clear">
+                <Execute Statement="ToleranceVT:= TValueType.Cleared"/>
+                <Execute Statement="Tolerance:= -1"/>
+              </When>
+              <When Expression="InductorToleranceConv.StrToIntValue(Value, LocTolerance)">
+                <rep:Reporter.Information Text="Format('Tolerance: %s', InductorToleranceConv.IntValueToStr(LocTolerance))" Condition="IsVerbose"/>
+                <Execute Statement="ToleranceVT:= TValueType.Specified"/>
                 <Execute Statement="Tolerance:= LocTolerance"/>
               </When>
               <Otherwise>
                 <rep:Reporter.Error Text="Format('Tolerance could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
-                <Execute Statement="ToleranceVT:= TValueType.vtError"/>
+                <Execute Statement="ToleranceVT:= TValueType.Error"/>
                 <Execute Statement="ErrorTolerance:= Value"/>
               </Otherwise>
             </Choose>
           </On>
-          <On Select="TCustomField.cfAmperageRating">
+          <On Select="TCustomField.AmperageRating">
             <Choose>
-              <When Expression="StrToMicroAmps(Value, LocAmperageRating)">
-                <rep:Reporter.Information Text="Format('AmperageRating: %s', FormatMicroAmp(LocAmperageRating))" Condition="IsVerbose"/>
-                <Execute Statement="AmperageRatingVT:= TValueType.vtSpecified"/>
+              <When Expression="Clear">
+                <Execute Statement="AmperageRatingVT:= TValueType.Cleared"/>
+                <Execute Statement="AmperageRating:= -1"/>
+              </When>
+              <When Expression="InductorAmperageRatingConv.StrToIntValue(Value, LocAmperageRating)">
+                <rep:Reporter.Information Text="Format('AmperageRating: %s', InductorAmperageRatingConv.IntValueToStr(LocAmperageRating))" Condition="IsVerbose"/>
+                <Execute Statement="AmperageRatingVT:= TValueType.Specified"/>
                 <Execute Statement="AmperageRating:= LocAmperageRating"/>
               </When>
               <Otherwise>
                 <rep:Reporter.Error Text="Format('AmperageRating could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
-                <Execute Statement="AmperageRatingVT:= TValueType.vtError"/>
+                <Execute Statement="AmperageRatingVT:= TValueType.Error"/>
                 <Execute Statement="ErrorAmperageRating:= Value"/>
               </Otherwise>
             </Choose>
           </On>
           <Otherwise>
-            <Execute Statement="inherited HandleField(CustomField, Name, Value)"/>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
           </Otherwise>
         </Case>
       </Block>
@@ -220,29 +359,29 @@
         <ConditionalBlock Expression="Template is TInductorSpec">
           <Execute Statement="locTemplate:= TInductorSpec(Template)"/>
           <Case Expression="AmperageRatingVT" Optimalisation="integermapping">
-            <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
               <Case Expression="locTemplate.AmperageRatingVT" Optimalisation="integermapping">
-                <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                   <Execute Statement="AmperageRating:= locTemplate.AmperageRating"/>
-                  <Execute Statement="AmperageRatingVT:= TValueType.vtSpecifiedByTemplate"/>
+                  <Execute Statement="AmperageRatingVT:= TValueType.SpecifiedByTemplate"/>
                 </On>
-                <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                   <Execute Statement="ErrorAmperageRating:= locTemplate.ErrorAmperageRating"/>
-                  <Execute Statement="AmperageRatingVT:= TValueType.vtErrorByTemplate"/>
+                  <Execute Statement="AmperageRatingVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
           </Case>
           <Case Expression="ToleranceVT" Optimalisation="integermapping">
-            <On Select="TValueType.vtUnspecified, TValueType.vtClearedByTemplate, TValueType.vtSpecifiedByTemplate, TValueType.vtErrorByTemplate">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
               <Case Expression="locTemplate.ToleranceVT" Optimalisation="integermapping">
-                <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                   <Execute Statement="Tolerance:= locTemplate.Tolerance"/>
-                  <Execute Statement="ToleranceVT:= TValueType.vtSpecifiedByTemplate"/>
+                  <Execute Statement="ToleranceVT:= TValueType.SpecifiedByTemplate"/>
                 </On>
-                <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                   <Execute Statement="ErrorTolerance:= locTemplate.ErrorTolerance"/>
-                  <Execute Statement="ToleranceVT:= TValueType.vtErrorByTemplate"/>
+                  <Execute Statement="ToleranceVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
@@ -251,7 +390,7 @@
         <Execute Statement="inherited ApplyTemplate"/>
       </Block>
     </Procedure>
-    
+
     <Procedure Identifier="TInductorSpec.GetSpecificationValues">
       <Parameters>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
@@ -260,47 +399,49 @@
         <Parameter Identifier="Tolerance" Type="string" Direction="Output"/>
         <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
         <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
+        <Parameter Identifier="InternalPartNumber" Type="string" Direction="Output"/>
+        <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
         <Case Expression="InductanceVT">
-         <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Value:= ''"/>
           </On>
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="Value:= FormatFemtoHenry(Self.Inductance)"/>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Value:= InductorInductanceConv.IntValueToStr(Self.Inductance)"/>
             <Execute Statement="ESerie:= ESerieOfValue(Self.Inductance)"/>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="Value:= '!' + ErrorInductance + '!'"/>
           </On>
         </Case>
 
         <Case Expression="AmperageRatingVT">
-          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Tolerance:= ''"/>
           </On>
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="AmperageRating:= FormatMicroAmp(Self.AmperageRating)"/>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="AmperageRating:= InductorAmperageRatingConv.IntValueToStr(Self.AmperageRating)"/>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!'"/>
           </On>
         </Case>
 
         <Case Expression="ToleranceVT">
-          <On Select="TValueType.vtUnspecified, TValueType.vtCleared, TValueType.vtClearedByTemplate">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Tolerance:= ''"/>
           </On>
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
-            <Execute Statement="Tolerance:= FormatMicroPercentage(Self.Tolerance)"/>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Tolerance:= InductorToleranceConv.IntValueToStr(Self.Tolerance)"/>
           </On>
-          <On Select="TValueType.vtError, TValueType.vtErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
           </On>
         </Case>
 
 
-        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel)"/>
+        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
 
@@ -316,19 +457,22 @@
         <Variable Identifier="Tolerance" Type="string" Init="''"/>
         <Variable Identifier="Footprint" Type="string" Init="''"/>
         <Variable Identifier="PartNumberModel" Type="string" Init="''"/>
+        <Variable Identifier="InternalPartNumber" Type="string"/>
+        <Variable Identifier="ComponentKind" Type="string" Init="''"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, ESerie, AmpRating, Tolerance, Footprint, PartNumberModel)"/>
+        <Execute Statement="GetSpecificationValues(Value, ESerie, AmpRating, Tolerance, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
             <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
-            <Execute Statement="Value:= Value + ' '" Condition="Value &lt;&gt; ''"/>
-            <Execute Statement="ESerie:= ESerie + ' '" Condition="ESerie &lt;&gt; ''"/>
-            <Execute Statement="Tolerance:= Tolerance + ' '" Condition="Tolerance &lt;&gt; ''"/>
-            <Execute Statement="AmpRating:= AmpRating + ' '" Condition="AmpRating &lt;&gt; ''"/>
-            <Execute Statement="Footprint:= Footprint + ' '" Condition="Footprint &lt;&gt; ''"/>
-            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="PartNumberModel &lt;&gt; ''"/>
+            <Execute Statement="Value:= Value + ' '" Condition="IsNonEmptyString(Value)"/>
+            <Execute Statement="ESerie:= ESerie + ' '" Condition="IsNonEmptyString(ESerie)"/>
+            <Execute Statement="Tolerance:= Tolerance + ' '" Condition="IsNonEmptyString(Tolerance)"/>
+            <Execute Statement="AmpRating:= AmpRating + ' '" Condition="IsNonEmptyString(AmpRating)"/>
+            <Execute Statement="Footprint:= Footprint + ' '" Condition="IsNonEmptyString(Footprint)"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="IsNonEmptyString(PartNumberModel)"/>
+            <Execute Statement="InternalPartNumber:= InternalPartNumber + ' '" Condition="IsNonEmptyString(InternalPartNumber)"/>
             <Choose>
               <When Expression="ReportContext.Measure">
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.Value, 1, Length(Value))"/>
@@ -337,22 +481,27 @@
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.Tolerance, 1, Length(Tolerance))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.FootPrint, 1, Length(Footprint))"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TInductorSpecColumns.InternalPartNumber, 1, Length(InternalPartNumber))"/>
                 <Execute Statement="Result:= ''"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= Format('%*s%*s%*s%*s%*s%-*s%-*s',
+                <Execute Statement="Result:= Format('%*s%*s%*s%*s%*s%-*s%-*s%-*s',
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.Value, 1), Value,
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.ESerie, 1), ESerie,
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.AmpRating, 2), AmpRating,
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.Tolerance, 1), Tolerance,
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.None1, 1), '',
                          ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.FootPrint, 1), Footprint,
-                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.PartNumberModel, 1), PartNumberModel)"/>
+                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.PartNumberModel, 1), PartNumberModel,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TInductorSpecColumns.InternalPartNumber, 1), InternalPartNumber)"/>
               </Otherwise>
             </Choose>
           </On>
-          <On Select="TSpecFormatType.Compressed">
-            <Execute Statement="Result:= ConcatExt(' ', True, Value, Tolerance, AmpRating, Footprint, PartNumberModel)"/>
+          <On Select="TSpecFormatType.Description">
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, Tolerance, AmpRating, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+          </On>
+          <On Select="TSpecFormatType.Name">
+            <Execute Statement="Result:= Value"/>
           </On>
         </Case>
       </Block>
@@ -366,7 +515,7 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Case Expression="ComponentSpec.InductanceVT" Optimalisation="integermapping">
-          <On Select="TValueType.vtSpecifiedByTemplate, TValueType.vtSpecified">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Execute Statement="Result:= True"/>
             <Execute Statement="Key:= ComponentSpec.Inductance"/>
           </On>
@@ -388,7 +537,7 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Choose>
-          <When Expression="InductanceSpecificationIndex.GetLinks(ComponentSpec, FComponentSpecHead, Specifications)">
+          <When Expression="InductanceSpecificationIndex.GetLinks(ComponentSpec, ComponentSpecHead, Specifications)">
             <Execute Statement="Result:= True"/>
           </When>
         </Choose>
@@ -400,20 +549,20 @@
         <Execute Statement="Result:= TInductorSpec.Create"/>
       </Block>
     </Function>
-    
+
     <Function Identifier="TInductorCategory.IsValidSpecification" VirtualMethod="vmIsValidSpecification" Type="Boolean">
       <Parameters>
         <Parameter Identifier="Specification" Type="TComponentSpec"/>
       </Parameters>
       <Block>
         <Case Expression="Specification.ComponentKindVT">
-          <On Select="TValueType.vtSpecified, TValueType.vtSpecifiedByTemplate"/>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate"/>
           <Otherwise>
             <Exit Result="False"/>
           </Otherwise>
         </Case>
         <Case Expression="Specification.ComponentKind">
-          <On Select="TComponentKind.ckInductor"/>
+          <On Select="TComponentKind.Inductor"/>
           <Otherwise>
             <Exit Result="False"/>
           </Otherwise>
@@ -463,7 +612,7 @@
       <Block>
         <Execute Statement="Result:= ObjNil"/>
         <Case Expression="Specification.ComponentKind">
-          <On Select="TComponentKind.ckInductor">
+          <On Select="TComponentKind.Inductor">
             <Execute Statement="Result:= TemplateInductorTHT"/>
           </On>
         </Case>
@@ -490,7 +639,6 @@
   </Procedures>
 
   <Initialization>
-    <Execute Statement="InitInductorTechnologyIndex(InductorTechnologyIndex)"/>
   </Initialization>
 
   <Finalization>

@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <pkg:Program xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns="urn:schemas-www-wisware.nl-xmlscripting"
-            xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
             xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+            xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+            xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
             xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
             xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
             xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
@@ -10,8 +11,6 @@
             xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
             xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
             xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
-            xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
-            xmlns:obj="urn:schemas-www-wisware.nl-xmlscripting-objectlayer"
             xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
             xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd">
   <pkg:ReportTargets>
@@ -19,26 +18,34 @@
     <pkg:Target Identifier="DesignatorReport" Description="Designator report"/>
     <!--<pkg:Target Identifier="DesignatorStockReport" Description="Designator stock report"/>-->
     <pkg:Target Identifier="StockReport" Description="Partkeepr components"/>
+    <pkg:Target Identifier="TaskOutput" Description="Task output"/>
     <pkg:Target Identifier="Info" Description="Info"/>
+    <pkg:Target Identifier="Warnings" Description="Warnings"/>
     <pkg:Target Identifier="Errors" Description="Errors"/>
     <!--<pkg:Target Identifier="Errors" Description="Fouten"/>
     <pkg:Target Identifier="Warnings" Description="Waarschuwingen"/>-->
   </pkg:ReportTargets>
   <pkg:Config xml:space="preserve">[Settings]
-BomFilename=F:\Software development\XmlScripts\Projects\ElectronicsCalculations\Resources.Project\ESeriesBOM.xml
-;BomFilename=F:\Software development\Constructie\FumeExtracter\eSchemas.Project\FumeExtracter.xml
+BomFilename=..\Resources.Project\ESeriesBOM.xml
+;BomFilename=..\..\..\..\Constructie\FumeExtracter\eSchemas.Project\FumeExtracter.xml
 BomCount=1
-ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr
-ExportProjectID=?
+ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeeprTest
+
+[Tasks]
+;None=0, ReportStorageLocations=1, ReportPartKeeprProjects=2, CreateUnmatchedParts=3, ChangeProjectParts=4, ChangePartNames = 5, ChangePartDescriptions=6
+TaskKind=6
+ExportProjectID=3
+ExportUnmatchedComponentsStorageID=1
+
 [Display]
 HideESerieOfValue=0
 HideResistorMaxAmpVolt=0
 HideZenerDiodeMaxAmp=0
-MaxShowResistorMicroVoltage=1MV
+MaxShowResistorVoltage=230V
 
 [Template.Resistor.THT]
 PowerRating = 250mW
-Tolerance = 5%
+Tolerance = 2%
 Technology = metal film
 Footprint = THT
 
@@ -52,7 +59,7 @@ VoltageRating = 50V
 Technology = electrolytic
 Footprint = THT
 
-[Template.Capacitor.THT.rem]
+[Template.Capacitor.THT]
 ;Tolerance = 10%
 VoltageRating = 50V
 Technology = ceramic
@@ -62,6 +69,9 @@ Footprint = THT
 ;Tolerance = 10%
 PowerRating = 1W
 ;Footprint = THT
+
+[Template.Fuse]
+VoltageRating = 250V
 
   </pkg:Config>
   <Imports>
@@ -74,6 +84,8 @@ PowerRating = 1W
     <Import Identifier="ZenerDiodeClasses" Filename="..\Script.Common.Electronics\BOM ZenerDiodeClasses.xml"/>
     <Import Identifier="ConnectorClasses" Filename="..\Script.Common.Electronics\BOM ConnectorClasses.xml"/>
     <Import Identifier="GenericComponentClasses" Filename="..\Script.Common.Electronics\BOM GenericComponentClasses.xml"/>
+    <Import Identifier="DiodeClasses" Filename="..\Script.Common.Electronics\BOM DiodeClasses.xml"/>
+    <Import Identifier="FuseClasses" Filename="..\Script.Common.Electronics\BOM FuseClasses.xml"/>
     <Import Identifier="CategoryContainer" Filename="..\Script.Common.Electronics\BOM CategoryContainer.xml"/>
     <Import Identifier="StockManager" Filename="..\Script.Common.Electronics\BOM StockManager.xml"/>
     <Import Identifier="BillOfMaterialClass" Filename="..\Script.Common.Electronics\BOM BillOfMaterialClass.xml"/>
@@ -83,6 +95,7 @@ PowerRating = 1W
     <Use Identifier="ElectronicUtils"/>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
+    <Use Identifier="ResistorClasses"/>
     <Use Identifier="CategoryContainer"/>
     <Use Identifier="BillOfMaterialClass"/>
     <Use Identifier="StockManager"/>
@@ -92,14 +105,17 @@ PowerRating = 1W
     <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
     <Constant Identifier="secSettings" Type="string" Expression="'Settings'"/>
     <Constant Identifier="secDisplay" Type="string" Expression="'Display'"/>
+    <Constant Identifier="secTasks" Type="string" Expression="'Tasks'"/>
     <Constant Identifier="keyBomFilename" Type="string" Expression="'BomFilename'"/>
     <Constant Identifier="keyBomCount" Type="string" Expression="'BomCount'"/>
     <Constant Identifier="keyConnectionString" Type="string" Expression="'ConnectionString'"/>
     <Constant Identifier="keyExportProjectID" Type="string" Expression="'ExportProjectID'"/>
+    <Constant Identifier="keyTaskKind" Type="string" Expression="'TaskKind'"/>
+    <Constant Identifier="keyExportUnmatchedComponentsStorageID" Type="string" Expression="'ExportUnmatchedComponentsStorageID'"/>
     <Constant Identifier="keyHideESerieOfValue" Type="string" Expression="'HideESerieOfValue'"/>
     <Constant Identifier="keyHideResistorMaxAmpVolt" Type="string" Expression="'HideResistorMaxAmpVolt'"/>
     <Constant Identifier="keyHideZenerDiodeMaxAmp" Type="string" Expression="'HideZenerDiodeMaxAmp'"/>
-    <Constant Identifier="keyMaxShowResistorMicroVoltage" Type="string" Expression="'MaxShowResistorMicroVoltage'"/>
+    <Constant Identifier="keyMaxShowResistorVoltage" Type="string" Expression="'MaxShowResistorVoltage'"/>
   </Constants>
   <Variables>
     <Variable Identifier="ConnectionString" Type="string" Init="connsPartKeepr"/>
@@ -109,17 +125,20 @@ PowerRating = 1W
     <Variable Identifier="BillOfMaterials" Type="TBillOfMaterials" Init="TBillOfMaterials.Create"/>
     <Variable Identifier="StockManager" Type="TStockManager" Init="TStockManager.Create"/>
     <Variable Identifier="DBConnection" Type="Connection"/>
+    <Variable Identifier="TaskKind" Type="TPartKeeprTask" Init="TPartKeeprTask.None"/>
   </Variables>
   <Block>
     <Variable Identifier="StartTime" Type="Int64" Init="QueryPerformanceCounter" />
 
     <rep:Reporter.DefaultTarget Identifier="Info"/>
+    <rep:Reporter.Information Text="Format('Number of component kinds: %d', TComponentKind.High + 1)" Condition="IsVerbose"/>
     <Execute Statement="HideESerieOfValue:= ConfigInifile.ReadBool(secDisplay, keyHideESerieOfValue, HideESerieOfValue)"/>
     <Execute Statement="HideResistorMaxAmpVolt:= ConfigInifile.ReadBool(secDisplay, keyHideResistorMaxAmpVolt, HideESerieOfValue)"/>
     <Execute Statement="HideZenerDiodeMaxAmp:= ConfigInifile.ReadBool(secDisplay, keyHideZenerDiodeMaxAmp, HideESerieOfValue)"/>
-    <Variable Identifier="MaxShowResistorMicroVoltageS" Type="string" Init="ConfigInifile.ReadString(secDisplay, keyMaxShowResistorMicroVoltage, FormatMicroVolt(MaxShowResistorMicroVoltage))"/>
-    <Raise Expression="Exception.Create('Invalid voltage: ' + MaxShowResistorMicroVoltageS)" Condition="not StrToMicroVolts(MaxShowResistorMicroVoltageS, MaxShowResistorMicroVoltage)"/>
+    <Variable Identifier="MaxShowResistorVoltageS" Type="string" Init="ConfigInifile.ReadString(secDisplay, keyMaxShowResistorVoltage, ResistorMaxVoltConv.IntValueToStr(MaxShowResistorVoltage))"/>
+    <Raise Expression="Exception.Create('Invalid voltage: ' + MaxShowResistorVoltageS)" Condition="not ResistorMaxVoltConv.StrToIntValue(MaxShowResistorVoltageS, MaxShowResistorVoltage)"/>
     <Execute Statement="ConnectionString:= ConfigInifile.ReadString(secSettings, keyConnectionString, ConnectionString)"/>
+    <Execute Statement="TaskKind:= ConfigInifile.ReadInteger(secTasks, keyTaskKind, TaskKind)"/>
     <ConditionalBlock Expression="not CommandlineVariables.GetValue(keyBomFilename, BomFilename)">
       <Execute Statement="BomFilename:= ConfigInifile.ReadString(secSettings, keyBomFilename, BomFilename)"/>
     </ConditionalBlock>
@@ -131,43 +150,87 @@ PowerRating = 1W
         <Execute Statement="BomCount:= ConfigInifile.ReadInteger(secSettings, keyBomCount, BomCount)"/>
       </Otherwise>
     </Choose>
+    <Execute Statement="LoadSymbolMappings('F:\Software development\XmlScripts\Projects\ElectronicsCalculations\Resources.Project.ComponentMappings')"/>
+
+    <Execute Statement="BomFilename:= GetFilenameFromBase(ExtractFilePath(ScriptFilename), BomFilename)"/>
+    <sts:ShowStatus.Information Text="sTemplatesFromIniFile"/>
     <Execute Statement="BillOfMaterials.LoadTemplatesFromIniFile(ConfigInifile)"/>
+
+    <sts:ShowStatus.Information Text="sProcessingBOMFile"/>
     <Execute Statement="BillOfMaterials.LoadFromFile(BomFilename)"/>
+
+
+    <sts:ShowStatus.Information Text="sConsolidatingSchema"/>
     <Execute Statement="BillOfMaterials.ConsolidateSpecifications"/>
+
     <ado:Connection.OpenBlock ConnectionString="ConnectionString" Connection="DBConnection">
+      <sts:ShowStatus.Information Text="sReadingKnownUnits"/>
+      <Execute Statement="ReadKnownUnits(DBConnection)"/>
+
+      <sts:ShowStatus.Information Text="sReadingKnownFootPrints"/>
+      <Execute Statement="ReadKnownFootPrints(DBConnection)"/>
+      
+      <sts:ShowStatus.Information Text="sReadingStock"/>
       <Execute Statement="StockManager.LoadFromDB(DBConnection)"/>
+      
+      <sts:ShowStatus.Information Text="sConsolidatingStock"/>
       <Execute Statement="StockManager.ConsolidateSpecifications"/>
 
+      <sts:ShowStatus.Information Text="sMatchComponents"/>
       <Execute Statement="BillOfMaterials.AssignStockComponents(StockManager)"/>
+
+      <sts:ShowStatus.Information Text="sReportBOM"/>
       <rep:Reporter.DefaultTarget Identifier="Report"/>
       <Execute Statement="BillOfMaterials.Report(BomCount)"/>
 
       <rep:Reporter.DefaultTarget Identifier="StockReport"/>
+      <sts:ShowStatus.Information Text="sReportStock"/>
       <Execute Statement="StockManager.Report"/>
       <rep:Reporter.DefaultTarget Identifier="Info"/>
 
       <rep:Reporter.DefaultTarget Identifier="DesignatorReport"/>
+      <sts:ShowStatus.Information Text="sReportDesignators"/>
       <Execute Statement="BillOfMaterials.ReportDesignators"/>
       
 
       <Variable Identifier="EndTime" Type="Int64" Init="QueryPerformanceCounter" />
       <rep:Reporter.Information Text="Format(sTimeMeasure, (EndTime-StartTime)/QueryPerformanceFrequency)" Target="Info"/>
 
-      <Block Condition="ConfigInifile.ValueExists(secSettings, keyExportProjectID)">
-        <rep:Reporter.DefaultTarget Identifier="Info"/>
-        <Variable Identifier="ExportProjectIDString" Type="string" Init="ConfigInifile.ReadString(secSettings, keyExportProjectID, '')"/>
-        <Choose>
-          <When Expression="ExportProjectIDString = '?'">
-            <Execute Statement="ReportPartKeeprProjects(DBConnection)"/>
-          </When>
-          <Otherwise>
-            <Variable Identifier="ExportProjectID" Type="Integer" Init="ConfigInifile.ReadInteger(secSettings, keyExportProjectID, -1)"/>
-            <Execute Statement="ExportToPartKeeprProject(DBConnection, BillOfMaterials, ExportProjectID)" Condition="ExportProjectID &lt;&gt; -1"/>
-            <ExitOnAbortRequest/>
-          </Otherwise>
-        </Choose>
+      <rep:Reporter.DefaultTarget Identifier="Info"/>
+      <Case Expression="TaskKind">
+        <On Select="TPartKeeprTask.ReportStorageLocations">
+          <sts:ShowStatus.Information Text="sReportingStorageLocations"/>
+          <Execute Statement="ReportStorageLocations(DBConnection)"/>
+        </On>
+        <On Select="TPartKeeprTask.ReportPartKeeprProjects">
+          <sts:ShowStatus.Information Text="sReportingProjects"/>
+          <Execute Statement="ReportPartKeeprProjects(DBConnection)"/>
+        </On>
+        <On Select="TPartKeeprTask.ChangeProjectParts, TPartKeeprTask.CreateUnmatchedParts">
+          <Execute Statement="UnmatchedComponentsStorageID:= ConfigInifile.ReadInteger(secTasks, keyExportUnmatchedComponentsStorageID, -1)"/>
+          <sts:ShowStatus.Information Text="sProcessingUnmatchedComponents"/>
+          <Execute Statement="MatchUnmatchedSchemaComponentsToCategories(DBConnection, BillOfMaterials, StockManager, TaskKind=TPartKeeprTask.CreateUnmatchedParts)" Condition="UnmatchedComponentsStorageID &lt;&gt; -1"/>
+          <ExitOnAbortRequest/>
+        </On>
+        <On Select="TPartKeeprTask.ChangePartNames">
+          <sts:ShowStatus.Information Text="sChangePartNames"/>
+          <Execute Statement="ChangePartDescriptions(DBConnection, StockManager, TComponentProperty.Name)"/>
+        </On>
+        <On Select="TPartKeeprTask.ChangePartDescriptions">
+          <sts:ShowStatus.Information Text="sChangePartDescriptions"/>
+          <Execute Statement="ChangePartDescriptions(DBConnection, StockManager, TComponentProperty.Description)"/>
+        </On>
+      </Case>
 
-      </Block>
+      <Case Expression="TaskKind">
+        <On Select="TPartKeeprTask.ChangeProjectParts">
+          <Variable Identifier="ExportProjectID" Type="Integer" Init="ConfigInifile.ReadInteger(secTasks, keyExportProjectID, -1)"/>
+          <sts:ShowStatus.Information Text="sProcessingProjectComponents"/>
+          <Execute Statement="ExportToPartKeeprProject(DBConnection, BillOfMaterials, ExportProjectID)" Condition="ExportProjectID &lt;&gt; -1"/>
+          <ExitOnAbortRequest/>
+        </On>
+      </Case>
+
     </ado:Connection.OpenBlock>
 
   </Block>

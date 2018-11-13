@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns="urn:schemas-www-wisware.nl-codegen-system" 
+           targetNamespace="urn:schemas-www-wisware.nl-codegen-system" 
+           elementFormDefault="qualified" 
+           attributeFormDefault="unqualified">
+  <xs:element name="AbstractGenerator" type="T_AbstractGenerator" abstract="1"/>
+  <xs:complexType name="T_AbstractGenerator"/>
+  <xs:simpleType name="codesectionidentifier">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+</xs:schema>

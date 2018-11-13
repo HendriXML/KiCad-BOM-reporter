@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by MW (EMBRACE) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns="urn:schemas-www-wisware.nl-codegen-document" 
+           xmlns:sys="urn:schemas-www-wisware.nl-codegen-system" 
+           xmlns:wrap="urn:schemas-www-wisware.nl-codegen-classwrappergenerator" 
+           targetNamespace="urn:schemas-www-wisware.nl-codegen-document" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-codegen-system" schemaLocation="CodeGenSystem.xsd"/>
+  <xs:import namespace="urn:schemas-www-wisware.nl-codegen-classwrappergenerator" schemaLocation="ClassWrapperGenerator.xsd"/>
+  <xs:import namespace="urn:schemas-www-wisware.nl-codegen-imagetypegenerator" schemaLocation="ImageTypeGenerator.xsd"/>
+  <xs:import namespace="urn:schemas-www-wisware.nl-codegen-scriptcodegenerator" schemaLocation="ScriptCodeGenerator.xsd"/>
+  <xs:simpleType name="nameencapsulation">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="delphi"/>
+      <xs:enumeration value="csharp"/>
+      <xs:enumeration value="xml"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="T_Document">
+    <xs:sequence>
+      <xs:element name="CodeGenerators">
+        <xs:complexType>
+          <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="sys:AbstractGenerator"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Codepage" type="xs:unsignedLong" use="optional"/>
+    <xs:attribute name="NameEncapsulation" type="nameencapsulation" use="optional"/>
+  </xs:complexType>
+  <xs:element name="Document" type="T_Document"/>
+</xs:schema>
