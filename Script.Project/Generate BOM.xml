@@ -29,7 +29,7 @@
 BomFilename=..\Resources.Project\ESeriesBOM.xml
 ;BomFilename=..\..\..\..\Constructie\FumeExtracter\eSchemas.Project\FumeExtracter.xml
 BomCount=1
-ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeeprTest
+ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr
 
 [Tasks]
 ;None=0, ReportStorageLocations=1, ReportPartKeeprProjects=2, CreateUnmatchedParts=3, ChangeProjectParts=4, ChangePartNames = 5, ChangePartDescriptions=6
