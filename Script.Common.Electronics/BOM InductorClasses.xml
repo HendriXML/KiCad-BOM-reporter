@@ -298,7 +298,7 @@
               <When Expression="InductorInductanceConv.StrToIntValue(Value, LocInductance)">
                 <Execute Statement="InductanceVT:= TValueType.Specified"/>
                 <Execute Statement="Inductance:= LocInductance"/>
-                <rep:Reporter.Information Text="Format('Inductance: %s', InductorInductanceConv.IntValueToStr(LocInductance))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('Inductance: %s', InductorInductanceConv.IntValueToStr(LocInductance, False))" Condition="IsVerbose"/>
               </When>
               <Otherwise>
                 <rep:Reporter.Error Text="Format('Inductance could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
@@ -314,7 +314,7 @@
                 <Execute Statement="Tolerance:= -1"/>
               </When>
               <When Expression="InductorToleranceConv.StrToIntValue(Value, LocTolerance)">
-                <rep:Reporter.Information Text="Format('Tolerance: %s', InductorToleranceConv.IntValueToStr(LocTolerance))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('Tolerance: %s', InductorToleranceConv.IntValueToStr(LocTolerance, False))" Condition="IsVerbose"/>
                 <Execute Statement="ToleranceVT:= TValueType.Specified"/>
                 <Execute Statement="Tolerance:= LocTolerance"/>
               </When>
@@ -332,7 +332,7 @@
                 <Execute Statement="AmperageRating:= -1"/>
               </When>
               <When Expression="InductorAmperageRatingConv.StrToIntValue(Value, LocAmperageRating)">
-                <rep:Reporter.Information Text="Format('AmperageRating: %s', InductorAmperageRatingConv.IntValueToStr(LocAmperageRating))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('AmperageRating: %s', InductorAmperageRatingConv.IntValueToStr(LocAmperageRating, False))" Condition="IsVerbose"/>
                 <Execute Statement="AmperageRatingVT:= TValueType.Specified"/>
                 <Execute Statement="AmperageRating:= LocAmperageRating"/>
               </When>
@@ -393,6 +393,7 @@
 
     <Procedure Identifier="TInductorSpec.GetSpecificationValues">
       <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
         <Parameter Identifier="ESerie" Type="string" Direction="Output"/>
         <Parameter Identifier="AmperageRating" Type="string" Direction="Output"/>
@@ -403,12 +404,13 @@
         <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
+        <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
         <Case Expression="InductanceVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Value:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Value:= InductorInductanceConv.IntValueToStr(Self.Inductance)"/>
+            <Execute Statement="Value:= InductorInductanceConv.IntValueToStr(Self.Inductance, Compact)"/>
             <Execute Statement="ESerie:= ESerieOfValue(Self.Inductance)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -421,7 +423,7 @@
             <Execute Statement="Tolerance:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="AmperageRating:= InductorAmperageRatingConv.IntValueToStr(Self.AmperageRating)"/>
+            <Execute Statement="AmperageRating:= InductorAmperageRatingConv.IntValueToStr(Self.AmperageRating, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!'"/>
@@ -433,7 +435,7 @@
             <Execute Statement="Tolerance:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Tolerance:= InductorToleranceConv.IntValueToStr(Self.Tolerance)"/>
+            <Execute Statement="Tolerance:= InductorToleranceConv.IntValueToStr(Self.Tolerance, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
@@ -441,7 +443,7 @@
         </Case>
 
 
-        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
 
@@ -461,7 +463,7 @@
         <Variable Identifier="ComponentKind" Type="string" Init="''"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, ESerie, AmpRating, Tolerance, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="GetSpecificationValues(FormatType, Value, ESerie, AmpRating, Tolerance, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>

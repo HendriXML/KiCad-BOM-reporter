@@ -1371,6 +1371,7 @@
 
     <Procedure Identifier="TComponentSpec.GetSpecificationValues">
       <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
         <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
         <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
         <Parameter Identifier="InternalPartNumber" Type="string" Direction="Output"/>
@@ -1436,7 +1437,7 @@
         <Variable Identifier="ComponentKind" Type="string"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>

@@ -135,7 +135,7 @@ VoltageRating = 250V
     <Execute Statement="HideESerieOfValue:= ConfigInifile.ReadBool(secDisplay, keyHideESerieOfValue, HideESerieOfValue)"/>
     <Execute Statement="HideResistorMaxAmpVolt:= ConfigInifile.ReadBool(secDisplay, keyHideResistorMaxAmpVolt, HideESerieOfValue)"/>
     <Execute Statement="HideZenerDiodeMaxAmp:= ConfigInifile.ReadBool(secDisplay, keyHideZenerDiodeMaxAmp, HideESerieOfValue)"/>
-    <Variable Identifier="MaxShowResistorVoltageS" Type="string" Init="ConfigInifile.ReadString(secDisplay, keyMaxShowResistorVoltage, ResistorMaxVoltConv.IntValueToStr(MaxShowResistorVoltage))"/>
+    <Variable Identifier="MaxShowResistorVoltageS" Type="string" Init="ConfigInifile.ReadString(secDisplay, keyMaxShowResistorVoltage, ResistorMaxVoltConv.IntValueToStr(MaxShowResistorVoltage, True))"/>
     <Raise Expression="Exception.Create('Invalid voltage: ' + MaxShowResistorVoltageS)" Condition="not ResistorMaxVoltConv.StrToIntValue(MaxShowResistorVoltageS, MaxShowResistorVoltage)"/>
     <Execute Statement="ConnectionString:= ConfigInifile.ReadString(secSettings, keyConnectionString, ConnectionString)"/>
     <Execute Statement="TaskKind:= ConfigInifile.ReadInteger(secTasks, keyTaskKind, TaskKind)"/>

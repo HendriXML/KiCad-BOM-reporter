@@ -574,7 +574,7 @@
                 <Execute Statement="AmperageRating:= -1"/>
               </When>
               <When Expression="ConnectorAmperageRatingConv.StrToIntValue(Value, LocAmperageRating)">
-                <rep:Reporter.Information Text="Format('AmperageRating: %s', ConnectorAmperageRatingConv.IntValueToStr(LocAmperageRating))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('AmperageRating: %s', ConnectorAmperageRatingConv.IntValueToStr(LocAmperageRating, True))" Condition="IsVerbose"/>
                 <Execute Statement="AmperageRatingVT:= TValueType.Specified"/>
                 <Execute Statement="AmperageRating:= LocAmperageRating"/>
               </When>
@@ -594,6 +594,7 @@
     
     <Procedure Identifier="TConnectorSpec.GetSpecificationValues">
       <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
         <Parameter Identifier="AmperageRating" Type="string" Direction="Output"/>
         <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
@@ -602,6 +603,7 @@
         <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
+       <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
         <Case Expression="PinsVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Value:= ''"/>
@@ -626,13 +628,13 @@
             <Execute Statement="AmperageRating:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="AmperageRating:= ConnectorAmperageRatingConv.IntValueToStr(Self.AmperageRating)"/>
+            <Execute Statement="AmperageRating:= ConnectorAmperageRatingConv.IntValueToStr(Self.AmperageRating, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!'"/>
           </On>
         </Case>
-        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
 
@@ -650,7 +652,7 @@
         <Variable Identifier="ComponentKind" Type="string"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, AmpRating, FootPrint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="GetSpecificationValues(FormatType, Value, AmpRating, FootPrint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>

@@ -82,7 +82,7 @@ BomFilename=F:\Software development\XmlScripts\Projects\ElectronicsCalculations\
           <msx:Document.CreateElement Element="ComponentXE" Document="XmlDoc" Name="comp" ParentElement="ComponentsXE" />
           <msx:Element.SetAttribute Element="ComponentXE" Name="ref" Value="Format('R%d', ResistorCount)"/>
           <msx:Document.CreateElement Element="ValueXE" Document="XmlDoc" Name="value" ParentElement="ComponentXE" />
-          <Execute Statement="Value:= ResistorResistanceConv.IntValueToStr(Factor * RunningNode.Value)"/>
+          <Execute Statement="Value:= ResistorResistanceConv.IntValueToStr(Factor * RunningNode.Value, False)"/>
           <Execute Statement="ValueXE.Text:= Value"/>
           <rep:Reporter.Information Text="Value" Target="Resistors"/>
           <msx:Document.CreateElement Element="LibSourceXE" Document="XmlDoc" Name="libsource" ParentElement="ComponentXE" />
@@ -111,7 +111,7 @@ BomFilename=F:\Software development\XmlScripts\Projects\ElectronicsCalculations\
           <msx:Document.CreateElement Element="ComponentXE" Document="XmlDoc" Name="comp" ParentElement="ComponentsXE" />
           <msx:Element.SetAttribute Element="ComponentXE" Name="ref" Value="Format('D%d', ZenderDiodeCount)"/>
           <msx:Document.CreateElement Element="ValueXE" Document="XmlDoc" Name="value" ParentElement="ComponentXE" />
-          <Execute Statement="Value:= ZenerDiodeZenerVoltageConv.IntValueToStr(Factor * RunningNode.Value)"/>
+          <Execute Statement="Value:= ZenerDiodeZenerVoltageConv.IntValueToStr(Factor * RunningNode.Value, False)"/>
           <Execute Statement="ValueXE.Text:= Value"/>
           <rep:Reporter.Information Text="Value" Target="Zenerdiodes"/>
           <msx:Document.CreateElement Element="LibSourceXE" Document="XmlDoc" Name="libsource" ParentElement="ComponentXE" />
@@ -141,7 +141,7 @@ BomFilename=F:\Software development\XmlScripts\Projects\ElectronicsCalculations\
           <msx:Document.CreateElement Element="ComponentXE" Document="XmlDoc" Name="comp" ParentElement="ComponentsXE" />
           <msx:Element.SetAttribute Element="ComponentXE" Name="ref" Value="Format('C%d', CapacitorCount)"/>
           <msx:Document.CreateElement Element="ValueXE" Document="XmlDoc" Name="value" ParentElement="ComponentXE" />
-          <Execute Statement="Value:= CapacitorCapacitanceConv.IntValueToStr(Factor * RunningNode.Value)"/>
+          <Execute Statement="Value:= CapacitorCapacitanceConv.IntValueToStr(Factor * RunningNode.Value, False)"/>
           <Execute Statement="ValueXE.Text:= Value"/>
           <rep:Reporter.Information Text="Value" Target="Capacitors"/>
           <msx:Document.CreateElement Element="LibSourceXE" Document="XmlDoc" Name="libsource" ParentElement="ComponentXE" />

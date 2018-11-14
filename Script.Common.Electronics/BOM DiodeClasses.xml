@@ -293,7 +293,7 @@
                 <Execute Statement="ReverseVoltage:= -1"/>
               </When>
               <When Expression="DiodeReverseVoltageConv.StrToIntValue(Value, LocReverseVoltage)">
-                <rep:Reporter.Information Text="Format('ReverseVoltage: %s', DiodeReverseVoltageConv.IntValueToStr(LocReverseVoltage))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('ReverseVoltage: %s', DiodeReverseVoltageConv.IntValueToStr(LocReverseVoltage, False))" Condition="IsVerbose"/>
                 <Execute Statement="ReverseVoltageVT:= TValueType.Specified"/>
                 <Execute Statement="ReverseVoltage:= LocReverseVoltage"/>
               </When>
@@ -311,7 +311,7 @@
                 <Execute Statement="AmperageRating:= -1"/>
               </When>
               <When Expression="DiodeAmperageRatingConv.StrToIntValue(Value, LocAmperageRating)">
-                <rep:Reporter.Information Text="Format('AmperageRating: %s', DiodeAmperageRatingConv.IntValueToStr(LocAmperageRating))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('AmperageRating: %s', DiodeAmperageRatingConv.IntValueToStr(LocAmperageRating, False))" Condition="IsVerbose"/>
                 <Execute Statement="AmperageRatingVT:= TValueType.Specified"/>
                 <Execute Statement="AmperageRating:= LocAmperageRating"/>
               </When>
@@ -331,7 +331,7 @@
               <When Expression="DiodeForwardVoltageConv.StrToIntValue(Value, LocForwardVoltage)">
                 <Execute Statement="ForwardVoltageVT:= TValueType.Specified"/>
                 <Execute Statement="ForwardVoltage:= LocForwardVoltage"/>
-                <rep:Reporter.Information Text="Format('ForwardVoltage %s', DiodeForwardVoltageConv.IntValueToStr(LocForwardVoltage))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('ForwardVoltage %s', DiodeForwardVoltageConv.IntValueToStr(LocForwardVoltage, False))" Condition="IsVerbose"/>
               </When>
               <Otherwise>
                 <rep:Reporter.Error Text="Format('ForwardVoltage could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
@@ -350,6 +350,7 @@
 
     <Procedure Identifier="TDiodeSpec.GetSpecificationValues">
       <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
         <Parameter Identifier="ReverseVoltage" Type="string" Direction="Output"/>
         <Parameter Identifier="AmperageRating" Type="string" Direction="Output"/>
@@ -360,12 +361,13 @@
         <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
+        <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
         <Case Expression="ReverseVoltageVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="ReverseVoltage:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="ReverseVoltage:= DiodeReverseVoltageConv.IntValueToStr(Self.ReverseVoltage)"/>
+            <Execute Statement="ReverseVoltage:= DiodeReverseVoltageConv.IntValueToStr(Self.ReverseVoltage, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="ReverseVoltage:= '!' + ErrorReverseVoltage + '!'"/>
@@ -377,7 +379,7 @@
             <Execute Statement="AmperageRating:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="AmperageRating:= DiodeAmperageRatingConv.IntValueToStr(Self.AmperageRating)"/>
+            <Execute Statement="AmperageRating:= DiodeAmperageRatingConv.IntValueToStr(Self.AmperageRating, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!'"/>
@@ -389,14 +391,14 @@
             <Execute Statement="ForwardVoltage:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="ForwardVoltage:= DiodeForwardVoltageConv.IntValueToStr(Self.ForwardVoltage)"/>
+            <Execute Statement="ForwardVoltage:= DiodeForwardVoltageConv.IntValueToStr(Self.ForwardVoltage, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="ForwardVoltage:= '!' + ErrorForwardVoltage + '!'"/>
           </On>
         </Case>
 
-        <Execute Statement="inherited GetSpecificationValues(Value, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Value, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
 
@@ -416,7 +418,7 @@
         <Variable Identifier="ComponentKind" Type="string"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, ReverseVoltage, AmperageRating, ForwardVoltage, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="GetSpecificationValues(FormatType, Value, ReverseVoltage, AmperageRating, ForwardVoltage, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>

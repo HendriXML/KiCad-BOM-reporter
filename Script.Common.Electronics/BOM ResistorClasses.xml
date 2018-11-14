@@ -409,7 +409,7 @@
               <When Expression="ResistorResistanceConv.StrToIntValue(Value, LocResistance)">
                 <Execute Statement="ResistanceVT:= TValueType.Specified"/>
                 <Execute Statement="Resistance:= LocResistance"/>
-                <rep:Reporter.Information Text="Format('Resistance: %s', ResistorResistanceConv.IntValueToStr(LocResistance))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('Resistance: %s', ResistorResistanceConv.IntValueToStr(LocResistance, False))" Condition="IsVerbose"/>
               </When>
               <Otherwise>
                 <Execute Statement="ResistanceVT:= TValueType.Error"/>
@@ -425,7 +425,7 @@
                 <Execute Statement="PowerRating:= -1"/>
               </When>
               <When Expression="ResistorPowerRatingConv.StrToIntValue(Value, LocPowerRating)">
-                <rep:Reporter.Information Text="Format('PowerRating: %s', ResistorPowerRatingConv.IntValueToStr(LocPowerRating))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('PowerRating: %s', ResistorPowerRatingConv.IntValueToStr(LocPowerRating, False))" Condition="IsVerbose"/>
                 <Execute Statement="PowerRatingVT:= TValueType.Specified"/>
                 <Execute Statement="PowerRating:= LocPowerRating"/>
               </When>
@@ -443,7 +443,7 @@
                 <Execute Statement="Tolerance:= -1"/>
               </When>
               <When Expression="ResistorToleranceConv.StrToIntValue(Value, LocTolerance)">
-                <rep:Reporter.Information Text="Format('Tolerance: %s', ResistorToleranceConv.IntValueToStr(LocTolerance))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('Tolerance: %s', ResistorToleranceConv.IntValueToStr(LocTolerance, False))" Condition="IsVerbose"/>
                 <Execute Statement="ToleranceVT:= TValueType.Specified"/>
                 <Execute Statement="Tolerance:= LocTolerance"/>
               </When>
@@ -486,6 +486,7 @@
 
     <Procedure Identifier="TResistorSpec.GetSpecificationValues">
       <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
         <Parameter Identifier="ESerie" Type="string" Direction="Output"/>
         <Parameter Identifier="PowerRating" Type="string" Direction="Output"/>
@@ -498,13 +499,14 @@
         <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
+        <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
         <Case Expression="ResistanceVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Value:= ''"/>
             <Execute Statement="ESerie:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Value:= ResistorResistanceConv.IntValueToStr(Self.Resistance)"/>
+            <Execute Statement="Value:= ResistorResistanceConv.IntValueToStr(Self.Resistance, Compact)"/>
             <Execute Statement="ESerie:= ESerieOfValue(Self.Resistance)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -518,7 +520,7 @@
             <Execute Statement="PowerRating:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="PowerRating:= ResistorPowerRatingConv.IntValueToStr(Self.PowerRating)"/>
+            <Execute Statement="PowerRating:= ResistorPowerRatingConv.IntValueToStr(Self.PowerRating, Compact)"/>
             <Block Condition="not HideResistorMaxAmpVolt">
               <Case Expression="ResistanceVT">
                 <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
@@ -538,7 +540,7 @@
                           <Execute Statement="MaxAmpVolt:= '?'"/>
                         </When>
                         <Otherwise>
-                          <Execute Statement="MaxAmpVolt:= ResistorMaxVoltConv.IntValueToStr(SignificantTrunc(MaxPicoVoltage, 1000)) + '|' + ResistorMaxAmpConv.IntValueToStr(SignificantTrunc(MaxPicoAmp, 1000))"/>
+                          <Execute Statement="MaxAmpVolt:= ResistorMaxVoltConv.IntValueToStr(SignificantTrunc(MaxPicoVoltage, 1000), Compact) + '|' + ResistorMaxAmpConv.IntValueToStr(SignificantTrunc(MaxPicoAmp, 1000), Compact)"/>
                         </Otherwise>
                       </Choose>
                     </Otherwise>
@@ -557,7 +559,7 @@
             <Execute Statement="Tolerance:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Tolerance:= ResistorToleranceConv.IntValueToStr(Self.Tolerance)"/>
+            <Execute Statement="Tolerance:= ResistorToleranceConv.IntValueToStr(Self.Tolerance, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
@@ -576,7 +578,7 @@
           </On>
         </Case>
 
-        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
 
@@ -598,7 +600,7 @@
         <Variable Identifier="ComponentKind" Type="string" Init="''"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, ESerie, PowerRating, MaxAmpVolt, Tolerance, Technology, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="GetSpecificationValues(FormatType, Value, ESerie, PowerRating, MaxAmpVolt, Tolerance, Technology, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>

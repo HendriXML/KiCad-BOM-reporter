@@ -298,7 +298,7 @@
               <When Expression="ZenerDiodeZenerVoltageConv.StrToIntValue(Value, LocZenerVoltage)">
                 <Execute Statement="ZenerVoltageVT:= TValueType.Specified"/>
                 <Execute Statement="ZenerVoltage:= LocZenerVoltage"/>
-                <rep:Reporter.Information Text="Format('ZenerVoltage %s', ZenerDiodeZenerVoltageConv.IntValueToStr(LocZenerVoltage))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('ZenerVoltage %s', ZenerDiodeZenerVoltageConv.IntValueToStr(LocZenerVoltage, False))" Condition="IsVerbose"/>
               </When>
               <Otherwise>
                 <rep:Reporter.Error Text="Format('ZenerVoltage could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
@@ -310,7 +310,7 @@
           <On Select="TCustomField.PowerRating">
             <Choose>
               <When Expression="ZenerDiodePowerRatingConv.StrToIntValue(Value, LocPowerRating)">
-                <rep:Reporter.Information Text="Format('PowerRating: %s', ZenerDiodePowerRatingConv.IntValueToStr(LocPowerRating))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('PowerRating: %s', ZenerDiodePowerRatingConv.IntValueToStr(LocPowerRating, False))" Condition="IsVerbose"/>
                 <Execute Statement="PowerRatingVT:= TValueType.Specified"/>
                 <Execute Statement="PowerRating:= LocPowerRating"/>
               </When>
@@ -324,7 +324,7 @@
           <On Select="TCustomField.Tolerance">
             <Choose>
               <When Expression="ZenerDiodeToleranceConv.StrToIntValue(Value, LocTolerance)">
-                <rep:Reporter.Information Text="Format('Tolerance: %s', ZenerDiodeToleranceConv.IntValueToStr(LocTolerance))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('Tolerance: %s', ZenerDiodeToleranceConv.IntValueToStr(LocTolerance, False))" Condition="IsVerbose"/>
                 <Execute Statement="ToleranceVT:= TValueType.Specified"/>
                 <Execute Statement="Tolerance:= LocTolerance"/>
               </When>
@@ -345,6 +345,7 @@
 
     <Procedure Identifier="TZenerDiodeSpec.GetSpecificationValues">
       <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
         <Parameter Identifier="ESerie" Type="string" Direction="Output"/>
         <Parameter Identifier="PowerRating" Type="string" Direction="Output"/>
@@ -356,12 +357,13 @@
         <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
+        <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
         <Case Expression="ZenerVoltageVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Value:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Value:= ZenerDiodeZenerVoltageConv.IntValueToStr(Self.ZenerVoltage)"/>
+            <Execute Statement="Value:= ZenerDiodeZenerVoltageConv.IntValueToStr(Self.ZenerVoltage, Compact)"/>
             <Execute Statement="ESerie:= ESerieOfValue(Self.ZenerVoltage)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -374,7 +376,7 @@
             <Execute Statement="PowerRating:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="PowerRating:= ZenerDiodePowerRatingConv.IntValueToStr(Self.PowerRating)"/>
+            <Execute Statement="PowerRating:= ZenerDiodePowerRatingConv.IntValueToStr(Self.PowerRating, Compact)"/>
             <Block Condition="not HideZenerDiodeMaxAmp and (ZenerVoltage &gt; 0)">
               <Case Expression="ZenerVoltageVT">
                 <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
@@ -384,7 +386,7 @@
                       <Execute Statement="MaxAmp:= '?'"/>
                     </When>
                     <Otherwise>
-                      <Execute Statement="MaxAmp:= ZenerDiodeMaxAmpConv.IntValueToStr(SignificantTrunc(MaxPicoAmp, 1000))"/>
+                      <Execute Statement="MaxAmp:= ZenerDiodeMaxAmpConv.IntValueToStr(SignificantTrunc(MaxPicoAmp, 1000), Compact)"/>
                     </Otherwise>
                   </Choose>
                 </On>
@@ -401,14 +403,14 @@
             <Execute Statement="Tolerance:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Tolerance:= ZenerDiodeToleranceConv.IntValueToStr(Self.Tolerance)"/>
+            <Execute Statement="Tolerance:= ZenerDiodeToleranceConv.IntValueToStr(Self.Tolerance, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
           </On>
         </Case>
 
-        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
 
@@ -429,7 +431,7 @@
         <Variable Identifier="ComponentKind" Type="string"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, ESerie, PowerRating, MaxAmp, Tolerance, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="GetSpecificationValues(FormatType, Value, ESerie, PowerRating, MaxAmp, Tolerance, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>

@@ -906,7 +906,7 @@
       <Init>
         <Task.AddDependency Task="CreatePartKeeprPart" InstanceObject="PartParameter.Part"/>
         <Execute Statement="Value:= NumericValue(PartParameter.Value, Convertor, ScaledValue, ScaledValuePrefix, ScaledUnitInfo)"/>
-        <Task.Description Expression="Format(sCreateNumericParameter, FieldName, Convertor.IntValueToStr(PartParameter.Value))"/>
+        <Task.Description Expression="Format(sCreateNumericParameter, FieldName, Convertor.IntValueToStr(PartParameter.Value, False))"/>
         <Block Condition="not Assigned(ScaledUnitInfo)">
           <Task.MarkFailed/>
           <Exit/>
@@ -988,7 +988,7 @@
           <When Expression="SchemaSpec is TResistorSpec">
             <Case Expression="TResistorSpec(SchemaSpec).ResistanceVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= ResistorResistanceConv.IntValueToStr(TResistorSpec(SchemaSpec).Resistance)"/>
+                <Execute Statement="Part.Name:= ResistorResistanceConv.IntValueToStr(TResistorSpec(SchemaSpec).Resistance, False)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Part.Name:= TResistorSpec(SchemaSpec).ErrorResistance"/>
@@ -1035,7 +1035,7 @@
           <When Expression="SchemaSpec is TCapacitorSpec">
             <Case Expression="TCapacitorSpec(SchemaSpec).CapacitanceVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= CapacitorCapacitanceConv.IntValueToStr(TCapacitorSpec(SchemaSpec).Capacitance)"/>
+                <Execute Statement="Part.Name:= CapacitorCapacitanceConv.IntValueToStr(TCapacitorSpec(SchemaSpec).Capacitance, False)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Part.Name:= TCapacitorSpec(SchemaSpec).ErrorCapacitance"/>
@@ -1082,7 +1082,7 @@
           <When Expression="SchemaSpec is TZenerDiodeSpec">
             <Case Expression="TZenerDiodeSpec(SchemaSpec).ZenerVoltageVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= ZenerDiodeZenerVoltageConv.IntValueToStr(TZenerDiodeSpec(SchemaSpec).ZenerVoltage)"/>
+                <Execute Statement="Part.Name:= ZenerDiodeZenerVoltageConv.IntValueToStr(TZenerDiodeSpec(SchemaSpec).ZenerVoltage, False)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Part.Name:= TZenerDiodeSpec(SchemaSpec).ErrorZenerVoltage"/>
@@ -1162,7 +1162,7 @@
           <When Expression="SchemaSpec is TInductorSpec">
             <Case Expression="TInductorSpec(SchemaSpec).InductanceVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= InductorInductanceConv.IntValueToStr(TInductorSpec(SchemaSpec).Inductance)"/>
+                <Execute Statement="Part.Name:= InductorInductanceConv.IntValueToStr(TInductorSpec(SchemaSpec).Inductance, False)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Part.Name:= TInductorSpec(SchemaSpec).ErrorInductance"/>
@@ -1226,7 +1226,7 @@
           <When Expression="SchemaSpec is TFuseSpec">
             <Case Expression="TFuseSpec(SchemaSpec).AmperageVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= FuseAmperageConv.IntValueToStr(TFuseSpec(SchemaSpec).Amperage)"/>
+                <Execute Statement="Part.Name:= FuseAmperageConv.IntValueToStr(TFuseSpec(SchemaSpec).Amperage, False)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Part.Name:= TFuseSpec(SchemaSpec).ErrorAmperage"/>

@@ -415,7 +415,7 @@
               <When Expression="CapacitorCapacitanceConv.StrToIntValue(Value, LocCapacitance)">
                 <Execute Statement="CapacitanceVT:= TValueType.Specified"/>
                 <Execute Statement="Capacitance:= LocCapacitance"/>
-                <rep:Reporter.Information Text="Format('Capacitance: %s', CapacitorCapacitanceConv.IntValueToStr(LocCapacitance))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('Capacitance: %s', CapacitorCapacitanceConv.IntValueToStr(LocCapacitance, False))" Condition="IsVerbose"/>
               </When>
               <Otherwise>
                 <rep:Reporter.Error Text="Format('Capacitance could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
@@ -431,7 +431,7 @@
                 <Execute Statement="Tolerance:= -1"/>
               </When>
               <When Expression="CapacitorToleranceConv.StrToIntValue(Value, LocTolerance)">
-                <rep:Reporter.Information Text="Format('Tolerance: %s', CapacitorToleranceConv.IntValueToStr(LocTolerance))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('Tolerance: %s', CapacitorToleranceConv.IntValueToStr(LocTolerance, False))" Condition="IsVerbose"/>
                 <Execute Statement="ToleranceVT:= TValueType.Specified"/>
                 <Execute Statement="Tolerance:= LocTolerance"/>
               </When>
@@ -449,7 +449,7 @@
                 <Execute Statement="VoltageRating:= -1"/>
               </When>
               <When Expression="CapacitorVoltageRatingConv.StrToIntValue(Value, LocVoltageRating)">
-                <rep:Reporter.Information Text="Format('VoltageRating: %s', CapacitorVoltageRatingConv.IntValueToStr(LocVoltageRating))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('VoltageRating: %s', CapacitorVoltageRatingConv.IntValueToStr(LocVoltageRating, False))" Condition="IsVerbose"/>
                 <Execute Statement="VoltageRatingVT:= TValueType.Specified"/>
                 <Execute Statement="VoltageRating:= LocVoltageRating"/>
               </When>
@@ -543,6 +543,7 @@
 
     <Procedure Identifier="TCapacitorSpec.GetSpecificationValues">
       <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
         <Parameter Identifier="ESerie" Type="string" Direction="Output"/>
         <Parameter Identifier="VoltageRating" Type="string" Direction="Output"/>
@@ -554,12 +555,13 @@
         <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
+        <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
         <Case Expression="CapacitanceVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Value:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Value:= CapacitorCapacitanceConv.IntValueToStr(Self.Capacitance)"/>
+            <Execute Statement="Value:= CapacitorCapacitanceConv.IntValueToStr(Self.Capacitance, Compact)"/>
             <Execute Statement="ESerie:= ESerieOfValue(Self.Capacitance)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -572,7 +574,7 @@
             <Execute Statement="VoltageRating:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="VoltageRating:= CapacitorVoltageRatingConv.IntValueToStr(Self.VoltageRating)"/>
+            <Execute Statement="VoltageRating:= CapacitorVoltageRatingConv.IntValueToStr(Self.VoltageRating, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="VoltageRating:= '!' + ErrorVoltageRating + '!'"/>
@@ -584,7 +586,7 @@
             <Execute Statement="Tolerance:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Tolerance:= CapacitorToleranceConv.IntValueToStr(Self.Tolerance)"/>
+            <Execute Statement="Tolerance:= CapacitorToleranceConv.IntValueToStr(Self.Tolerance, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
@@ -603,7 +605,7 @@
           </On>
         </Case>
 
-        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
 
@@ -624,7 +626,7 @@
         <Variable Identifier="ComponentKind" Type="string" Init="''"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, ESerie, VoltageRating, Tolerance, Technology, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="GetSpecificationValues(FormatType, Value, ESerie, VoltageRating, Tolerance, Technology, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>

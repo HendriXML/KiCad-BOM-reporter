@@ -51,7 +51,7 @@
     <Use Identifier="ElectronicUtils"/>
   </Uses>-->
         <Type>
-          <Enumeration Identifier="TState" Elements="Start, AfterSign, InNum, AfterDecimalChar, InDecimalFrac, AfterDecimalPrefix, AfterMilliOrMeter, AfterPrefix, InPrefixFrac, AfterFirstUnitChar, Final" LowAlias="Low" HighAlias="High"/>
+          <Enumeration Identifier="TState" Elements="Start, AfterSign, InNum, AfterDecimalChar, InDecimalFrac, AfterNumSep, AfterPrefix, AfterMilliOrMeter, AfterPrefixFracSep, InPrefixFrac, AfterFirstUnitChar, Final" LowAlias="Low" HighAlias="High"/>
 
           <Enumeration Identifier="TPrefix" Elements="Tera, Giga, Mega, Kilo, None, Milli, Micro, Nano, Pico, Femto" LowAlias="Low" HighAlias="High"/>
 
@@ -157,8 +157,8 @@
                 <On Select="TState.InNum">
                   <Execute Statement="Result:= 'InNum'"/>
                 </On>
-                <On Select="TState.AfterPrefix">
-                  <Execute Statement="Result:= 'AfterPrefix'"/>
+                <On Select="TState.AfterPrefixFracSep">
+                  <Execute Statement="Result:= 'AfterPrefixFracSep'"/>
                 </On>
                 <On Select="TState.InPrefixFrac">
                   <Execute Statement="Result:= 'InPrefixFrac'"/>
@@ -169,8 +169,11 @@
                 <On Select="TState.InDecimalFrac">
                   <Execute Statement="Result:= 'InDecimalFrac'"/>
                 </On>
-                <On Select="TState.AfterDecimalPrefix">
-                  <Execute Statement="Result:= 'AfterDecimalPrefix'"/>
+                <On Select="TState.AfterNumSep">
+                  <Execute Statement="Result:= 'AfterNumSep'"/>
+                </On>
+                <On Select="TState.AfterPrefix">
+                  <Execute Statement="Result:= 'AfterPrefix'"/>
                 </On>
                 <On Select="TState.AfterMilliOrMeter">
                   <Execute Statement="Result:= 'AfterMilliOrMeter'"/>
@@ -388,7 +391,16 @@
                   <Execute Statement="BeginCharSelector(sSelector)"/>
                   <Execute Statement="EndCharSelector"/>
                 </On>
-                <On Select="TState.InNum, TState.InDecimalFrac, TState.AfterPrefix, TState.InPrefixFrac, TState.AfterDecimalPrefix, TState.AfterMilliOrMeter">
+                <On Select="TState.InNum, TState.InDecimalFrac">
+                  <Execute Statement="BeginCharSelector('cSpace')"/>
+                  <Execute Statement="ChangeState(TState.AfterNumSep)"/>
+                  <Execute Statement="EndCharSelector"/>
+                  
+                  <Execute Statement="BeginCharSelector('cTab')"/>
+                  <Execute Statement="ChangeState(TState.Final)"/>
+                  <Execute Statement="EndCharSelector"/>
+                </On>
+                <On Select="TState.AfterPrefixFracSep, TState.InPrefixFrac, TState.AfterPrefix, TState.AfterMilliOrMeter, TState.AfterNumSep">
                   <Execute Statement="BeginCharSelector(sSelector)"/>
                   <Execute Statement="ChangeState(TState.Final)"/>
                   <Execute Statement="EndCharSelector"/>
@@ -515,7 +527,7 @@
                 <On Select="TState.InNum">
                   <Execute Statement="ProcessNum(False, TState.InNum)"/>
                 </On>
-                <On Select="TState.AfterPrefix">
+                <On Select="TState.AfterPrefixFracSep">
                   <Execute Statement="ProcessFrac(True, TState.InPrefixFrac)"/>
                 </On>
                 <On Select="TState.AfterDecimalChar">
@@ -563,7 +575,7 @@
               <Execute Statement="CheckUnit"/>
               <Choose>
                 <When Expression="UseAsFrac">
-                  <Execute Statement="ChangeState(TState.AfterPrefix)"/>
+                  <Execute Statement="ChangeState(TState.AfterPrefixFracSep)"/>
                 </When>
                 <Otherwise>
                   <Execute Statement="ChangeState(ToState)"/>
@@ -603,7 +615,7 @@
                 <On Select="TState.InNum">
                   <Execute Statement="HandleUnit(Selector, ToState, UseAsFrac)"/>
                 </On>
-                <On Select="TState.InDecimalFrac, TState.InPrefixFrac, TState.AfterPrefix, TState.AfterDecimalPrefix">
+                <On Select="TState.InDecimalFrac, TState.InPrefixFrac, TState.AfterNumSep, TState.AfterPrefixFracSep, TState.AfterPrefix">
                   <Execute Statement="HandleUnit(Selector, ToState, False)"/>
                 </On>
               </Case>
@@ -620,7 +632,7 @@
               <rep:Reporter.Information Text="Format('               &lt;/When&gt;')"/>
               <rep:Reporter.Information Text="Format('               &lt;Otherwise&gt;')"/>
               <Execute Statement="ChangeVariable('Scale', 'cScaleMilli')"/>
-              <Execute Statement="ChangeState(TState.AfterPrefix)"/>
+              <Execute Statement="ChangeState(TState.AfterPrefixFracSep)"/>
               <rep:Reporter.Information Text="Format('               &lt;/Otherwise&gt;')"/>
               <rep:Reporter.Information Text="Format('              &lt;/Choose&gt;')"/>
 
@@ -667,13 +679,13 @@
                 <On Select="TState.InNum">
                   <Execute Statement="HandleMilliOrMeter"/>
                 </On>
-                <On Select="TState.InDecimalFrac">
-                  <Execute Statement="HandlePrefix('cMilliOrMeter', 'cScaleMilli', TState.AfterDecimalPrefix, '')"/>
+                <On Select="TState.InDecimalFrac, TState.AfterNumSep">
+                  <Execute Statement="HandlePrefix('cMilliOrMeter', 'cScaleMilli', TState.AfterPrefix, '')"/>
                 </On>
                 <On Select="TState.AfterMilliOrMeter">
                   <Execute Statement="HandlePrefix('cMeter', 'cScaleMilli', TState.Final, '')"/>
                 </On>
-                <On Select="TState.InPrefixFrac, TState.AfterPrefix, TState.AfterDecimalPrefix">
+                <On Select="TState.InPrefixFrac, TState.AfterPrefixFracSep, TState.AfterPrefix">
                   <Execute Statement="HandleUnit('cMeter')"/>
                 </On>
               </Case>
@@ -692,10 +704,10 @@
                 <When Expression="Prefix = TPrefix.None">
                   <Case Expression="State">
                     <On Select="TState.InNum">
-                      <Execute Statement="HandlePrefix('cR, cE', '', TState.AfterPrefix, 'SiUnit &amp;lt;&amp;gt; TSiUnit.Ohm')"/>
+                      <Execute Statement="HandlePrefix('cR, cE', '', TState.AfterPrefixFracSep, 'SiUnit &amp;lt;&amp;gt; TSiUnit.Ohm')"/>
                     </On>
                     <On Select="TState.InDecimalFrac">
-                      <Execute Statement="HandlePrefix('cR, cE', '', TState.AfterDecimalPrefix, 'SiUnit &amp;lt;&amp;gt; TSiUnit.Ohm')"/>
+                      <Execute Statement="HandlePrefix('cR, cE', '', TState.AfterPrefix, 'SiUnit &amp;lt;&amp;gt; TSiUnit.Ohm')"/>
                     </On>
                   </Case>
                 </When>
@@ -711,10 +723,10 @@
                   <Variable Identifier="Scale" Type="string" Init="'cScale' + PrefixName(Prefix)"/>
                   <Case Expression="State">
                     <On Select="TState.InNum">
-                      <Execute Statement="HandlePrefix(Selector, Scale, TState.AfterPrefix, '')"/>
+                      <Execute Statement="HandlePrefix(Selector, Scale, TState.AfterPrefixFracSep, '')"/>
                     </On>
-                    <On Select="TState.InDecimalFrac">
-                      <Execute Statement="HandlePrefix(Selector, Scale, TState.AfterDecimalPrefix, '')"/>
+                    <On Select="TState.InDecimalFrac, TState.AfterNumSep">
+                      <Execute Statement="HandlePrefix(Selector, Scale, TState.AfterPrefix, '')"/>
                     </On>
                   </Case>
                 </Otherwise>

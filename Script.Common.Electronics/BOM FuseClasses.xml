@@ -367,7 +367,7 @@
                 <Execute Statement="Amperage:= -1"/>
               </When>
               <When Expression="FuseAmperageConv.StrToIntValue(Value, LocAmperage)">
-                <rep:Reporter.Information Text="Format('Amperage: %s', FuseAmperageConv.IntValueToStr(LocAmperage))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('Amperage: %s', FuseAmperageConv.IntValueToStr(LocAmperage, False))" Condition="IsVerbose"/>
                 <Execute Statement="AmperageVT:= TValueType.Specified"/>
                 <Execute Statement="Amperage:= LocAmperage"/>
               </When>
@@ -385,7 +385,7 @@
                 <Execute Statement="VoltageRating:= -1"/>
               </When>
               <When Expression="FuseVoltageRatingConv.StrToIntValue(Value, LocVoltageRating)">
-                <rep:Reporter.Information Text="Format('VoltageRating: %s', FuseVoltageRatingConv.IntValueToStr(LocVoltageRating))" Condition="IsVerbose"/>
+                <rep:Reporter.Information Text="Format('VoltageRating: %s', FuseVoltageRatingConv.IntValueToStr(LocVoltageRating, False))" Condition="IsVerbose"/>
                 <Execute Statement="VoltageRatingVT:= TValueType.Specified"/>
                 <Execute Statement="VoltageRating:= LocVoltageRating"/>
               </When>
@@ -440,6 +440,7 @@
 
     <Procedure Identifier="TFuseSpec.GetSpecificationValues">
       <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
         <Parameter Identifier="Amperage" Type="string" Direction="Output"/>
         <Parameter Identifier="VoltageRating" Type="string" Direction="Output"/>
         <Parameter Identifier="BreakSpeed" Type="string" Direction="Output"/>
@@ -450,12 +451,13 @@
         <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
+        <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
         <Case Expression="AmperageVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Amperage:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Amperage:= FuseAmperageConv.IntValueToStr(Self.Amperage)"/>
+            <Execute Statement="Amperage:= FuseAmperageConv.IntValueToStr(Self.Amperage, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="Amperage:= '!' + ErrorAmperage + '!'"/>
@@ -467,7 +469,7 @@
             <Execute Statement="VoltageRating:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="VoltageRating:= FuseVoltageRatingConv.IntValueToStr(Self.VoltageRating)"/>
+            <Execute Statement="VoltageRating:= FuseVoltageRatingConv.IntValueToStr(Self.VoltageRating, Compact)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="VoltageRating:= '!' + ErrorVoltageRating + '!'"/>
@@ -498,7 +500,7 @@
           </On>
         </Case>
 
-        <Execute Statement="inherited GetSpecificationValues(Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
 
@@ -518,7 +520,7 @@
         <Variable Identifier="ComponentKind" Type="string"/>
       </Variables>
       <Block>
-        <Execute Statement="GetSpecificationValues(Value, VoltageRating, BreakSpeed, Dimensions, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Execute Statement="GetSpecificationValues(FormatType, Value, VoltageRating, BreakSpeed, Dimensions, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
         <Case Expression="FormatType" Optimalisation="integermapping">
           <On Select="TSpecFormatType.Fixed">
             <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>

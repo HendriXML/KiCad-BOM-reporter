@@ -9,1131 +9,1131 @@
 	</design>
 	<components>
 		<comp ref="R0">
-			<value>1Ω</value>
+			<value>1 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R1">
-			<value>1,1Ω</value>
+			<value>1,1 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R2">
-			<value>1,2Ω</value>
+			<value>1,2 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R3">
-			<value>1,3Ω</value>
+			<value>1,3 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R4">
-			<value>1,5Ω</value>
+			<value>1,5 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R5">
-			<value>1,6Ω</value>
+			<value>1,6 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R6">
-			<value>1,8Ω</value>
+			<value>1,8 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R7">
-			<value>2Ω</value>
+			<value>2 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R8">
-			<value>2,2Ω</value>
+			<value>2,2 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R9">
-			<value>2,4Ω</value>
+			<value>2,4 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R10">
-			<value>2,7Ω</value>
+			<value>2,7 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R11">
-			<value>3Ω</value>
+			<value>3 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R12">
-			<value>3,3Ω</value>
+			<value>3,3 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R13">
-			<value>3,6Ω</value>
+			<value>3,6 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R14">
-			<value>3,9Ω</value>
+			<value>3,9 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R15">
-			<value>4,3Ω</value>
+			<value>4,3 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R16">
-			<value>4,7Ω</value>
+			<value>4,7 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R17">
-			<value>5,1Ω</value>
+			<value>5,1 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R18">
-			<value>5,6Ω</value>
+			<value>5,6 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R19">
-			<value>6,2Ω</value>
+			<value>6,2 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R20">
-			<value>6,8Ω</value>
+			<value>6,8 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R21">
-			<value>7,5Ω</value>
+			<value>7,5 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R22">
-			<value>8,2Ω</value>
+			<value>8,2 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R23">
-			<value>9,1Ω</value>
+			<value>9,1 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R24">
-			<value>10Ω</value>
+			<value>10 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R25">
-			<value>11Ω</value>
+			<value>11 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R26">
-			<value>12Ω</value>
+			<value>12 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R27">
-			<value>13Ω</value>
+			<value>13 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R28">
-			<value>15Ω</value>
+			<value>15 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R29">
-			<value>16Ω</value>
+			<value>16 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R30">
-			<value>18Ω</value>
+			<value>18 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R31">
-			<value>20Ω</value>
+			<value>20 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R32">
-			<value>22Ω</value>
+			<value>22 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R33">
-			<value>24Ω</value>
+			<value>24 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R34">
-			<value>27Ω</value>
+			<value>27 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R35">
-			<value>30Ω</value>
+			<value>30 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R36">
-			<value>33Ω</value>
+			<value>33 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R37">
-			<value>36Ω</value>
+			<value>36 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R38">
-			<value>39Ω</value>
+			<value>39 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R39">
-			<value>43Ω</value>
+			<value>43 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R40">
-			<value>47Ω</value>
+			<value>47 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R41">
-			<value>51Ω</value>
+			<value>51 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R42">
-			<value>56Ω</value>
+			<value>56 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R43">
-			<value>62Ω</value>
+			<value>62 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R44">
-			<value>68Ω</value>
+			<value>68 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R45">
-			<value>75Ω</value>
+			<value>75 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R46">
-			<value>82Ω</value>
+			<value>82 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R47">
-			<value>91Ω</value>
+			<value>91 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R48">
-			<value>100Ω</value>
+			<value>100 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R49">
-			<value>110Ω</value>
+			<value>110 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R50">
-			<value>120Ω</value>
+			<value>120 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R51">
-			<value>130Ω</value>
+			<value>130 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R52">
-			<value>150Ω</value>
+			<value>150 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R53">
-			<value>160Ω</value>
+			<value>160 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R54">
-			<value>180Ω</value>
+			<value>180 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R55">
-			<value>200Ω</value>
+			<value>200 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R56">
-			<value>220Ω</value>
+			<value>220 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R57">
-			<value>240Ω</value>
+			<value>240 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R58">
-			<value>270Ω</value>
+			<value>270 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R59">
-			<value>300Ω</value>
+			<value>300 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R60">
-			<value>330Ω</value>
+			<value>330 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R61">
-			<value>360Ω</value>
+			<value>360 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R62">
-			<value>390Ω</value>
+			<value>390 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R63">
-			<value>430Ω</value>
+			<value>430 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R64">
-			<value>470Ω</value>
+			<value>470 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R65">
-			<value>510Ω</value>
+			<value>510 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R66">
-			<value>560Ω</value>
+			<value>560 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R67">
-			<value>620Ω</value>
+			<value>620 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R68">
-			<value>680Ω</value>
+			<value>680 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R69">
-			<value>750Ω</value>
+			<value>750 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R70">
-			<value>820Ω</value>
+			<value>820 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R71">
-			<value>910Ω</value>
+			<value>910 Ω</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R72">
-			<value>1kΩ</value>
+			<value>1 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R73">
-			<value>1,1kΩ</value>
+			<value>1,1 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R74">
-			<value>1,2kΩ</value>
+			<value>1,2 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R75">
-			<value>1,3kΩ</value>
+			<value>1,3 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R76">
-			<value>1,5kΩ</value>
+			<value>1,5 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R77">
-			<value>1,6kΩ</value>
+			<value>1,6 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R78">
-			<value>1,8kΩ</value>
+			<value>1,8 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R79">
-			<value>2kΩ</value>
+			<value>2 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R80">
-			<value>2,2kΩ</value>
+			<value>2,2 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R81">
-			<value>2,4kΩ</value>
+			<value>2,4 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R82">
-			<value>2,7kΩ</value>
+			<value>2,7 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R83">
-			<value>3kΩ</value>
+			<value>3 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R84">
-			<value>3,3kΩ</value>
+			<value>3,3 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R85">
-			<value>3,6kΩ</value>
+			<value>3,6 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R86">
-			<value>3,9kΩ</value>
+			<value>3,9 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R87">
-			<value>4,3kΩ</value>
+			<value>4,3 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R88">
-			<value>4,7kΩ</value>
+			<value>4,7 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R89">
-			<value>5,1kΩ</value>
+			<value>5,1 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R90">
-			<value>5,6kΩ</value>
+			<value>5,6 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R91">
-			<value>6,2kΩ</value>
+			<value>6,2 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R92">
-			<value>6,8kΩ</value>
+			<value>6,8 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R93">
-			<value>7,5kΩ</value>
+			<value>7,5 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R94">
-			<value>8,2kΩ</value>
+			<value>8,2 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R95">
-			<value>9,1kΩ</value>
+			<value>9,1 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R96">
-			<value>10kΩ</value>
+			<value>10 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R97">
-			<value>11kΩ</value>
+			<value>11 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R98">
-			<value>12kΩ</value>
+			<value>12 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R99">
-			<value>13kΩ</value>
+			<value>13 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R100">
-			<value>15kΩ</value>
+			<value>15 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R101">
-			<value>16kΩ</value>
+			<value>16 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R102">
-			<value>18kΩ</value>
+			<value>18 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R103">
-			<value>20kΩ</value>
+			<value>20 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R104">
-			<value>22kΩ</value>
+			<value>22 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R105">
-			<value>24kΩ</value>
+			<value>24 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R106">
-			<value>27kΩ</value>
+			<value>27 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R107">
-			<value>30kΩ</value>
+			<value>30 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R108">
-			<value>33kΩ</value>
+			<value>33 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R109">
-			<value>36kΩ</value>
+			<value>36 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R110">
-			<value>39kΩ</value>
+			<value>39 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R111">
-			<value>43kΩ</value>
+			<value>43 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R112">
-			<value>47kΩ</value>
+			<value>47 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R113">
-			<value>51kΩ</value>
+			<value>51 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R114">
-			<value>56kΩ</value>
+			<value>56 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R115">
-			<value>62kΩ</value>
+			<value>62 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R116">
-			<value>68kΩ</value>
+			<value>68 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R117">
-			<value>75kΩ</value>
+			<value>75 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R118">
-			<value>82kΩ</value>
+			<value>82 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R119">
-			<value>91kΩ</value>
+			<value>91 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R120">
-			<value>100kΩ</value>
+			<value>100 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R121">
-			<value>110kΩ</value>
+			<value>110 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R122">
-			<value>120kΩ</value>
+			<value>120 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R123">
-			<value>130kΩ</value>
+			<value>130 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R124">
-			<value>150kΩ</value>
+			<value>150 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R125">
-			<value>160kΩ</value>
+			<value>160 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R126">
-			<value>180kΩ</value>
+			<value>180 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R127">
-			<value>200kΩ</value>
+			<value>200 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R128">
-			<value>220kΩ</value>
+			<value>220 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R129">
-			<value>240kΩ</value>
+			<value>240 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R130">
-			<value>270kΩ</value>
+			<value>270 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R131">
-			<value>300kΩ</value>
+			<value>300 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R132">
-			<value>330kΩ</value>
+			<value>330 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R133">
-			<value>360kΩ</value>
+			<value>360 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R134">
-			<value>390kΩ</value>
+			<value>390 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R135">
-			<value>430kΩ</value>
+			<value>430 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R136">
-			<value>470kΩ</value>
+			<value>470 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R137">
-			<value>510kΩ</value>
+			<value>510 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R138">
-			<value>560kΩ</value>
+			<value>560 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R139">
-			<value>620kΩ</value>
+			<value>620 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R140">
-			<value>680kΩ</value>
+			<value>680 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R141">
-			<value>750kΩ</value>
+			<value>750 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R142">
-			<value>820kΩ</value>
+			<value>820 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R143">
-			<value>910kΩ</value>
+			<value>910 kΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R144">
-			<value>1MΩ</value>
+			<value>1 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R145">
-			<value>1,1MΩ</value>
+			<value>1,1 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R146">
-			<value>1,2MΩ</value>
+			<value>1,2 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R147">
-			<value>1,3MΩ</value>
+			<value>1,3 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R148">
-			<value>1,5MΩ</value>
+			<value>1,5 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R149">
-			<value>1,6MΩ</value>
+			<value>1,6 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R150">
-			<value>1,8MΩ</value>
+			<value>1,8 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R151">
-			<value>2MΩ</value>
+			<value>2 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R152">
-			<value>2,2MΩ</value>
+			<value>2,2 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R153">
-			<value>2,4MΩ</value>
+			<value>2,4 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R154">
-			<value>2,7MΩ</value>
+			<value>2,7 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R155">
-			<value>3MΩ</value>
+			<value>3 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R156">
-			<value>3,3MΩ</value>
+			<value>3,3 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R157">
-			<value>3,6MΩ</value>
+			<value>3,6 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R158">
-			<value>3,9MΩ</value>
+			<value>3,9 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R159">
-			<value>4,3MΩ</value>
+			<value>4,3 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R160">
-			<value>4,7MΩ</value>
+			<value>4,7 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R161">
-			<value>5,1MΩ</value>
+			<value>5,1 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R162">
-			<value>5,6MΩ</value>
+			<value>5,6 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R163">
-			<value>6,2MΩ</value>
+			<value>6,2 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R164">
-			<value>6,8MΩ</value>
+			<value>6,8 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R165">
-			<value>7,5MΩ</value>
+			<value>7,5 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R166">
-			<value>8,2MΩ</value>
+			<value>8,2 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R167">
-			<value>9,1MΩ</value>
+			<value>9,1 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R168">
-			<value>10MΩ</value>
+			<value>10 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R169">
-			<value>11MΩ</value>
+			<value>11 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R170">
-			<value>12MΩ</value>
+			<value>12 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R171">
-			<value>13MΩ</value>
+			<value>13 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R172">
-			<value>15MΩ</value>
+			<value>15 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R173">
-			<value>16MΩ</value>
+			<value>16 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R174">
-			<value>18MΩ</value>
+			<value>18 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R175">
-			<value>20MΩ</value>
+			<value>20 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R176">
-			<value>22MΩ</value>
+			<value>22 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R177">
-			<value>24MΩ</value>
+			<value>24 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R178">
-			<value>27MΩ</value>
+			<value>27 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R179">
-			<value>30MΩ</value>
+			<value>30 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R180">
-			<value>33MΩ</value>
+			<value>33 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R181">
-			<value>36MΩ</value>
+			<value>36 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R182">
-			<value>39MΩ</value>
+			<value>39 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R183">
-			<value>43MΩ</value>
+			<value>43 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R184">
-			<value>47MΩ</value>
+			<value>47 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R185">
-			<value>51MΩ</value>
+			<value>51 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R186">
-			<value>56MΩ</value>
+			<value>56 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R187">
-			<value>62MΩ</value>
+			<value>62 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R188">
-			<value>68MΩ</value>
+			<value>68 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R189">
-			<value>75MΩ</value>
+			<value>75 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R190">
-			<value>82MΩ</value>
+			<value>82 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R191">
-			<value>91MΩ</value>
+			<value>91 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R192">
-			<value>100MΩ</value>
+			<value>100 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R193">
-			<value>110MΩ</value>
+			<value>110 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R194">
-			<value>120MΩ</value>
+			<value>120 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R195">
-			<value>130MΩ</value>
+			<value>130 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R196">
-			<value>150MΩ</value>
+			<value>150 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R197">
-			<value>160MΩ</value>
+			<value>160 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R198">
-			<value>180MΩ</value>
+			<value>180 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R199">
-			<value>200MΩ</value>
+			<value>200 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R200">
-			<value>220MΩ</value>
+			<value>220 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R201">
-			<value>240MΩ</value>
+			<value>240 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R202">
-			<value>270MΩ</value>
+			<value>270 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R203">
-			<value>300MΩ</value>
+			<value>300 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R204">
-			<value>330MΩ</value>
+			<value>330 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R205">
-			<value>360MΩ</value>
+			<value>360 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R206">
-			<value>390MΩ</value>
+			<value>390 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R207">
-			<value>430MΩ</value>
+			<value>430 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R208">
-			<value>470MΩ</value>
+			<value>470 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R209">
-			<value>510MΩ</value>
+			<value>510 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R210">
-			<value>560MΩ</value>
+			<value>560 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R211">
-			<value>620MΩ</value>
+			<value>620 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R212">
-			<value>680MΩ</value>
+			<value>680 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R213">
-			<value>750MΩ</value>
+			<value>750 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R214">
-			<value>820MΩ</value>
+			<value>820 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="R215">
-			<value>910MΩ</value>
+			<value>910 MΩ</value>
 			<libsource lib="Device" part="R" description="Resistor"/>
 		</comp>
 		<comp ref="C0">
-			<value>1nF</value>
+			<value>1 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C1">
-			<value>1,5nF</value>
+			<value>1,5 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C2">
-			<value>2,2nF</value>
+			<value>2,2 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C3">
-			<value>3,3nF</value>
+			<value>3,3 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C4">
-			<value>4,7nF</value>
+			<value>4,7 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C5">
-			<value>6,8nF</value>
+			<value>6,8 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C6">
-			<value>10nF</value>
+			<value>10 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C7">
-			<value>15nF</value>
+			<value>15 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C8">
-			<value>22nF</value>
+			<value>22 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C9">
-			<value>33nF</value>
+			<value>33 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C10">
-			<value>47nF</value>
+			<value>47 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C11">
-			<value>68nF</value>
+			<value>68 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C12">
-			<value>100nF</value>
+			<value>100 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C13">
-			<value>150nF</value>
+			<value>150 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C14">
-			<value>220nF</value>
+			<value>220 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C15">
-			<value>330nF</value>
+			<value>330 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C16">
-			<value>470nF</value>
+			<value>470 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C17">
-			<value>680nF</value>
+			<value>680 nF</value>
 			<libsource lib="Device" part="C" description="Capacitor"/>
 		</comp>
 		<comp ref="C18">
-			<value>1μF</value>
+			<value>1 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C19">
-			<value>1,5μF</value>
+			<value>1,5 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C20">
-			<value>2,2μF</value>
+			<value>2,2 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C21">
-			<value>3,3μF</value>
+			<value>3,3 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C22">
-			<value>4,7μF</value>
+			<value>4,7 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C23">
-			<value>6,8μF</value>
+			<value>6,8 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C24">
-			<value>10μF</value>
+			<value>10 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C25">
-			<value>15μF</value>
+			<value>15 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C26">
-			<value>22μF</value>
+			<value>22 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C27">
-			<value>33μF</value>
+			<value>33 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C28">
-			<value>47μF</value>
+			<value>47 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C29">
-			<value>68μF</value>
+			<value>68 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C30">
-			<value>100μF</value>
+			<value>100 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C31">
-			<value>150μF</value>
+			<value>150 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C32">
-			<value>220μF</value>
+			<value>220 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C33">
-			<value>330μF</value>
+			<value>330 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C34">
-			<value>470μF</value>
+			<value>470 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C35">
-			<value>680μF</value>
+			<value>680 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C36">
-			<value>1000μF</value>
+			<value>1000 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C37">
-			<value>1500μF</value>
+			<value>1500 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C38">
-			<value>2200μF</value>
+			<value>2200 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C39">
-			<value>3300μF</value>
+			<value>3300 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C40">
-			<value>4700μF</value>
+			<value>4700 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="C41">
-			<value>6800μF</value>
+			<value>6800 μF</value>
 			<libsource lib="Device" part="CP" description="Capacitor"/>
 		</comp>
 		<comp ref="D0">
-			<value>1V</value>
+			<value>1 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D1">
-			<value>1,2V</value>
+			<value>1,2 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D2">
-			<value>1,5V</value>
+			<value>1,5 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D3">
-			<value>1,8V</value>
+			<value>1,8 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D4">
-			<value>2,2V</value>
+			<value>2,2 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D5">
-			<value>2,7V</value>
+			<value>2,7 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D6">
-			<value>3,3V</value>
+			<value>3,3 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D7">
-			<value>3,9V</value>
+			<value>3,9 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D8">
-			<value>4,7V</value>
+			<value>4,7 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D9">
-			<value>5,6V</value>
+			<value>5,6 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D10">
-			<value>6,8V</value>
+			<value>6,8 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D11">
-			<value>8,2V</value>
+			<value>8,2 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D12">
-			<value>10V</value>
+			<value>10 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D13">
-			<value>12V</value>
+			<value>12 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D14">
-			<value>15V</value>
+			<value>15 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D15">
-			<value>18V</value>
+			<value>18 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D16">
-			<value>22V</value>
+			<value>22 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D17">
-			<value>27V</value>
+			<value>27 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D18">
-			<value>33V</value>
+			<value>33 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D19">
-			<value>39V</value>
+			<value>39 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D20">
-			<value>47V</value>
+			<value>47 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D21">
-			<value>56V</value>
+			<value>56 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D22">
-			<value>68V</value>
+			<value>68 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 		<comp ref="D23">
-			<value>82V</value>
+			<value>82 V</value>
 			<libsource lib="Device" part="D_Zener" description="Zenerdiode"/>
 		</comp>
 	</components>
