@@ -74,7 +74,7 @@ MicroHz
       <Field Identifier="AllowPrefixNano" Type="Boolean"/>
       <Field Identifier="AllowPrefixPico" Type="Boolean"/>
       <Field Identifier="AllowPrefixFemto" Type="Boolean"/>
-<!-->->-->
+      <!-->->-->
     </DataClass>
   </Type>
   <Constants>
@@ -281,16 +281,17 @@ Meter
     <Variable Identifier="_E6Serie" Type="TSerie"/>
     <Variable Identifier="_E3Serie" Type="TSerie"/>
     <!--<-<Variables.Converters-->
-            <Variable Identifier="_PicoVoltConverter" Type="TUnitConvertor"/>
-            <Variable Identifier="_PicoAmpConverter" Type="TUnitConvertor"/>
-            <Variable Identifier="_MicroOhmConverter" Type="TUnitConvertor"/>
-            <Variable Identifier="_FemtoFaradConverter" Type="TUnitConvertor"/>
-            <Variable Identifier="_FemtoHenryConverter" Type="TUnitConvertor"/>
-            <Variable Identifier="_MicroPercConverter" Type="TUnitConvertor"/>
-            <Variable Identifier="_PicoWattConverter" Type="TUnitConvertor"/>
-            <Variable Identifier="_PicoMeterConverter" Type="TUnitConvertor"/>
-            <Variable Identifier="_MicroHzConverter" Type="TUnitConvertor"/>
-<!-->->-->
+    <Variable Identifier="_PicoVoltConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_PicoAmpConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_MicroOhmConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_FemtoFaradConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_FemtoHenryConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_MicroPercConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_PicoWattConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_PicoMeterConverter" Type="TUnitConvertor"/>
+    <Variable Identifier="_MicroHzConverter" Type="TUnitConvertor"/>
+    <!-->->-->
+    <Variable Identifier="DecimalSeparator" Type="Char"/>
   </Variables>
   <Procedures>
     <Function Identifier="DecodeReference" Type="Boolean">
@@ -1277,7 +1278,7 @@ Done:
                 </On>
                 <On Select="c1..c9">
                   <ForLoop Indexer="I" From="0" To="NumNumScale - 1">
-                  <Execute Statement="Num:= Num * 10"/>
+                    <Execute Statement="Num:= Num * 10"/>
                   </ForLoop>
                   <Execute Statement="NumNumScale:= 0"/>
                   <Execute Statement="Num:= Num * 10 + ChrI - CharOrd(c0)"/>
@@ -1306,15 +1307,15 @@ Done:
                   <Execute Statement="State:= TState.AfterPrefixFracSep"/>
                 </On>
                 <On Select="cMilliOrMeter">
-              <Choose>
-                <When Expression="SiUnit = TSiUnit.Meter">
-                  <Execute Statement="State:= TState.AfterMilliOrMeter"/>
-               </When>
-               <Otherwise>
-                  <Execute Statement="Scale:= cScaleMilli"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-               </Otherwise>
-              </Choose>
+                  <Choose>
+                    <When Expression="SiUnit = TSiUnit.Meter">
+                      <Execute Statement="State:= TState.AfterMilliOrMeter"/>
+                    </When>
+                    <Otherwise>
+                      <Execute Statement="Scale:= cScaleMilli"/>
+                      <Execute Statement="State:= TState.AfterPrefixFracSep"/>
+                    </Otherwise>
+                  </Choose>
                 </On>
                 <On Select="cMicro, cMicroAlt, cMicroAlt2">
                   <Execute Statement="Scale:= cScaleMicro"/>
@@ -1401,8 +1402,8 @@ Done:
                 </On>
                 <On Select="c1..c9">
                   <ForLoop Indexer="I" From="0" To="FracNumScale - 1">
-                  <Execute Statement="Frac:= Frac * 10"/>
-                  <Execute Statement="FracScale:= FracScale - 1"/>
+                    <Execute Statement="Frac:= Frac * 10"/>
+                    <Execute Statement="FracScale:= FracScale - 1"/>
                   </ForLoop>
                   <Execute Statement="FracScale:= FracScale - 1"/>
                   <Execute Statement="FracNumScale:= 0"/>
@@ -1689,8 +1690,8 @@ Done:
                 </On>
                 <On Select="c1..c9">
                   <ForLoop Indexer="I" From="0" To="FracNumScale - 1">
-                  <Execute Statement="Frac:= Frac * 10"/>
-                  <Execute Statement="FracScale:= FracScale - 1"/>
+                    <Execute Statement="Frac:= Frac * 10"/>
+                    <Execute Statement="FracScale:= FracScale - 1"/>
                   </ForLoop>
                   <Execute Statement="FracScale:= FracScale - 1"/>
                   <Execute Statement="FracNumScale:= 0"/>
@@ -1756,7 +1757,7 @@ Done:
                 </Otherwise>
               </Case>
             </On>
-<!-->->-->
+            <!-->->-->
           </Case>
         </StringLoop>
         <Case Expression="State" Optimalisation="integermapping">
@@ -1769,140 +1770,140 @@ Done:
             <!--<rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>-->
             <Case Expression="Scale" Optimalisation="integermapping">
               <!--<-<TUnitConvertor.StrToIntValue.NumScaling-->
-            <On Select="-19">
-              <Exit Condition="(Num mod cScaleFactor19) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor19"/>
-            </On>
-            <On Select="-18">
-              <Exit Condition="(Num mod cScaleFactor18) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor18"/>
-            </On>
-            <On Select="-17">
-              <Exit Condition="(Num mod cScaleFactor17) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor17"/>
-            </On>
-            <On Select="-16">
-              <Exit Condition="(Num mod cScaleFactor16) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor16"/>
-            </On>
-            <On Select="-15">
-              <Exit Condition="(Num mod cScaleFactor15) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor15"/>
-            </On>
-            <On Select="-14">
-              <Exit Condition="(Num mod cScaleFactor14) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor14"/>
-            </On>
-            <On Select="-13">
-              <Exit Condition="(Num mod cScaleFactor13) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor13"/>
-            </On>
-            <On Select="-12">
-              <Exit Condition="(Num mod cScaleFactor12) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor12"/>
-            </On>
-            <On Select="-11">
-              <Exit Condition="(Num mod cScaleFactor11) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor11"/>
-            </On>
-            <On Select="-10">
-              <Exit Condition="(Num mod cScaleFactor10) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor10"/>
-            </On>
-            <On Select="-9">
-              <Exit Condition="(Num mod cScaleFactor09) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor09"/>
-            </On>
-            <On Select="-8">
-              <Exit Condition="(Num mod cScaleFactor08) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor08"/>
-            </On>
-            <On Select="-7">
-              <Exit Condition="(Num mod cScaleFactor07) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor07"/>
-            </On>
-            <On Select="-6">
-              <Exit Condition="(Num mod cScaleFactor06) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor06"/>
-            </On>
-            <On Select="-5">
-              <Exit Condition="(Num mod cScaleFactor05) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor05"/>
-            </On>
-            <On Select="-4">
-              <Exit Condition="(Num mod cScaleFactor04) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor04"/>
-            </On>
-            <On Select="-3">
-              <Exit Condition="(Num mod cScaleFactor03) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor03"/>
-            </On>
-            <On Select="-2">
-              <Exit Condition="(Num mod cScaleFactor02) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor02"/>
-            </On>
-            <On Select="-1">
-              <Exit Condition="(Num mod cScaleFactor01) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= Num div cScaleFactor01"/>
-            </On>
-            <On Select="1">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor01"/>
-            </On>
-            <On Select="2">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor02"/>
-            </On>
-            <On Select="3">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor03"/>
-            </On>
-            <On Select="4">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor04"/>
-            </On>
-            <On Select="5">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor05"/>
-            </On>
-            <On Select="6">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor06"/>
-            </On>
-            <On Select="7">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor07"/>
-            </On>
-            <On Select="8">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor08"/>
-            </On>
-            <On Select="9">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor09"/>
-            </On>
-            <On Select="10">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor10"/>
-            </On>
-            <On Select="11">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor11"/>
-            </On>
-            <On Select="12">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor12"/>
-            </On>
-            <On Select="13">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor13"/>
-            </On>
-            <On Select="14">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor14"/>
-            </On>
-            <On Select="15">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor15"/>
-            </On>
-            <On Select="16">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor16"/>
-            </On>
-            <On Select="17">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor17"/>
-            </On>
-            <On Select="18">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor18"/>
-            </On>
-            <On Select="19">
-              <Execute Statement="CheckIntValue:= Num * cScaleFactor19"/>
-            </On>
-<!-->->-->
+              <On Select="-19">
+                <Exit Condition="(Num mod cScaleFactor19) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor19"/>
+              </On>
+              <On Select="-18">
+                <Exit Condition="(Num mod cScaleFactor18) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor18"/>
+              </On>
+              <On Select="-17">
+                <Exit Condition="(Num mod cScaleFactor17) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor17"/>
+              </On>
+              <On Select="-16">
+                <Exit Condition="(Num mod cScaleFactor16) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor16"/>
+              </On>
+              <On Select="-15">
+                <Exit Condition="(Num mod cScaleFactor15) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor15"/>
+              </On>
+              <On Select="-14">
+                <Exit Condition="(Num mod cScaleFactor14) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor14"/>
+              </On>
+              <On Select="-13">
+                <Exit Condition="(Num mod cScaleFactor13) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor13"/>
+              </On>
+              <On Select="-12">
+                <Exit Condition="(Num mod cScaleFactor12) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor12"/>
+              </On>
+              <On Select="-11">
+                <Exit Condition="(Num mod cScaleFactor11) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor11"/>
+              </On>
+              <On Select="-10">
+                <Exit Condition="(Num mod cScaleFactor10) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor10"/>
+              </On>
+              <On Select="-9">
+                <Exit Condition="(Num mod cScaleFactor09) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor09"/>
+              </On>
+              <On Select="-8">
+                <Exit Condition="(Num mod cScaleFactor08) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor08"/>
+              </On>
+              <On Select="-7">
+                <Exit Condition="(Num mod cScaleFactor07) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor07"/>
+              </On>
+              <On Select="-6">
+                <Exit Condition="(Num mod cScaleFactor06) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor06"/>
+              </On>
+              <On Select="-5">
+                <Exit Condition="(Num mod cScaleFactor05) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor05"/>
+              </On>
+              <On Select="-4">
+                <Exit Condition="(Num mod cScaleFactor04) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor04"/>
+              </On>
+              <On Select="-3">
+                <Exit Condition="(Num mod cScaleFactor03) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor03"/>
+              </On>
+              <On Select="-2">
+                <Exit Condition="(Num mod cScaleFactor02) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor02"/>
+              </On>
+              <On Select="-1">
+                <Exit Condition="(Num mod cScaleFactor01) &gt; 0"/>
+                <Execute Statement="CheckIntValue:= Num div cScaleFactor01"/>
+              </On>
+              <On Select="1">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor01"/>
+              </On>
+              <On Select="2">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor02"/>
+              </On>
+              <On Select="3">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor03"/>
+              </On>
+              <On Select="4">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor04"/>
+              </On>
+              <On Select="5">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor05"/>
+              </On>
+              <On Select="6">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor06"/>
+              </On>
+              <On Select="7">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor07"/>
+              </On>
+              <On Select="8">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor08"/>
+              </On>
+              <On Select="9">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor09"/>
+              </On>
+              <On Select="10">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor10"/>
+              </On>
+              <On Select="11">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor11"/>
+              </On>
+              <On Select="12">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor12"/>
+              </On>
+              <On Select="13">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor13"/>
+              </On>
+              <On Select="14">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor14"/>
+              </On>
+              <On Select="15">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor15"/>
+              </On>
+              <On Select="16">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor16"/>
+              </On>
+              <On Select="17">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor17"/>
+              </On>
+              <On Select="18">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor18"/>
+              </On>
+              <On Select="19">
+                <Execute Statement="CheckIntValue:= Num * cScaleFactor19"/>
+              </On>
+              <!-->->-->
               <On Select="0">
                 <Execute Statement="CheckIntValue:= Num"/>
               </On>
@@ -1920,140 +1921,140 @@ Done:
               <!--<rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>-->
               <Case Expression="FracScale" Optimalisation="integermapping">
                 <!--<-<TUnitConvertor.StrToIntValue.FracScaling-->
-            <On Select="-19">
-              <Exit Condition="(Frac mod cScaleFactor19) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor19"/>
-            </On>
-            <On Select="-18">
-              <Exit Condition="(Frac mod cScaleFactor18) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor18"/>
-            </On>
-            <On Select="-17">
-              <Exit Condition="(Frac mod cScaleFactor17) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor17"/>
-            </On>
-            <On Select="-16">
-              <Exit Condition="(Frac mod cScaleFactor16) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor16"/>
-            </On>
-            <On Select="-15">
-              <Exit Condition="(Frac mod cScaleFactor15) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor15"/>
-            </On>
-            <On Select="-14">
-              <Exit Condition="(Frac mod cScaleFactor14) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor14"/>
-            </On>
-            <On Select="-13">
-              <Exit Condition="(Frac mod cScaleFactor13) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor13"/>
-            </On>
-            <On Select="-12">
-              <Exit Condition="(Frac mod cScaleFactor12) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor12"/>
-            </On>
-            <On Select="-11">
-              <Exit Condition="(Frac mod cScaleFactor11) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor11"/>
-            </On>
-            <On Select="-10">
-              <Exit Condition="(Frac mod cScaleFactor10) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor10"/>
-            </On>
-            <On Select="-9">
-              <Exit Condition="(Frac mod cScaleFactor09) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor09"/>
-            </On>
-            <On Select="-8">
-              <Exit Condition="(Frac mod cScaleFactor08) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor08"/>
-            </On>
-            <On Select="-7">
-              <Exit Condition="(Frac mod cScaleFactor07) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor07"/>
-            </On>
-            <On Select="-6">
-              <Exit Condition="(Frac mod cScaleFactor06) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor06"/>
-            </On>
-            <On Select="-5">
-              <Exit Condition="(Frac mod cScaleFactor05) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor05"/>
-            </On>
-            <On Select="-4">
-              <Exit Condition="(Frac mod cScaleFactor04) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor04"/>
-            </On>
-            <On Select="-3">
-              <Exit Condition="(Frac mod cScaleFactor03) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor03"/>
-            </On>
-            <On Select="-2">
-              <Exit Condition="(Frac mod cScaleFactor02) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor02"/>
-            </On>
-            <On Select="-1">
-              <Exit Condition="(Frac mod cScaleFactor01) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor01"/>
-            </On>
-            <On Select="1">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor01"/>
-            </On>
-            <On Select="2">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor02"/>
-            </On>
-            <On Select="3">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor03"/>
-            </On>
-            <On Select="4">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor04"/>
-            </On>
-            <On Select="5">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor05"/>
-            </On>
-            <On Select="6">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor06"/>
-            </On>
-            <On Select="7">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor07"/>
-            </On>
-            <On Select="8">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor08"/>
-            </On>
-            <On Select="9">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor09"/>
-            </On>
-            <On Select="10">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor10"/>
-            </On>
-            <On Select="11">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor11"/>
-            </On>
-            <On Select="12">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor12"/>
-            </On>
-            <On Select="13">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor13"/>
-            </On>
-            <On Select="14">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor14"/>
-            </On>
-            <On Select="15">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor15"/>
-            </On>
-            <On Select="16">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor16"/>
-            </On>
-            <On Select="17">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor17"/>
-            </On>
-            <On Select="18">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor18"/>
-            </On>
-            <On Select="19">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor19"/>
-            </On>
-<!-->->-->
+                <On Select="-19">
+                  <Exit Condition="(Frac mod cScaleFactor19) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor19"/>
+                </On>
+                <On Select="-18">
+                  <Exit Condition="(Frac mod cScaleFactor18) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor18"/>
+                </On>
+                <On Select="-17">
+                  <Exit Condition="(Frac mod cScaleFactor17) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor17"/>
+                </On>
+                <On Select="-16">
+                  <Exit Condition="(Frac mod cScaleFactor16) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor16"/>
+                </On>
+                <On Select="-15">
+                  <Exit Condition="(Frac mod cScaleFactor15) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor15"/>
+                </On>
+                <On Select="-14">
+                  <Exit Condition="(Frac mod cScaleFactor14) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor14"/>
+                </On>
+                <On Select="-13">
+                  <Exit Condition="(Frac mod cScaleFactor13) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor13"/>
+                </On>
+                <On Select="-12">
+                  <Exit Condition="(Frac mod cScaleFactor12) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor12"/>
+                </On>
+                <On Select="-11">
+                  <Exit Condition="(Frac mod cScaleFactor11) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor11"/>
+                </On>
+                <On Select="-10">
+                  <Exit Condition="(Frac mod cScaleFactor10) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor10"/>
+                </On>
+                <On Select="-9">
+                  <Exit Condition="(Frac mod cScaleFactor09) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor09"/>
+                </On>
+                <On Select="-8">
+                  <Exit Condition="(Frac mod cScaleFactor08) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor08"/>
+                </On>
+                <On Select="-7">
+                  <Exit Condition="(Frac mod cScaleFactor07) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor07"/>
+                </On>
+                <On Select="-6">
+                  <Exit Condition="(Frac mod cScaleFactor06) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor06"/>
+                </On>
+                <On Select="-5">
+                  <Exit Condition="(Frac mod cScaleFactor05) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor05"/>
+                </On>
+                <On Select="-4">
+                  <Exit Condition="(Frac mod cScaleFactor04) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor04"/>
+                </On>
+                <On Select="-3">
+                  <Exit Condition="(Frac mod cScaleFactor03) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor03"/>
+                </On>
+                <On Select="-2">
+                  <Exit Condition="(Frac mod cScaleFactor02) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor02"/>
+                </On>
+                <On Select="-1">
+                  <Exit Condition="(Frac mod cScaleFactor01) &gt; 0"/>
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor01"/>
+                </On>
+                <On Select="1">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor01"/>
+                </On>
+                <On Select="2">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor02"/>
+                </On>
+                <On Select="3">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor03"/>
+                </On>
+                <On Select="4">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor04"/>
+                </On>
+                <On Select="5">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor05"/>
+                </On>
+                <On Select="6">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor06"/>
+                </On>
+                <On Select="7">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor07"/>
+                </On>
+                <On Select="8">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor08"/>
+                </On>
+                <On Select="9">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor09"/>
+                </On>
+                <On Select="10">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor10"/>
+                </On>
+                <On Select="11">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor11"/>
+                </On>
+                <On Select="12">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor12"/>
+                </On>
+                <On Select="13">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor13"/>
+                </On>
+                <On Select="14">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor14"/>
+                </On>
+                <On Select="15">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor15"/>
+                </On>
+                <On Select="16">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor16"/>
+                </On>
+                <On Select="17">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor17"/>
+                </On>
+                <On Select="18">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor18"/>
+                </On>
+                <On Select="19">
+                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor19"/>
+                </On>
+                <!-->->-->
                 <On Select="0">
                   <Execute Statement="CheckIntValue:= CheckIntValue + Frac"/>
                 </On>
@@ -2093,64 +2094,64 @@ Done:
             <Exit Result="0"/>
           </On>
           <!--<-<TUnitConvertor.GetScale.DetermineScale-->
-            <On Select="cScaleFactor00..cScaleFactor01 - 1">
-              <Execute Statement="IntScale  := 0"/>
-            </On>
-            <On Select="cScaleFactor01..cScaleFactor02 - 1">
-              <Execute Statement="IntScale  := 1"/>
-            </On>
-            <On Select="cScaleFactor02..cScaleFactor03 - 1">
-              <Execute Statement="IntScale  := 2"/>
-            </On>
-            <On Select="cScaleFactor03..cScaleFactor04 - 1">
-              <Execute Statement="IntScale  := 3"/>
-            </On>
-            <On Select="cScaleFactor04..cScaleFactor05 - 1">
-              <Execute Statement="IntScale  := 4"/>
-            </On>
-            <On Select="cScaleFactor05..cScaleFactor06 - 1">
-              <Execute Statement="IntScale  := 5"/>
-            </On>
-            <On Select="cScaleFactor06..cScaleFactor07 - 1">
-              <Execute Statement="IntScale  := 6"/>
-            </On>
-            <On Select="cScaleFactor07..cScaleFactor08 - 1">
-              <Execute Statement="IntScale  := 7"/>
-            </On>
-            <On Select="cScaleFactor08..cScaleFactor09 - 1">
-              <Execute Statement="IntScale  := 8"/>
-            </On>
-            <On Select="cScaleFactor09..cScaleFactor10 - 1">
-              <Execute Statement="IntScale  := 9"/>
-            </On>
-            <On Select="cScaleFactor10..cScaleFactor11 - 1">
-              <Execute Statement="IntScale  := 10"/>
-            </On>
-            <On Select="cScaleFactor11..cScaleFactor12 - 1">
-              <Execute Statement="IntScale  := 11"/>
-            </On>
-            <On Select="cScaleFactor12..cScaleFactor13 - 1">
-              <Execute Statement="IntScale  := 12"/>
-            </On>
-            <On Select="cScaleFactor13..cScaleFactor14 - 1">
-              <Execute Statement="IntScale  := 13"/>
-            </On>
-            <On Select="cScaleFactor14..cScaleFactor15 - 1">
-              <Execute Statement="IntScale  := 14"/>
-            </On>
-            <On Select="cScaleFactor15..cScaleFactor16 - 1">
-              <Execute Statement="IntScale  := 15"/>
-            </On>
-            <On Select="cScaleFactor16..cScaleFactor17 - 1">
-              <Execute Statement="IntScale  := 16"/>
-            </On>
-            <On Select="cScaleFactor17..cScaleFactor18 - 1">
-              <Execute Statement="IntScale  := 17"/>
-            </On>
-            <On Select="cScaleFactor18..cScaleFactor19 - 1">
-              <Execute Statement="IntScale  := 18"/>
-            </On>
-<!-->->-->
+          <On Select="cScaleFactor00..cScaleFactor01 - 1">
+            <Execute Statement="IntScale  := 0"/>
+          </On>
+          <On Select="cScaleFactor01..cScaleFactor02 - 1">
+            <Execute Statement="IntScale  := 1"/>
+          </On>
+          <On Select="cScaleFactor02..cScaleFactor03 - 1">
+            <Execute Statement="IntScale  := 2"/>
+          </On>
+          <On Select="cScaleFactor03..cScaleFactor04 - 1">
+            <Execute Statement="IntScale  := 3"/>
+          </On>
+          <On Select="cScaleFactor04..cScaleFactor05 - 1">
+            <Execute Statement="IntScale  := 4"/>
+          </On>
+          <On Select="cScaleFactor05..cScaleFactor06 - 1">
+            <Execute Statement="IntScale  := 5"/>
+          </On>
+          <On Select="cScaleFactor06..cScaleFactor07 - 1">
+            <Execute Statement="IntScale  := 6"/>
+          </On>
+          <On Select="cScaleFactor07..cScaleFactor08 - 1">
+            <Execute Statement="IntScale  := 7"/>
+          </On>
+          <On Select="cScaleFactor08..cScaleFactor09 - 1">
+            <Execute Statement="IntScale  := 8"/>
+          </On>
+          <On Select="cScaleFactor09..cScaleFactor10 - 1">
+            <Execute Statement="IntScale  := 9"/>
+          </On>
+          <On Select="cScaleFactor10..cScaleFactor11 - 1">
+            <Execute Statement="IntScale  := 10"/>
+          </On>
+          <On Select="cScaleFactor11..cScaleFactor12 - 1">
+            <Execute Statement="IntScale  := 11"/>
+          </On>
+          <On Select="cScaleFactor12..cScaleFactor13 - 1">
+            <Execute Statement="IntScale  := 12"/>
+          </On>
+          <On Select="cScaleFactor13..cScaleFactor14 - 1">
+            <Execute Statement="IntScale  := 13"/>
+          </On>
+          <On Select="cScaleFactor14..cScaleFactor15 - 1">
+            <Execute Statement="IntScale  := 14"/>
+          </On>
+          <On Select="cScaleFactor15..cScaleFactor16 - 1">
+            <Execute Statement="IntScale  := 15"/>
+          </On>
+          <On Select="cScaleFactor16..cScaleFactor17 - 1">
+            <Execute Statement="IntScale  := 16"/>
+          </On>
+          <On Select="cScaleFactor17..cScaleFactor18 - 1">
+            <Execute Statement="IntScale  := 17"/>
+          </On>
+          <On Select="cScaleFactor18..cScaleFactor19 - 1">
+            <Execute Statement="IntScale  := 18"/>
+          </On>
+          <!-->->-->
           <Otherwise>
             <Execute Statement="IntScale:= 19"/>
           </Otherwise>
@@ -2158,113 +2159,113 @@ Done:
         <Execute Statement="Scale:= IntScale + BaseScale"/>
         <RepeatUntilLoop Expression="True" >
           <!--<-<TUnitConvertor.GetScale.DeterminePrefix-->
-                <Block Condition="AllowPrefixTera">
-                  <Block Condition="(Scale &gt;= cScaleTera)">
-                    <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleTera) &lt;= (PrefixScale-Scale+1))">
-                      <Execute Statement="Prefix:= TPrefix.Tera"/>
-                      <Execute Statement="PrefixScale:= cScaleTera"/>
-                    </Block>
-                    <Break/>
-                  </Block>
-                  <Execute Statement="Prefix:= TPrefix.Tera"/>
-                  <Execute Statement="PrefixScale:= cScaleTera"/>
-               </Block>
-                <Block Condition="AllowPrefixGiga">
-                  <Block Condition="(Scale &gt;= cScaleGiga)">
-                    <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleGiga) &lt;= (PrefixScale-Scale+1))">
-                      <Execute Statement="Prefix:= TPrefix.Giga"/>
-                      <Execute Statement="PrefixScale:= cScaleGiga"/>
-                    </Block>
-                    <Break/>
-                  </Block>
-                  <Execute Statement="Prefix:= TPrefix.Giga"/>
-                  <Execute Statement="PrefixScale:= cScaleGiga"/>
-               </Block>
-                <Block Condition="AllowPrefixMega">
-                  <Block Condition="(Scale &gt;= cScaleMega)">
-                    <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMega) &lt;= (PrefixScale-Scale+1))">
-                      <Execute Statement="Prefix:= TPrefix.Mega"/>
-                      <Execute Statement="PrefixScale:= cScaleMega"/>
-                    </Block>
-                    <Break/>
-                  </Block>
-                  <Execute Statement="Prefix:= TPrefix.Mega"/>
-                  <Execute Statement="PrefixScale:= cScaleMega"/>
-               </Block>
-                <Block Condition="AllowPrefixKilo">
-                  <Block Condition="(Scale &gt;= cScaleKilo)">
-                    <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleKilo) &lt;= (PrefixScale-Scale+1))">
-                      <Execute Statement="Prefix:= TPrefix.Kilo"/>
-                      <Execute Statement="PrefixScale:= cScaleKilo"/>
-                    </Block>
-                    <Break/>
-                  </Block>
-                  <Execute Statement="Prefix:= TPrefix.Kilo"/>
-                  <Execute Statement="PrefixScale:= cScaleKilo"/>
-               </Block>
-                <Block Condition="(Scale &gt;= 0)">
-                  <Execute Statement="Prefix:= TPrefix.None"/>
-                  <Execute Statement="PrefixScale:= 0"/>
-                  <Break/>
-               </Block>
-                <Execute Statement="Prefix:= TPrefix.None"/>
-                <Execute Statement="PrefixScale:= 0"/>
-                <Block Condition="AllowPrefixMilli">
-                  <Block Condition="(Scale &gt;= cScaleMilli)">
-                    <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMilli) &lt;= (PrefixScale-Scale+1))">
-                      <Execute Statement="Prefix:= TPrefix.Milli"/>
-                      <Execute Statement="PrefixScale:= cScaleMilli"/>
-                    </Block>
-                    <Break/>
-                  </Block>
-                  <Execute Statement="Prefix:= TPrefix.Milli"/>
-                  <Execute Statement="PrefixScale:= cScaleMilli"/>
-               </Block>
-                <Block Condition="AllowPrefixMicro">
-                  <Block Condition="(Scale &gt;= cScaleMicro)">
-                    <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMicro) &lt;= (PrefixScale-Scale+1))">
-                      <Execute Statement="Prefix:= TPrefix.Micro"/>
-                      <Execute Statement="PrefixScale:= cScaleMicro"/>
-                    </Block>
-                    <Break/>
-                  </Block>
-                  <Execute Statement="Prefix:= TPrefix.Micro"/>
-                  <Execute Statement="PrefixScale:= cScaleMicro"/>
-               </Block>
-                <Block Condition="AllowPrefixNano">
-                  <Block Condition="(Scale &gt;= cScaleNano)">
-                    <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleNano) &lt;= (PrefixScale-Scale+1))">
-                      <Execute Statement="Prefix:= TPrefix.Nano"/>
-                      <Execute Statement="PrefixScale:= cScaleNano"/>
-                    </Block>
-                    <Break/>
-                  </Block>
-                  <Execute Statement="Prefix:= TPrefix.Nano"/>
-                  <Execute Statement="PrefixScale:= cScaleNano"/>
-               </Block>
-                <Block Condition="AllowPrefixPico">
-                  <Block Condition="(Scale &gt;= cScalePico)">
-                    <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScalePico) &lt;= (PrefixScale-Scale+1))">
-                      <Execute Statement="Prefix:= TPrefix.Pico"/>
-                      <Execute Statement="PrefixScale:= cScalePico"/>
-                    </Block>
-                    <Break/>
-                  </Block>
-                  <Execute Statement="Prefix:= TPrefix.Pico"/>
-                  <Execute Statement="PrefixScale:= cScalePico"/>
-               </Block>
-                <Block Condition="AllowPrefixFemto">
-                  <Block Condition="(Scale &gt;= cScaleFemto)">
-                    <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleFemto) &lt;= (PrefixScale-Scale+1))">
-                      <Execute Statement="Prefix:= TPrefix.Femto"/>
-                      <Execute Statement="PrefixScale:= cScaleFemto"/>
-                    </Block>
-                    <Break/>
-                  </Block>
-                  <Execute Statement="Prefix:= TPrefix.Femto"/>
-                  <Execute Statement="PrefixScale:= cScaleFemto"/>
-               </Block>
-<!-->->-->
+          <Block Condition="AllowPrefixTera">
+            <Block Condition="(Scale &gt;= cScaleTera)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleTera) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Tera"/>
+                <Execute Statement="PrefixScale:= cScaleTera"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Tera"/>
+            <Execute Statement="PrefixScale:= cScaleTera"/>
+          </Block>
+          <Block Condition="AllowPrefixGiga">
+            <Block Condition="(Scale &gt;= cScaleGiga)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleGiga) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Giga"/>
+                <Execute Statement="PrefixScale:= cScaleGiga"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Giga"/>
+            <Execute Statement="PrefixScale:= cScaleGiga"/>
+          </Block>
+          <Block Condition="AllowPrefixMega">
+            <Block Condition="(Scale &gt;= cScaleMega)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMega) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Mega"/>
+                <Execute Statement="PrefixScale:= cScaleMega"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Mega"/>
+            <Execute Statement="PrefixScale:= cScaleMega"/>
+          </Block>
+          <Block Condition="AllowPrefixKilo">
+            <Block Condition="(Scale &gt;= cScaleKilo)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleKilo) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Kilo"/>
+                <Execute Statement="PrefixScale:= cScaleKilo"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Kilo"/>
+            <Execute Statement="PrefixScale:= cScaleKilo"/>
+          </Block>
+          <Block Condition="(Scale &gt;= 0)">
+            <Execute Statement="Prefix:= TPrefix.None"/>
+            <Execute Statement="PrefixScale:= 0"/>
+            <Break/>
+          </Block>
+          <Execute Statement="Prefix:= TPrefix.None"/>
+          <Execute Statement="PrefixScale:= 0"/>
+          <Block Condition="AllowPrefixMilli">
+            <Block Condition="(Scale &gt;= cScaleMilli)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMilli) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Milli"/>
+                <Execute Statement="PrefixScale:= cScaleMilli"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Milli"/>
+            <Execute Statement="PrefixScale:= cScaleMilli"/>
+          </Block>
+          <Block Condition="AllowPrefixMicro">
+            <Block Condition="(Scale &gt;= cScaleMicro)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMicro) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Micro"/>
+                <Execute Statement="PrefixScale:= cScaleMicro"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Micro"/>
+            <Execute Statement="PrefixScale:= cScaleMicro"/>
+          </Block>
+          <Block Condition="AllowPrefixNano">
+            <Block Condition="(Scale &gt;= cScaleNano)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleNano) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Nano"/>
+                <Execute Statement="PrefixScale:= cScaleNano"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Nano"/>
+            <Execute Statement="PrefixScale:= cScaleNano"/>
+          </Block>
+          <Block Condition="AllowPrefixPico">
+            <Block Condition="(Scale &gt;= cScalePico)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScalePico) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Pico"/>
+                <Execute Statement="PrefixScale:= cScalePico"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Pico"/>
+            <Execute Statement="PrefixScale:= cScalePico"/>
+          </Block>
+          <Block Condition="AllowPrefixFemto">
+            <Block Condition="(Scale &gt;= cScaleFemto)">
+              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleFemto) &lt;= (PrefixScale-Scale+1))">
+                <Execute Statement="Prefix:= TPrefix.Femto"/>
+                <Execute Statement="PrefixScale:= cScaleFemto"/>
+              </Block>
+              <Break/>
+            </Block>
+            <Execute Statement="Prefix:= TPrefix.Femto"/>
+            <Execute Statement="PrefixScale:= cScaleFemto"/>
+          </Block>
+          <!-->->-->
         </RepeatUntilLoop>
         <Execute Statement="Scale:= BaseScale - PrefixScale"/>
         <Execute Statement="Result:= Scale"/>
@@ -2291,37 +2292,37 @@ Done:
         <Execute Statement="Scale:= GetScale(Value, Prefix)"/>
         <Case Expression="Prefix" Optimalisation="integermapping">
           <!--<-<TUnitConvertor.IntValueToStr.PrefixLookup-->
-                <On Select="TPrefix.Tera">
-                  <Execute Statement="Result:= cTera"/>
-               </On>
-                <On Select="TPrefix.Giga">
-                  <Execute Statement="Result:= cGiga"/>
-               </On>
-                <On Select="TPrefix.Mega">
-                  <Execute Statement="Result:= cMega"/>
-               </On>
-                <On Select="TPrefix.Kilo">
-                  <Execute Statement="Result:= cKilo"/>
-               </On>
-                <On Select="TPrefix.None">
-                  <Execute Statement="Result:= ''"/>
-               </On>
-                <On Select="TPrefix.Milli">
-                  <Execute Statement="Result:= cMilli"/>
-               </On>
-                <On Select="TPrefix.Micro">
-                  <Execute Statement="Result:= cMicro"/>
-               </On>
-                <On Select="TPrefix.Nano">
-                  <Execute Statement="Result:= cNano"/>
-               </On>
-                <On Select="TPrefix.Pico">
-                  <Execute Statement="Result:= cPico"/>
-               </On>
-                <On Select="TPrefix.Femto">
-                  <Execute Statement="Result:= cFemto"/>
-               </On>
-<!-->->-->
+          <On Select="TPrefix.Tera">
+            <Execute Statement="Result:= cTera"/>
+          </On>
+          <On Select="TPrefix.Giga">
+            <Execute Statement="Result:= cGiga"/>
+          </On>
+          <On Select="TPrefix.Mega">
+            <Execute Statement="Result:= cMega"/>
+          </On>
+          <On Select="TPrefix.Kilo">
+            <Execute Statement="Result:= cKilo"/>
+          </On>
+          <On Select="TPrefix.None">
+            <Execute Statement="Result:= ''"/>
+          </On>
+          <On Select="TPrefix.Milli">
+            <Execute Statement="Result:= cMilli"/>
+          </On>
+          <On Select="TPrefix.Micro">
+            <Execute Statement="Result:= cMicro"/>
+          </On>
+          <On Select="TPrefix.Nano">
+            <Execute Statement="Result:= cNano"/>
+          </On>
+          <On Select="TPrefix.Pico">
+            <Execute Statement="Result:= cPico"/>
+          </On>
+          <On Select="TPrefix.Femto">
+            <Execute Statement="Result:= cFemto"/>
+          </On>
+          <!-->->-->
         </Case>
         <Execute Statement="Result:= Result + UnitS"/>
         <Execute Statement="Result:= NumberUnitSeperator + Result" Condition="not Compact"/>
@@ -2337,7 +2338,7 @@ Done:
               <Execute Statement="Value:= Value div 10"/>
               <Execute Statement="Result:= ToChar(ModVal + cOrd0) + Result" Condition="MandatoryDecimal"/>
             </ForLoop>
-            <Execute Statement="Result:= ',' + Result" Condition="MandatoryDecimal"/>
+            <Execute Statement="Result:= DecimalSeparator+ Result" Condition="MandatoryDecimal"/>
             <RepeatUntilLoop Expression="Value = 0">
               <Execute Statement="ModVal:= Value mod 10"/>
               <Execute Statement="Value:= Value div 10"/>
@@ -2459,106 +2460,106 @@ Done:
       <Block>
         <Case Expression="ConvertorKind" Optimalisation="integermapping">
           <!--<-<GetConverter.Case-->
-            <On Select="TConvertorKind.PicoVolt">
-              <Choose>
-                <When Expression="IsEmpty(_PicoVoltConverter)">
-                  <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                  <Execute Statement="_PicoVoltConverter:= Result"/>
-               </When>
-               <Otherwise>
-                  <Execute Statement="Result:= _PicoVoltConverter"/>
-               </Otherwise>
-              </Choose>
-            </On>
-            <On Select="TConvertorKind.PicoAmp">
-              <Choose>
-                <When Expression="IsEmpty(_PicoAmpConverter)">
-                  <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                  <Execute Statement="_PicoAmpConverter:= Result"/>
-               </When>
-               <Otherwise>
-                  <Execute Statement="Result:= _PicoAmpConverter"/>
-               </Otherwise>
-              </Choose>
-            </On>
-            <On Select="TConvertorKind.MicroOhm">
-              <Choose>
-                <When Expression="IsEmpty(_MicroOhmConverter)">
-                  <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                  <Execute Statement="_MicroOhmConverter:= Result"/>
-               </When>
-               <Otherwise>
-                  <Execute Statement="Result:= _MicroOhmConverter"/>
-               </Otherwise>
-              </Choose>
-            </On>
-            <On Select="TConvertorKind.FemtoFarad">
-              <Choose>
-                <When Expression="IsEmpty(_FemtoFaradConverter)">
-                  <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                  <Execute Statement="_FemtoFaradConverter:= Result"/>
-               </When>
-               <Otherwise>
-                  <Execute Statement="Result:= _FemtoFaradConverter"/>
-               </Otherwise>
-              </Choose>
-            </On>
-            <On Select="TConvertorKind.FemtoHenry">
-              <Choose>
-                <When Expression="IsEmpty(_FemtoHenryConverter)">
-                  <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                  <Execute Statement="_FemtoHenryConverter:= Result"/>
-               </When>
-               <Otherwise>
-                  <Execute Statement="Result:= _FemtoHenryConverter"/>
-               </Otherwise>
-              </Choose>
-            </On>
-            <On Select="TConvertorKind.MicroPerc">
-              <Choose>
-                <When Expression="IsEmpty(_MicroPercConverter)">
-                  <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                  <Execute Statement="_MicroPercConverter:= Result"/>
-               </When>
-               <Otherwise>
-                  <Execute Statement="Result:= _MicroPercConverter"/>
-               </Otherwise>
-              </Choose>
-            </On>
-            <On Select="TConvertorKind.PicoWatt">
-              <Choose>
-                <When Expression="IsEmpty(_PicoWattConverter)">
-                  <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                  <Execute Statement="_PicoWattConverter:= Result"/>
-               </When>
-               <Otherwise>
-                  <Execute Statement="Result:= _PicoWattConverter"/>
-               </Otherwise>
-              </Choose>
-            </On>
-            <On Select="TConvertorKind.PicoMeter">
-              <Choose>
-                <When Expression="IsEmpty(_PicoMeterConverter)">
-                  <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                  <Execute Statement="_PicoMeterConverter:= Result"/>
-               </When>
-               <Otherwise>
-                  <Execute Statement="Result:= _PicoMeterConverter"/>
-               </Otherwise>
-              </Choose>
-            </On>
-            <On Select="TConvertorKind.MicroHz">
-              <Choose>
-                <When Expression="IsEmpty(_MicroHzConverter)">
-                  <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                  <Execute Statement="_MicroHzConverter:= Result"/>
-               </When>
-               <Otherwise>
-                  <Execute Statement="Result:= _MicroHzConverter"/>
-               </Otherwise>
-              </Choose>
-            </On>
-<!-->->-->
+          <On Select="TConvertorKind.PicoVolt">
+            <Choose>
+              <When Expression="IsEmpty(_PicoVoltConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_PicoVoltConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _PicoVoltConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.PicoAmp">
+            <Choose>
+              <When Expression="IsEmpty(_PicoAmpConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_PicoAmpConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _PicoAmpConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.MicroOhm">
+            <Choose>
+              <When Expression="IsEmpty(_MicroOhmConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_MicroOhmConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _MicroOhmConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.FemtoFarad">
+            <Choose>
+              <When Expression="IsEmpty(_FemtoFaradConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_FemtoFaradConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _FemtoFaradConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.FemtoHenry">
+            <Choose>
+              <When Expression="IsEmpty(_FemtoHenryConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_FemtoHenryConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _FemtoHenryConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.MicroPerc">
+            <Choose>
+              <When Expression="IsEmpty(_MicroPercConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_MicroPercConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _MicroPercConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.PicoWatt">
+            <Choose>
+              <When Expression="IsEmpty(_PicoWattConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_PicoWattConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _PicoWattConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.PicoMeter">
+            <Choose>
+              <When Expression="IsEmpty(_PicoMeterConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_PicoMeterConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _PicoMeterConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TConvertorKind.MicroHz">
+            <Choose>
+              <When Expression="IsEmpty(_MicroHzConverter)">
+                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
+                <Execute Statement="_MicroHzConverter:= Result"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= _MicroHzConverter"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <!-->->-->
           <Otherwise>
             <Raise Expression="Exception.Create(Format('Invalid ConvertorKind: %d', ConvertorKind))"/>
           </Otherwise>
@@ -2568,4 +2569,7 @@ Done:
 
 
   </Procedures>
+  <sys:Initialization>
+    <Execute Statement="DecimalSeparator:= GetLocaleChar(GetThreadLocale, LOCALE_SDECIMAL, cDecimalSep1)" Condition="IsEmpty(DecimalSeparator)"/>
+  </sys:Initialization>
 </pkg:Library>

@@ -42,6 +42,8 @@ HideESerieOfValue=0
 HideResistorMaxAmpVolt=0
 HideZenerDiodeMaxAmp=0
 MaxShowResistorVoltage=230V
+;Defaults to system
+;DecimalSeparator=,
 
 [Template.Resistor.THT]
 PowerRating = 250mW
@@ -107,6 +109,7 @@ VoltageRating = 250V
     <Constant Identifier="secDisplay" Type="string" Expression="'Display'"/>
     <Constant Identifier="secTasks" Type="string" Expression="'Tasks'"/>
     <Constant Identifier="keyBomFilename" Type="string" Expression="'BomFilename'"/>
+    <Constant Identifier="keyDecimalSeparator" Type="string" Expression="'DecimalSeparator'"/>
     <Constant Identifier="keyBomCount" Type="string" Expression="'BomCount'"/>
     <Constant Identifier="keyConnectionString" Type="string" Expression="'ConnectionString'"/>
     <Constant Identifier="keyExportProjectID" Type="string" Expression="'ExportProjectID'"/>
@@ -132,6 +135,7 @@ VoltageRating = 250V
 
     <rep:Reporter.DefaultTarget Identifier="Info"/>
     <rep:Reporter.Information Text="Format('Number of component kinds: %d', TComponentKind.High + 1)" Condition="IsVerbose"/>
+    <Execute Statement="DecimalSeparator:= ConfigInifile.ReadString(secDisplay, keyDecimalSeparator, DecimalSeparator)"/>
     <Execute Statement="HideESerieOfValue:= ConfigInifile.ReadBool(secDisplay, keyHideESerieOfValue, HideESerieOfValue)"/>
     <Execute Statement="HideResistorMaxAmpVolt:= ConfigInifile.ReadBool(secDisplay, keyHideResistorMaxAmpVolt, HideESerieOfValue)"/>
     <Execute Statement="HideZenerDiodeMaxAmp:= ConfigInifile.ReadBool(secDisplay, keyHideZenerDiodeMaxAmp, HideESerieOfValue)"/>
