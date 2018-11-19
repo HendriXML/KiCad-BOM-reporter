@@ -27,6 +27,7 @@
   </pkg:ReportTargets>
   <pkg:Config xml:space="preserve">[Settings]
 BomFilename=..\Resources.Project\ESeriesBOM.xml
+;BomFilename=..\Resources.Project\130 x 20 resistors.xml
 ;BomFilename=..\..\..\..\Constructie\FumeExtracter\eSchemas.Project\FumeExtracter.xml
 BomCount=1
 ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr
@@ -34,7 +35,7 @@ ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=Part
 [Tasks]
 ;None=0, ReportStorageLocations=1, ReportPartKeeprProjects=2, CreateUnmatchedParts=3, ChangeProjectParts=4, ChangePartNames = 5, ChangePartDescriptions=6
 TaskKind=6
-ExportProjectID=3
+ExportProjectID=1
 ExportUnmatchedComponentsStorageID=1
 
 [Display]
@@ -230,7 +231,7 @@ VoltageRating = 250V
         <On Select="TPartKeeprTask.ChangeProjectParts">
           <Variable Identifier="ExportProjectID" Type="Integer" Init="ConfigInifile.ReadInteger(secTasks, keyExportProjectID, -1)"/>
           <sts:ShowStatus.Information Text="sProcessingProjectComponents"/>
-          <Execute Statement="ExportToPartKeeprProject(DBConnection, BillOfMaterials, ExportProjectID)" Condition="ExportProjectID &lt;&gt; -1"/>
+          <Execute Statement="ExportToPartKeeprProject(DBConnection, BillOfMaterials, ExportProjectID, BomCount)" Condition="ExportProjectID &lt;&gt; -1"/>
           <ExitOnAbortRequest/>
         </On>
       </Case>

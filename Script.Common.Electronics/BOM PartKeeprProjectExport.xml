@@ -252,6 +252,7 @@
         <Parameter Identifier="DBConnection" Type="Connection"/>
         <Parameter Identifier="BillOfMaterials" Type="TBillOfMaterials"/>
         <Parameter Identifier="ProjectID" Type="Integer"/>
+        <Parameter Identifier="Amount" Type="Integer"/>
       </Parameters>
       <Type>
         <DataClass Identifier="TTaskObject">
@@ -354,7 +355,7 @@
                 <lil:LinkedList.Iterate Head="Spec.SchemaComponentHead" ItemType="TSchemaComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
                   <Execute Statement="ComponentDesignators:= ComponentDesignators + ', '" Condition="DoSeperate"/>
                   <Execute Statement="ComponentDesignators:= ComponentDesignators + RunningComponent.Reference"/>
-                  <Execute Statement="TotCount:= TotCount + 1"/>
+                  <Execute Statement="TotCount:= TotCount + Amount"/>
                   <Execute Statement="DoSeperate:= True"/>
                 </lil:LinkedList.Iterate>
                 <lil:LinkedList.Iterate Head="Spec.MatchedSpecLinkHead" ItemType="TSpecificationLink" RunningItem="RunningSpecLink" Next="RunningSpecLink.Next">
