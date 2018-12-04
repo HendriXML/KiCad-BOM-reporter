@@ -1039,6 +1039,9 @@
               <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
                 <Execute Statement="Result:= 1"/>
               </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="-1"/>
+              </On>
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                 <Choose>
                   <When Expression="ValueA &lt; ValueB">
@@ -1055,6 +1058,7 @@
             <Case Expression="ValueTypeB">
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit Result="-1" Condition="ItemIDA &lt; ItemIDB"/>
+                <Execute Statement="Result:= 1"/>
               </On>
               <Otherwise>
                 <Execute Statement="Result:= 1"/>

@@ -5,6 +5,8 @@
   </Library>
   <Library Name="Connector" Component="Connector">
   </Library>
+  <Library Name="Jumper" Component="NonComponent">
+  </Library>
   <Library Name="Comparator" Component="Comparator">
   </Library>
   <Library Name="Diode">
@@ -14,6 +16,7 @@
   </Library>
   <Library Name="Transistor_BJT">
     <Part Part="2N3906" Component="PNPTransistor"/>
+    <Part Part="2N3904" Component="NPNTransistor"/>
     <Part Part="TIP125" Component="PNPTransistor"/>
   </Library>
   <Library Name="Transistor_FET">

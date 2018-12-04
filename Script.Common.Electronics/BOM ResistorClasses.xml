@@ -458,7 +458,7 @@
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="TechnologyVT:= TValueType.Cleared"/>
-                <Execute Statement="Technology:= -1"/>
+                <Execute Statement="Technology:= 0"/>
               </When>
               <Otherwise>
                 <inx:Index.FindValue Index="ResistorTechnologyIndex" Key="Value" Value="LocTechnology" Found="Found" Flags="NoErrorOnNotFound" />
