@@ -13,6 +13,13 @@
     <Part Part="1N5817" Component="SchottkyDiode"/>
     <Part Part="1N5818" Component="SchottkyDiode"/>
     <Part Part="1N5819" Component="SchottkyDiode"/>
+    <Part Part="1N4001" Component="Diode"/>
+    <Part Part="1N4002" Component="Diode"/>
+    <Part Part="1N4003" Component="Diode"/>
+    <Part Part="1N4004" Component="Diode"/>
+    <Part Part="1N4005" Component="Diode"/>
+    <Part Part="1N4006" Component="Diode"/>
+    <Part Part="1N4007" Component="Diode"/>
   </Library>
   <Library Name="Transistor_BJT">
     <Part Part="2N3906" Component="PNPTransistor"/>

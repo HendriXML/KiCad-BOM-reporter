@@ -131,6 +131,7 @@ Yocto
     <Constant Identifier="cMicroAlt2" Type="Char" Expression="'u'"/>
     <Constant Identifier="cR" Type="Char" Expression="'R'"/>
     <Constant Identifier="cE" Type="Char" Expression="'E'"/>
+    <Constant Identifier="cK" Type="Char" Expression="'K'"/>
 
 
     <Constant Identifier="sKibi" Type="string" Expression="'Ki'"/>
@@ -1302,6 +1303,11 @@ Done:
                   <Execute Statement="Scale:= cScaleKilo"/>
                   <Execute Statement="State:= TState.AfterPrefixFracSep"/>
                 </On>
+                <On Select="cK">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                  <Execute Statement="Scale:= cScaleKilo"/>
+                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
+                </On>
                 <On Select="cR, cE">
                   <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
                   <Execute Statement="State:= TState.AfterPrefixFracSep"/>
@@ -1425,6 +1431,11 @@ Done:
                   <Execute Statement="Scale:= cScaleKilo"/>
                   <Execute Statement="State:= TState.AfterPrefix"/>
                 </On>
+                <On Select="cK">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                  <Execute Statement="Scale:= cScaleKilo"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
                 <On Select="cR, cE">
                   <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
                   <Execute Statement="State:= TState.AfterPrefix"/>
@@ -1504,6 +1515,11 @@ Done:
                   <Execute Statement="State:= TState.AfterPrefix"/>
                 </On>
                 <On Select="cKilo">
+                  <Execute Statement="Scale:= cScaleKilo"/>
+                  <Execute Statement="State:= TState.AfterPrefix"/>
+                </On>
+                <On Select="cK">
+                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
                   <Execute Statement="Scale:= cScaleKilo"/>
                   <Execute Statement="State:= TState.AfterPrefix"/>
                 </On>
