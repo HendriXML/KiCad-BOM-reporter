@@ -1037,7 +1037,7 @@
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Case Expression="ValueTypeB">
               <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-                <Execute Statement="Result:= 1"/>
+                <Execute Statement="Result:= -1"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit Result="-1"/>

@@ -724,9 +724,11 @@
                   <Case Expression="State">
                     <On Select="TState.InNum">
                       <Execute Statement="HandlePrefix(Selector, Scale, TState.AfterPrefixFracSep, '')"/>
+                      <Execute Statement="HandlePrefix('cK', Scale, TState.AfterPrefixFracSep, 'SiUnit &amp;lt;&amp;gt; TSiUnit.Ohm')" Condition="Prefix = TPrefix.Kilo"/>
                     </On>
                     <On Select="TState.InDecimalFrac, TState.AfterNumSep">
                       <Execute Statement="HandlePrefix(Selector, Scale, TState.AfterPrefix, '')"/>
+                      <Execute Statement="HandlePrefix('cK', Scale, TState.AfterPrefix, 'SiUnit &amp;lt;&amp;gt; TSiUnit.Ohm')" Condition="Prefix = TPrefix.Kilo"/>
                     </On>
                   </Case>
                 </Otherwise>

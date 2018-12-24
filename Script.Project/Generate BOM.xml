@@ -28,13 +28,13 @@
   <pkg:Config xml:space="preserve">[Settings]
 BomFilename=..\Resources.Project\ESeriesBOM.xml
 ;BomFilename=..\Resources.Project\130 x 20 resistors.xml
-;BomFilename=..\..\..\..\Constructie\FumeExtracter\eSchemas.Project\FumeExtracter.xml
 BomCount=1
 ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr
+SymbolMappingDirectory=..\Resources.Project.ComponentMappings
 
 [Tasks]
 ;None=0, ReportStorageLocations=1, ReportPartKeeprProjects=2, CreateUnmatchedParts=3, ChangeProjectParts=4, ChangePartNames = 5, ChangePartDescriptions=6
-TaskKind=6
+TaskKind=0
 ExportProjectID=1
 ExportUnmatchedComponentsStorageID=1
 
@@ -120,10 +120,13 @@ VoltageRating = 250V
     <Constant Identifier="keyHideResistorMaxAmpVolt" Type="string" Expression="'HideResistorMaxAmpVolt'"/>
     <Constant Identifier="keyHideZenerDiodeMaxAmp" Type="string" Expression="'HideZenerDiodeMaxAmp'"/>
     <Constant Identifier="keyMaxShowResistorVoltage" Type="string" Expression="'MaxShowResistorVoltage'"/>
+    <Constant Identifier="keySymbolMappingDirectory" Type="string" Expression="'SymbolMappingDirectory'"/>
   </Constants>
   <Variables>
     <Variable Identifier="ConnectionString" Type="string" Init="connsPartKeepr"/>
     <Variable Identifier="BomFilename" Type="string" Init="''"/>
+    <Variable Identifier="ScriptPath" Type="string" Init="''"/>
+    <Variable Identifier="SymbolMappingDirectory" Type="string" Init="'..\Resources.Project.ComponentMappings'"/>
     <Variable Identifier="BomCountS" Type="string" Init="''"/>
     <Variable Identifier="BomCount" Type="Integer" Init="1"/>
     <Variable Identifier="BillOfMaterials" Type="TBillOfMaterials" Init="TBillOfMaterials.Create"/>
@@ -155,9 +158,11 @@ VoltageRating = 250V
         <Execute Statement="BomCount:= ConfigInifile.ReadInteger(secSettings, keyBomCount, BomCount)"/>
       </Otherwise>
     </Choose>
-    <Execute Statement="LoadSymbolMappings('F:\Software development\XmlScripts\Projects\ElectronicsCalculations\Resources.Project.ComponentMappings')"/>
+    <Execute Statement="ScriptPath:= ExtractFilePath(ScriptFilename)"/>
+    <Execute Statement="SymbolMappingDirectory:= GetFilenameFromBase(ScriptPath, ConfigInifile.ReadString(secSettings, keySymbolMappingDirectory, SymbolMappingDirectory))"/>
+    <Execute Statement="LoadSymbolMappings(SymbolMappingDirectory)"/>
 
-    <Execute Statement="BomFilename:= GetFilenameFromBase(ExtractFilePath(ScriptFilename), BomFilename)"/>
+    <Execute Statement="BomFilename:= GetFilenameFromBase(ScriptPath, BomFilename)"/>
     <sts:ShowStatus.Information Text="sTemplatesFromIniFile"/>
     <Execute Statement="BillOfMaterials.LoadTemplatesFromIniFile(ConfigInifile)"/>
 
@@ -237,6 +242,6 @@ VoltageRating = 250V
       </Case>
 
     </ado:Connection.OpenBlock>
-
+    <sts:ShowStatus.Information Text="''"/>
   </Block>
 </pkg:Program>

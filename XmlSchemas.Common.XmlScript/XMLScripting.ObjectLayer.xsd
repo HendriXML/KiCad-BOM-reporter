@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" xmlns:obj="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xs:schema 
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" 
+  xmlns:obj="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" 
+  xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
   <xs:simpleType name="T_NoValueBehaviour">
     <xs:restriction base="xs:string">

@@ -636,6 +636,16 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
+  <xs:complexType name="T_Task.Mark">
+    <xs:complexContent>
+      <xs:extension base="T_TaskStatus">
+        <xs:attribute name="Success" type="expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  
   <xs:complexType name="T_ConditionalBlock">
     <xs:complexContent>
       <xs:extension base="T_AbstractBlockProcessItem">
@@ -809,6 +819,14 @@
   </xs:complexType>
 
   <xs:complexType name="T_Task.Hint">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractConditionalProcessItem">
+        <xs:attribute name="Expression" type="expression"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_Task.Kind">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalProcessItem">
         <xs:attribute name="Expression" type="expression"/>
@@ -1082,6 +1100,7 @@
   <xs:element name="Exit" type="T_Exit" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.Description" type="T_Task.Description" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.Hint" type="T_Task.Hint" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Task.Kind" type="T_Task.Kind" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.SuccessfulExecuteTime" type="T_Task.SuccessfulExecuteTime" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.AddDependency" type="T_Task.AddDependency" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.CreateDependency" type="T_Task.CreateDependency" substitutionGroup="AbstractProcessItem"/>
@@ -1089,6 +1108,7 @@
   <xs:element name="Task.MarkUnhandled" type="T_TaskStatus" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.MarkHandled" type="T_TaskStatus" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.MarkFailed" type="T_TaskStatus" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Task.Mark" type="T_Task.Mark" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="ExecuteTasks" type="T_ExecuteTasks" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Pause" type="T_Pause" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="EnumerateTasks" type="T_EnumerateTasks" substitutionGroup="AbstractProcessItem"/>

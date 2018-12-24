@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns="urn:schemas-www-wisware.nl-scriptingpackages" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ui="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput" xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado" xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report" xmlns:ns1="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" xmlns:ns2="urn:schemas-www-wisware.nl-xmlscripting-showstatus" xmlns:ns3="urn:schemas-www-wisware.nl-xmlscripting-xml" xmlns:indx="urn:schemas-www-wisware.nl-xmlscripting-index" xmlns:ns4="urn:schemas-www-wisware.nl-xmlscripting-registry" xmlns:ns5="urn:schemas-www-wisware.nl-xmlscripting-sysutils" targetNamespace="urn:schemas-www-wisware.nl-scriptingpackages" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xs:schema xmlns="urn:schemas-www-wisware.nl-scriptingpackages" xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" 
+           targetNamespace="urn:schemas-www-wisware.nl-scriptingpackages" 
+           elementFormDefault="qualified" 
+           attributeFormDefault="unqualified">
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-ado" schemaLocation="XMLScripting.Ado.xsd"/>
-  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-objectlayer" schemaLocation="XMLScripting.Objectlayer.xsd"/>
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-report" schemaLocation="XMLScripting.Report.xsd"/>
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-xml" schemaLocation="XMLScripting.Xml.xsd"/>
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-showstatus" schemaLocation="XMLScripting.ShowStatus.xsd"/>
@@ -16,19 +19,18 @@
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-linkedlist" schemaLocation="XMLScripting.Linkedlist.xsd"/>
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-dividers" schemaLocation="XMLScripting.Dividers.xsd"/>
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-scope" schemaLocation="XMLScripting.Scope.xsd"/>
-  <!--xs:import namespace="urn:schemas-www-wisware.nl-traumaprocessing" schemaLocation="TraumaProcess.xsd"/-->
   <xs:complexType name="T_ReportTargets">
     <xs:sequence>
       <xs:element name="Target" minOccurs="1" maxOccurs="unbounded">
         <xs:complexType>
-          <xs:attribute name="Identifier" type="proc:reporttargetidentifier"/>
+          <xs:attribute name="Identifier" type="sys:reporttargetidentifier"/>
           <xs:attribute name="Description" type="xs:string"/>
         </xs:complexType>
       </xs:element>
       <xs:element name="TargetAlias" minOccurs="0" maxOccurs="unbounded">
         <xs:complexType>
-          <xs:attribute name="TargetIdentifier" type="proc:reporttargetidentifier"/>
-          <xs:attribute name="Alias" type="proc:reporttargetidentifier"/>
+          <xs:attribute name="TargetIdentifier" type="sys:reporttargetidentifier"/>
+          <xs:attribute name="Alias" type="sys:reporttargetidentifier"/>
         </xs:complexType>
       </xs:element>
     </xs:sequence>
@@ -39,12 +41,12 @@
     <xs:sequence>
       <xs:element name="ReportTargets" type="T_ReportTargets" minOccurs="0"/>
       <xs:element name="Config" minOccurs="0"/>
-      <xs:group ref="proc:G_Program"/>
+      <xs:group ref="sys:G_Program"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="T_Library">
     <xs:sequence>
-      <xs:group ref="proc:G_Library"/>
+      <xs:group ref="sys:G_Library"/>
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Program" type="T_Program"/>
