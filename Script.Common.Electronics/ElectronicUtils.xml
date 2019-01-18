@@ -12,8 +12,12 @@
   xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
   xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
   xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
-  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages">
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:sui="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput">
   <Type>
+    <DataClass.Forwarded Identifier="TSerie"/>
+
     <Enumeration Identifier="TPrefix" Elements="Tera, Giga, Mega, Kilo, None, Milli, Micro, Nano, Pico, Femto" LowAlias="Low" HighAlias="High"/>
 
     <Enumeration Identifier="TSiUnit" Elements="Ohm, Watt, Farad, Henry, Volt, Amp, Perc, Hz, Meter" LowAlias="Low" HighAlias="High"/>
@@ -40,18 +44,32 @@ MicroHz
     <DataClass Identifier="TSerieNode">
       <Field Identifier="Value" Type="UInt32"/>
       <Field Identifier="LowSerie" Type="TESerie"/>
+      <Field Identifier="OrderedPosition" Type="UInt32"/>
       <Field Identifier="Previous" Type="TSerieNode"/>
       <Field Identifier="Next" Type="TSerieNode"/>
       <Field Identifier="Less" Type="TSerieNode"/>
       <Field Identifier="More" Type="TSerieNode"/>
+      <Field Identifier="Serie" Type="TSerie"/>
     </DataClass>
 
     <DataClass Identifier="TSerie" DefaultConstructor="none">
       <Field Identifier="Scale" Type="UInt32"/>
+      <Field Identifier="Count" Type="UInt32"/>
       <Field Identifier="Head" Type="TSerieNode"/>
       <Field Identifier="Tail" Type="TSerieNode"/>
       <Field Identifier="Root" Type="TSerieNode"/>
       <Field Identifier="OverFlowFactor" Type="Int64"/>
+      <Field Identifier="ESerie" Type="TESerie"/>
+    </DataClass>
+
+    <DataClass Identifier="TValueLink">
+      <Field Identifier="Value" Type="Extended"/>
+      <Field Identifier="Next" Type="TValueLink"/>
+    </DataClass>
+
+    <DataClass Identifier="TESerieValueLink" Inherit="TValueLink">
+      <Field Identifier="SerieNode" Type="TSerieNode"/>
+      <Field Identifier="LogScale" Type="Integer"/>
     </DataClass>
 
     <DataClass Identifier="TUnitConvertor" DefaultConstructor="none">
@@ -79,6 +97,8 @@ MicroHz
   </Type>
   <Constants>
     <Constant Identifier="MaxInt64" Type="Int64" Expression="9223372036854775807"/>
+    <Constant Identifier="MaxInt64RndExt" Type="Extended" Expression="9223372036854775807.0-1.0"/>
+    <Constant Identifier="MinInt64RndExt" Type="Extended" Expression="-9223372036854775807.0+1.0"/>
     <Constant Identifier="MaxInt64Div10" Type="Int64" Expression="9223372036854775807 div 10"/>
     <Constant Identifier="CopperResistivity" Type="Extended" Expression="1.75E-8"/>
 
@@ -202,9 +222,14 @@ Meter
 
 
 
-    <Constant Identifier="k" Type="Integer" Expression="1000"/>
-    <Constant Identifier="M" Type="Integer" Expression="1000 * k"/>
-    <Constant Identifier="G" Type="Integer" Expression="1000 * M"/>
+    <Constant Identifier="kilo" Type="Integer" Expression="1000"/>
+    <Constant Identifier="Mega" Type="Integer" Expression="1000 * kilo"/>
+    <Constant Identifier="Giga" Type="Integer" Expression="1000 * Mega"/>
+
+    <Constant Identifier="k" Type="Integer" Expression="kilo"/>
+    <Constant Identifier="M" Type="Integer" Expression="Mega"/>
+    <Constant Identifier="G" Type="Integer" Expression="Giga"/>
+
     <Constant Identifier="facMicroToMicro" Type="Int64" Expression="1"/>
     <Constant Identifier="facMilliToMicro" Type="Int64" Expression="k*facMicroToMicro"/>
     <Constant Identifier="facToMicro" Type="Int64" Expression="k*facMilliToMicro"/>
@@ -410,7 +435,7 @@ Meter
             <Execute Statement="Value:= Value * 1000000000"/>
           </When>
         </Choose>
-        <Execute Statement="Result:= Format('%.2f%s%s', Value, Prefix, aUnit)"/>
+        <Execute Statement="Result:= Format('%.2f %s%s', Value, Prefix, aUnit)"/>
       </Block>
     </Function>
     <Function Identifier="FormatVoltage" Type="string" IsDeterministic="1">
@@ -529,6 +554,61 @@ Meter
       </Block>
     </Function>
 
+    <Function Identifier="TSerie.RangeItemCount" Type="Int64">
+      <Parameters>
+        <Parameter Identifier="NodeLow" Type="TSerieNode"/>
+        <Parameter Identifier="LogScaleLow" Type="Integer"/>
+        <Parameter Identifier="NodeHigh" Type="TSerieNode"/>
+        <Parameter Identifier="LogScaleHigh" Type="Integer"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= (LogScaleHigh * Count + NodeHigh.OrderedPosition) - (LogScaleLow * Count + NodeLow.OrderedPosition)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSerie.GetRangeValues" Type="TESerieValueLink">
+      <Parameters>
+        <Parameter Identifier="NodeLow" Type="TSerieNode"/>
+        <Parameter Identifier="LogScaleLow" Type="Integer"/>
+        <Parameter Identifier="NodeHigh" Type="TSerieNode"/>
+        <Parameter Identifier="LogScaleHigh" Type="Integer"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="RunningNode" Type="TSerieNode" Init="NodeLow"/>
+        <Variable Identifier="RunningLogScale" Type="Integer" Init="LogScaleLow"/>
+        <Variable Identifier="Scale" Type="Extended" Init="Power(10, RunningLogScale)"/>
+        <Variable Identifier="Tail" Type="TESerieValueLink"/>
+        <Variable Identifier="NewLink" Type="TESerieValueLink"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= TESerieValueLink.Create"/>
+        <Execute Statement="Result.Value:= RunningNode.Value * Scale"/>
+        <Execute Statement="Result.SerieNode:= RunningNode"/>
+        <Execute Statement="Result.LogScale:= RunningLogScale"/>
+        <Execute Statement="Tail:= Result"/>
+        <Exit Condition="(RunningNode = NodeHigh) and (RunningLogScale = LogScaleHigh)"/>
+        <RepeatUntilLoop Expression="(RunningNode = NodeHigh) and (RunningLogScale = LogScaleHigh)">
+          <Choose>
+            <When Expression="Assigned(RunningNode.Next)">
+              <Execute Statement="RunningNode:= RunningNode.Next"/>
+            </When>
+            <Otherwise>
+              <Execute Statement="RunningNode:= Self.Head"/>
+              <Execute Statement="RunningLogScale:= RunningLogScale + 1"/>
+              <Execute Statement="Scale:= Scale * 10"/>
+            </Otherwise>
+          </Choose>
+          <Execute Statement="NewLink:= TESerieValueLink.Create"/>
+          <Execute Statement="NewLink.Value:= RunningNode.Value * Scale"/>
+          <Execute Statement="NewLink.SerieNode:= RunningNode"/>
+          <Execute Statement="NewLink.LogScale:= RunningLogScale"/>
+          <Execute Statement="Tail.Next:= NewLink"/>
+          <Execute Statement="Tail:= NewLink"/>
+          <ExitOnAbortRequest/>
+        </RepeatUntilLoop>
+      </Block>
+    </Function>
+
     <Function Identifier="TSerie.FindNode" Type="TSerieNode">
       <Parameters>
         <Parameter Identifier="Value" Type="UInt64"/>
@@ -591,7 +671,7 @@ Meter
         <Choose>
           <When Expression="Value &gt;= Tail.Value">
             <!-- 
-            Tail.Value * 10 is max value when rapped
+            Tail.Value * 10 is max value when wrapped
             Tail.Value * 10 * 10 because this value must be able to be scaled
             -->
             <Execute Statement="OverFlowFactor:= MaxInt64 div (Tail.Value * 100)" />
@@ -697,6 +777,280 @@ Meter
             </Choose>
           </Otherwise>
         </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSerie.MatchNodeExtended" Type="TSerieNode">
+      <Parameters>
+        <Parameter Identifier="Value" Type="Extended"/>
+        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
+        <Parameter Identifier="MatchedValue" Type="Extended" Direction="Output"/>
+        <Parameter Identifier="MatchedScale" Type="Extended" Direction="Output"/>
+        <Parameter Identifier="MatchedLogScale" Type="Integer" Direction="Output"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Less" Type="TSerieNode" Init="ObjNil"/>
+        <Variable Identifier="More" Type="TSerieNode" Init="ObjNil"/>
+        <Variable Identifier="ScaleDiv10" Type="Extended" Init="0.1"/>
+        <Variable Identifier="Scale" Type="Extended" Init="1.0"/>
+        <Variable Identifier="LogScale" Type="Integer" Init="0"/>
+        <Variable Identifier="MoreValue" Type="Extended"/>
+        <Variable Identifier="LessValue" Type="Extended"/>
+        <Variable Identifier="MoreScale" Type="Extended"/>
+        <Variable Identifier="LessScale" Type="Extended"/>
+        <Variable Identifier="LessLogScale" Type="Integer"/>
+        <Variable Identifier="MoreLogScale" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Choose>
+          <When Expression="Value = 0.0">
+            <Execute Statement="MatchedValue:= 0.0"/>
+            <Execute Statement="MatchedScale:= 1.0"/>
+            <Execute Statement="MatchedLogScale:= 0"/>
+            <Exit Result="ObjNil"/>
+          </When>
+          <When Expression="Value &lt; Head.Value">
+            <!--UpScale-->
+            <RepeatUntilLoop Expression="Value * Scale &gt;= Head.Value">
+              <Execute Statement="ScaleDiv10:= Scale"/>
+              <Execute Statement="Scale:= Scale * 10"/>
+              <Execute Statement="LogScale:= LogScale - 1"/>
+            </RepeatUntilLoop>
+            <Execute Statement="Result:= Root"/>
+            <WhileLoop Expression="Assigned(Result)">
+              <Choose>
+                <When Expression="(Value * Scale) &lt; Result.Value">
+                  <Execute Statement="More:= Result"/>
+                  <Execute Statement="Result:= Result.Less"/>
+                </When>
+                <When Expression="(Value * Scale) &gt; Result.Value">
+                  <Execute Statement="Less:= Result"/>
+                  <Execute Statement="Result:= Result.More"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="MatchedScale:= 1/Scale"/>
+                  <Execute Statement="MatchedLogScale:= LogScale"/>
+                  <Execute Statement="MatchedValue:= Value"/>
+                  <Exit/>
+                </Otherwise>
+              </Choose>
+            </WhileLoop>
+            <Case Expression="MatchKind" Optimalisation="integermapping">
+              <On Select="TMatchValueKind.LessOrEqual">
+                <Choose>
+                  <When Expression="Assigned(Less)">
+                    <Execute Statement="MatchedScale:= 1/Scale"/>
+                    <Execute Statement="MatchedLogScale:= LogScale"/>
+                    <Execute Statement="MatchedValue:= Less.Value * MatchedScale"/>
+                    <Exit Result="Less"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedScale:= 1/ScaleDiv10"/>
+                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
+                    <Execute Statement="MatchedValue:= Tail.Value * MatchedScale"/>
+                    <Exit Result="Tail"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <On Select="TMatchValueKind.MoreOrEqual">
+                <Choose>
+                  <When Expression="Assigned(More)">
+                    <Execute Statement="MatchedScale:= 1/Scale"/>
+                    <Execute Statement="MatchedLogScale:= LogScale"/>
+                    <Execute Statement="MatchedValue:= More.Value * MatchedScale"/>
+                    <Exit Result="More"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedScale:= 1/(Scale * 10)"/>
+                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
+                    <Execute Statement="MatchedValue:= Head.Value * MatchedScale"/>
+                    <Exit Result="Head"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <On Select="TMatchValueKind.Closest">
+                <Execute Statement="MoreScale:= 1/Scale"/>
+                <Execute Statement="LessScale:= 1/Scale"/>
+                <Execute Statement="LessLogScale:= LogScale"/>
+                <Execute Statement="MoreLogScale:= LogScale"/>
+                <Block Condition="not Assigned(More)">
+                  <Execute Statement="MoreScale:= 1 / (Scale * 10)"/>
+                  <Execute Statement="More:= Head"/>
+                  <Execute Statement="MoreLogScale:= MoreLogScale - 1"/>
+                </Block>
+                <Block Condition="not Assigned(Less)">
+                  <Execute Statement="Less:= Tail"/>
+                  <Execute Statement="LessScale:= 1 / ScaleDiv10"/>
+                  <Execute Statement="LessLogScale:= LessLogScale - 1"/>
+                </Block>
+                <Execute Statement="MoreValue:= More.Value * MoreScale"/>
+                <Execute Statement="LessValue:= Less.Value * LessScale"/>
+                <Choose>
+                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
+                    <Execute Statement="MatchedValue:= LessValue"/>
+                    <Execute Statement="MatchedScale:= LessScale"/>
+                    <Execute Statement="MatchedLogScale:= LessLogScale"/>
+                    <Exit Result="Less"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedValue:= MoreValue"/>
+                    <Execute Statement="MatchedScale:= MoreScale"/>
+                    <Execute Statement="MatchedLogScale:= MoreLogScale"/>
+                    <Exit Result="More"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <Otherwise>
+                <Raise Expression="Exception.Create('Unknown matchkind')"/>
+              </Otherwise>
+            </Case>
+          </When>
+          <When Expression="Value &gt; Tail.Value">
+            <!--DownScale-->
+            <RepeatUntilLoop Expression="Value &lt;= Tail.Value * Scale">
+              <Execute Statement="ScaleDiv10:= Scale"/>
+              <Execute Statement="Scale:= Scale * 10"/>
+              <Execute Statement="LogScale:= LogScale + 1"/>
+            </RepeatUntilLoop>
+            <Execute Statement="Result:= Root"/>
+            <WhileLoop Expression="Assigned(Result)">
+              <Choose>
+                <When Expression="Value &lt; (Result.Value * Scale)">
+                  <Execute Statement="More:= Result"/>
+                  <Execute Statement="Result:= Result.Less"/>
+                </When>
+                <When Expression="Value &gt; (Result.Value * Scale)">
+                  <Execute Statement="Less:= Result"/>
+                  <Execute Statement="Result:= Result.More"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="MatchedValue:= Value"/>
+                  <Execute Statement="MatchedScale:= Scale"/>
+                  <Execute Statement="MatchedLogScale:= LogScale"/>
+                  <Exit/>
+                </Otherwise>
+              </Choose>
+            </WhileLoop>
+            <Case Expression="MatchKind" Optimalisation="integermapping">
+              <On Select="TMatchValueKind.LessOrEqual">
+                <Choose>
+                  <When Expression="Assigned(Less)">
+                    <Execute Statement="MatchedScale:= Scale"/>
+                    <Execute Statement="MatchedLogScale:= LogScale"/>
+                    <Execute Statement="MatchedValue:= Less.Value * MatchedScale"/>
+                    <Exit Result="Less"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedScale:= ScaleDiv10"/>
+                    <Execute Statement="MatchedLogScale:= LogScale-1"/>
+                    <Execute Statement="MatchedValue:= Tail.Value * MatchedScale"/>
+                    <Exit Result="Tail"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <On Select="TMatchValueKind.MoreOrEqual">
+                <Choose>
+                  <When Expression="Assigned(More)">
+                    <Execute Statement="MatchedScale:= Scale"/>
+                    <Execute Statement="MatchedLogScale:= LogScale"/>
+                    <Execute Statement="MatchedValue:= More.Value * MatchedScale"/>
+                    <Exit Result="More"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedScale:= Scale * 10"/>
+                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
+                    <Execute Statement="MatchedValue:= Head.Value * MatchedScale"/>
+                    <Exit Result="Head"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <On Select="TMatchValueKind.Closest">
+                <Execute Statement="MoreScale:= Scale"/>
+                <Execute Statement="LessScale:= Scale"/>
+                <Execute Statement="MoreLogScale:= LogScale"/>
+                <Execute Statement="LessLogScale:= LogScale"/>
+                <Block Condition="not Assigned(More)">
+                  <Execute Statement="MoreScale:= Scale * 10"/>
+                  <Execute Statement="MoreLogScale:= MoreLogScale + 1"/>
+                  <Execute Statement="More:= Head"/>
+                </Block>
+                <Block Condition="not Assigned(Less)">
+                  <Execute Statement="Less:= Tail"/>
+                  <Execute Statement="LessScale:= ScaleDiv10"/>
+                  <Execute Statement="lessLogScale:= LessLogScale - 1"/>
+                </Block>
+                <Execute Statement="MoreValue:= More.Value * MoreScale"/>
+                <Execute Statement="LessValue:= Less.Value * LessScale"/>
+                <Choose>
+                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
+                    <Execute Statement="MatchedValue:= LessValue"/>
+                    <Execute Statement="MatchedScale:= LessScale"/>
+                    <Execute Statement="MatchedLogScale:= LessLogScale"/>
+                    <Exit Result="Less"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedValue:= MoreValue"/>
+                    <Execute Statement="MatchedScale:= MoreScale"/>
+                    <Execute Statement="MatchedLogScale:= MoreLogScale"/>
+                    <Exit Result="More"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <Otherwise>
+                <Raise Expression="Exception.Create('Unknown matchkind')"/>
+              </Otherwise>
+            </Case>
+          </When>
+          <Otherwise>
+            <!--NoScale-->
+            <Execute Statement="MatchedScale:= 1.0"/>
+            <Execute Statement="MatchedLogScale:= 0"/>
+            <Execute Statement="Result:= Root"/>
+            <WhileLoop Expression="Assigned(Result)">
+              <Choose>
+                <When Expression="Value &lt; Result.Value">
+                  <Execute Statement="More:= Result"/>
+                  <Execute Statement="Result:= Result.Less"/>
+                </When>
+                <When Expression="Value &gt; Result.Value">
+                  <Execute Statement="Less:= Result"/>
+                  <Execute Statement="Result:= Result.More"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="MatchedValue:= Value"/>
+                  <Exit/>
+                </Otherwise>
+              </Choose>
+            </WhileLoop>
+            <Case Expression="MatchKind" Optimalisation="integermapping">
+              <On Select="TMatchValueKind.LessOrEqual">
+                <Execute Statement="MatchedValue:= Less.Value"/>
+                <Exit Result="Less"/>
+              </On>
+              <On Select="TMatchValueKind.MoreOrEqual">
+                <Execute Statement="MatchedValue:= More.Value"/>
+                <Exit Result="More"/>
+              </On>
+              <On Select="TMatchValueKind.Closest">
+                <Execute Statement="LessValue:= Less.Value"/>
+                <Execute Statement="MoreValue:= More.Value"/>
+                <Choose>
+                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
+                    <Execute Statement="MatchedValue:= LessValue"/>
+                    <Exit Result="Less"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedValue:= MoreValue"/>
+                    <Exit Result="More"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <Otherwise>
+                <Raise Expression="Exception.Create('Unknown matchkind')"/>
+              </Otherwise>
+            </Case>
+          </Otherwise>
+        </Choose>
       </Block>
     </Function>
 
@@ -1073,6 +1427,7 @@ Done:
 
       </Procedures>
       <Block>
+        <Execute Statement="Self.ESerie:= SerieType"/>
         <Choose>
           <When Expression="SerieType &gt;= TESerie.E48">
             <Execute Statement="InitESerie3"/>
@@ -1084,6 +1439,13 @@ Done:
         <Execute Statement="Self.Head:= Head"/>
         <Execute Statement="Self.Tail:= Tail"/>
         <Execute Statement="Self.Root:= GetRootNode(Head, Tail)"/>
+        <Variable Identifier="ItemCount" Type="UInt32" Init="0"/>
+        <lil:LinkedList.Iterate Head="Head" ItemType="TSerieNode" RunningItem="SerieNode" Next="SerieNode.Next">
+          <Execute Statement="SerieNode.OrderedPosition:= ItemCount"/>
+          <Execute Statement="SerieNode.Serie:= Self"/>
+          <Execute Statement="ItemCount:= ItemCount + 1"/>
+        </lil:LinkedList.Iterate>
+        <Execute Statement="Self.Count:= ItemCount"/>
       </Block>
     </Constructor>
 
@@ -1196,6 +1558,60 @@ Done:
             <Raise Expression="Exception.Create(Format('Invalid Eserie: %d', ESerie))"/>
           </Otherwise>
         </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TUnitConvertor.SerieNodeToIntValue" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Node" Type="TSerieNode"/>
+        <Parameter Identifier="LogScale" Type="Integer"/>
+        <Parameter Identifier="IntValue" Type="Int64" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Exit Condition="not Assigned(Node)" Result="False"/>
+        <Variable Identifier="Factor" Type="Integer" Init="-BaseScale + LogScale" />
+        <Variable Identifier="LocIntValue" Type="Int64" Init="Node.Value" />
+        <!--<rep:Reporter.Information Text="Format('Factor: %d', Factor)"/>
+        <rep:Reporter.Information Text="Format('LocIntValue: %d', LocIntValue)"/>-->
+        <Choose>
+          <When Expression="Factor &gt;= 0">
+            <ForLoop Indexer="I" From="0" To="Factor-1">
+              <Execute Statement="LocIntValue:= LocIntValue * 10"/>
+            </ForLoop>
+          </When>
+          <Otherwise>
+            <ForLoop Indexer="I" From="0" To="Factor + 1" Reverse="true">
+              <Exit Condition="(LocIntValue mod 10) &lt;&gt; 0" Result="False"/>
+              <Execute Statement="LocIntValue:= LocIntValue div 10"/>
+            </ForLoop>
+          </Otherwise>
+        </Choose>
+        <!--<rep:Reporter.Information Text="Format('LocIntValue: %d', LocIntValue)"/>-->
+        <Execute Statement="IntValue:= LocIntValue"/>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TUnitConvertor.ExtendedToIntValue" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ExtValue" Type="Extended"/>
+        <Parameter Identifier="MaxDeviation" Type="Extended"/>
+        <Parameter Identifier="IntValue" Type="Int64" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Block Condition="ExtValue = 0">
+          <Execute Statement="IntValue:= 0"/>
+          <Exit Result="True"/>
+        </Block>
+        <Variable Identifier="ScaledExt" Type="Extended" Init="ExtValue * FromExtendedFactor"/>
+        <!--<rep:Reporter.Information Text="Format('ScaledExt: %g', ScaledExt)"/>-->
+        <Exit Condition="(ScaledExt &gt; MaxInt64RndExt) or (ScaledExt &lt; MinInt64RndExt)" Result="False"/>
+        <Variable Identifier="LocIntValue" Type="Int64" Init="Round(ScaledExt)"/>
+        <Variable Identifier="Deviation" Type="Extended" Init="Abs((LocIntValue / ScaledExt) - 1)"/>
+        <!--<rep:Reporter.Information Text="Format('Deviation: %g', Deviation)"/>-->
+        <Exit Result="False" Condition="Deviation &gt; MaxDeviation"/>
+        <Execute Statement="IntValue:= LocIntValue"/>
+        <Execute Statement="Result:= True"/>
       </Block>
     </Function>
 
@@ -2344,7 +2760,7 @@ Done:
         <Execute Statement="Result:= NumberUnitSeperator + Result" Condition="not Compact"/>
         <Choose>
           <When Expression="Scale = 0">
-            <Execute Statement="Result:= '0' + Result"/>
+            <Execute Statement="Result:= IntToStr(Value) + Result"/>
           </When>
           <When Expression="Scale &lt; 0">
             <Execute Statement="MandatoryDecimal:= False"/>
@@ -2365,7 +2781,7 @@ Done:
             <ForLoop Indexer="I" From="0" To="Scale-1">
               <Execute Statement="Value:= Value * 10"/>
             </ForLoop>
-            <Execute Statement="Result:= StrToInt(Value) + Result"/>
+            <Execute Statement="Result:= IntToStr(Value) + Result"/>
           </Otherwise>
         </Choose>
         <Execute Statement="Result:= '-' + Result" Condition="IsNegative"/>

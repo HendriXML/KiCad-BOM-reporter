@@ -73,6 +73,9 @@
   <xs:simpleType name="typeidentifier">
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
+  <xs:simpleType name="dataobjecttypeidentifier">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
   <xs:simpleType name="enumtypeelementlist">
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
@@ -339,6 +342,8 @@
     </xs:sequence>
     <xs:attribute name="Identifier" type="taskidentifier.declare" use="required"/>
     <xs:attribute name="Task" type="identifier" use="optional"/>
+    <xs:attribute name="SelfType" type="typeidentifier" use="optional"/>
+    <xs:attribute name="SelfConstruction" type="expression" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="T_Tasks">
@@ -490,7 +495,7 @@
       <xs:element name="Field" type="T_Field" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="Identifier" type="typeidentifier" use="required"/>
-    <xs:attribute name="Inherit" type="typeidentifier" use="optional"/>
+    <xs:attribute name="Inherit" type="dataobjecttypeidentifier" use="optional"/>
     <xs:attribute name="DefaultConstructor" type="defaultconstructortype" use="optional"/>
   </xs:complexType>
 
@@ -636,7 +641,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  
+
   <xs:complexType name="T_Task.Mark">
     <xs:complexContent>
       <xs:extension base="T_TaskStatus">
@@ -645,7 +650,16 @@
     </xs:complexContent>
   </xs:complexType>
 
-  
+  <xs:complexType name="T_Task.Assert">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractConditionalProcessItem">
+        <xs:attribute name="Expression" type="expression" use="required"/>
+        <xs:attribute name="FailMessage" type="expression" use="optional"/>
+        <xs:attribute name="FailTarget" type="reporttargetidentifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:complexType name="T_ConditionalBlock">
     <xs:complexContent>
       <xs:extension base="T_AbstractBlockProcessItem">
@@ -848,6 +862,9 @@
       <xs:extension base="T_AbstractConditionalProcessItem">
         <xs:attribute name="Task" type="taskidentifier"/>
         <xs:attribute name="InstanceObject" type="expression"/>
+        <xs:attribute name="Result" type="identifier"/>
+        <xs:attribute name="ResultType" type="typeidentifier"/>
+        <xs:attribute name="TaskInfo" type="identifier"/>
         <xs:attribute name="IgnoreFailure" type="expression"/>
         <xs:attribute name="DelayFinalization" type="expression"/>
       </xs:extension>
@@ -937,19 +954,26 @@
   </xs:complexType>
   <xs:complexType name="T_EnumerateTasks">
     <xs:complexContent>
-      <xs:extension base="T_AbstractBlockProcessItem">
-        <xs:attribute name="Condition" type="expression"/>
+      <xs:extension base="T_AbstractConditionalBlockProcessItem">
         <xs:attribute name="Identifier" type="identifier" use="required"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-
+  
   <xs:complexType name="T_Task.Iterate.DependOnTasks">
     <xs:complexContent>
-      <xs:extension base="T_AbstractBlockProcessItem">
-        <xs:attribute name="Condition" type="expression"/>
+      <xs:extension base="T_AbstractConditionalBlockProcessItem">
         <xs:attribute name="Task" type="expression" use="required"/>
         <xs:attribute name="DependsOnTask" type="identifier" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_Task.Iterate.NeededForTasks">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractConditionalBlockProcessItem">
+        <xs:attribute name="Task" type="expression" use="required"/>
+        <xs:attribute name="NeededForTask" type="identifier" use="required"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1105,10 +1129,12 @@
   <xs:element name="Task.AddDependency" type="T_Task.AddDependency" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.CreateDependency" type="T_Task.CreateDependency" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.Iterate.DependOnTasks" type="T_Task.Iterate.DependOnTasks" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Task.Iterate.NeededForTasks" type="T_Task.Iterate.NeededForTasks" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.MarkUnhandled" type="T_TaskStatus" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.MarkHandled" type="T_TaskStatus" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.MarkFailed" type="T_TaskStatus" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.Mark" type="T_Task.Mark" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Task.Assert" type="T_Task.Assert" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="ExecuteTasks" type="T_ExecuteTasks" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Pause" type="T_Pause" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="EnumerateTasks" type="T_EnumerateTasks" substitutionGroup="AbstractProcessItem"/>

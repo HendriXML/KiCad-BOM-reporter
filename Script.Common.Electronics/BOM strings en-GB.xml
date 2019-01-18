@@ -34,16 +34,16 @@
     <Constant Identifier="sInductorHeader" Expression="'Inductors'"/>
     <Constant Identifier="sBridgeRectifierDescription" Expression="'bridge rectifier'"/>
     <Constant Identifier="sBridgeRectifierHeader" Expression="'Bridge rectifiers'"/>
-    <Constant Identifier="sZenerDiodeDescription" Expression="'zenerdiode'"/>
-    <Constant Identifier="sZenerDiodeHeader" Expression="'Zenerdiodes'"/>
+    <Constant Identifier="sZenerDiodeDescription" Expression="'zener diode'"/>
+    <Constant Identifier="sZenerDiodeHeader" Expression="'Zener diodes'"/>
     <Constant Identifier="sDiodeDescription" Expression="'diode'"/>
     <Constant Identifier="sDiodeHeader" Expression="'Diodes'"/>
     <Constant Identifier="sSchottkyDiodeDescription" Expression="'schottky diode'"/>
     <Constant Identifier="sSchottkyDiodeHeader" Expression="'Schottky diodes'"/>
     <Constant Identifier="sLaserdiodeDescription" Expression="'laser diode'"/>
     <Constant Identifier="sLaserdiodeHeader" Expression="'Laser diodes'"/>
-    <Constant Identifier="sPhotodiodeDescription" Expression="'photo diode'"/>
-    <Constant Identifier="sPhotodiodeHeader" Expression="'Photo diodes'"/>
+    <Constant Identifier="sPhotodiodeDescription" Expression="'photodiode'"/>
+    <Constant Identifier="sPhotodiodeHeader" Expression="'Photodiodes'"/>
     <Constant Identifier="sSpecialDiodeDescription" Expression="'special diode'"/>
     <Constant Identifier="sSpecialDiodeHeader" Expression="'Special diodes'"/>
     <Constant Identifier="sDualDiodeDescription" Expression="'dual diode'"/>
@@ -160,6 +160,8 @@
     <Constant Identifier="sSchmittTriggerHeader" Expression="'Schmitt triggers'"/>
     <Constant Identifier="sOptocouplerDescription" Expression="'optocoupler'"/>
     <Constant Identifier="sOptocouplerHeader" Expression="'Optocouplers'"/>
+    <Constant Identifier="sSwitchDescription" Expression="'switch'"/>
+    <Constant Identifier="sSwitchHeader" Expression="'Switches'"/>
     <Constant Identifier="sModuleDescription" Expression="'module'"/>
     <Constant Identifier="sModuleHeader" Expression="'Modules'"/>
     <Constant Identifier="sComponentDescription" Expression="'component'"/>
@@ -170,8 +172,6 @@
     <Constant Identifier="sBOMHeader" Type="string" Expression="'Bill of materials'"/>
     <Constant Identifier="sStockHeader" Type="string" Expression="'Bill of available materials'"/>
     <Constant Identifier="sDesignatorReport" Type="string" Expression="'Designator specifications'"/>
-    <Constant Identifier="sTitleField" Type="string" Expression="'Title: %s'"/>
-    <Constant Identifier="sCountField" Type="string" Expression="'Amount: %dx'"/>
 
     <Constant Identifier="sMissingComponentHeader" Type="string" Expression="'Missing component class name'"/>
     <Constant Identifier="sResistorTechnologyMetalFilm" Type="string" Expression="'metal film'"/>
@@ -248,5 +248,16 @@
     <Constant Identifier="sMsgMappingExistingLibrary" Type="string" Expression="'Error while mapping library %s to %s it''s is already registered with component kind %s'"/>
     <Constant Identifier="sMsgMissingLibrarysymbolMapping" Type="string" Expression="'Part &quot;%s&quot; was not mapped to a componentkind, and thus defaults to component'"/>
 
+    <Constant Identifier="sMsgUnmatchedCalculatedDesignator" Type="string" Expression="'Calculated designator %s not found in schema'"/>
+    <Constant Identifier="sTitleField" Type="string"     Expression="'Title   : %s'"/>
+    <Constant Identifier="sCompanyField" Type="string"   Expression="'Company : %s'"/>
+    <Constant Identifier="sRevisionField" Type="string"  Expression="'Revision: %s'"/>
+    <Constant Identifier="sDateField" Type="string"      Expression="'Date    : %s'"/>
+    <Constant Identifier="sSourceField" Type="string"    Expression="'Source  : %s'"/>
+    <Constant Identifier="sComment1Field" Type="string"  Expression="'Comment1: %s'"/>
+    <Constant Identifier="sComment2Field" Type="string"  Expression="'Comment2: %s'"/>
+    <Constant Identifier="sComment3Field" Type="string"  Expression="'Comment3: %s'"/>
+    <Constant Identifier="sComment4Field" Type="string"  Expression="'Comment4: %s'"/>
+    <Constant Identifier="sCountField" Type="string"     Expression="'Amount  : %dx'"/>
   </Constants>
 </pkg:Library>

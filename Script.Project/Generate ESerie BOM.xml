@@ -159,6 +159,7 @@ BomFilename=F:\Software development\XmlScripts\Projects\ElectronicsCalculations\
       </Variables>
       <Block>
         <Execute Statement="TitleXE.Text:= 'ESeries'"/>
+        <Execute Statement="CreateResistors(Serie, '0.1Ω')"/>
         <Execute Statement="CreateResistors(Serie, '1Ω')"/>
         <Execute Statement="CreateResistors(Serie, '10Ω')"/>
         <Execute Statement="CreateResistors(Serie, '100Ω')"/>

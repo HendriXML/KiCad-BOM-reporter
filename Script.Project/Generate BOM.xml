@@ -13,7 +13,7 @@
             xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
             xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
             xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd">
-  <pkg:ReportTargets>
+  <pkg:ReportTargets Cached="true">
     <pkg:Target Identifier="Report" Description="BOM report"/>
     <pkg:Target Identifier="DesignatorReport" Description="Designator report"/>
     <!--<pkg:Target Identifier="DesignatorStockReport" Description="Designator stock report"/>-->
@@ -22,12 +22,12 @@
     <pkg:Target Identifier="Info" Description="Info"/>
     <pkg:Target Identifier="Warnings" Description="Warnings"/>
     <pkg:Target Identifier="Errors" Description="Errors"/>
+    <pkg:Target Identifier="ReportEEVBlog" Description="BOM report - EEVBlog"/>
     <!--<pkg:Target Identifier="Errors" Description="Fouten"/>
     <pkg:Target Identifier="Warnings" Description="Waarschuwingen"/>-->
   </pkg:ReportTargets>
   <pkg:Config xml:space="preserve">[Settings]
 BomFilename=..\Resources.Project\ESeriesBOM.xml
-;BomFilename=..\Resources.Project\130 x 20 resistors.xml
 BomCount=1
 ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr
 SymbolMappingDirectory=..\Resources.Project.ComponentMappings
@@ -79,6 +79,7 @@ VoltageRating = 250V
   </pkg:Config>
   <Imports>
     <Import Identifier="ElectronicUtils" Filename="..\Script.Common.Electronics\ElectronicUtils.xml"/>
+    <Import Identifier="ElectronicReportUtils" Filename="..\Script.Common.Electronics\ElectronicReportUtils.xml"/>
     <Import Identifier="BomStrings" Filename="..\Script.Common.Electronics\BOM strings en-GB.xml"/>
     <Import Identifier="BomClasses" Filename="..\Script.Common.Electronics\BOM classes.xml"/>
     <Import Identifier="ResistorClasses" Filename="..\Script.Common.Electronics\BOM ResistorClasses.xml"/>
@@ -91,11 +92,13 @@ VoltageRating = 250V
     <Import Identifier="FuseClasses" Filename="..\Script.Common.Electronics\BOM FuseClasses.xml"/>
     <Import Identifier="CategoryContainer" Filename="..\Script.Common.Electronics\BOM CategoryContainer.xml"/>
     <Import Identifier="StockManager" Filename="..\Script.Common.Electronics\BOM StockManager.xml"/>
+    <Import Identifier="CalculatedSpecificationsClasses" Filename="..\Script.Common.Electronics\BOM CalculatedSpecifications.xml"/>
     <Import Identifier="BillOfMaterialClass" Filename="..\Script.Common.Electronics\BOM BillOfMaterialClass.xml"/>
     <Import Identifier="PartKeeprProjectExport" Filename="..\Script.Common.Electronics\BOM PartKeeprProjectExport.xml"/>
   </Imports>
   <Uses>
     <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="ElectronicReportUtils"/>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
     <Use Identifier="ResistorClasses"/>
@@ -103,6 +106,7 @@ VoltageRating = 250V
     <Use Identifier="BillOfMaterialClass"/>
     <Use Identifier="StockManager"/>
     <Use Identifier="PartKeeprProjectExport"/>
+    <Use Identifier="CalculatedSpecificationsClasses"/>
   </Uses>
   <Constants>
     <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
@@ -130,6 +134,7 @@ VoltageRating = 250V
     <Variable Identifier="BomCountS" Type="string" Init="''"/>
     <Variable Identifier="BomCount" Type="Integer" Init="1"/>
     <Variable Identifier="BillOfMaterials" Type="TBillOfMaterials" Init="TBillOfMaterials.Create"/>
+    <Variable Identifier="CalculatedSpecifications" Type="TCalculatedSpecifications" Init="ObjNil"/>
     <Variable Identifier="StockManager" Type="TStockManager" Init="TStockManager.Create"/>
     <Variable Identifier="DBConnection" Type="Connection"/>
     <Variable Identifier="TaskKind" Type="TPartKeeprTask" Init="TPartKeeprTask.None"/>
@@ -197,10 +202,14 @@ VoltageRating = 250V
       <sts:ShowStatus.Information Text="sReportStock"/>
       <Execute Statement="StockManager.Report"/>
       <rep:Reporter.DefaultTarget Identifier="Info"/>
-
+      <Variable Identifier="CalculatedSpecificationsFilename" Type="string" Init="ChangeFileExt(BomFilename, 'Calculated.xml')"/>
+      <Block Condition="FileExists(CalculatedSpecificationsFilename)">
+        <Execute Statement="CalculatedSpecifications:= TCalculatedSpecifications.Create"/>
+        <Execute Statement="CalculatedSpecifications.LoadFromFile(CalculatedSpecificationsFilename)"/>
+      </Block>
       <rep:Reporter.DefaultTarget Identifier="DesignatorReport"/>
       <sts:ShowStatus.Information Text="sReportDesignators"/>
-      <Execute Statement="BillOfMaterials.ReportDesignators"/>
+      <Execute Statement="BillOfMaterials.ReportDesignators(CalculatedSpecifications)"/>
       
 
       <Variable Identifier="EndTime" Type="Int64" Init="QueryPerformanceCounter" />
@@ -243,5 +252,10 @@ VoltageRating = 250V
 
     </ado:Connection.OpenBlock>
     <sts:ShowStatus.Information Text="''"/>
+
+    <Variable Identifier="ReportIterator"/>
+    <rep:Reporter.GetIterator Target="Report" Iterator="ReportIterator"/>
+    <rep:Reporter.DefaultTarget Identifier="ReportEEVBlog"/>
+    <Execute Statement="ReportAsEEVBlog(ReportIterator)"/>
   </Block>
 </pkg:Program>

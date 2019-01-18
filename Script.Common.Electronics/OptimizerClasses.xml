@@ -1,0 +1,461 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+  </Uses>
+  <Type>
+    <Enumeration Identifier="TABCDEFSerie" Elements="A, B, C, D, E, F"/>
+
+    <Enumeration Identifier="TSerieKind" Elements="Disabled, ESerie, Lineair, CustomList"/>
+
+    <DataClass Identifier="TBaseOptimizer">
+
+    </DataClass>
+
+    <DataClass Identifier="TABCDEFValueOptimizer" Inherit="TBaseOptimizer">
+      <VirtualMethod Identifier="VMEvaluate"/>
+
+      <Field Identifier="ValueLowA" Type="Extended"/>
+      <Field Identifier="ValueHighA" Type="Extended"/>
+      <Field Identifier="MinimalValuesA" Type="UInt32"/>
+      <Field Identifier="TargetESerieA" Type="TESerie"/>
+      <Field Identifier="SerieKindA" Type="TSerieKind"/>
+
+      <Field Identifier="ValueLowB" Type="Extended"/>
+      <Field Identifier="ValueHighB" Type="Extended"/>
+      <Field Identifier="MinimalValuesB" Type="UInt32"/>
+      <Field Identifier="TargetESerieB" Type="TESerie"/>
+      <Field Identifier="SerieKindB" Type="TSerieKind"/>
+
+      <Field Identifier="ValueLowC" Type="Extended"/>
+      <Field Identifier="ValueHighC" Type="Extended"/>
+      <Field Identifier="MinimalValuesC" Type="UInt32"/>
+      <Field Identifier="TargetESerieC" Type="TESerie"/>
+      <Field Identifier="SerieKindC" Type="TSerieKind"/>
+
+      <Field Identifier="ValueLowD" Type="Extended"/>
+      <Field Identifier="ValueHighD" Type="Extended"/>
+      <Field Identifier="MinimalValuesD" Type="UInt32"/>
+      <Field Identifier="TargetESerieD" Type="TESerie"/>
+      <Field Identifier="SerieKindD" Type="TSerieKind"/>
+
+      <Field Identifier="ValueLowE" Type="Extended"/>
+      <Field Identifier="ValueHighE" Type="Extended"/>
+      <Field Identifier="MinimalValuesE" Type="UInt32"/>
+      <Field Identifier="TargetESerieE" Type="TESerie"/>
+      <Field Identifier="SerieKindE" Type="TSerieKind"/>
+
+      <Field Identifier="ValueLowF" Type="Extended"/>
+      <Field Identifier="ValueHighF" Type="Extended"/>
+      <Field Identifier="MinimalValuesF" Type="UInt32"/>
+      <Field Identifier="TargetESerieF" Type="TESerie"/>
+      <Field Identifier="SerieKindF" Type="TSerieKind"/>
+
+      <Field Identifier="OptimalValueA" Type="Extended"/>
+      <Field Identifier="OptimalValueB" Type="Extended"/>
+      <Field Identifier="OptimalValueC" Type="Extended"/>
+      <Field Identifier="OptimalValueD" Type="Extended"/>
+      <Field Identifier="OptimalValueE" Type="Extended"/>
+      <Field Identifier="OptimalValueF" Type="Extended"/>
+    </DataClass>
+  </Type>
+  <Procedures>
+
+    <Function Identifier="TBaseOptimizer.CreateESerieValues" Type="TESerieValueLink">
+      <Parameters>
+        <Parameter Identifier="ValueLow" Type="Extended"/>
+        <Parameter Identifier="ValueHigh" Type="Extended"/>
+        <Parameter Identifier="MinimalValues" Type="UInt32"/>
+        <Parameter Identifier="TargetESerie" Type="TESerie"/>
+        <Parameter Identifier="ESerie" Type="TESerie" Direction="Output"/>
+        <Parameter Identifier="ShouldRefine" Type="Boolean" Direction="Output"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Serie" Type="TSerie"/>
+        <Variable Identifier="MatchValueLow" Type="Extended"/>
+        <Variable Identifier="MatchScaleLow" Type="Extended"/>
+        <Variable Identifier="MatchNodeLow" Type="TSerieNode"/>
+        <Variable Identifier="MatchedLogScaleLow" Type="Integer"/>
+        <Variable Identifier="MatchValueHigh" Type="Extended"/>
+        <Variable Identifier="MatchScaleHigh" Type="Extended"/>
+        <Variable Identifier="MatchNodeHigh" Type="TSerieNode"/>
+        <Variable Identifier="MatchedLogScaleHigh" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Execute Statement="ESerie:= TESerie.E3"/>
+        <Execute Statement="ShouldRefine:= True"/>
+        <!--Find adequate serie and nodes -->
+        <RepeatUntilLoop Expression="False">
+          <Execute Statement="Serie:= GetESerie(ESerie)"/>
+          <Execute Statement="MatchNodeLow:= Serie.MatchNodeExtended(ValueLow, TMatchValueKind.MoreOrEqual, MatchValueLow, MatchScaleLow, MatchedLogScaleLow)"/>
+          <Execute Statement="MatchNodeHigh:= Serie.MatchNodeExtended(ValueHigh, TMatchValueKind.LessOrEqual, MatchValueHigh, MatchScaleHigh, MatchedLogScaleHigh)"/>
+          <Block Condition="ESerie &gt;= TargetESerie">
+            <Execute Statement="ShouldRefine:= False"/>
+            <Break/>
+          </Block>
+          <Break Condition="Serie.RangeItemCount(MatchNodeLow, MatchedLogScaleLow, MatchNodeHigh, MatchedLogScaleHigh) &gt;= MinimalValues"/>
+          <Execute Statement="ESerie:= ESerie + 1"/>
+        </RepeatUntilLoop>
+        <Execute Statement="Result:= Serie.GetRangeValues(MatchNodeLow, MatchedLogScaleLow, MatchNodeHigh, MatchedLogScaleHigh)"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="RefineESerieValues">
+      <Parameters>
+        <Parameter Identifier="OptiValue" Type="TESerieValueLink"/>
+        <Parameter Identifier="ValueLow" Type="Extended"/>
+        <Parameter Identifier="ValueHigh" Type="Extended"/>
+        <Parameter Identifier="MinimalValues" Type="UInt32"/>
+        <Parameter Identifier="TargetESerie" Type="TESerie"/>
+        <Parameter Identifier="ESerie" Type="TESerie" Direction="Output"/>
+        <Parameter Identifier="ShouldRefine" Type="Boolean" Direction="Output"/>
+        <Parameter Identifier="Head" Type="TValueLink" Direction="InputOutput"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="ValueCount" Type="Int64"/>
+        <Variable Identifier="Serie" Type="TSerie"/>
+        <Variable Identifier="MatchValueLow" Type="Extended"/>
+        <Variable Identifier="MatchScaleLow" Type="Extended"/>
+        <Variable Identifier="MatchNodeLow" Type="TSerieNode"/>
+        <Variable Identifier="MatchedLogScaleLow" Type="Integer"/>
+        <Variable Identifier="MatchValueHigh" Type="Extended"/>
+        <Variable Identifier="MatchScaleHigh" Type="Extended"/>
+        <Variable Identifier="MatchNodeHigh" Type="TSerieNode"/>
+        <Variable Identifier="MatchedLogScaleHigh" Type="Integer"/>
+
+        <Variable Identifier="RefinedValueLow" Type="Extended"/>
+        <Variable Identifier="RefinedValueHigh" Type="Extended"/>
+        <Variable Identifier="Node" Type="TSerieNode"/>
+        <Variable Identifier="BoundNode" Type="TSerieNode"/>
+        <Variable Identifier="LowScale" Type="Extended"/>
+        <Variable Identifier="HighScale" Type="Extended"/>
+        <Variable Identifier="LowLogScale" Type="Integer"/>
+        <Variable Identifier="HighLogScale" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Execute Statement="ShouldRefine:= True"/>
+        <Execute Statement="Node:= OptiValue.SerieNode"/>
+        <Execute Statement="LowLogScale:= OptiValue.LogScale"/>
+        <Execute Statement="HighLogScale:= OptiValue.LogScale"/>
+
+        <Execute Statement="BoundNode:= Node.Previous"/>
+        <Block Condition="not Assigned(BoundNode)">
+          <Execute Statement="BoundNode:= Node.Serie.Head"/>
+          <Execute Statement="LowLogScale:= LowLogScale - 1"/>
+        </Block>
+        <Execute Statement="LowScale:= Power(10, LowLogScale)"/>
+        <Execute Statement="RefinedValueLow:= BoundNode.Value * LowScale"/>
+        <Execute Statement="RefinedValueLow:= ValueLow" Condition="RefinedValueLow &lt; ValueLow"/>
+
+        <Execute Statement="BoundNode:= Node.Next"/>
+        <Block Condition="not Assigned(BoundNode)">
+          <Execute Statement="BoundNode:= Node.Serie.Tail"/>
+          <Execute Statement="HighLogScale:= HighLogScale + 1"/>
+        </Block>
+        <Execute Statement="HighScale:= Power(10, HighLogScale)"/>
+        <Execute Statement="RefinedValueHigh:= BoundNode.Value * HighScale"/>
+        <Execute Statement="RefinedValueHigh:= ValueHigh" Condition="RefinedValueHigh &gt; ValueHigh"/>
+        <!--<rep:Reporter.Information Text="Format('Valuerange: %g .. %g', RefinedValueLow, RefinedValueHigh)" Condition="IsDebugging"/>-->
+        <!--Find adequate serie and nodes -->
+        <RepeatUntilLoop Expression="False">
+          <Execute Statement="ESerie:= ESerie + 1"/>
+          <Execute Statement="Serie:= GetESerie(ESerie)"/>
+          <Execute Statement="MatchNodeLow:= Serie.MatchNodeExtended(RefinedValueLow, TMatchValueKind.MoreOrEqual, MatchValueLow, MatchScaleLow, MatchedLogScaleLow)"/>
+          <Execute Statement="MatchNodeHigh:= Serie.MatchNodeExtended(RefinedValueHigh, TMatchValueKind.LessOrEqual, MatchValueHigh, MatchScaleHigh, MatchedLogScaleHigh)"/>
+          <Block Condition="ESerie &gt;= TargetESerie">
+            <Execute Statement="ShouldRefine:= False"/>
+            <Break/>
+          </Block>
+          <Break Condition="Serie.RangeItemCount(MatchNodeLow, MatchedLogScaleLow, MatchNodeHigh, MatchedLogScaleHigh) &gt;= MinimalValues"/>
+        </RepeatUntilLoop>
+        <Execute Statement="Head:= Serie.GetRangeValues(MatchNodeLow, MatchedLogScaleLow, MatchNodeHigh, MatchedLogScaleHigh)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TBaseOptimizer.CreateDummyValue" Type="TValueLink">
+      <Block>
+        <Execute Statement="Result:= TValueLink.Create"/>
+      </Block>
+    </Function>
+
+
+    <Procedure Identifier="TABCDEFValueOptimizer.AddESerie">
+      <Parameters>
+        <Parameter Identifier="Serie" Type="TABCDEFSerie"/>
+        <Parameter Identifier="LowValue" Type="Extended"/>
+        <Parameter Identifier="HighValue" Type="Extended"/>
+        <Parameter Identifier="MinimalValues" Type="UInt32"/>
+        <Parameter Identifier="TargetESerie" Type="TESerie"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Serie" Optimalisation="integermapping">
+          <On Select="TABCDEFSerie.A">
+            <Execute Statement="ValueLowA:= LowValue"/>
+            <Execute Statement="ValueHighA:= HighValue"/>
+            <Execute Statement="MinimalValuesA:= MinimalValues"/>
+            <Execute Statement="TargetESerieA:= TargetESerie"/>
+            <Execute Statement="SerieKindA:= TSerieKind.ESerie"/>
+          </On>
+          <On Select="TABCDEFSerie.B">
+            <Execute Statement="ValueLowB:= LowValue"/>
+            <Execute Statement="ValueHighB:= HighValue"/>
+            <Execute Statement="MinimalValuesB:= MinimalValues"/>
+            <Execute Statement="TargetESerieB:= TargetESerie"/>
+            <Execute Statement="SerieKindB:= TSerieKind.ESerie"/>
+          </On>
+          <On Select="TABCDEFSerie.C">
+            <Execute Statement="ValueLowC:= LowValue"/>
+            <Execute Statement="ValueHighC:= HighValue"/>
+            <Execute Statement="MinimalValuesC:= MinimalValues"/>
+            <Execute Statement="TargetESerieC:= TargetESerie"/>
+            <Execute Statement="SerieKindC:= TSerieKind.ESerie"/>
+          </On>
+          <On Select="TABCDEFSerie.D">
+            <Execute Statement="ValueLowD:= LowValue"/>
+            <Execute Statement="ValueHighD:= HighValue"/>
+            <Execute Statement="MinimalValuesD:= MinimalValues"/>
+            <Execute Statement="TargetESerieD:= TargetESerie"/>
+            <Execute Statement="SerieKindD:= TSerieKind.ESerie"/>
+          </On>
+          <On Select="TABCDEFSerie.E">
+            <Execute Statement="ValueLowE:= LowValue"/>
+            <Execute Statement="ValueHighE:= HighValue"/>
+            <Execute Statement="MinimalValuesE:= MinimalValues"/>
+            <Execute Statement="TargetESerieE:= TargetESerie"/>
+            <Execute Statement="SerieKindE:= TSerieKind.ESerie"/>
+          </On>
+          <On Select="TABCDEFSerie.F">
+            <Execute Statement="ValueLowF:= LowValue"/>
+            <Execute Statement="ValueHighF:= HighValue"/>
+            <Execute Statement="MinimalValuesF:= MinimalValues"/>
+            <Execute Statement="TargetESerieF:= TargetESerie"/>
+            <Execute Statement="SerieKindF:= TSerieKind.ESerie"/>
+          </On>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TABCDEFValueOptimizer.Evaluate" Type="Boolean" VirtualMethod="VMEvaluate">
+      <Parameters>
+        <Parameter Identifier="ValueA" Type="Extended"/>
+        <Parameter Identifier="ValueB" Type="Extended"/>
+        <Parameter Identifier="ValueC" Type="Extended"/>
+        <Parameter Identifier="ValueD" Type="Extended"/>
+        <Parameter Identifier="ValueE" Type="Extended"/>
+        <Parameter Identifier="ValueF" Type="Extended"/>
+        <Parameter Identifier="IsOptimal" Type="Boolean"/>
+        <Parameter Identifier="OptimumDelta" Type="Extended" Direction="Output"/>
+      </Parameters>
+      <Block>
+
+      </Block>
+    </Function>
+
+    <Procedure Identifier="RefineValues">
+      <Parameters>
+        <Parameter Identifier="OptiValue" Type="TValueLink"/>
+        <Parameter Identifier="MinimalValues" Type="UInt32"/>
+        <Parameter Identifier="TargetESerie" Type="TESerie"/>
+        <Parameter Identifier="SerieKind" Type="TSerieKind"/>
+        <Parameter Identifier="Head" Type="TValueLink" Direction="Output"/>
+        <Parameter Identifier="Refine" Type="Boolean" Direction="Output"/>
+      </Parameters>
+      <Block>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TABCDEFValueOptimizer.Simulate" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="EvaluateOptiValue" Type="Boolean"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Initial" Type="Boolean"/>
+        <Variable Identifier="Refine" Type="Boolean"/>
+        <Variable Identifier="HeadA" Type="TValueLink"/>
+        <Variable Identifier="HeadB" Type="TValueLink"/>
+        <Variable Identifier="HeadC" Type="TValueLink"/>
+        <Variable Identifier="HeadD" Type="TValueLink"/>
+        <Variable Identifier="HeadE" Type="TValueLink"/>
+        <Variable Identifier="HeadF" Type="TValueLink"/>
+        <Variable Identifier="CurrentDelta" Type="TValueLink"/>
+        <Variable Identifier="OptimumDelta" Type="Extended" DisabledChecks="empty"/>
+        <Variable Identifier="OptiValueA" Type="TValueLink"/>
+        <Variable Identifier="OptiValueB" Type="TValueLink"/>
+        <Variable Identifier="OptiValueC" Type="TValueLink"/>
+        <Variable Identifier="OptiValueD" Type="TValueLink"/>
+        <Variable Identifier="OptiValueE" Type="TValueLink"/>
+        <Variable Identifier="OptiValueF" Type="TValueLink"/>
+        <Variable Identifier="RefineA" Type="Boolean"/>
+        <Variable Identifier="RefineB" Type="Boolean"/>
+        <Variable Identifier="RefineC" Type="Boolean"/>
+        <Variable Identifier="RefineD" Type="Boolean"/>
+        <Variable Identifier="RefineE" Type="Boolean"/>
+        <Variable Identifier="RefineF" Type="Boolean"/>
+        <Variable Identifier="ESerieA" Type="TESerie"/>
+        <Variable Identifier="ESerieB" Type="TESerie"/>
+        <Variable Identifier="ESerieC" Type="TESerie"/>
+        <Variable Identifier="ESerieD" Type="TESerie"/>
+        <Variable Identifier="ESerieE" Type="TESerie"/>
+        <Variable Identifier="ESerieF" Type="TESerie"/>
+        <Variable Identifier="Counter" Type="Int64" Init="0"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Execute Statement="Initial:= True"/>
+        <Execute Statement="RefineA:= False"/>
+        <Execute Statement="RefineB:= False"/>
+        <Execute Statement="RefineC:= False"/>
+        <Execute Statement="RefineD:= False"/>
+        <Execute Statement="RefineE:= False"/>
+        <Execute Statement="RefineF:= False"/>
+        <RepeatUntilLoop Expression="not (RefineA or RefineB or RefineC or RefineD or RefineE or RefineF) or IsEmpty(OptimumDelta)">
+          <Choose>
+            <When Expression="Initial">
+              <!--<rep:Reporter.Information Text="'Init'" Condition="IsDebugging"/>-->
+              <Case Expression="SerieKindA">
+                <On Select="TSerieKind.Disabled">
+                  <Execute Statement="HeadA:= CreateDummyValue"/>
+                </On>
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="HeadA:= CreateESerieValues(ValueLowA, ValueHighA, MinimalValuesA, TargetESerieA, ESerieA, RefineA)"/>
+                </On>
+              </Case>
+              <Case Expression="SerieKindB">
+                <On Select="TSerieKind.Disabled">
+                  <Execute Statement="HeadB:= CreateDummyValue"/>
+                </On>
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="HeadB:= CreateESerieValues(ValueLowB, ValueHighB, MinimalValuesB, TargetESerieB, ESerieB, RefineB)"/>
+                </On>
+              </Case>
+              <Case Expression="SerieKindC">
+                <On Select="TSerieKind.Disabled">
+                  <Execute Statement="HeadC:= CreateDummyValue"/>
+                </On>
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="HeadC:= CreateESerieValues(ValueLowC, ValueHighC, MinimalValuesC, TargetESerieC, ESerieC, RefineC)"/>
+                </On>
+              </Case>
+              <Case Expression="SerieKindD">
+                <On Select="TSerieKind.Disabled">
+                  <Execute Statement="HeadD:= CreateDummyValue"/>
+                </On>
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="HeadD:= CreateESerieValues(ValueLowD, ValueHighD, MinimalValuesD, TargetESerieD, ESerieD, RefineD)"/>
+                </On>
+              </Case>
+              <Case Expression="SerieKindE">
+                <On Select="TSerieKind.Disabled">
+                  <Execute Statement="HeadE:= CreateDummyValue"/>
+                </On>
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="HeadE:= CreateESerieValues(ValueLowE, ValueHighE, MinimalValuesE, TargetESerieE, ESerieE, RefineE)"/>
+                </On>
+              </Case>
+              <Case Expression="SerieKindF">
+                <On Select="TSerieKind.Disabled">
+                  <Execute Statement="HeadF:= CreateDummyValue"/>
+                </On>
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="HeadF:= CreateESerieValues(ValueLowF, ValueHighF, MinimalValuesF, TargetESerieF, ESerieF, RefineF)"/>
+                </On>
+              </Case>
+            </When>
+            <Otherwise>
+              <!--<rep:Reporter.Information Text="'Refine'" Condition="IsDebugging"/>-->
+              <Case Expression="SerieKindA">
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="RefineESerieValues(OptiValueA, ValueLowA, ValueHighA, MinimalValuesA, TargetESerieA, ESerieA, RefineA, HeadA)" Condition="RefineA"/>
+                </On>
+              </Case>
+              <Case Expression="SerieKindB">
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="RefineESerieValues(OptiValueB, ValueLowB, ValueHighB, MinimalValuesB, TargetESerieB, ESerieB, RefineB, HeadB)" Condition="RefineB"/>
+                </On>
+              </Case>
+              <Case Expression="SerieKindC">
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="RefineESerieValues(OptiValueC, ValueLowC, ValueHighC, MinimalValuesC, TargetESerieC, ESerieC, RefineC, HeadC)" Condition="RefineC"/>
+                </On>
+              </Case>
+              <Case Expression="SerieKindD">
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="RefineESerieValues(OptiValueD, ValueLowD, ValueHighD, MinimalValuesD, TargetESerieD, ESerieD, RefineD, HeadD)" Condition="RefineD"/>
+                </On>
+              </Case>
+              <Case Expression="SerieKindE">
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="RefineESerieValues(OptiValueE, ValueLowE, ValueHighE, MinimalValuesE, TargetESerieE, ESerieE, RefineE, HeadE)" Condition="RefineE"/>
+                </On>
+              </Case>
+              <Case Expression="SerieKindF">
+                <On Select="TSerieKind.ESerie">
+                  <Execute Statement="RefineESerieValues(OptiValueF, ValueLowF, ValueHighF, MinimalValuesF, TargetESerieF, ESerieF, RefineF, HeadF)" Condition="RefineF"/>
+                </On>
+              </Case>
+            </Otherwise>
+          </Choose>
+          <Execute Statement="OptimumDelta:= EmptyValue"/>
+          <Execute Statement="Initial:= False"/>
+          <lil:LinkedList.Iterate Head="HeadF" ItemType="TValueLink" RunningItem="ItemF" Next="ItemF.Next">
+            <lil:LinkedList.Iterate Head="HeadE" ItemType="TValueLink" RunningItem="ItemE" Next="ItemE.Next">
+              <lil:LinkedList.Iterate Head="HeadD" ItemType="TValueLink" RunningItem="ItemD" Next="ItemD.Next">
+                <lil:LinkedList.Iterate Head="HeadC" ItemType="TValueLink" RunningItem="ItemC" Next="ItemC.Next">
+                  <lil:LinkedList.Iterate Head="HeadB" ItemType="TValueLink" RunningItem="ItemB" Next="ItemB.Next">
+                    <lil:LinkedList.Iterate Head="HeadA" ItemType="TValueLink" RunningItem="ItemA" Next="ItemA.Next">
+                      <ExitOnAbortRequest/>
+                      <Execute Statement="Counter:= Counter + 1"/>
+                      <Block Condition="Evaluate(ItemA.Value, ItemB.Value, ItemC.Value, ItemD.Value, ItemE.Value, ItemF.Value, False, CurrentDelta)">
+                        <Choose>
+                          <When Expression="IsEmpty(OptimumDelta)"/>
+                          <When Expression="CurrentDelta &gt; OptimumDelta">
+                            <Continue/>
+                          </When>
+                        </Choose>
+                        <Execute Statement="OptiValueA:= ItemA"/>
+                        <Execute Statement="OptiValueB:= ItemB"/>
+                        <Execute Statement="OptiValueC:= ItemC"/>
+                        <Execute Statement="OptiValueD:= ItemD"/>
+                        <Execute Statement="OptiValueE:= ItemE"/>
+                        <Execute Statement="OptiValueF:= ItemF"/>
+                        <Execute Statement="OptimumDelta:= CurrentDelta"/>
+                      </Block>
+                    </lil:LinkedList.Iterate>
+                  </lil:LinkedList.Iterate>
+                </lil:LinkedList.Iterate>
+              </lil:LinkedList.Iterate>
+            </lil:LinkedList.Iterate>
+          </lil:LinkedList.Iterate>
+        </RepeatUntilLoop>
+        <rep:Reporter.Information Text="Format('%d combinations where checked', Counter)" Condition="IsDebugging"/>
+        <Block Condition="not IsEmpty(OptimumDelta)">
+          <Execute Statement="OptimalValueA:= OptiValueA.Value"/>
+          <Execute Statement="OptimalValueB:= OptiValueB.Value"/>
+          <Execute Statement="OptimalValueC:= OptiValueC.Value"/>
+          <Execute Statement="OptimalValueD:= OptiValueD.Value"/>
+          <Execute Statement="OptimalValueE:= OptiValueE.Value"/>
+          <Execute Statement="OptimalValueF:= OptiValueF.Value"/>
+          <Execute Statement="Evaluate(OptimalValueA, OptimalValueB, OptimalValueC, OptimalValueD, OptimalValueE, OptimalValueF, True, CurrentDelta)"/>
+          <Execute Statement="Result:= True"/>
+        </Block>
+      </Block>
+    </Function>
+
+  </Procedures>
+</pkg:Library>

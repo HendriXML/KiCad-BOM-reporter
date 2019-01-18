@@ -160,18 +160,18 @@
     <Constant Identifier="sSchmittTriggerHeader" Expression="'Schmitt-triggers'"/>
     <Constant Identifier="sOptocouplerDescription" Expression="'optocoupler'"/>
     <Constant Identifier="sOptocouplerHeader" Expression="'Optocouplers'"/>
-    <Constant Identifier="sComponentDescription" Expression="'component'"/>
-    <Constant Identifier="sComponentHeader" Expression="'Componenten'"/>
+    <Constant Identifier="sSwitchDescription" Expression="'schakelaar'"/>
+    <Constant Identifier="sSwitchHeader" Expression="'Schakelaars'"/>
     <Constant Identifier="sModuleDescription" Expression="'module'"/>
     <Constant Identifier="sModuleHeader" Expression="'Modules'"/>
+    <Constant Identifier="sComponentDescription" Expression="'component'"/>
+    <Constant Identifier="sComponentHeader" Expression="'Componenten'"/>
     <Constant Identifier="sNonComponentDescription" Expression="'niet component'"/>
     <Constant Identifier="sNonComponentHeader" Expression="'Niet componenten'"/>
     <!-->->-->
     <Constant Identifier="sBOMHeader" Type="string" Expression="'Lijst van materialen'"/>
     <Constant Identifier="sStockHeader" Type="string" Expression="'Lijst van beschikbare materialen'"/>
     <Constant Identifier="sDesignatorReport" Type="string" Expression="'Designator specificaties'"/>
-    <Constant Identifier="sTitleField" Type="string" Expression="'Titel: %s'"/>
-    <Constant Identifier="sCountField" Type="string" Expression="'Aantal: %dx'"/>
 
     <Constant Identifier="sMissingComponentHeader" Type="string" Expression="'Component klasse naam niet vermeld'"/>
     <Constant Identifier="sResistorTechnologyMetalFilm" Type="string" Expression="'metaalfilm'"/>
@@ -247,5 +247,17 @@
     <Constant Identifier="sMsgMissingLibraryComponentKind" Type="string" Expression="'Component soort %s voor bibliotheek %s kon niet worden gevonden'"/>
     <Constant Identifier="sMsgMappingExistingLibrary" Type="string" Expression="'Fout bij het mappen van bibliotheek %s naar %s deze is al geregistreerd met component soort %s'"/>
     <Constant Identifier="sMsgMissingLibrarysymbolMapping" Type="string" Expression="'Onderdeel &quot;%s&quot; heeft geen component soort mapping, en krijgt dus component als soort'"/>
+
+    <Constant Identifier="sMsgUnmatchedCalculatedDesignator" Type="string" Expression="'Berekende designator %s niet gevonden in schema'"/>
+    <Constant Identifier="sTitleField" Type="string"     Expression="'Titel   : %s'"/>
+    <Constant Identifier="sCompanyField" Type="string"   Expression="'Bedrijf : %s'"/>
+    <Constant Identifier="sRevisionField" Type="string"  Expression="'Revisie : %s'"/>
+    <Constant Identifier="sDateField" Type="string"      Expression="'Datum   : %s'"/>
+    <Constant Identifier="sSourceField" Type="string"    Expression="'Bron    : %s'"/>
+    <Constant Identifier="sComment1Field" Type="string"  Expression="'Aantekening1: %s'"/>
+    <Constant Identifier="sComment2Field" Type="string"  Expression="'Aantekening2: %s'"/>
+    <Constant Identifier="sComment3Field" Type="string"  Expression="'Aantekening3: %s'"/>
+    <Constant Identifier="sComment4Field" Type="string"  Expression="'Aantekening4: %s'"/>
+    <Constant Identifier="sCountField" Type="string"     Expression="'Aantal  : %dx'"/>
   </Constants>
 </pkg:Library>

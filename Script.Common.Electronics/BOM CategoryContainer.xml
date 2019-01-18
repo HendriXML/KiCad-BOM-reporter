@@ -30,6 +30,12 @@
     <Use Identifier="GenericComponentClasses"/>
   </Uses>
   <Type>
+    <DataClass Identifier="TDesignatorInfo">
+      <Field Identifier="SchemaComponent" Type="TSchemaComponent"/>
+      <Field Identifier="ComponentSpec" Type="TComponentSpec"/>
+      <Field Identifier="Next" Type="TDesignatorInfo"/>
+    </DataClass>
+
     <DataClass Identifier="TCategoryContainer">
       <Field Identifier="CategoryHead" Type="TComponentCategory"/>
       <Field Identifier="Resistors" Type="TResistorCategory"/>
@@ -76,6 +82,25 @@
         </lil:LinkedList.Iterate>
       </Block>
     </Procedure>
+
+    <Function Identifier="TCategoryContainer.ExtractDesignators" Type="TDesignatorInfo">
+      <Variables>
+        <Variable Identifier="DesignatorInfoTail" Type="TDesignatorInfo"/>
+        <Variable Identifier="DesignatorInfo" Type="TDesignatorInfo"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= ObjNil"/>
+        <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
+          <lil:LinkedList.Iterate Head="RunningCategory.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpecification" Next="RunningSpecification.Next">
+            <lil:LinkedList.Iterate Head="RunningSpecification.SchemaComponentHead" ItemType="TSchemaComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
+              <Execute Statement="DesignatorInfo:= TDesignatorInfo.Create(RunningComponent, RunningSpecification)"/>
+              <lil:LinkedList.LinkUp Head="Result" Tail="DesignatorInfoTail" Item="DesignatorInfo" TailLinkStatement="DesignatorInfoTail.Next:= Item" />
+            </lil:LinkedList.Iterate>
+          </lil:LinkedList.Iterate>
+        </lil:LinkedList.Iterate>
+        <lil:LinkedList.MergeSort Head="Result" ItemType="TDesignatorInfo" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA.SchemaComponent, ItemB.SchemaComponent) &lt;= 0"/>
+      </Block>
+    </Function>
 
   </Procedures>
 </pkg:Library>

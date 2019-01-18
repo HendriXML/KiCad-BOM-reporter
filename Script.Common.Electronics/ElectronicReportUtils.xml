@@ -1,0 +1,413 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+  </Uses>
+
+  <Type>
+    <Enumeration Identifier="TFieldKind" Elements="Value"/>
+    
+    <Enumeration Identifier="TComponentClass" Elements="Resistor"/>
+
+    <DataClass Identifier="TReportComponentField">
+      <Field Identifier="FieldKind" Type="TFieldKind"/>
+      <Field Identifier="IntValue" Type="Int64"/>
+      <Field Identifier="Convertor" Type="TUnitConvertor"/>
+      <Field Identifier="ExtValue" Type="Extended"/>
+      <Field Identifier="Next" Type="TReportComponentField"/>
+    </DataClass>
+
+    <DataClass Identifier="TReportComponent">
+      <Field Identifier="ComponentClass" Type="TComponentClass"/>
+      <Field Identifier="FieldHead" Type="TReportComponentField"/>
+      <Field Identifier="Designator" Type="string"/>
+      <Field Identifier="Next" Type="TReportComponent"/>
+    </DataClass>
+    
+    <DataClass Identifier="TComponentContainer">
+      <Field Identifier="ComponentHead" Type="TReportComponent"/>
+      <Field Identifier="ComponentTail" Type="TReportComponent"/>
+    </DataClass>
+
+    <DataClass Identifier="TComponents" DefaultConstructor="none">
+      <VirtualMethod Identifier="vmFinalize" IsFinalizer="true"/>
+      <Field Identifier="DesignatorIndex" Type="TMappingCaseInSensitiveUnicodeStringToObject"/>
+      <Field Identifier="Resistors" Type="TComponentContainer"/>
+    </DataClass>
+  </Type>
+  
+  <Constants>
+    <Constant Identifier="DefaultDeviation" Type="Extended" Expression="0.0001"/>
+    <Constant Identifier="sLabelValue" Type="string" Expression="'  %-*s: %s'"/>
+    <Constant Identifier="sGoal" Type="string" Expression="'GOAL'"/>
+    <Constant Identifier="sIn" Type="string" Expression="'CONSUMES'"/>
+    <Constant Identifier="sOut" Type="string" Expression="'PROVIDES'"/>
+    <Constant Identifier="sIntermediate" Type="string" Expression="'INTERMEDIATE'"/>
+    <Constant Identifier="cLabelLength" Type="Integer" Expression="25"/>
+  </Constants>
+
+  <Variables>
+    <Variable Identifier="ResistanceConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.MicroOhm)"/>
+    <Variable Identifier="Components" Type="TComponents"/>
+  </Variables>
+
+  <Procedures>
+
+    <Procedure Identifier="TComponentContainer.Add">
+      <Parameters>
+        <Parameter Identifier="Component" Type="TReportComponent"/>
+      </Parameters>
+      <Block>
+        <Choose>
+          <When Expression="Assigned(ComponentHead)">
+            <Execute Statement="ComponentTail.Next:= Component"/>
+          </When>
+          <Otherwise>
+            <Execute Statement="ComponentHead:= Component"/>
+          </Otherwise>
+        </Choose>
+        <Execute Statement="ComponentTail:= Component"/>
+      </Block>
+    </Procedure>
+
+    <Constructor Identifier="TComponents.Create">
+      <Block>
+        <Execute Statement="DesignatorIndex:= TMappingCaseInSensitiveUnicodeStringToObject.Create"/>
+        <Execute Statement="Resistors:= TComponentContainer.Create"/>
+      </Block>
+    </Constructor>
+
+    <Procedure Identifier="TComponents.Finalize" VirtualMethod="vmFinalize">
+      <Block>
+        <Free Expression="Resistors"/>
+        <Free Expression="DesignatorIndex"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TComponents.SaveToFile">
+      <Parameters>
+        <Parameter Identifier="Filename" Type="string"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="xmlDoc" Type="IXmlDomDocument"/>
+        <Variable Identifier="RootXE" Type="IXmlDomElement"/>
+      </Variables>
+      <Procedures>
+        <Procedure Identifier="ReportContainer">
+          <Parameters>
+            <Parameter Identifier="Container" Type="TComponentContainer"/>
+            <Parameter Identifier="ComponentClassName" Type="string"/>
+          </Parameters>
+          <Block>
+            <Exit Condition="not Assigned(Container.ComponentHead)"/>
+            <Variable Identifier="ContainerXE" Type="IXmlDomElement"/>
+            <Variable Identifier="ComponentXE" Type="IXmlDomElement"/>
+            <Variable Identifier="FieldXE" Type="IXmlDomElement"/>
+            <msx:Document.CreateElement Document="xmlDoc" NameExpression="ComponentClassName" ParentElement="RootXE" Element="ContainerXE"/>
+            <lil:LinkedList.Iterate Head="Container.ComponentHead" ItemType="TReportComponent" RunningItem="Component" Next="Component.Next">
+              <msx:Document.CreateElement Document="xmlDoc" Name="Component" ParentElement="ContainerXE" Element="ComponentXE"/>
+              <msx:Element.SetAttribute Element="ComponentXE" Name="Designator" Value="Component.Designator"/>
+              <lil:LinkedList.Iterate Head="Component.FieldHead" ItemType="TReportComponentField" RunningItem="Field" Next="Field.Next">
+                <msx:Document.CreateElement Document="xmlDoc"  Name="Field" ParentElement="ComponentXE" Element="FieldXE"/>
+                <Case Expression="Field.FieldKind">
+                  <On Select="TFieldKind.Value">
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Kind" Value="'Value'"/>
+                  </On>
+                </Case>
+                <Choose>
+                  <When Expression="Assigned(Field.Convertor)">
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Value" Value="Field.Convertor.IntValueToStr(Field.IntValue, False)"/>
+                  </When>
+                  <Otherwise>
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Value" Value="Format('%g', Field.ExtValue)"/>
+                  </Otherwise>
+                </Choose>
+              </lil:LinkedList.Iterate>
+            </lil:LinkedList.Iterate>
+          </Block>
+        </Procedure>
+      </Procedures>
+      <Block>
+        <msx:Document.Create Identifier="xmlDoc"/>
+        <msx:Document.CreateElement Document="xmlDoc" Name="Components" ParentElement="xmlDoc" Element="RootXE"/>
+        <Execute Statement="ReportContainer(Resistors, 'Resistors')"/>
+        <Variable Identifier="WriteStream" Type="TSequentialFileWriteStream" Init="TSequentialFileWriteStream.Create(Filename)"/>
+        <Variable Identifier="Stream" Type="IStream" Init="WriteStream as IStream"/>
+        <Variable Identifier="MXWriter" Type="IMXWriter" Init="CoMXXMLWriter60.Create"/>
+        <Execute Statement="MXWriter.Output:= Stream"/>
+        <Execute Statement="MXWriter.Indent:= True"/>
+        <Execute Statement="MXWriter.encoding:= 'utf-8'"/>
+        <Variable Identifier="Output" Type="Variant" Init="MXWriter"/>
+        <Variable Identifier="XMLReader" Type="ISAXXMLReader" Init="CoSAXXMLReader60.Create"/>
+        <Execute Statement="XMLReader.putContentHandler(MXWriter as ISAXContentHandler)"/>
+        <Execute Statement="XMLReader.Parse(XmlDoc)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TComponents.GetComponentField" Type="TReportComponentField">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="ComponentClass" Type="TComponentClass"/>
+        <Parameter Identifier="FieldKind" Type="TFieldKind"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="NewComponent" Type="TReportComponent" Init="TReportComponent.Create"/>
+        <Variable Identifier="PrevComponent" Type="TReportComponent"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+        <inx:Index.MapValue Index="DesignatorIndex" Key="Designator" Value="NewComponent" PreviousValue="PrevComponent" Found="Found" Flags="NoErrorOnExist DiscardOnExist"/>
+        <Choose>
+          <When Expression="Found">
+            <Free Expression="NewComponent"/>
+            <Execute Statement="NewComponent:= PrevComponent"/>
+            <Raise Expression="Exception.Create(Format('Component class of %s cannot be changed', Designator))" Condition="NewComponent.ComponentClass &lt;&gt; ComponentClass"/>
+            <lil:LinkedList.Iterate Head="NewComponent.FieldHead" ItemType="TReportComponentField" RunningItem="Field" Next="Field.Next">
+              <Exit Result="Field" Condition="Field.FieldKind = FieldKind"/>
+            </lil:LinkedList.Iterate>
+            <Execute Statement="Result:= TReportComponentField.Create"/>
+            <Execute Statement="Result.FieldKind:= FieldKind"/>
+            <Execute Statement="Result.Next:= NewComponent.FieldHead"/>
+            <Execute Statement="NewComponent.FieldHead:= Result"/>
+          </When>
+          <Otherwise>
+            <Execute Statement="Result:= TReportComponentField.Create"/>
+            <Execute Statement="Result.FieldKind:= FieldKind"/>
+            <Execute Statement="NewComponent.FieldHead:= Result"/>
+            <Execute Statement="NewComponent.Designator:= Designator"/>
+            <Execute Statement="NewComponent.ComponentClass:= ComponentClass"/>
+            <Case Expression="ComponentClass">
+              <On Select="TComponentClass.Resistor">
+                <Execute Statement="Resistors.Add(NewComponent)"/>
+              </On>
+            </Case>
+          </Otherwise>
+        </Choose>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TComponents.SetConvField">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="ComponentClass" Type="TComponentClass"/>
+        <Parameter Identifier="FieldKind" Type="TFieldKind"/>
+        <Parameter Identifier="Convertor" Type="TUnitConvertor"/>
+        <Parameter Identifier="Value" Type="Int64"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ComponentField" Type="TReportComponentField" Init="GetComponentField(Designator, ComponentClass, FieldKind)"/>
+        <Execute Statement="ComponentField.IntValue:= Value"/>
+        <Execute Statement="ComponentField.Convertor:= Convertor"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TComponents.SetExtField">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="ComponentClass" Type="TComponentClass"/>
+        <Parameter Identifier="FieldKind" Type="TFieldKind"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ComponentField" Type="TReportComponentField" Init="GetComponentField(Designator, ComponentClass, FieldKind)"/>
+        <Execute Statement="ComponentField.ExtValue:= Value"/>
+        <Execute Statement="ComponentField.Convertor:= ObjNil"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="ReportVoltage" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, LabelS, FormatVoltage(Result))"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportResistance" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, LabelS, FormatResistance(Result))"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportResistorDev" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+        <Parameter Identifier="MaxDeviation" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <Variable Identifier="ConvResistance" Type="Int64"/>
+        <Choose>
+          <When Expression="ResistanceConv.ExtendedToIntValue(Value, MaxDeviation, ConvResistance)">
+            <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, 'ohm' + Designator, ResistanceConv.IntValueToStr(ConvResistance, False))"/>
+            <Execute Statement="Components.SetConvField(Designator, TComponentClass.Resistor, TFieldKind.Value, ResistanceConv, ConvResistance)"/>
+          </When>
+          <Otherwise>
+            <rep:Reporter.Error Text="Format(sLabelValue, cLabelLength, 'ohm' + Designator, FormatResistance(Result))"/>
+            <Execute Statement="Components.SetExtField(Designator, TComponentClass.Resistor, TFieldKind.Value, Result)"/>
+          </Otherwise>
+        </Choose>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportResistor" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+        <Parameter Identifier="ESerie" Type="TESerie"/>
+        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ESerieObj" Type="TSerie" Init="GetESerie(ESerie)"/>
+        <Variable Identifier="Scale" Type="Extended"/>
+        <Variable Identifier="LogScale" Type="Integer"/>
+        <Variable Identifier="SerieNode" Type="TSerieNode" Init="ESerieObj.MatchNodeExtended(Value, MatchKind, Result, Scale, LogScale)"/>
+        <Variable Identifier="ConvResistance" Type="Int64"/>
+        <Choose>
+          <When Expression="ResistanceConv.SerieNodeToIntValue(SerieNode, LogScale, ConvResistance)">
+            <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, 'ohm' + Designator, ResistanceConv.IntValueToStr(ConvResistance, False))"/>
+            <Execute Statement="Components.SetConvField(Designator, TComponentClass.Resistor, TFieldKind.Value, ResistanceConv, ConvResistance)"/>
+          </When>
+          <Otherwise>
+            <rep:Reporter.Error Text="Format(sLabelValue, cLabelLength, 'ohm' + Designator, FormatResistance(Result))"/>
+            <Execute Statement="Components.SetExtField(Designator, TComponentClass.Resistor, TFieldKind.Value, Value)"/>
+          </Otherwise>
+        </Choose>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportCurrent" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, LabelS, FormatCurrent(Result))"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportFactor" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, LabelS, Format('%g', Result))"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="ReportAsEEVBlog">
+      <Parameters>
+        <Parameter Identifier="Iterator"/>
+      </Parameters>
+      <Block>
+        <rep:Reporter.Information Text="'[tt]'"/>
+        <rep:Reporter.IterateTarget Iterator="Iterator">
+          <rep:Information Text="Text" Markup="Markup">
+            <Case Expression="Markup">
+              <On Select="TMarkupKind.mkNormal">
+                <rep:Reporter.Information Text="'[size=8pt]' + Text + '[/size]'"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader1">
+                <rep:Reporter.Information Text="'[color=blue][size=18pt]' + Text + '[/size][/color]'" Markup="Header1"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader2">
+                <rep:Reporter.Information Text="'[color=blue][size=13pt]' + Text + '[/size][/color]'" Markup="Header2"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader3">
+                <rep:Reporter.Information Text="'[color=blue][size=10pt]' + Text + '[/size][/color]'" Markup="Header3"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader4">
+                <rep:Reporter.Information Text="'[color=blue][size=8pt]' + Text + '[/size][/color]'" Markup="Header4"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader5">
+                <rep:Reporter.Information Text="'[color=blue][size=6pt]' + Text + '[/size][/color]'" Markup="Header5"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader6">
+                <rep:Reporter.Information Text="'[color=blue][size=7pt]' + Text + '[/size][/color]'" Markup="Header6"/>
+              </On>
+            </Case>
+          </rep:Information>
+          <rep:Error Text="Text">
+            <rep:Reporter.Information Text="'[color=red][size=8pt]' + Text + '[/size][/color]'" Markup="Header4"/>
+          </rep:Error>
+        </rep:Reporter.IterateTarget>
+        <rep:Reporter.Information Text="'[/tt]'"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="ReportAsDokuWiki">
+      <Parameters>
+        <Parameter Identifier="Iterator"/>
+      </Parameters>
+      <Block>
+        <rep:Reporter.Information Text="'[tt]'"/>
+        <rep:Reporter.IterateTarget Iterator="Iterator">
+          <rep:Information Text="Text" Markup="Markup">
+            <Case Expression="Markup">
+              <On Select="TMarkupKind.mkNormal">
+                <rep:Reporter.Information Text="'[size=8pt]' + Text + '[/size]'"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader1">
+                <rep:Reporter.Information Text="'[color=blue][size=18pt]' + Text + '[/size][/color]'" Markup="Header1"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader2">
+                <rep:Reporter.Information Text="'[color=blue][size=13pt]' + Text + '[/size][/color]'" Markup="Header2"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader3">
+                <rep:Reporter.Information Text="'[color=blue][size=10pt]' + Text + '[/size][/color]'" Markup="Header3"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader4">
+                <rep:Reporter.Information Text="'[color=blue][size=8pt]' + Text + '[/size][/color]'" Markup="Header4"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader5">
+                <rep:Reporter.Information Text="'[color=blue][size=6pt]' + Text + '[/size][/color]'" Markup="Header5"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader6">
+                <rep:Reporter.Information Text="'[color=blue][size=7pt]' + Text + '[/size][/color]'" Markup="Header6"/>
+              </On>
+            </Case>
+          </rep:Information>
+          <rep:Error Text="Text">
+            <rep:Reporter.Information Text="'[color=red][size=8pt]' + Text + '[/size][/color]'" Markup="Header4"/>
+          </rep:Error>
+        </rep:Reporter.IterateTarget>
+        <rep:Reporter.Information Text="'[/tt]'"/>
+      </Block>
+    </Procedure>
+  </Procedures>
+  
+  <Initialization>
+    <Execute Statement="Components:= TComponents.Create"/>
+  </Initialization>
+  
+  <Finalization>
+    <Free Expression="Components"/>
+  </Finalization>
+
+</pkg:Library>

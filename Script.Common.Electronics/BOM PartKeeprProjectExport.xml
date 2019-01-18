@@ -1125,8 +1125,8 @@
             </Case>
             <Choose>
               <When Expression="StockSpec is TDiodeSpec">
-                <Block Condition="NumericParameterNeeded(TDiodeSpec(SchemaSpec).ReverseVoltage, TDiodeSpec(SchemaSpec).ReverseVoltageVT, TDiodeSpec(StockSpec).ReverseVoltage, TDiodeSpec(StockSpec).ReverseVoltageVT)">
-                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ReverseVoltage, TDiodeSpec(SchemaSpec).ReverseVoltage, DiodeReverseVoltageConv)"/>
+                <Block Condition="NumericParameterNeeded(TDiodeSpec(SchemaSpec).ReverseVoltageRating, TDiodeSpec(SchemaSpec).ReverseVoltageRatingVT, TDiodeSpec(StockSpec).ReverseVoltageRating, TDiodeSpec(StockSpec).ReverseVoltageRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ReverseVoltageRating, TDiodeSpec(SchemaSpec).ReverseVoltageRating, DiodeReverseVoltageRatingConv)"/>
                   <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                 </Block>
                 <Block Condition="NumericParameterNeeded(TDiodeSpec(SchemaSpec).AmperageRating, TDiodeSpec(SchemaSpec).AmperageRatingVT, TDiodeSpec(StockSpec).AmperageRating, TDiodeSpec(StockSpec).AmperageRatingVT)">
@@ -1139,9 +1139,9 @@
                 </Block>
               </When>
               <Otherwise>
-                <Case Expression="TDiodeSpec(SchemaSpec).ReverseVoltageVT">
+                <Case Expression="TDiodeSpec(SchemaSpec).ReverseVoltageRatingVT">
                   <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ReverseVoltage, TDiodeSpec(SchemaSpec).ReverseVoltage, DiodeReverseVoltageConv)"/>
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ReverseVoltageRating, TDiodeSpec(SchemaSpec).ReverseVoltageRating, DiodeReverseVoltageRatingConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>

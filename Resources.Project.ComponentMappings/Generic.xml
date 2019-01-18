@@ -7,6 +7,8 @@
   </Library>
   <Library Name="Jumper" Component="NonComponent">
   </Library>
+  <Library Name="Switch" Component="Switch">
+  </Library>
   <Library Name="Comparator" Component="Comparator">
   </Library>
   <Library Name="Diode">

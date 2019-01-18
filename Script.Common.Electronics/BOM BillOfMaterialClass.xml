@@ -29,10 +29,19 @@
     <Use Identifier="GenericComponentClasses"/>
     <Use Identifier="StockManager"/>
     <Use Identifier="CategoryContainer"/>
+    <Use Identifier="CalculatedSpecificationsClasses"/>
   </Uses>
   <Type>
     <DataClass Identifier="TBillOfMaterials" Inherit="TCategoryContainer" DefaultConstructor="none">
       <Field Identifier="Title" Type="string"/>
+      <Field Identifier="Company" Type="string"/>
+      <Field Identifier="Revision" Type="string"/>
+      <Field Identifier="Date" Type="string"/>
+      <Field Identifier="Source" Type="string"/>
+      <Field Identifier="Comment1" Type="string"/>
+      <Field Identifier="Comment2" Type="string"/>
+      <Field Identifier="Comment3" Type="string"/>
+      <Field Identifier="Comment4" Type="string"/>
     </DataClass>
   </Type>
   <Procedures>
@@ -103,6 +112,46 @@
                                       <Execute Statement="Title:= Node.Text"/>
                                     </msx:Block>
                                   </msx:OnElement>
+                                  <msx:OnElement baseName="'company'">
+                                    <msx:Block>
+                                      <Execute Statement="Company:= Node.Text"/>
+                                    </msx:Block>
+                                  </msx:OnElement>
+                                  <msx:OnElement baseName="'rev'">
+                                    <msx:Block>
+                                      <Execute Statement="Revision:= Node.Text"/>
+                                    </msx:Block>
+                                  </msx:OnElement>
+                                  <msx:OnElement baseName="'date'">
+                                    <msx:Block>
+                                      <Execute Statement="Date:= Node.Text"/>
+                                    </msx:Block>
+                                  </msx:OnElement>
+                                  <msx:OnElement baseName="'source'">
+                                    <msx:Block>
+                                      <Execute Statement="Source:= Node.Text"/>
+                                    </msx:Block>
+                                  </msx:OnElement>
+                                  <msx:OnElement baseName="'comment'">
+                                    <msx:Attribute baseName="'number'" Required="true"/>
+                                    <msx:Attribute baseName="'value'" Required="true"/>
+                                    <msx:Block>
+                                      <Case Expression="StrToInt(number.Text)">
+                                        <On Select="1">
+                                          <Execute Statement="Comment1:= value.Text"/>
+                                        </On>
+                                        <On Select="2">
+                                          <Execute Statement="Comment2:= value.Text"/>
+                                        </On>
+                                        <On Select="3">
+                                          <Execute Statement="Comment3:= value.Text"/>
+                                        </On>
+                                        <On Select="4">
+                                          <Execute Statement="Comment4:= value.Text"/>
+                                        </On>
+                                      </Case>
+                                    </msx:Block>
+                                  </msx:OnElement>
                                   <msx:OnOtherElement/>
                                 </msx:Node.IterateChilds>
                               </msx:Block>
@@ -137,6 +186,20 @@
         </msx:Node.IterateChilds>
       </Block>
     </Procedure>
+    
+    <Procedure Identifier="TBillOfMaterials.ReportTitleBlock">
+      <Block>
+        <rep:Reporter.Information Text="Format(sTitleField, Title)" Condition="IsNonEmptystring(Title)"/>
+        <rep:Reporter.Information Text="Format(sCompanyField, Company)" Condition="IsNonEmptystring(Company)"/>
+        <rep:Reporter.Information Text="Format(sRevisionField, Revision)" Condition="IsNonEmptystring(Revision)"/>
+        <rep:Reporter.Information Text="Format(sDateField, Date)" Condition="IsNonEmptystring(Date)"/>
+        <rep:Reporter.Information Text="Format(sSourceField, Source)" Condition="IsNonEmptystring(Source)"/>
+        <rep:Reporter.Information Text="Format(sComment1Field, Comment1)" Condition="IsNonEmptystring(Comment1)"/>
+        <rep:Reporter.Information Text="Format(sComment2Field, Comment2)" Condition="IsNonEmptystring(Comment2)"/>
+        <rep:Reporter.Information Text="Format(sComment3Field, Comment3)" Condition="IsNonEmptystring(Comment3)"/>
+        <rep:Reporter.Information Text="Format(sComment4Field, Comment4)" Condition="IsNonEmptystring(Comment4)"/>
+      </Block>
+    </Procedure>
 
     <Procedure Identifier="TBillOfMaterials.Report">
       <Parameters>
@@ -144,7 +207,7 @@
       </Parameters>
       <Block>
         <rep:Reporter.Information Text="sBOMHeader" Markup="Header1"/>
-        <rep:Reporter.Information Text="Format(sTitleField, Title)"/>
+        <Execute Statement="ReportTitleBlock"/>
         <rep:Reporter.Information Text="Format(sCountField, Count)"/>
 
         <Object.Use Identifier="SchemaContext" Type="TSchemaReportContext" Expression="TSchemaReportContext.Create">
@@ -178,33 +241,21 @@
     </Procedure>
 
     <Procedure Identifier="TBillOfMaterials.ReportDesignators">
-      <Type>
-        <DataClass Identifier="TDesignatorInfo">
-          <Field Identifier="SchemaComponent" Type="TSchemaComponent"/>
-          <Field Identifier="ComponentSpec" Type="TComponentSpec"/>
-          <Field Identifier="Next" Type="TDesignatorInfo"/>
-        </DataClass>
-      </Type>
+      <Parameters>
+        <Parameter Identifier="CalculatedSpecifications" Type="TCalculatedSpecifications"/>
+      </Parameters>
       <Variables>
         <Variable Identifier="DesignatorInfoHead" Type="TDesignatorInfo"/>
-        <Variable Identifier="DesignatorInfoTail" Type="TDesignatorInfo"/>
-        <Variable Identifier="DesignatorInfo" Type="TDesignatorInfo"/>
+        <Variable Identifier="CalculatedDesignatorInfoHead" Type="TDesignatorInfo" Init="ObjNil"/>
         <Variable Identifier="ComponentSpec" Type="TComponentSpec"/>
         <Variable Identifier="ComponentSpecAsString" Type="string"/>
         <Variable Identifier="Component" Type="TSchemaComponent"/>
         <Variable Identifier="PrevDecodedComponent" Type="TSchemaComponent" DisabledChecks="empty"/>
       </Variables>
       <Block>
-        <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
-          <lil:LinkedList.Iterate Head="RunningCategory.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpecification" Next="RunningSpecification.Next">
-            <lil:LinkedList.Iterate Head="RunningSpecification.SchemaComponentHead" ItemType="TSchemaComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
-              <Execute Statement="DesignatorInfo:= TDesignatorInfo.Create(RunningComponent, RunningSpecification)"/>
-              <lil:LinkedList.LinkUp Head="DesignatorInfoHead" Tail="DesignatorInfoTail" Item="DesignatorInfo" TailLinkStatement="DesignatorInfoTail.Next:= Item" />
-            </lil:LinkedList.Iterate>
-          </lil:LinkedList.Iterate>
-        </lil:LinkedList.Iterate>
-        <lil:LinkedList.MergeSort Head="DesignatorInfoHead" ItemType="TDesignatorInfo" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA.SchemaComponent, ItemB.SchemaComponent) &lt;= 0"/>
 
+        <Execute Statement="DesignatorInfoHead:= ExtractDesignators" />
+        <Execute Statement="CalculatedDesignatorInfoHead:= CalculatedSpecifications.ExtractDesignators" Condition="Assigned(CalculatedSpecifications)"/>
         <Object.Use Identifier="DesignatorsReportContext" Type="TDesignatorsReportContext" Expression="TDesignatorsReportContext.Create">
           <Object.Use Identifier="SpecReportContext" Type="TSpecReportContext" Expression="TSpecReportContext.Create">
             <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create">
@@ -214,7 +265,16 @@
 
               <Execute Statement="SpecReportContext.Measure:= True"/>
               <Execute Statement="DesignatorsReportContext.Measure:= True"/>
+
+
               <lil:LinkedList.Iterate Head="DesignatorInfoHead" ItemType="TDesignatorInfo" RunningItem="RunningDesignatorInfo" Next="RunningDesignatorInfo.Next">
+                <Execute Statement="ComponentSpec:= RunningDesignatorInfo.ComponentSpec"/>
+                <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
+                <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, Length(Component.Reference)+2)"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(TGenComponentSpecColumns.Max+3, 1, Length(ComponentKindDescription(ComponentSpec.ComponentKind)))"/>
+              </lil:LinkedList.Iterate>
+              <lil:LinkedList.Iterate Head="CalculatedDesignatorInfoHead" ItemType="TDesignatorInfo" RunningItem="RunningDesignatorInfo" Next="RunningDesignatorInfo.Next">
                 <Execute Statement="ComponentSpec:= RunningDesignatorInfo.ComponentSpec"/>
                 <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
                 <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
@@ -227,7 +287,18 @@
               <Execute Statement="SpecReportContext.Measure:= False"/>
               <Execute Statement="DesignatorsReportContext.Measure:= False"/>
               <rep:Reporter.Information Text="sDesignatorReport" Markup="Header1"/>
-              <lil:LinkedList.Iterate Head="DesignatorInfoHead" ItemType="TDesignatorInfo" RunningItem="RunningDesignatorInfo" Next="RunningDesignatorInfo.Next">
+              <Execute Statement="ReportTitleBlock"/>
+              <Variable Identifier="RunningDesignatorInfo" Type="TDesignatorInfo" Init="DesignatorInfoHead"/>
+              <Variable Identifier="RunningCalcDesignatorInfo" Type="TDesignatorInfo" Init="CalculatedDesignatorInfoHead"/>
+              <Variable Identifier="CompResult" Type="Integer"/>
+
+              <WhileLoop Expression="Assigned(RunningDesignatorInfo) and Assigned(RunningCalcDesignatorInfo)">
+                <Execute Statement="CompResult:= CompareComponent(RunningDesignatorInfo.SchemaComponent, RunningCalcDesignatorInfo.SchemaComponent)"/>
+                <Block Condition="CompResult &gt; 0">
+                  <rep:Reporter.Error Target="Errors" Text="Format(sMsgUnmatchedCalculatedDesignator, RunningCalcDesignatorInfo.SchemaComponent.Reference)"/>
+                  <Execute Statement="RunningCalcDesignatorInfo:= RunningCalcDesignatorInfo.Next"/>
+                  <Continue/>
+                </Block>
                 <Execute Statement="ComponentSpec:= RunningDesignatorInfo.ComponentSpec"/>
                 <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
                 <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
@@ -245,7 +316,55 @@
                                           ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max+2), ComponentSpecAsString,
                                           ColumnManager.GetColumnWidth(TGenComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
                                           )"/>
-              </lil:LinkedList.Iterate>
+                <Choose>
+                  <When Expression="CompResult = 0">
+                    <Execute Statement="ComponentSpec:= RunningCalcDesignatorInfo.ComponentSpec"/>
+                    <Execute Statement="Component:= RunningCalcDesignatorInfo.SchemaComponent"/>
+                    <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
+                    <rep:Reporter.Information Text="Format('%-*s%-*s%-*s', 
+                                          ColumnManager.GetColumnWidth(0, 1), '',
+                                          ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max+2), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(TGenComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
+                                          )"/>
+                    <Execute Statement="RunningDesignatorInfo:= RunningDesignatorInfo.Next"/>
+                    <Execute Statement="RunningCalcDesignatorInfo:= RunningCalcDesignatorInfo.Next"/>
+                  </When>
+                  <When Expression="CompResult &lt; 0">
+                    <Execute Statement="RunningDesignatorInfo:= RunningDesignatorInfo.Next"/>
+                  </When>
+                  <Otherwise>
+                    <rep:Reporter.Error Target="Errors" Text="Format(sMsgUnmatchedCalculatedDesignator, RunningCalcDesignatorInfo.SchemaComponent.Reference)"/>
+                    <Execute Statement="RunningCalcDesignatorInfo:= RunningCalcDesignatorInfo.Next"/>
+                  </Otherwise>
+                </Choose>
+              </WhileLoop>
+              <WhileLoop Expression="Assigned(RunningDesignatorInfo)">
+                <Execute Statement="ComponentSpec:= RunningDesignatorInfo.ComponentSpec"/>
+                <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
+                <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
+                <Choose>
+                  <When Expression="Component.Decoded">
+                    <rep:Reporter.Information Text="''" Condition="IsEmpty(PrevDecodedComponent) or not SameText(PrevDecodedComponent.Prefix, Component.Prefix)"/>
+                    <Execute Statement="PrevDecodedComponent:= Component"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="PrevDecodedComponent:= EmptyValue"/>
+                  </Otherwise>
+                </Choose>
+                <rep:Reporter.Information Text="Format('%-*s%-*s%-*s', 
+                                          ColumnManager.GetColumnWidth(0, 1), Component.Reference,
+                                          ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max+2), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(TGenComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
+                                          )"/>
+
+                <Execute Statement="RunningDesignatorInfo:= RunningDesignatorInfo.Next"/>
+              </WhileLoop>
+
+              <WhileLoop Expression="Assigned(RunningCalcDesignatorInfo)">
+                <rep:Reporter.Error Target="Errors" Text="Format(sMsgUnmatchedCalculatedDesignator, RunningCalcDesignatorInfo.SchemaComponent.Reference)"/>
+                <Execute Statement="RunningCalcDesignatorInfo:= RunningCalcDesignatorInfo.Next"/>
+              </WhileLoop>
+
             </Object.Use>
           </Object.Use>
         </Object.Use>
@@ -289,7 +408,7 @@
           <Free Expression="Value"/>
           <Execute Statement="Resistors.AssignStockSpecsFromCategory(StockManager.Resistors, InternalPartNumberIndex)"/>
           <Execute Statement="Capacitors.AssignStockSpecsFromCategory(StockManager.Capacitors, InternalPartNumberIndex)"/>
-          <Execute Statement="Inductors.AssignStockSpecsFromCategory(StockManager.Capacitors, InternalPartNumberIndex)"/>
+          <Execute Statement="Inductors.AssignStockSpecsFromCategory(StockManager.Inductors, InternalPartNumberIndex)"/>
           <Execute Statement="ZenerDiodes.AssignStockSpecsFromCategory(StockManager.ZenerDiodes, InternalPartNumberIndex)"/>
           <Execute Statement="Diodes.AssignStockSpecsFromCategory(StockManager.Diodes, InternalPartNumberIndex)"/>
           <Execute Statement="Fuses.AssignStockSpecsFromCategory(StockManager.Fuses, InternalPartNumberIndex)"/>

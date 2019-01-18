@@ -41,8 +41,8 @@
     <Part Part="D_Bridge_-AA+" Component="BridgeRectifier"/>
     <Part Part="D_Capacitance" Component="SpecialDiode"/>
     <Part Part="D_Capacitance_ALT" Component="SpecialDiode"/>
-    <Part Part="D_Photo" Component="Diode"/>
-    <Part Part="D_Photo_ALT" Component="Diode"/>
+    <Part Part="D_Photo" Component="PhotoDiode"/>
+    <Part Part="D_Photo_ALT" Component="PhotoDiode"/>
     <Part Part="D_Radiation" Component="SpecialDiode"/>
     <Part Part="D_Radiation_ALT" Component="SpecialDiode"/>
     <Part Part="D_Schottky" Component="SchottkyDiode"/>

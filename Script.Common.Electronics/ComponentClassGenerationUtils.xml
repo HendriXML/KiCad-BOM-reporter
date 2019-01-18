@@ -1,0 +1,753 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Type>
+    <Enumeration Identifier="TFieldKind" Elements="RangedInt64"/>
+
+    <Enumeration Identifier="TBoundKind" Elements="Min, Max"/>
+
+    <DataClass Identifier="TFieldInfo" DefaultConstructor="none">
+      <Field Identifier="Name" Type="string"/>
+      <Field Identifier="EnumName" Type="string"/>
+      <Field Identifier="CompClass" Type="string"/>
+      <Field Identifier="Next" Type="TFieldInfo"/>
+    </DataClass>
+
+    <DataClass Identifier="TRangedInt64FieldInfo" Inherit="TFieldInfo" DefaultConstructor="none">
+      <Field Identifier="Converter" Type="string"/>
+    </DataClass>
+
+    <DataClass Identifier="TEnumFieldInfo" Inherit="TFieldInfo" DefaultConstructor="none">
+      <Field Identifier="EnumType" Type="string"/>
+    </DataClass>
+
+    <DataClass Identifier="TStringFieldInfo" Inherit="TFieldInfo" DefaultConstructor="none">
+    </DataClass>
+
+
+  </Type>
+  <Procedures>
+    <Constructor Identifier="TFieldInfo.Create">
+      <Parameters>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="EnumName" Type="string"/>
+        <Parameter Identifier="CompClass" Type="string"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Self.Name:= Name"/>
+        <Execute Statement="Self.EnumName:= EnumName"/>
+        <Execute Statement="Self.CompClass:= CompClass"/>
+      </Block>
+    </Constructor>
+
+    <Constructor Identifier="TRangedInt64FieldInfo.Create">
+      <Parameters>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="EnumName" Type="string"/>
+        <Parameter Identifier="CompClass" Type="string"/>
+        <Parameter Identifier="Converter" Type="string"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="inherited Create(Name, EnumName, CompClass)"/>
+        <Execute Statement="Self.Converter:= Converter"/>
+      </Block>
+    </Constructor>
+
+    <Constructor Identifier="TEnumFieldInfo.Create">
+      <Parameters>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="EnumName" Type="string"/>
+        <Parameter Identifier="CompClass" Type="string"/>
+        <Parameter Identifier="EnumType" Type="string"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="inherited Create(Name, EnumName, CompClass)"/>
+        <Execute Statement="Self.EnumType:= EnumType"/>
+      </Block>
+    </Constructor>
+
+    <Procedure Identifier="GenerateGetSpecificationValues">
+      <Parameters>
+        <Parameter Identifier="Head" Type="TFieldInfo"/>
+      </Parameters>
+      <Procedures>
+        <Procedure Identifier="AddFieldRangedInt64">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="Converter" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'        '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sMinVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= ''''&quot;/&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= %s.IntValueToStr(Self.%sMin, Compact) + ''..''&quot;/&gt;', Converter, Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= ''!'' + Error%sMin + ''!'' + ''..''&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
+
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sMaxVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= ''..''&quot; Condition=&quot;IsEmptyString(Range)&quot;/&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= Range + %s.IntValueToStr(Self.%sMax, Compact)&quot;/&gt;', Converter, Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= ''..''&quot; Condition=&quot;IsEmptyString(Range)&quot;/&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= Range + ''!'' + Error%sMax + ''!'' &quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
+
+            <rep:Reporter.Information Text="Indent + Format('&lt;Execute Statement=&quot;Range:= ''{'' + Range + ''}''&quot; Condition=&quot;IsNonEmptyString(Range)&quot;/&gt;')"/>
+
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= Range&quot;/&gt;', Name)"/>
+            <!--<rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''''&quot;/&gt;', ESerie)" Condition="IsNonEmptyString(ESerie)"/>-->
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= %s.IntValueToStr(Self.%:0s, Compact) + Range&quot;/&gt;', Name, Converter)"/>
+            <!--<rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ESerieOfValue(Self.%s)&quot;/&gt;', ESerie, Name)" Condition="IsNonEmptyString(ESerie)"/>-->
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''!'' + Error%:0s + ''!'' + Range&quot;/&gt;', Name)"/>
+            <!--<rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''''&quot;/&gt;', ESerie)" Condition="IsNonEmptyString(ESerie)"/>-->
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
+          </Block>
+        </Procedure>
+
+        <Procedure Identifier="AddFieldInt64">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="Converter" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'        '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Value:= ''''&quot;/&gt;')"/>
+            <!--<rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''''&quot;/&gt;', ESerie)" Condition="IsNonEmptyString(ESerie)"/>-->
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Value:= %s.IntValueToStr(Self.%s, Compact)&quot;/&gt;', Converter, Name)"/>
+            <!--<rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ESerieOfValue(Self.%s)&quot;/&gt;', ESerie, Name)" Condition="IsNonEmptyString(ESerie)"/>-->
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Value:= ''!'' + Error%s + ''!''&quot;/&gt;', Name)"/>
+            <!--<rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''''&quot;/&gt;', ESerie)" Condition="IsNonEmptyString(ESerie)"/>-->
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
+          </Block>
+        </Procedure>
+ <!--
+ 
+         <Case Expression="TechnologyVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="Technology:= ''"/>
+          </On>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Technology:= ResistorTechnologyAsString(Self.Technology)"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="Technology:= '!' + ErrorTechnology + '!'"/>
+          </On>
+        </Case>
+
+ 
+ -->
+        <Procedure Identifier="AddFieldEnum">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="EnumType" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'        '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''''&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= %sAsString(Self.%:0s)&quot;/&gt;', Name, EnumType)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''!'' + Error%:0s + ''!''&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
+          </Block>
+        </Procedure>
+        
+        <Procedure Identifier="AddFieldString">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'        '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''''&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= Self.%:0s&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''!'' + %:0s + ''!''&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
+          </Block>
+        </Procedure>
+      </Procedures>
+      <Block>
+        <rep:Reporter.Information Text="''"/>
+        <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
+          <Choose>
+            <When Expression="Item is TRangedInt64FieldInfo">
+              <Execute Statement="AddFieldRangedInt64(Item.Name, TRangedInt64FieldInfo(Item).Converter)"/>
+            </When>
+            <When Expression="Item is TEnumFieldInfo">
+              <Execute Statement="AddFieldEnum(Item.Name, TEnumFieldInfo(Item).EnumType)"/>
+            </When>
+            <When Expression="Item is TStringFieldInfo">
+              <Execute Statement="AddFieldString(Item.Name)"/>
+            </When>
+          </Choose>
+        </lil:LinkedList.Iterate>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="GenerateFieldHandling">
+      <Parameters>
+        <Parameter Identifier="Head" Type="TFieldInfo"/>
+      </Parameters>
+      <Procedures>
+        <Procedure Identifier="AddFieldInt64">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="EnumName" Type="string"/>
+            <Parameter Identifier="Converter" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'          '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;On Select=&quot;TCustomField.%s&quot;&gt;', EnumName)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;Choose&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;When Expression=&quot;Clear&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%sVT:= TValueType.Cleared&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%s:= -1&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;/When&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;When Expression=&quot;%s.StrToIntValue(Value, LocValue)&quot;&gt;', Converter)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%sVT:= TValueType.Specified&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%s:= LocValue&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;/When&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Otherwise&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%sVT:= TValueType.Error&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;Error%s:= Value&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;/Otherwise&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/Choose&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/On&gt;')"/>
+          </Block>
+        </Procedure>
+
+        <!--
+           <On Select="TCustomField.Technology">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="TechnologyVT:= TValueType.Cleared"/>
+                <Execute Statement="Technology:= 0"/>
+              </When>
+              <Otherwise>
+                <inx:Index.FindValue Index="ResistorTechnologyIndex" Key="Value" Value="LocTechnology" Found="Found" Flags="NoErrorOnNotFound" />
+                <Choose>
+                  <When Expression="Found">
+                    <rep:Reporter.Information Text="Format('Resistor technology: %d', LocTechnology)" Condition="Found and IsVerbose"/>
+                    <Execute Statement="TechnologyVT:= TValueType.Specified"/>
+                    <Execute Statement="Technology:= LocTechnology"/>
+                  </When>
+                  <Otherwise>
+                    <rep:Reporter.Error Text="Format('Resistor technology could not be matched: %s', Value)" Condition="not Found"/>
+                    <Execute Statement="TechnologyVT:= TValueType.Error"/>
+                    <Execute Statement="ErrorTechnology:= Value"/>
+                  </Otherwise>
+                </Choose>
+              </Otherwise>
+            </Choose>
+          </On>
+        -->
+        <Procedure Identifier="AddFieldEnum">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="EnumName" Type="string"/>
+            <Parameter Identifier="EnumType" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'          '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;On Select=&quot;TCustomField.%s&quot;&gt;', EnumName)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;Choose&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;When Expression=&quot;Clear&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%sVT:= TValueType.Cleared&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;/When&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Otherwise&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;inx:Index.FindValue Index=&quot;%sIndex&quot; Key=&quot;Value&quot; Value=&quot;Loc%:0s&quot; Found=&quot;Found&quot; Flags=&quot;NoErrorOnNotFound&quot;/&gt;', EnumType)"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Choose&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('          &lt;When Expression=&quot;Found&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('            &lt;Execute Statement=&quot;%s:= Loc%s&quot;/&gt;', Name, EnumType)"/>
+            <rep:Reporter.Information Text="Indent + Format('            &lt;Execute Statement=&quot;%sVT:= TValueType.Specified&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('          &lt;/When&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('          &lt;Otherwise&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('            &lt;Execute Statement=&quot;Error%s:= Value&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('            &lt;Execute Statement=&quot;%sVT:= TValueType.Error&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('          &lt;/Otherwise&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('       &lt;/Choose&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;/Otherwise&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/Choose&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/On&gt;')"/>
+          </Block>
+        </Procedure>
+
+        <Procedure Identifier="AddFieldString">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="EnumName" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'          '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;On Select=&quot;TCustomField.%s&quot;&gt;', EnumName)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;Choose&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;When Expression=&quot;Clear&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%sVT:= TValueType.Cleared&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%s:= ''''&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;/When&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Otherwise&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%sVT:= TValueType.Specified&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%s:= Value&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;/Otherwise&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/Choose&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/On&gt;')"/>
+          </Block>
+        </Procedure>
+
+      </Procedures>
+      <Block>
+        <rep:Reporter.Information Text="''"/>
+        <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
+          <Choose>
+            <When Expression="Item is TRangedInt64FieldInfo">
+              <Execute Statement="AddFieldInt64(Item.Name, Item.EnumName, TRangedInt64FieldInfo(Item).Converter)"/>
+              <Execute Statement="AddFieldInt64(Item.Name + 'Min', Item.EnumName + 'Min', TRangedInt64FieldInfo(Item).Converter)"/>
+              <Execute Statement="AddFieldInt64(Item.Name + 'Max', Item.EnumName + 'Max', TRangedInt64FieldInfo(Item).Converter)"/>
+            </When>
+            <When Expression="Item is TEnumFieldInfo">
+              <Execute Statement="AddFieldEnum(Item.Name, Item.EnumName, TEnumFieldInfo(Item).EnumType)"/>
+            </When>
+            <When Expression="Item is TStringFieldInfo">
+              <Execute Statement="AddFieldString(Item.Name, Item.EnumName)"/>
+            </When>
+          </Choose>
+        </lil:LinkedList.Iterate>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="GenerateApplyTemplate">
+      <Parameters>
+        <Parameter Identifier="Head" Type="TFieldInfo"/>
+      </Parameters>
+      <Procedures>
+        <Procedure Identifier="AddFieldRangedInt64">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="EnumName" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'          '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Case Expression=&quot;%sMinVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;On Select=&quot;TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Case Expression=&quot;%sMaxVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('          &lt;On Select=&quot;TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate&quot;&gt;')"/>
+
+            <rep:Reporter.Information Text="Indent + Format('            &lt;Case Expression=&quot;locTemplate.%sVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%s:= locTemplate.%:0s&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%sVT:= TValueType.SpecifiedByTemplate&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%s:= locTemplate.Error%:0s&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%sVT:= TValueType.ErrorByTemplate&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('            &lt;/Case&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('            &lt;Case Expression=&quot;locTemplate.%sMinVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%sMin:= locTemplate.%:0sMin&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%sMinVT:= TValueType.SpecifiedByTemplate&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%sMin:= locTemplate.Error%:0sMin&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%sMinVT:= TValueType.ErrorByTemplate&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('            &lt;/Case&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('            &lt;Case Expression=&quot;locTemplate.%sMaxVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%sMax:= locTemplate.%:0sMax&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%sMaxVT:= TValueType.SpecifiedByTemplate&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%sMax:= locTemplate.Error%:0sMax&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('                &lt;Execute Statement=&quot;%sMaxVT:= TValueType.ErrorByTemplate&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('              &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('            &lt;/Case&gt;')"/>
+
+            <rep:Reporter.Information Text="Indent + Format('          &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;/Case&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;/Case&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
+          </Block>
+        </Procedure>
+        <Procedure Identifier="AddField">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="EnumName" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'          '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Case Expression=&quot;locTemplate.%sVT&quot;&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Execute Statement=&quot;%s:= locTemplate.%:0s&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Execute Statement=&quot;%sVT:= TValueType.SpecifiedByTemplate&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Execute Statement=&quot;%s:= locTemplate.Error%:0s&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Execute Statement=&quot;%sVT:= TValueType.ErrorByTemplate&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;/Case&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
+          </Block>
+        </Procedure>
+      </Procedures>
+      <Block>
+        <rep:Reporter.Information Text="''"/>
+        <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
+          <Choose>
+            <When Expression="Item is TRangedInt64FieldInfo">
+              <Execute Statement="AddFieldRangedInt64(Item.Name, Item.EnumName)"/>
+            </When>
+            <When Expression="Item is TFieldInfo">
+              <Execute Statement="AddField(Item.Name, Item.EnumName)"/>
+            </When>
+          </Choose>
+        </lil:LinkedList.Iterate>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="GenerateFieldDeclarations">
+      <Parameters>
+        <Parameter Identifier="Head" Type="TFieldInfo"/>
+      </Parameters>
+      <Procedures>
+        <Procedure Identifier="AddField">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="FieldType" Type="string"/>
+          </Parameters>
+          <Block>
+            <rep:Reporter.Information Text="Format('      &lt;Field Identifier=&quot;%s&quot; Type=&quot;%s&quot;/&gt;', Name, FieldType)"/>
+          </Block>
+        </Procedure>
+        <Procedure Identifier="AddFieldBase">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="FldType" Type="string"/>
+          </Parameters>
+          <Block>
+            <Execute Statement="AddField(Name + 'VT', 'TValueType')"/>
+            <Execute Statement="AddField(Name, FldType)"/>
+            <Execute Statement="AddField('Error' + Name, 'string')"/>
+          </Block>
+        </Procedure>
+      </Procedures>
+      <Block>
+        <rep:Reporter.Information Text="''"/>
+        <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
+          <Choose>
+            <When Expression="Item is TRangedInt64FieldInfo">
+              <Execute Statement="AddFieldBase(Item.Name, 'Int64')"/>
+              <Execute Statement="AddFieldBase(Item.Name + 'Min', 'Int64')"/>
+              <Execute Statement="AddFieldBase(Item.Name + 'Max', 'Int64')"/>
+            </When>
+            <When Expression="Item is TEnumFieldInfo">
+              <Execute Statement="AddFieldBase(Item.Name, 'T' + TEnumFieldInfo(Item).EnumType)"/>
+            </When>
+            <When Expression="Item is TStringFieldInfo">
+              <Execute Statement="AddFieldBase(Item.Name, 'string')"/>
+            </When>
+          </Choose>
+        </lil:LinkedList.Iterate>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="GenerateCompareSpecifications">
+      <Parameters>
+        <Parameter Identifier="Head" Type="TFieldInfo"/>
+      </Parameters>
+      <Procedures>
+        <Procedure Identifier="AddFieldInt64Range">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'        '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Execute Statement=&quot;Result:= CompareStateValueRange(A.ID, A.%s, A.%:0sVT, A.%:0sMin, A.%:0sMinVT, A.%:0sMax, A.%:0sMaxVT, B.ID, B.%:0s, B.%:0sVT, B.%:0sMin, B.%:0sMinVT, B.%:0sMax, B.%:0sMaxVT)&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Exit Condition=&quot;Result &amp;lt;&amp;gt; 0&quot;/&gt;')"/>
+          </Block>
+        </Procedure>
+        <Procedure Identifier="AddFieldInt64">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'        '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Execute Statement=&quot;Result:= CompareStateValue(A.ID, A.%s, A.%:0sVT, B.ID, B.%:0s, B.%:0sVT)&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Exit Condition=&quot;Result &amp;lt;&amp;gt; 0&quot;/&gt;')"/>
+          </Block>
+        </Procedure>
+        <Procedure Identifier="AddFieldString">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'        '"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Execute Statement=&quot;Result:= CompareStateStringValue(A.ID, A.%s, A.%:0sVT, B.ID, B.%:0s, B.%:0sVT)&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Exit Condition=&quot;Result &amp;lt;&amp;gt; 0&quot;/&gt;')"/>
+          </Block>
+        </Procedure>
+      </Procedures>
+      <Block>
+        <rep:Reporter.Information Text="''"/>
+        <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
+          <Choose>
+            <When Expression="Item is TRangedInt64FieldInfo">
+              <Execute Statement="AddFieldInt64Range(Item.Name)"/>
+            </When>
+            <When Expression="Item is TEnumFieldInfo">
+              <Execute Statement="AddFieldInt64(Item.Name)"/>
+            </When>
+            <When Expression="Item is TStringFieldInfo">
+              <Execute Statement="AddFieldString(Item.Name)"/>
+            </When>
+          </Choose>
+        </lil:LinkedList.Iterate>
+      </Block>
+    </Procedure>
+
+    <!--
+    
+        <Execute Statement="IsRanged:= False">
+        <Case Expression="ResistanceVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Exit Condition="not (ComponentSpec is TResistorSpec)"/>
+            <Case Expression="TResistorSpec(ComponentSpec).ResistanceVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="Resistance &lt;&gt; TResistorSpec(ComponentSpec).Resistance"/>
+        <Execute Statement="IsRanged:= True"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+    
+    -->
+    <Procedure Identifier="GenerateDoesMatchSpecification">
+      <Parameters>
+        <Parameter Identifier="Head" Type="TFieldInfo"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TGenKind" Elements="Min, Max, BoundedNominal, Nominal, StringNominal"/>
+      </Type>
+      <Procedures>
+        <Procedure Identifier="AddField">
+          <Parameters>
+            <Parameter Identifier="Name" Type="string"/>
+            <Parameter Identifier="EnumName" Type="string"/>
+            <Parameter Identifier="CompClass" Type="string"/>
+            <Parameter Identifier="GenKind" Type="TGenKind"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="Indent" Type="string" Init="'        '"/>
+            <Block Condition="GenKind = TGenKind.BoundedNominal">
+              <rep:Reporter.Information Text="Indent + Format('&lt;Block Condition=&quot;not IsRanged&quot;&gt;')"/>
+              <Execute Statement="Indent:= Indent + '  '"/>
+            </Block>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Execute Statement=&quot;IsRanged:= False&quot;/&gt;')" Condition="GenKind = TGenKind.Min"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sMinVT&quot;&gt;', Name)" Condition="GenKind = TGenKind.Min"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sMaxVT&quot;&gt;', Name)" Condition="GenKind = TGenKind.Max"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sVT&quot;&gt;', Name)" Condition="(GenKind = TGenKind.BoundedNominal) or (GenKind = TGenKind.Nominal) or (GenKind = TGenKind.StringNominal)"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Exit Condition=&quot;not (ComponentSpec is %s)&quot;/&gt;', CompClass)"/>
+
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Case Expression=&quot;%s(ComponentSpec).%sVT&quot;&gt;', CompClass, Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Exit Condition=&quot;%sMin &amp;gt; %s(ComponentSpec).%:0s&quot;/&gt;', Name, CompClass)" Condition="GenKind = TGenKind.Min"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Exit Condition=&quot;%sMax &amp;lt; %s(ComponentSpec).%:0s&quot;/&gt;', Name, CompClass)" Condition="GenKind = TGenKind.Max"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Exit Condition=&quot;%s &amp;lt;&amp;gt; %s(ComponentSpec).%:0s&quot;/&gt;', Name, CompClass)" Condition="(GenKind = TGenKind.BoundedNominal) or (GenKind = TGenKind.Nominal)"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Exit Condition=&quot;CompareText(%s, %s(ComponentSpec).%:0s) &amp;lt;&amp;gt; 0&quot;/&gt;', Name, CompClass)" Condition="(GenKind = TGenKind.StringNominal)"/>
+            <rep:Reporter.Information Text="Indent + Format('        &lt;Execute Statement=&quot;IsRanged:= True&quot;/&gt;')" Condition="(GenKind = TGenKind.Min) or (GenKind = TGenKind.Max)"/>
+            <rep:Reporter.Information Text="Indent + Format('      &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('       &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('         &lt;Exit/&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('       &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;/Case&gt;')"/>
+
+
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Exit/&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
+            <Block Condition="GenKind = TGenKind.BoundedNominal">
+              <Execute Statement="Indent:= Copy(Indent, 3, 10000)"/>
+              <rep:Reporter.Information Text="Indent + Format('&lt;/Block&gt;')"/>
+            </Block>
+          </Block>
+        </Procedure>
+
+      </Procedures>
+      <Block>
+        <rep:Reporter.Information Text="''"/>
+        <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
+          <Choose>
+            <When Expression="Item is TRangedInt64FieldInfo">
+              <Execute Statement="AddField(Item.Name, Item.EnumName, Item.CompClass, TGenKind.Min)"/>
+              <Execute Statement="AddField(Item.Name, Item.EnumName, Item.CompClass, TGenKind.Max)"/>
+              <Execute Statement="AddField(Item.Name, Item.EnumName, Item.CompClass, TGenKind.BoundedNominal)"/>
+            </When>
+            <When Expression="Item is TEnumFieldInfo">
+              <Execute Statement="AddField(Item.Name, Item.EnumName, Item.CompClass, TGenKind.Nominal)"/>
+            </When>
+            <When Expression="Item is TStringFieldInfo">
+              <Execute Statement="AddField(Item.Name, Item.EnumName, Item.CompClass, TGenKind.StringNominal)"/>
+            </When>
+          </Choose>
+        </lil:LinkedList.Iterate>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="GenerateFieldSections">
+      <Parameters>
+        <Parameter Identifier="FieldInfoHead" Type="TFieldInfo"/>
+      </Parameters>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="TComponentSpec.Fields"/>
+        <Execute Statement="GenerateFieldDeclarations(FieldInfoHead)"/>
+        <rep:Reporter.DefaultTarget Identifier="TComponentSpec.HandleField"/>
+        <Execute Statement="GenerateFieldHandling(FieldInfoHead)"/>
+        <rep:Reporter.DefaultTarget Identifier="TComponentSpec.GetSpecificationValues"/>
+        <Execute Statement="GenerateGetSpecificationValues(FieldInfoHead)"/>
+        <rep:Reporter.DefaultTarget Identifier="TComponentSpec.ApplyTemplate"/>
+        <Execute Statement="GenerateApplyTemplate(FieldInfoHead)"/>
+        <rep:Reporter.DefaultTarget Identifier="TComponentSpec.CompareSpecifications"/>
+        <Execute Statement="GenerateCompareSpecifications(FieldInfoHead)"/>
+        <rep:Reporter.DefaultTarget Identifier="TComponentSpec.DoesMatchSpecification"/>
+        <Execute Statement="GenerateDoesMatchSpecification(FieldInfoHead)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="GetResistorsFieldInfos" Type="TFieldInfo">
+      <Block>
+        <Variable Identifier="CompClass" Type="string" Init="'TResistorSpec'"/>
+        <Variable Identifier="Tail" Type="TFieldInfo"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Resistance', 'Value', CompClass, 'ResistorResistanceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('PowerRating', 'PowerRating', CompClass, 'ResistorPowerRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'ResistorToleranceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TEnumFieldInfo.Create('Technology', 'Technology', CompClass, 'ResistorTechnology')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="GetCapacitorsFieldInfos" Type="TFieldInfo">
+      <Block>
+        <Variable Identifier="CompClass" Type="string" Init="'TCapacitorSpec'"/>
+        <Variable Identifier="Tail" Type="TFieldInfo"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Capacitance', 'Value', CompClass, 'CapacitorCapacitanceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('VoltageRating', 'VoltageRating', CompClass, 'CapacitorVoltageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'CapacitorToleranceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TEnumFieldInfo.Create('Technology', 'Technology', CompClass, 'CapacitorTechnology')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="GetZenerDiodeFieldInfos" Type="TFieldInfo">
+      <Block>
+        <Variable Identifier="CompClass" Type="string" Init="'TZenerDiodeSpec'"/>
+        <Variable Identifier="Tail" Type="TFieldInfo"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('ZenerVoltage', 'Value', CompClass, 'ZenerDiodeZenerVoltageConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('PowerRating', 'PowerRating', CompClass, 'ZenerDiodePowerRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'ZenerDiodeToleranceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="GetInductorFieldInfos" Type="TFieldInfo">
+      <Block>
+        <Variable Identifier="CompClass" Type="string" Init="'TInductorSpec'"/>
+        <Variable Identifier="Tail" Type="TFieldInfo"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Inductance', 'Value', CompClass, 'InductorInductanceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('AmperageRating', 'AmperageRating', CompClass, 'InductorAmperageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'InductorToleranceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="GetFusesFieldInfos" Type="TFieldInfo">
+      <Block>
+        <Variable Identifier="CompClass" Type="string" Init="'TFuseSpec'"/>
+        <Variable Identifier="Tail" Type="TFieldInfo"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Amperage', 'Value', CompClass, 'FuseAmperageConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('VoltageRating', 'VoltageRating', CompClass, 'FuseVoltageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TEnumFieldInfo.Create('BreakSpeed', 'BreakSpeed', CompClass, 'BreakSpeed')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TStringFieldInfo.Create('Dimensions', 'Dimensions', CompClass)" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="GetDiodeFieldInfos" Type="TFieldInfo">
+      <Block>
+        <Variable Identifier="CompClass" Type="string" Init="'TDiodeSpec'"/>
+        <Variable Identifier="Tail" Type="TFieldInfo"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('ReverseVoltageRating', 'ReverseVoltageRating', CompClass, 'DiodeReverseVoltageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('AmperageRating', 'AmperageRating', CompClass, 'DiodeAmperageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('ForwardVoltage', 'ForwardVoltage', CompClass, 'DiodeForwardVoltageConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="GetConnectorFieldInfos" Type="TFieldInfo">
+      <Block>
+        <Variable Identifier="CompClass" Type="string" Init="'TConnectorSpec'"/>
+        <Variable Identifier="Tail" Type="TFieldInfo"/>
+        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('AmperageRating', 'AmperageRating', CompClass, 'ConnectorAmperageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+      </Block>
+    </Function>
+
+  </Procedures>
+</pkg:Library>

@@ -82,8 +82,8 @@
   </ComponentKind>
   <ComponentKind Name="ZenerDiode">
     <Language LangID="en-GB">
-      <Name Text="zenerdiode"/>
-      <Header Text="Zenerdiodes"/>
+      <Name Text="zener diode"/>
+      <Header Text="Zener diodes"/>
     </Language>
     <Language LangID="nl-NL">
       <Name Text="zenerdiode"/>
@@ -122,8 +122,8 @@
   </ComponentKind>
   <ComponentKind Name="Photodiode">
     <Language LangID="en-GB">
-      <Name Text="photo diode"/>
-      <Header Text="Photo diodes"/>
+      <Name Text="photodiode"/>
+      <Header Text="Photodiodes"/>
     </Language>
     <Language LangID="nl-NL">
       <Name Text="photodiode"/>
@@ -708,6 +708,16 @@
     <Language LangID="nl-NL">
       <Name Text="optocoupler"/>
       <Header Text="Optocouplers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Switch">
+    <Language LangID="en-GB">
+      <Name Text="switch"/>
+      <Header Text="Switches"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="schakelaar"/>
+      <Header Text="Schakelaars"/>
     </Language>
   </ComponentKind>
   <ComponentKind Name="Module">

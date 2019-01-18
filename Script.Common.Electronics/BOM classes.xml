@@ -25,7 +25,9 @@
 
     <Enumeration Identifier="TComponentSpecConsolidateKind" Elements="Schema, Stock"/>
 
-    <Enumeration Identifier="TCustomField" Elements="Unknown, ComponentKind, Value, Footprint, InternalPartNumber, PartNumber, Manufacturer, PowerRating, VoltageRating, AmperageRating, Tolerance, Technology, Pins, ForwardVoltage, ReverseVoltage, BreakSpeed, Dimensions" LowAlias="Low" HighAlias="High"/>
+    <Enumeration Identifier="TCustomField" Elements="Unknown, ComponentKind, Value, ValueMin, ValueMax, Footprint, InternalPartNumber, PartNumber, Manufacturer, PowerRating, PowerRatingMin, PowerRatingMax, 
+                 VoltageRating, VoltageRatingMin, VoltageRatingMax, AmperageRating, AmperageRatingMin, AmperageRatingMax, Tolerance, ToleranceMin, ToleranceMax, Technology, Pins, 
+                 ForwardVoltage, ForwardVoltageMin, ForwardVoltageMax, ReverseVoltageRating, ReverseVoltageRatingMin, ReverseVoltageRatingMax, BreakSpeed, Dimensions" LowAlias="Low" HighAlias="High"/>
 
     <Enumeration Identifier="TValueType" Elements="Unspecified, Cleared, ClearedByTemplate, Specified, SpecifiedByTemplate, Error, ErrorByTemplate"/>
 
@@ -34,8 +36,8 @@
         Photodiode, SpecialDiode, DualDiode, NPNTransistor, PNPTransistor, NFET, PFET, NIGBT, NJFET, PJFET, NMOSFET, PMOSFET, PUJT, NUJT, OpAmp, Comparator, Diac, SCR, TRIAC, LED, Fuse, Polyfuse, Antenna, 
         Crystal, DelayLine, EmiFilter, FerriteBead, FrequencyCounter, PhotoTransistor, HallGenerator, Thermistor, PhotoResistor, Varistor, Microphone, Memristor, ResistorNetwork, ResistorPack, Resonator, 
         RFShield, RotaryEncoder, Thermocouple, VoltageDivider, Jumper, Connector, SolarCell, Battery, Adapter, Transformer, Peltier, Speaker, Buzzer, Earphone, Lamp, Heater, ElectromagneticActor, MeasuringDevice, 
-        Timer, SchmittTrigger, Optocoupler, Module, Component, NonComponent" LowAlias="Low" HighAlias="High"/>
-    <!-->->-->
+        Timer, SchmittTrigger, Optocoupler, Switch, Module, Component, NonComponent" LowAlias="Low" HighAlias="High"/>
+<!-->->-->
     <Enumeration Identifier="TFootprint" Elements="Unspecified, THT, SMD" LowAlias="Low" HighAlias="High"/>
 
     <Enumeration Identifier="TDeepSearchstate" Elements="None, Running, Done"/>
@@ -47,7 +49,7 @@
     <Enumeration Identifier="TZenerDiodeSpecColumns"    Elements="Value, ESerie, PowerRating,   MaxAmp,     Tolerance,      None1,          FootPrint, PartNumberModel, InternalPartNumber"/>
     <Enumeration Identifier="TInductorSpecColumns"      Elements="Value, ESerie, AmpRating,     SpanA1,     Tolerance,      None1,          FootPrint, PartNumberModel, InternalPartNumber"/>
     <Enumeration Identifier="TConnectorSpecColumns"     Elements="Value, SpanA2, SpanA3,        SpanA4,     AmpRating,      SpanB2,         FootPrint, PartNumberModel, InternalPartNumber"/>
-    <Enumeration Identifier="TDiodeSpecColumns"         Elements="Value, SpanA2, ReverseVoltage,SpanB2,     AmperageRating, ForwardVoltage, FootPrint, PartNumberModel, InternalPartNumber"/>
+    <Enumeration Identifier="TDiodeSpecColumns"         Elements="Value, SpanA2, ReverseVoltageRating,SpanB2,     AmperageRating, ForwardVoltage, FootPrint, PartNumberModel, InternalPartNumber"/>
     <Enumeration Identifier="TFuseSpecColumns"          Elements="Value, SpanA2, VoltageRating, NoneA1,     NoneA2,         BreakSpeed,     FootPrint, PartNumberModel, InternalPartNumber"/>
     <Enumeration Identifier="TGenComponentSpecColumns"  Elements="Value, SpanA2, SpanA3,        SpanA4,     SpanA5,         SpanA6,         FootPrint, PartNumberModel, InternalPartNumber" LowAlias="Min" HighAlias="Max"/>
 
@@ -306,229 +308,232 @@
       <Block>
         <Case Expression="ComponentKind" Optimalisation="integermapping">
           <!--<-<Procedures.ComponentKindName.Case-->
-          <On Select="TComponentKind.None">
-            <Execute Statement="Result:= 'None'"/>
-          </On>
-          <On Select="TComponentKind.Resistor">
-            <Execute Statement="Result:= 'Resistor'"/>
-          </On>
-          <On Select="TComponentKind.VariableResistor">
-            <Execute Statement="Result:= 'VariableResistor'"/>
-          </On>
-          <On Select="TComponentKind.Capacitor">
-            <Execute Statement="Result:= 'Capacitor'"/>
-          </On>
-          <On Select="TComponentKind.PolarisedCapacitor">
-            <Execute Statement="Result:= 'PolarisedCapacitor'"/>
-          </On>
-          <On Select="TComponentKind.VariableCapacitor">
-            <Execute Statement="Result:= 'VariableCapacitor'"/>
-          </On>
-          <On Select="TComponentKind.Inductor">
-            <Execute Statement="Result:= 'Inductor'"/>
-          </On>
-          <On Select="TComponentKind.BridgeRectifier">
-            <Execute Statement="Result:= 'BridgeRectifier'"/>
-          </On>
-          <On Select="TComponentKind.ZenerDiode">
-            <Execute Statement="Result:= 'ZenerDiode'"/>
-          </On>
-          <On Select="TComponentKind.Diode">
-            <Execute Statement="Result:= 'Diode'"/>
-          </On>
-          <On Select="TComponentKind.SchottkyDiode">
-            <Execute Statement="Result:= 'SchottkyDiode'"/>
-          </On>
-          <On Select="TComponentKind.Laserdiode">
-            <Execute Statement="Result:= 'Laserdiode'"/>
-          </On>
-          <On Select="TComponentKind.Photodiode">
-            <Execute Statement="Result:= 'Photodiode'"/>
-          </On>
-          <On Select="TComponentKind.SpecialDiode">
-            <Execute Statement="Result:= 'SpecialDiode'"/>
-          </On>
-          <On Select="TComponentKind.DualDiode">
-            <Execute Statement="Result:= 'DualDiode'"/>
-          </On>
-          <On Select="TComponentKind.NPNTransistor">
-            <Execute Statement="Result:= 'NPNTransistor'"/>
-          </On>
-          <On Select="TComponentKind.PNPTransistor">
-            <Execute Statement="Result:= 'PNPTransistor'"/>
-          </On>
-          <On Select="TComponentKind.NFET">
-            <Execute Statement="Result:= 'NFET'"/>
-          </On>
-          <On Select="TComponentKind.PFET">
-            <Execute Statement="Result:= 'PFET'"/>
-          </On>
-          <On Select="TComponentKind.NIGBT">
-            <Execute Statement="Result:= 'NIGBT'"/>
-          </On>
-          <On Select="TComponentKind.NJFET">
-            <Execute Statement="Result:= 'NJFET'"/>
-          </On>
-          <On Select="TComponentKind.PJFET">
-            <Execute Statement="Result:= 'PJFET'"/>
-          </On>
-          <On Select="TComponentKind.NMOSFET">
-            <Execute Statement="Result:= 'NMOSFET'"/>
-          </On>
-          <On Select="TComponentKind.PMOSFET">
-            <Execute Statement="Result:= 'PMOSFET'"/>
-          </On>
-          <On Select="TComponentKind.PUJT">
-            <Execute Statement="Result:= 'PUJT'"/>
-          </On>
-          <On Select="TComponentKind.NUJT">
-            <Execute Statement="Result:= 'NUJT'"/>
-          </On>
-          <On Select="TComponentKind.OpAmp">
-            <Execute Statement="Result:= 'OpAmp'"/>
-          </On>
-          <On Select="TComponentKind.Comparator">
-            <Execute Statement="Result:= 'Comparator'"/>
-          </On>
-          <On Select="TComponentKind.Diac">
-            <Execute Statement="Result:= 'Diac'"/>
-          </On>
-          <On Select="TComponentKind.SCR">
-            <Execute Statement="Result:= 'SCR'"/>
-          </On>
-          <On Select="TComponentKind.TRIAC">
-            <Execute Statement="Result:= 'TRIAC'"/>
-          </On>
-          <On Select="TComponentKind.LED">
-            <Execute Statement="Result:= 'LED'"/>
-          </On>
-          <On Select="TComponentKind.Fuse">
-            <Execute Statement="Result:= 'Fuse'"/>
-          </On>
-          <On Select="TComponentKind.Polyfuse">
-            <Execute Statement="Result:= 'Polyfuse'"/>
-          </On>
-          <On Select="TComponentKind.Antenna">
-            <Execute Statement="Result:= 'Antenna'"/>
-          </On>
-          <On Select="TComponentKind.Crystal">
-            <Execute Statement="Result:= 'Crystal'"/>
-          </On>
-          <On Select="TComponentKind.DelayLine">
-            <Execute Statement="Result:= 'DelayLine'"/>
-          </On>
-          <On Select="TComponentKind.EmiFilter">
-            <Execute Statement="Result:= 'EmiFilter'"/>
-          </On>
-          <On Select="TComponentKind.FerriteBead">
-            <Execute Statement="Result:= 'FerriteBead'"/>
-          </On>
-          <On Select="TComponentKind.FrequencyCounter">
-            <Execute Statement="Result:= 'FrequencyCounter'"/>
-          </On>
-          <On Select="TComponentKind.PhotoTransistor">
-            <Execute Statement="Result:= 'PhotoTransistor'"/>
-          </On>
-          <On Select="TComponentKind.HallGenerator">
-            <Execute Statement="Result:= 'HallGenerator'"/>
-          </On>
-          <On Select="TComponentKind.Thermistor">
-            <Execute Statement="Result:= 'Thermistor'"/>
-          </On>
-          <On Select="TComponentKind.PhotoResistor">
-            <Execute Statement="Result:= 'PhotoResistor'"/>
-          </On>
-          <On Select="TComponentKind.Varistor">
-            <Execute Statement="Result:= 'Varistor'"/>
-          </On>
-          <On Select="TComponentKind.Microphone">
-            <Execute Statement="Result:= 'Microphone'"/>
-          </On>
-          <On Select="TComponentKind.Memristor">
-            <Execute Statement="Result:= 'Memristor'"/>
-          </On>
-          <On Select="TComponentKind.ResistorNetwork">
-            <Execute Statement="Result:= 'ResistorNetwork'"/>
-          </On>
-          <On Select="TComponentKind.ResistorPack">
-            <Execute Statement="Result:= 'ResistorPack'"/>
-          </On>
-          <On Select="TComponentKind.Resonator">
-            <Execute Statement="Result:= 'Resonator'"/>
-          </On>
-          <On Select="TComponentKind.RFShield">
-            <Execute Statement="Result:= 'RFShield'"/>
-          </On>
-          <On Select="TComponentKind.RotaryEncoder">
-            <Execute Statement="Result:= 'RotaryEncoder'"/>
-          </On>
-          <On Select="TComponentKind.Thermocouple">
-            <Execute Statement="Result:= 'Thermocouple'"/>
-          </On>
-          <On Select="TComponentKind.VoltageDivider">
-            <Execute Statement="Result:= 'VoltageDivider'"/>
-          </On>
-          <On Select="TComponentKind.Jumper">
-            <Execute Statement="Result:= 'Jumper'"/>
-          </On>
-          <On Select="TComponentKind.Connector">
-            <Execute Statement="Result:= 'Connector'"/>
-          </On>
-          <On Select="TComponentKind.SolarCell">
-            <Execute Statement="Result:= 'SolarCell'"/>
-          </On>
-          <On Select="TComponentKind.Battery">
-            <Execute Statement="Result:= 'Battery'"/>
-          </On>
-          <On Select="TComponentKind.Adapter">
-            <Execute Statement="Result:= 'Adapter'"/>
-          </On>
-          <On Select="TComponentKind.Transformer">
-            <Execute Statement="Result:= 'Transformer'"/>
-          </On>
-          <On Select="TComponentKind.Peltier">
-            <Execute Statement="Result:= 'Peltier'"/>
-          </On>
-          <On Select="TComponentKind.Speaker">
-            <Execute Statement="Result:= 'Speaker'"/>
-          </On>
-          <On Select="TComponentKind.Buzzer">
-            <Execute Statement="Result:= 'Buzzer'"/>
-          </On>
-          <On Select="TComponentKind.Earphone">
-            <Execute Statement="Result:= 'Earphone'"/>
-          </On>
-          <On Select="TComponentKind.Lamp">
-            <Execute Statement="Result:= 'Lamp'"/>
-          </On>
-          <On Select="TComponentKind.Heater">
-            <Execute Statement="Result:= 'Heater'"/>
-          </On>
-          <On Select="TComponentKind.ElectromagneticActor">
-            <Execute Statement="Result:= 'ElectromagneticActor'"/>
-          </On>
-          <On Select="TComponentKind.MeasuringDevice">
-            <Execute Statement="Result:= 'MeasuringDevice'"/>
-          </On>
-          <On Select="TComponentKind.Timer">
-            <Execute Statement="Result:= 'Timer'"/>
-          </On>
-          <On Select="TComponentKind.SchmittTrigger">
-            <Execute Statement="Result:= 'SchmittTrigger'"/>
-          </On>
-          <On Select="TComponentKind.Optocoupler">
-            <Execute Statement="Result:= 'Optocoupler'"/>
-          </On>
-          <On Select="TComponentKind.Module">
-            <Execute Statement="Result:= 'Module'"/>
-          </On>
-          <On Select="TComponentKind.Component">
-            <Execute Statement="Result:= 'Component'"/>
-          </On>
-          <On Select="TComponentKind.NonComponent">
-            <Execute Statement="Result:= 'NonComponent'"/>
-          </On>
-          <!-->->-->
+<On Select="TComponentKind.None">
+<Execute Statement="Result:= 'None'"/>
+</On>
+<On Select="TComponentKind.Resistor">
+<Execute Statement="Result:= 'Resistor'"/>
+</On>
+<On Select="TComponentKind.VariableResistor">
+<Execute Statement="Result:= 'VariableResistor'"/>
+</On>
+<On Select="TComponentKind.Capacitor">
+<Execute Statement="Result:= 'Capacitor'"/>
+</On>
+<On Select="TComponentKind.PolarisedCapacitor">
+<Execute Statement="Result:= 'PolarisedCapacitor'"/>
+</On>
+<On Select="TComponentKind.VariableCapacitor">
+<Execute Statement="Result:= 'VariableCapacitor'"/>
+</On>
+<On Select="TComponentKind.Inductor">
+<Execute Statement="Result:= 'Inductor'"/>
+</On>
+<On Select="TComponentKind.BridgeRectifier">
+<Execute Statement="Result:= 'BridgeRectifier'"/>
+</On>
+<On Select="TComponentKind.ZenerDiode">
+<Execute Statement="Result:= 'ZenerDiode'"/>
+</On>
+<On Select="TComponentKind.Diode">
+<Execute Statement="Result:= 'Diode'"/>
+</On>
+<On Select="TComponentKind.SchottkyDiode">
+<Execute Statement="Result:= 'SchottkyDiode'"/>
+</On>
+<On Select="TComponentKind.Laserdiode">
+<Execute Statement="Result:= 'Laserdiode'"/>
+</On>
+<On Select="TComponentKind.Photodiode">
+<Execute Statement="Result:= 'Photodiode'"/>
+</On>
+<On Select="TComponentKind.SpecialDiode">
+<Execute Statement="Result:= 'SpecialDiode'"/>
+</On>
+<On Select="TComponentKind.DualDiode">
+<Execute Statement="Result:= 'DualDiode'"/>
+</On>
+<On Select="TComponentKind.NPNTransistor">
+<Execute Statement="Result:= 'NPNTransistor'"/>
+</On>
+<On Select="TComponentKind.PNPTransistor">
+<Execute Statement="Result:= 'PNPTransistor'"/>
+</On>
+<On Select="TComponentKind.NFET">
+<Execute Statement="Result:= 'NFET'"/>
+</On>
+<On Select="TComponentKind.PFET">
+<Execute Statement="Result:= 'PFET'"/>
+</On>
+<On Select="TComponentKind.NIGBT">
+<Execute Statement="Result:= 'NIGBT'"/>
+</On>
+<On Select="TComponentKind.NJFET">
+<Execute Statement="Result:= 'NJFET'"/>
+</On>
+<On Select="TComponentKind.PJFET">
+<Execute Statement="Result:= 'PJFET'"/>
+</On>
+<On Select="TComponentKind.NMOSFET">
+<Execute Statement="Result:= 'NMOSFET'"/>
+</On>
+<On Select="TComponentKind.PMOSFET">
+<Execute Statement="Result:= 'PMOSFET'"/>
+</On>
+<On Select="TComponentKind.PUJT">
+<Execute Statement="Result:= 'PUJT'"/>
+</On>
+<On Select="TComponentKind.NUJT">
+<Execute Statement="Result:= 'NUJT'"/>
+</On>
+<On Select="TComponentKind.OpAmp">
+<Execute Statement="Result:= 'OpAmp'"/>
+</On>
+<On Select="TComponentKind.Comparator">
+<Execute Statement="Result:= 'Comparator'"/>
+</On>
+<On Select="TComponentKind.Diac">
+<Execute Statement="Result:= 'Diac'"/>
+</On>
+<On Select="TComponentKind.SCR">
+<Execute Statement="Result:= 'SCR'"/>
+</On>
+<On Select="TComponentKind.TRIAC">
+<Execute Statement="Result:= 'TRIAC'"/>
+</On>
+<On Select="TComponentKind.LED">
+<Execute Statement="Result:= 'LED'"/>
+</On>
+<On Select="TComponentKind.Fuse">
+<Execute Statement="Result:= 'Fuse'"/>
+</On>
+<On Select="TComponentKind.Polyfuse">
+<Execute Statement="Result:= 'Polyfuse'"/>
+</On>
+<On Select="TComponentKind.Antenna">
+<Execute Statement="Result:= 'Antenna'"/>
+</On>
+<On Select="TComponentKind.Crystal">
+<Execute Statement="Result:= 'Crystal'"/>
+</On>
+<On Select="TComponentKind.DelayLine">
+<Execute Statement="Result:= 'DelayLine'"/>
+</On>
+<On Select="TComponentKind.EmiFilter">
+<Execute Statement="Result:= 'EmiFilter'"/>
+</On>
+<On Select="TComponentKind.FerriteBead">
+<Execute Statement="Result:= 'FerriteBead'"/>
+</On>
+<On Select="TComponentKind.FrequencyCounter">
+<Execute Statement="Result:= 'FrequencyCounter'"/>
+</On>
+<On Select="TComponentKind.PhotoTransistor">
+<Execute Statement="Result:= 'PhotoTransistor'"/>
+</On>
+<On Select="TComponentKind.HallGenerator">
+<Execute Statement="Result:= 'HallGenerator'"/>
+</On>
+<On Select="TComponentKind.Thermistor">
+<Execute Statement="Result:= 'Thermistor'"/>
+</On>
+<On Select="TComponentKind.PhotoResistor">
+<Execute Statement="Result:= 'PhotoResistor'"/>
+</On>
+<On Select="TComponentKind.Varistor">
+<Execute Statement="Result:= 'Varistor'"/>
+</On>
+<On Select="TComponentKind.Microphone">
+<Execute Statement="Result:= 'Microphone'"/>
+</On>
+<On Select="TComponentKind.Memristor">
+<Execute Statement="Result:= 'Memristor'"/>
+</On>
+<On Select="TComponentKind.ResistorNetwork">
+<Execute Statement="Result:= 'ResistorNetwork'"/>
+</On>
+<On Select="TComponentKind.ResistorPack">
+<Execute Statement="Result:= 'ResistorPack'"/>
+</On>
+<On Select="TComponentKind.Resonator">
+<Execute Statement="Result:= 'Resonator'"/>
+</On>
+<On Select="TComponentKind.RFShield">
+<Execute Statement="Result:= 'RFShield'"/>
+</On>
+<On Select="TComponentKind.RotaryEncoder">
+<Execute Statement="Result:= 'RotaryEncoder'"/>
+</On>
+<On Select="TComponentKind.Thermocouple">
+<Execute Statement="Result:= 'Thermocouple'"/>
+</On>
+<On Select="TComponentKind.VoltageDivider">
+<Execute Statement="Result:= 'VoltageDivider'"/>
+</On>
+<On Select="TComponentKind.Jumper">
+<Execute Statement="Result:= 'Jumper'"/>
+</On>
+<On Select="TComponentKind.Connector">
+<Execute Statement="Result:= 'Connector'"/>
+</On>
+<On Select="TComponentKind.SolarCell">
+<Execute Statement="Result:= 'SolarCell'"/>
+</On>
+<On Select="TComponentKind.Battery">
+<Execute Statement="Result:= 'Battery'"/>
+</On>
+<On Select="TComponentKind.Adapter">
+<Execute Statement="Result:= 'Adapter'"/>
+</On>
+<On Select="TComponentKind.Transformer">
+<Execute Statement="Result:= 'Transformer'"/>
+</On>
+<On Select="TComponentKind.Peltier">
+<Execute Statement="Result:= 'Peltier'"/>
+</On>
+<On Select="TComponentKind.Speaker">
+<Execute Statement="Result:= 'Speaker'"/>
+</On>
+<On Select="TComponentKind.Buzzer">
+<Execute Statement="Result:= 'Buzzer'"/>
+</On>
+<On Select="TComponentKind.Earphone">
+<Execute Statement="Result:= 'Earphone'"/>
+</On>
+<On Select="TComponentKind.Lamp">
+<Execute Statement="Result:= 'Lamp'"/>
+</On>
+<On Select="TComponentKind.Heater">
+<Execute Statement="Result:= 'Heater'"/>
+</On>
+<On Select="TComponentKind.ElectromagneticActor">
+<Execute Statement="Result:= 'ElectromagneticActor'"/>
+</On>
+<On Select="TComponentKind.MeasuringDevice">
+<Execute Statement="Result:= 'MeasuringDevice'"/>
+</On>
+<On Select="TComponentKind.Timer">
+<Execute Statement="Result:= 'Timer'"/>
+</On>
+<On Select="TComponentKind.SchmittTrigger">
+<Execute Statement="Result:= 'SchmittTrigger'"/>
+</On>
+<On Select="TComponentKind.Optocoupler">
+<Execute Statement="Result:= 'Optocoupler'"/>
+</On>
+<On Select="TComponentKind.Switch">
+<Execute Statement="Result:= 'Switch'"/>
+</On>
+<On Select="TComponentKind.Module">
+<Execute Statement="Result:= 'Module'"/>
+</On>
+<On Select="TComponentKind.Component">
+<Execute Statement="Result:= 'Component'"/>
+</On>
+<On Select="TComponentKind.NonComponent">
+<Execute Statement="Result:= 'NonComponent'"/>
+</On>
+<!-->->-->
           <Otherwise>
             <Raise Expression="Exception.Create('Unmapped component kind')"/>
           </Otherwise>
@@ -543,229 +548,232 @@
       <Block>
         <Case Expression="ComponentKind" Optimalisation="integermapping">
           <!--<-<Procedures.ComponentKindDescription.Case-->
-          <On Select="TComponentKind.None">
-            <Execute Statement="Result:= sNoneDescription"/>
-          </On>
-          <On Select="TComponentKind.Resistor">
-            <Execute Statement="Result:= sResistorDescription"/>
-          </On>
-          <On Select="TComponentKind.VariableResistor">
-            <Execute Statement="Result:= sVariableResistorDescription"/>
-          </On>
-          <On Select="TComponentKind.Capacitor">
-            <Execute Statement="Result:= sCapacitorDescription"/>
-          </On>
-          <On Select="TComponentKind.PolarisedCapacitor">
-            <Execute Statement="Result:= sPolarisedCapacitorDescription"/>
-          </On>
-          <On Select="TComponentKind.VariableCapacitor">
-            <Execute Statement="Result:= sVariableCapacitorDescription"/>
-          </On>
-          <On Select="TComponentKind.Inductor">
-            <Execute Statement="Result:= sInductorDescription"/>
-          </On>
-          <On Select="TComponentKind.BridgeRectifier">
-            <Execute Statement="Result:= sBridgeRectifierDescription"/>
-          </On>
-          <On Select="TComponentKind.ZenerDiode">
-            <Execute Statement="Result:= sZenerDiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.Diode">
-            <Execute Statement="Result:= sDiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.SchottkyDiode">
-            <Execute Statement="Result:= sSchottkyDiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.Laserdiode">
-            <Execute Statement="Result:= sLaserdiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.Photodiode">
-            <Execute Statement="Result:= sPhotodiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.SpecialDiode">
-            <Execute Statement="Result:= sSpecialDiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.DualDiode">
-            <Execute Statement="Result:= sDualDiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.NPNTransistor">
-            <Execute Statement="Result:= sNPNTransistorDescription"/>
-          </On>
-          <On Select="TComponentKind.PNPTransistor">
-            <Execute Statement="Result:= sPNPTransistorDescription"/>
-          </On>
-          <On Select="TComponentKind.NFET">
-            <Execute Statement="Result:= sNFETDescription"/>
-          </On>
-          <On Select="TComponentKind.PFET">
-            <Execute Statement="Result:= sPFETDescription"/>
-          </On>
-          <On Select="TComponentKind.NIGBT">
-            <Execute Statement="Result:= sNIGBTDescription"/>
-          </On>
-          <On Select="TComponentKind.NJFET">
-            <Execute Statement="Result:= sNJFETDescription"/>
-          </On>
-          <On Select="TComponentKind.PJFET">
-            <Execute Statement="Result:= sPJFETDescription"/>
-          </On>
-          <On Select="TComponentKind.NMOSFET">
-            <Execute Statement="Result:= sNMOSFETDescription"/>
-          </On>
-          <On Select="TComponentKind.PMOSFET">
-            <Execute Statement="Result:= sPMOSFETDescription"/>
-          </On>
-          <On Select="TComponentKind.PUJT">
-            <Execute Statement="Result:= sPUJTDescription"/>
-          </On>
-          <On Select="TComponentKind.NUJT">
-            <Execute Statement="Result:= sNUJTDescription"/>
-          </On>
-          <On Select="TComponentKind.OpAmp">
-            <Execute Statement="Result:= sOpAmpDescription"/>
-          </On>
-          <On Select="TComponentKind.Comparator">
-            <Execute Statement="Result:= sComparatorDescription"/>
-          </On>
-          <On Select="TComponentKind.Diac">
-            <Execute Statement="Result:= sDiacDescription"/>
-          </On>
-          <On Select="TComponentKind.SCR">
-            <Execute Statement="Result:= sSCRDescription"/>
-          </On>
-          <On Select="TComponentKind.TRIAC">
-            <Execute Statement="Result:= sTRIACDescription"/>
-          </On>
-          <On Select="TComponentKind.LED">
-            <Execute Statement="Result:= sLEDDescription"/>
-          </On>
-          <On Select="TComponentKind.Fuse">
-            <Execute Statement="Result:= sFuseDescription"/>
-          </On>
-          <On Select="TComponentKind.Polyfuse">
-            <Execute Statement="Result:= sPolyfuseDescription"/>
-          </On>
-          <On Select="TComponentKind.Antenna">
-            <Execute Statement="Result:= sAntennaDescription"/>
-          </On>
-          <On Select="TComponentKind.Crystal">
-            <Execute Statement="Result:= sCrystalDescription"/>
-          </On>
-          <On Select="TComponentKind.DelayLine">
-            <Execute Statement="Result:= sDelayLineDescription"/>
-          </On>
-          <On Select="TComponentKind.EmiFilter">
-            <Execute Statement="Result:= sEmiFilterDescription"/>
-          </On>
-          <On Select="TComponentKind.FerriteBead">
-            <Execute Statement="Result:= sFerriteBeadDescription"/>
-          </On>
-          <On Select="TComponentKind.FrequencyCounter">
-            <Execute Statement="Result:= sFrequencyCounterDescription"/>
-          </On>
-          <On Select="TComponentKind.PhotoTransistor">
-            <Execute Statement="Result:= sPhotoTransistorDescription"/>
-          </On>
-          <On Select="TComponentKind.HallGenerator">
-            <Execute Statement="Result:= sHallGeneratorDescription"/>
-          </On>
-          <On Select="TComponentKind.Thermistor">
-            <Execute Statement="Result:= sThermistorDescription"/>
-          </On>
-          <On Select="TComponentKind.PhotoResistor">
-            <Execute Statement="Result:= sPhotoResistorDescription"/>
-          </On>
-          <On Select="TComponentKind.Varistor">
-            <Execute Statement="Result:= sVaristorDescription"/>
-          </On>
-          <On Select="TComponentKind.Microphone">
-            <Execute Statement="Result:= sMicrophoneDescription"/>
-          </On>
-          <On Select="TComponentKind.Memristor">
-            <Execute Statement="Result:= sMemristorDescription"/>
-          </On>
-          <On Select="TComponentKind.ResistorNetwork">
-            <Execute Statement="Result:= sResistorNetworkDescription"/>
-          </On>
-          <On Select="TComponentKind.ResistorPack">
-            <Execute Statement="Result:= sResistorPackDescription"/>
-          </On>
-          <On Select="TComponentKind.Resonator">
-            <Execute Statement="Result:= sResonatorDescription"/>
-          </On>
-          <On Select="TComponentKind.RFShield">
-            <Execute Statement="Result:= sRFShieldDescription"/>
-          </On>
-          <On Select="TComponentKind.RotaryEncoder">
-            <Execute Statement="Result:= sRotaryEncoderDescription"/>
-          </On>
-          <On Select="TComponentKind.Thermocouple">
-            <Execute Statement="Result:= sThermocoupleDescription"/>
-          </On>
-          <On Select="TComponentKind.VoltageDivider">
-            <Execute Statement="Result:= sVoltageDividerDescription"/>
-          </On>
-          <On Select="TComponentKind.Jumper">
-            <Execute Statement="Result:= sJumperDescription"/>
-          </On>
-          <On Select="TComponentKind.Connector">
-            <Execute Statement="Result:= sConnectorDescription"/>
-          </On>
-          <On Select="TComponentKind.SolarCell">
-            <Execute Statement="Result:= sSolarCellDescription"/>
-          </On>
-          <On Select="TComponentKind.Battery">
-            <Execute Statement="Result:= sBatteryDescription"/>
-          </On>
-          <On Select="TComponentKind.Adapter">
-            <Execute Statement="Result:= sAdapterDescription"/>
-          </On>
-          <On Select="TComponentKind.Transformer">
-            <Execute Statement="Result:= sTransformerDescription"/>
-          </On>
-          <On Select="TComponentKind.Peltier">
-            <Execute Statement="Result:= sPeltierDescription"/>
-          </On>
-          <On Select="TComponentKind.Speaker">
-            <Execute Statement="Result:= sSpeakerDescription"/>
-          </On>
-          <On Select="TComponentKind.Buzzer">
-            <Execute Statement="Result:= sBuzzerDescription"/>
-          </On>
-          <On Select="TComponentKind.Earphone">
-            <Execute Statement="Result:= sEarphoneDescription"/>
-          </On>
-          <On Select="TComponentKind.Lamp">
-            <Execute Statement="Result:= sLampDescription"/>
-          </On>
-          <On Select="TComponentKind.Heater">
-            <Execute Statement="Result:= sHeaterDescription"/>
-          </On>
-          <On Select="TComponentKind.ElectromagneticActor">
-            <Execute Statement="Result:= sElectromagneticActorDescription"/>
-          </On>
-          <On Select="TComponentKind.MeasuringDevice">
-            <Execute Statement="Result:= sMeasuringDeviceDescription"/>
-          </On>
-          <On Select="TComponentKind.Timer">
-            <Execute Statement="Result:= sTimerDescription"/>
-          </On>
-          <On Select="TComponentKind.SchmittTrigger">
-            <Execute Statement="Result:= sSchmittTriggerDescription"/>
-          </On>
-          <On Select="TComponentKind.Optocoupler">
-            <Execute Statement="Result:= sOptocouplerDescription"/>
-          </On>
-          <On Select="TComponentKind.Module">
-            <Execute Statement="Result:= sModuleDescription"/>
-          </On>
-          <On Select="TComponentKind.Component">
-            <Execute Statement="Result:= sComponentDescription"/>
-          </On>
-          <On Select="TComponentKind.NonComponent">
-            <Execute Statement="Result:= sNonComponentDescription"/>
-          </On>
-          <!-->->-->
+<On Select="TComponentKind.None">
+<Execute Statement="Result:= sNoneDescription"/>
+</On>
+<On Select="TComponentKind.Resistor">
+<Execute Statement="Result:= sResistorDescription"/>
+</On>
+<On Select="TComponentKind.VariableResistor">
+<Execute Statement="Result:= sVariableResistorDescription"/>
+</On>
+<On Select="TComponentKind.Capacitor">
+<Execute Statement="Result:= sCapacitorDescription"/>
+</On>
+<On Select="TComponentKind.PolarisedCapacitor">
+<Execute Statement="Result:= sPolarisedCapacitorDescription"/>
+</On>
+<On Select="TComponentKind.VariableCapacitor">
+<Execute Statement="Result:= sVariableCapacitorDescription"/>
+</On>
+<On Select="TComponentKind.Inductor">
+<Execute Statement="Result:= sInductorDescription"/>
+</On>
+<On Select="TComponentKind.BridgeRectifier">
+<Execute Statement="Result:= sBridgeRectifierDescription"/>
+</On>
+<On Select="TComponentKind.ZenerDiode">
+<Execute Statement="Result:= sZenerDiodeDescription"/>
+</On>
+<On Select="TComponentKind.Diode">
+<Execute Statement="Result:= sDiodeDescription"/>
+</On>
+<On Select="TComponentKind.SchottkyDiode">
+<Execute Statement="Result:= sSchottkyDiodeDescription"/>
+</On>
+<On Select="TComponentKind.Laserdiode">
+<Execute Statement="Result:= sLaserdiodeDescription"/>
+</On>
+<On Select="TComponentKind.Photodiode">
+<Execute Statement="Result:= sPhotodiodeDescription"/>
+</On>
+<On Select="TComponentKind.SpecialDiode">
+<Execute Statement="Result:= sSpecialDiodeDescription"/>
+</On>
+<On Select="TComponentKind.DualDiode">
+<Execute Statement="Result:= sDualDiodeDescription"/>
+</On>
+<On Select="TComponentKind.NPNTransistor">
+<Execute Statement="Result:= sNPNTransistorDescription"/>
+</On>
+<On Select="TComponentKind.PNPTransistor">
+<Execute Statement="Result:= sPNPTransistorDescription"/>
+</On>
+<On Select="TComponentKind.NFET">
+<Execute Statement="Result:= sNFETDescription"/>
+</On>
+<On Select="TComponentKind.PFET">
+<Execute Statement="Result:= sPFETDescription"/>
+</On>
+<On Select="TComponentKind.NIGBT">
+<Execute Statement="Result:= sNIGBTDescription"/>
+</On>
+<On Select="TComponentKind.NJFET">
+<Execute Statement="Result:= sNJFETDescription"/>
+</On>
+<On Select="TComponentKind.PJFET">
+<Execute Statement="Result:= sPJFETDescription"/>
+</On>
+<On Select="TComponentKind.NMOSFET">
+<Execute Statement="Result:= sNMOSFETDescription"/>
+</On>
+<On Select="TComponentKind.PMOSFET">
+<Execute Statement="Result:= sPMOSFETDescription"/>
+</On>
+<On Select="TComponentKind.PUJT">
+<Execute Statement="Result:= sPUJTDescription"/>
+</On>
+<On Select="TComponentKind.NUJT">
+<Execute Statement="Result:= sNUJTDescription"/>
+</On>
+<On Select="TComponentKind.OpAmp">
+<Execute Statement="Result:= sOpAmpDescription"/>
+</On>
+<On Select="TComponentKind.Comparator">
+<Execute Statement="Result:= sComparatorDescription"/>
+</On>
+<On Select="TComponentKind.Diac">
+<Execute Statement="Result:= sDiacDescription"/>
+</On>
+<On Select="TComponentKind.SCR">
+<Execute Statement="Result:= sSCRDescription"/>
+</On>
+<On Select="TComponentKind.TRIAC">
+<Execute Statement="Result:= sTRIACDescription"/>
+</On>
+<On Select="TComponentKind.LED">
+<Execute Statement="Result:= sLEDDescription"/>
+</On>
+<On Select="TComponentKind.Fuse">
+<Execute Statement="Result:= sFuseDescription"/>
+</On>
+<On Select="TComponentKind.Polyfuse">
+<Execute Statement="Result:= sPolyfuseDescription"/>
+</On>
+<On Select="TComponentKind.Antenna">
+<Execute Statement="Result:= sAntennaDescription"/>
+</On>
+<On Select="TComponentKind.Crystal">
+<Execute Statement="Result:= sCrystalDescription"/>
+</On>
+<On Select="TComponentKind.DelayLine">
+<Execute Statement="Result:= sDelayLineDescription"/>
+</On>
+<On Select="TComponentKind.EmiFilter">
+<Execute Statement="Result:= sEmiFilterDescription"/>
+</On>
+<On Select="TComponentKind.FerriteBead">
+<Execute Statement="Result:= sFerriteBeadDescription"/>
+</On>
+<On Select="TComponentKind.FrequencyCounter">
+<Execute Statement="Result:= sFrequencyCounterDescription"/>
+</On>
+<On Select="TComponentKind.PhotoTransistor">
+<Execute Statement="Result:= sPhotoTransistorDescription"/>
+</On>
+<On Select="TComponentKind.HallGenerator">
+<Execute Statement="Result:= sHallGeneratorDescription"/>
+</On>
+<On Select="TComponentKind.Thermistor">
+<Execute Statement="Result:= sThermistorDescription"/>
+</On>
+<On Select="TComponentKind.PhotoResistor">
+<Execute Statement="Result:= sPhotoResistorDescription"/>
+</On>
+<On Select="TComponentKind.Varistor">
+<Execute Statement="Result:= sVaristorDescription"/>
+</On>
+<On Select="TComponentKind.Microphone">
+<Execute Statement="Result:= sMicrophoneDescription"/>
+</On>
+<On Select="TComponentKind.Memristor">
+<Execute Statement="Result:= sMemristorDescription"/>
+</On>
+<On Select="TComponentKind.ResistorNetwork">
+<Execute Statement="Result:= sResistorNetworkDescription"/>
+</On>
+<On Select="TComponentKind.ResistorPack">
+<Execute Statement="Result:= sResistorPackDescription"/>
+</On>
+<On Select="TComponentKind.Resonator">
+<Execute Statement="Result:= sResonatorDescription"/>
+</On>
+<On Select="TComponentKind.RFShield">
+<Execute Statement="Result:= sRFShieldDescription"/>
+</On>
+<On Select="TComponentKind.RotaryEncoder">
+<Execute Statement="Result:= sRotaryEncoderDescription"/>
+</On>
+<On Select="TComponentKind.Thermocouple">
+<Execute Statement="Result:= sThermocoupleDescription"/>
+</On>
+<On Select="TComponentKind.VoltageDivider">
+<Execute Statement="Result:= sVoltageDividerDescription"/>
+</On>
+<On Select="TComponentKind.Jumper">
+<Execute Statement="Result:= sJumperDescription"/>
+</On>
+<On Select="TComponentKind.Connector">
+<Execute Statement="Result:= sConnectorDescription"/>
+</On>
+<On Select="TComponentKind.SolarCell">
+<Execute Statement="Result:= sSolarCellDescription"/>
+</On>
+<On Select="TComponentKind.Battery">
+<Execute Statement="Result:= sBatteryDescription"/>
+</On>
+<On Select="TComponentKind.Adapter">
+<Execute Statement="Result:= sAdapterDescription"/>
+</On>
+<On Select="TComponentKind.Transformer">
+<Execute Statement="Result:= sTransformerDescription"/>
+</On>
+<On Select="TComponentKind.Peltier">
+<Execute Statement="Result:= sPeltierDescription"/>
+</On>
+<On Select="TComponentKind.Speaker">
+<Execute Statement="Result:= sSpeakerDescription"/>
+</On>
+<On Select="TComponentKind.Buzzer">
+<Execute Statement="Result:= sBuzzerDescription"/>
+</On>
+<On Select="TComponentKind.Earphone">
+<Execute Statement="Result:= sEarphoneDescription"/>
+</On>
+<On Select="TComponentKind.Lamp">
+<Execute Statement="Result:= sLampDescription"/>
+</On>
+<On Select="TComponentKind.Heater">
+<Execute Statement="Result:= sHeaterDescription"/>
+</On>
+<On Select="TComponentKind.ElectromagneticActor">
+<Execute Statement="Result:= sElectromagneticActorDescription"/>
+</On>
+<On Select="TComponentKind.MeasuringDevice">
+<Execute Statement="Result:= sMeasuringDeviceDescription"/>
+</On>
+<On Select="TComponentKind.Timer">
+<Execute Statement="Result:= sTimerDescription"/>
+</On>
+<On Select="TComponentKind.SchmittTrigger">
+<Execute Statement="Result:= sSchmittTriggerDescription"/>
+</On>
+<On Select="TComponentKind.Optocoupler">
+<Execute Statement="Result:= sOptocouplerDescription"/>
+</On>
+<On Select="TComponentKind.Switch">
+<Execute Statement="Result:= sSwitchDescription"/>
+</On>
+<On Select="TComponentKind.Module">
+<Execute Statement="Result:= sModuleDescription"/>
+</On>
+<On Select="TComponentKind.Component">
+<Execute Statement="Result:= sComponentDescription"/>
+</On>
+<On Select="TComponentKind.NonComponent">
+<Execute Statement="Result:= sNonComponentDescription"/>
+</On>
+<!-->->-->
           <Otherwise>
             <Execute Statement="Result:= Format(sUnknownComponentKind, ComponentKind)"/>
             <rep:Reporter.Error Text="Format(sMissingComponentKindMapping, sUnitName, 'ComponentKindDescription', ComponentKind)"/>
@@ -781,229 +789,232 @@
       <Block>
         <Case Expression="ComponentKind" Optimalisation="integermapping">
           <!--<-<Procedures.ComponentKindHeader.Case-->
-          <On Select="TComponentKind.None">
-            <Execute Statement="Result:= sNoneHeader"/>
-          </On>
-          <On Select="TComponentKind.Resistor">
-            <Execute Statement="Result:= sResistorHeader"/>
-          </On>
-          <On Select="TComponentKind.VariableResistor">
-            <Execute Statement="Result:= sVariableResistorHeader"/>
-          </On>
-          <On Select="TComponentKind.Capacitor">
-            <Execute Statement="Result:= sCapacitorHeader"/>
-          </On>
-          <On Select="TComponentKind.PolarisedCapacitor">
-            <Execute Statement="Result:= sPolarisedCapacitorHeader"/>
-          </On>
-          <On Select="TComponentKind.VariableCapacitor">
-            <Execute Statement="Result:= sVariableCapacitorHeader"/>
-          </On>
-          <On Select="TComponentKind.Inductor">
-            <Execute Statement="Result:= sInductorHeader"/>
-          </On>
-          <On Select="TComponentKind.BridgeRectifier">
-            <Execute Statement="Result:= sBridgeRectifierHeader"/>
-          </On>
-          <On Select="TComponentKind.ZenerDiode">
-            <Execute Statement="Result:= sZenerDiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.Diode">
-            <Execute Statement="Result:= sDiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.SchottkyDiode">
-            <Execute Statement="Result:= sSchottkyDiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.Laserdiode">
-            <Execute Statement="Result:= sLaserdiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.Photodiode">
-            <Execute Statement="Result:= sPhotodiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.SpecialDiode">
-            <Execute Statement="Result:= sSpecialDiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.DualDiode">
-            <Execute Statement="Result:= sDualDiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.NPNTransistor">
-            <Execute Statement="Result:= sNPNTransistorHeader"/>
-          </On>
-          <On Select="TComponentKind.PNPTransistor">
-            <Execute Statement="Result:= sPNPTransistorHeader"/>
-          </On>
-          <On Select="TComponentKind.NFET">
-            <Execute Statement="Result:= sNFETHeader"/>
-          </On>
-          <On Select="TComponentKind.PFET">
-            <Execute Statement="Result:= sPFETHeader"/>
-          </On>
-          <On Select="TComponentKind.NIGBT">
-            <Execute Statement="Result:= sNIGBTHeader"/>
-          </On>
-          <On Select="TComponentKind.NJFET">
-            <Execute Statement="Result:= sNJFETHeader"/>
-          </On>
-          <On Select="TComponentKind.PJFET">
-            <Execute Statement="Result:= sPJFETHeader"/>
-          </On>
-          <On Select="TComponentKind.NMOSFET">
-            <Execute Statement="Result:= sNMOSFETHeader"/>
-          </On>
-          <On Select="TComponentKind.PMOSFET">
-            <Execute Statement="Result:= sPMOSFETHeader"/>
-          </On>
-          <On Select="TComponentKind.PUJT">
-            <Execute Statement="Result:= sPUJTHeader"/>
-          </On>
-          <On Select="TComponentKind.NUJT">
-            <Execute Statement="Result:= sNUJTHeader"/>
-          </On>
-          <On Select="TComponentKind.OpAmp">
-            <Execute Statement="Result:= sOpAmpHeader"/>
-          </On>
-          <On Select="TComponentKind.Comparator">
-            <Execute Statement="Result:= sComparatorHeader"/>
-          </On>
-          <On Select="TComponentKind.Diac">
-            <Execute Statement="Result:= sDiacHeader"/>
-          </On>
-          <On Select="TComponentKind.SCR">
-            <Execute Statement="Result:= sSCRHeader"/>
-          </On>
-          <On Select="TComponentKind.TRIAC">
-            <Execute Statement="Result:= sTRIACHeader"/>
-          </On>
-          <On Select="TComponentKind.LED">
-            <Execute Statement="Result:= sLEDHeader"/>
-          </On>
-          <On Select="TComponentKind.Fuse">
-            <Execute Statement="Result:= sFuseHeader"/>
-          </On>
-          <On Select="TComponentKind.Polyfuse">
-            <Execute Statement="Result:= sPolyfuseHeader"/>
-          </On>
-          <On Select="TComponentKind.Antenna">
-            <Execute Statement="Result:= sAntennaHeader"/>
-          </On>
-          <On Select="TComponentKind.Crystal">
-            <Execute Statement="Result:= sCrystalHeader"/>
-          </On>
-          <On Select="TComponentKind.DelayLine">
-            <Execute Statement="Result:= sDelayLineHeader"/>
-          </On>
-          <On Select="TComponentKind.EmiFilter">
-            <Execute Statement="Result:= sEmiFilterHeader"/>
-          </On>
-          <On Select="TComponentKind.FerriteBead">
-            <Execute Statement="Result:= sFerriteBeadHeader"/>
-          </On>
-          <On Select="TComponentKind.FrequencyCounter">
-            <Execute Statement="Result:= sFrequencyCounterHeader"/>
-          </On>
-          <On Select="TComponentKind.PhotoTransistor">
-            <Execute Statement="Result:= sPhotoTransistorHeader"/>
-          </On>
-          <On Select="TComponentKind.HallGenerator">
-            <Execute Statement="Result:= sHallGeneratorHeader"/>
-          </On>
-          <On Select="TComponentKind.Thermistor">
-            <Execute Statement="Result:= sThermistorHeader"/>
-          </On>
-          <On Select="TComponentKind.PhotoResistor">
-            <Execute Statement="Result:= sPhotoResistorHeader"/>
-          </On>
-          <On Select="TComponentKind.Varistor">
-            <Execute Statement="Result:= sVaristorHeader"/>
-          </On>
-          <On Select="TComponentKind.Microphone">
-            <Execute Statement="Result:= sMicrophoneHeader"/>
-          </On>
-          <On Select="TComponentKind.Memristor">
-            <Execute Statement="Result:= sMemristorHeader"/>
-          </On>
-          <On Select="TComponentKind.ResistorNetwork">
-            <Execute Statement="Result:= sResistorNetworkHeader"/>
-          </On>
-          <On Select="TComponentKind.ResistorPack">
-            <Execute Statement="Result:= sResistorPackHeader"/>
-          </On>
-          <On Select="TComponentKind.Resonator">
-            <Execute Statement="Result:= sResonatorHeader"/>
-          </On>
-          <On Select="TComponentKind.RFShield">
-            <Execute Statement="Result:= sRFShieldHeader"/>
-          </On>
-          <On Select="TComponentKind.RotaryEncoder">
-            <Execute Statement="Result:= sRotaryEncoderHeader"/>
-          </On>
-          <On Select="TComponentKind.Thermocouple">
-            <Execute Statement="Result:= sThermocoupleHeader"/>
-          </On>
-          <On Select="TComponentKind.VoltageDivider">
-            <Execute Statement="Result:= sVoltageDividerHeader"/>
-          </On>
-          <On Select="TComponentKind.Jumper">
-            <Execute Statement="Result:= sJumperHeader"/>
-          </On>
-          <On Select="TComponentKind.Connector">
-            <Execute Statement="Result:= sConnectorHeader"/>
-          </On>
-          <On Select="TComponentKind.SolarCell">
-            <Execute Statement="Result:= sSolarCellHeader"/>
-          </On>
-          <On Select="TComponentKind.Battery">
-            <Execute Statement="Result:= sBatteryHeader"/>
-          </On>
-          <On Select="TComponentKind.Adapter">
-            <Execute Statement="Result:= sAdapterHeader"/>
-          </On>
-          <On Select="TComponentKind.Transformer">
-            <Execute Statement="Result:= sTransformerHeader"/>
-          </On>
-          <On Select="TComponentKind.Peltier">
-            <Execute Statement="Result:= sPeltierHeader"/>
-          </On>
-          <On Select="TComponentKind.Speaker">
-            <Execute Statement="Result:= sSpeakerHeader"/>
-          </On>
-          <On Select="TComponentKind.Buzzer">
-            <Execute Statement="Result:= sBuzzerHeader"/>
-          </On>
-          <On Select="TComponentKind.Earphone">
-            <Execute Statement="Result:= sEarphoneHeader"/>
-          </On>
-          <On Select="TComponentKind.Lamp">
-            <Execute Statement="Result:= sLampHeader"/>
-          </On>
-          <On Select="TComponentKind.Heater">
-            <Execute Statement="Result:= sHeaterHeader"/>
-          </On>
-          <On Select="TComponentKind.ElectromagneticActor">
-            <Execute Statement="Result:= sElectromagneticActorHeader"/>
-          </On>
-          <On Select="TComponentKind.MeasuringDevice">
-            <Execute Statement="Result:= sMeasuringDeviceHeader"/>
-          </On>
-          <On Select="TComponentKind.Timer">
-            <Execute Statement="Result:= sTimerHeader"/>
-          </On>
-          <On Select="TComponentKind.SchmittTrigger">
-            <Execute Statement="Result:= sSchmittTriggerHeader"/>
-          </On>
-          <On Select="TComponentKind.Optocoupler">
-            <Execute Statement="Result:= sOptocouplerHeader"/>
-          </On>
-          <On Select="TComponentKind.Module">
-            <Execute Statement="Result:= sModuleHeader"/>
-          </On>
-          <On Select="TComponentKind.Component">
-            <Execute Statement="Result:= sComponentHeader"/>
-          </On>
-          <On Select="TComponentKind.NonComponent">
-            <Execute Statement="Result:= sNonComponentHeader"/>
-          </On>
-          <!-->->-->
+<On Select="TComponentKind.None">
+<Execute Statement="Result:= sNoneHeader"/>
+</On>
+<On Select="TComponentKind.Resistor">
+<Execute Statement="Result:= sResistorHeader"/>
+</On>
+<On Select="TComponentKind.VariableResistor">
+<Execute Statement="Result:= sVariableResistorHeader"/>
+</On>
+<On Select="TComponentKind.Capacitor">
+<Execute Statement="Result:= sCapacitorHeader"/>
+</On>
+<On Select="TComponentKind.PolarisedCapacitor">
+<Execute Statement="Result:= sPolarisedCapacitorHeader"/>
+</On>
+<On Select="TComponentKind.VariableCapacitor">
+<Execute Statement="Result:= sVariableCapacitorHeader"/>
+</On>
+<On Select="TComponentKind.Inductor">
+<Execute Statement="Result:= sInductorHeader"/>
+</On>
+<On Select="TComponentKind.BridgeRectifier">
+<Execute Statement="Result:= sBridgeRectifierHeader"/>
+</On>
+<On Select="TComponentKind.ZenerDiode">
+<Execute Statement="Result:= sZenerDiodeHeader"/>
+</On>
+<On Select="TComponentKind.Diode">
+<Execute Statement="Result:= sDiodeHeader"/>
+</On>
+<On Select="TComponentKind.SchottkyDiode">
+<Execute Statement="Result:= sSchottkyDiodeHeader"/>
+</On>
+<On Select="TComponentKind.Laserdiode">
+<Execute Statement="Result:= sLaserdiodeHeader"/>
+</On>
+<On Select="TComponentKind.Photodiode">
+<Execute Statement="Result:= sPhotodiodeHeader"/>
+</On>
+<On Select="TComponentKind.SpecialDiode">
+<Execute Statement="Result:= sSpecialDiodeHeader"/>
+</On>
+<On Select="TComponentKind.DualDiode">
+<Execute Statement="Result:= sDualDiodeHeader"/>
+</On>
+<On Select="TComponentKind.NPNTransistor">
+<Execute Statement="Result:= sNPNTransistorHeader"/>
+</On>
+<On Select="TComponentKind.PNPTransistor">
+<Execute Statement="Result:= sPNPTransistorHeader"/>
+</On>
+<On Select="TComponentKind.NFET">
+<Execute Statement="Result:= sNFETHeader"/>
+</On>
+<On Select="TComponentKind.PFET">
+<Execute Statement="Result:= sPFETHeader"/>
+</On>
+<On Select="TComponentKind.NIGBT">
+<Execute Statement="Result:= sNIGBTHeader"/>
+</On>
+<On Select="TComponentKind.NJFET">
+<Execute Statement="Result:= sNJFETHeader"/>
+</On>
+<On Select="TComponentKind.PJFET">
+<Execute Statement="Result:= sPJFETHeader"/>
+</On>
+<On Select="TComponentKind.NMOSFET">
+<Execute Statement="Result:= sNMOSFETHeader"/>
+</On>
+<On Select="TComponentKind.PMOSFET">
+<Execute Statement="Result:= sPMOSFETHeader"/>
+</On>
+<On Select="TComponentKind.PUJT">
+<Execute Statement="Result:= sPUJTHeader"/>
+</On>
+<On Select="TComponentKind.NUJT">
+<Execute Statement="Result:= sNUJTHeader"/>
+</On>
+<On Select="TComponentKind.OpAmp">
+<Execute Statement="Result:= sOpAmpHeader"/>
+</On>
+<On Select="TComponentKind.Comparator">
+<Execute Statement="Result:= sComparatorHeader"/>
+</On>
+<On Select="TComponentKind.Diac">
+<Execute Statement="Result:= sDiacHeader"/>
+</On>
+<On Select="TComponentKind.SCR">
+<Execute Statement="Result:= sSCRHeader"/>
+</On>
+<On Select="TComponentKind.TRIAC">
+<Execute Statement="Result:= sTRIACHeader"/>
+</On>
+<On Select="TComponentKind.LED">
+<Execute Statement="Result:= sLEDHeader"/>
+</On>
+<On Select="TComponentKind.Fuse">
+<Execute Statement="Result:= sFuseHeader"/>
+</On>
+<On Select="TComponentKind.Polyfuse">
+<Execute Statement="Result:= sPolyfuseHeader"/>
+</On>
+<On Select="TComponentKind.Antenna">
+<Execute Statement="Result:= sAntennaHeader"/>
+</On>
+<On Select="TComponentKind.Crystal">
+<Execute Statement="Result:= sCrystalHeader"/>
+</On>
+<On Select="TComponentKind.DelayLine">
+<Execute Statement="Result:= sDelayLineHeader"/>
+</On>
+<On Select="TComponentKind.EmiFilter">
+<Execute Statement="Result:= sEmiFilterHeader"/>
+</On>
+<On Select="TComponentKind.FerriteBead">
+<Execute Statement="Result:= sFerriteBeadHeader"/>
+</On>
+<On Select="TComponentKind.FrequencyCounter">
+<Execute Statement="Result:= sFrequencyCounterHeader"/>
+</On>
+<On Select="TComponentKind.PhotoTransistor">
+<Execute Statement="Result:= sPhotoTransistorHeader"/>
+</On>
+<On Select="TComponentKind.HallGenerator">
+<Execute Statement="Result:= sHallGeneratorHeader"/>
+</On>
+<On Select="TComponentKind.Thermistor">
+<Execute Statement="Result:= sThermistorHeader"/>
+</On>
+<On Select="TComponentKind.PhotoResistor">
+<Execute Statement="Result:= sPhotoResistorHeader"/>
+</On>
+<On Select="TComponentKind.Varistor">
+<Execute Statement="Result:= sVaristorHeader"/>
+</On>
+<On Select="TComponentKind.Microphone">
+<Execute Statement="Result:= sMicrophoneHeader"/>
+</On>
+<On Select="TComponentKind.Memristor">
+<Execute Statement="Result:= sMemristorHeader"/>
+</On>
+<On Select="TComponentKind.ResistorNetwork">
+<Execute Statement="Result:= sResistorNetworkHeader"/>
+</On>
+<On Select="TComponentKind.ResistorPack">
+<Execute Statement="Result:= sResistorPackHeader"/>
+</On>
+<On Select="TComponentKind.Resonator">
+<Execute Statement="Result:= sResonatorHeader"/>
+</On>
+<On Select="TComponentKind.RFShield">
+<Execute Statement="Result:= sRFShieldHeader"/>
+</On>
+<On Select="TComponentKind.RotaryEncoder">
+<Execute Statement="Result:= sRotaryEncoderHeader"/>
+</On>
+<On Select="TComponentKind.Thermocouple">
+<Execute Statement="Result:= sThermocoupleHeader"/>
+</On>
+<On Select="TComponentKind.VoltageDivider">
+<Execute Statement="Result:= sVoltageDividerHeader"/>
+</On>
+<On Select="TComponentKind.Jumper">
+<Execute Statement="Result:= sJumperHeader"/>
+</On>
+<On Select="TComponentKind.Connector">
+<Execute Statement="Result:= sConnectorHeader"/>
+</On>
+<On Select="TComponentKind.SolarCell">
+<Execute Statement="Result:= sSolarCellHeader"/>
+</On>
+<On Select="TComponentKind.Battery">
+<Execute Statement="Result:= sBatteryHeader"/>
+</On>
+<On Select="TComponentKind.Adapter">
+<Execute Statement="Result:= sAdapterHeader"/>
+</On>
+<On Select="TComponentKind.Transformer">
+<Execute Statement="Result:= sTransformerHeader"/>
+</On>
+<On Select="TComponentKind.Peltier">
+<Execute Statement="Result:= sPeltierHeader"/>
+</On>
+<On Select="TComponentKind.Speaker">
+<Execute Statement="Result:= sSpeakerHeader"/>
+</On>
+<On Select="TComponentKind.Buzzer">
+<Execute Statement="Result:= sBuzzerHeader"/>
+</On>
+<On Select="TComponentKind.Earphone">
+<Execute Statement="Result:= sEarphoneHeader"/>
+</On>
+<On Select="TComponentKind.Lamp">
+<Execute Statement="Result:= sLampHeader"/>
+</On>
+<On Select="TComponentKind.Heater">
+<Execute Statement="Result:= sHeaterHeader"/>
+</On>
+<On Select="TComponentKind.ElectromagneticActor">
+<Execute Statement="Result:= sElectromagneticActorHeader"/>
+</On>
+<On Select="TComponentKind.MeasuringDevice">
+<Execute Statement="Result:= sMeasuringDeviceHeader"/>
+</On>
+<On Select="TComponentKind.Timer">
+<Execute Statement="Result:= sTimerHeader"/>
+</On>
+<On Select="TComponentKind.SchmittTrigger">
+<Execute Statement="Result:= sSchmittTriggerHeader"/>
+</On>
+<On Select="TComponentKind.Optocoupler">
+<Execute Statement="Result:= sOptocouplerHeader"/>
+</On>
+<On Select="TComponentKind.Switch">
+<Execute Statement="Result:= sSwitchHeader"/>
+</On>
+<On Select="TComponentKind.Module">
+<Execute Statement="Result:= sModuleHeader"/>
+</On>
+<On Select="TComponentKind.Component">
+<Execute Statement="Result:= sComponentHeader"/>
+</On>
+<On Select="TComponentKind.NonComponent">
+<Execute Statement="Result:= sNonComponentHeader"/>
+</On>
+<!-->->-->
           <Otherwise>
             <Execute Statement="Result:= Format(sUnknownComponentKind, ComponentKind)"/>
             <rep:Reporter.Error Text="Format(sMissingComponentKindMapping, sUnitName, 'ComponentKindHeader', ComponentKind)"/>
@@ -1066,6 +1077,176 @@
             </Case>
           </On>
         </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="CompareStateValueRange" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="ItemIDA" Type="Integer"/>
+        <Parameter Identifier="ValueA" Type="Int64"/>
+        <Parameter Identifier="ValueTypeA" Type="TValueType"/>
+        <Parameter Identifier="ValueMinA" Type="Int64"/>
+        <Parameter Identifier="ValueMinTypeA" Type="TValueType"/>
+        <Parameter Identifier="ValueMaxA" Type="Int64"/>
+        <Parameter Identifier="ValueMaxTypeA" Type="TValueType"/>
+        <Parameter Identifier="ItemIDB" Type="Integer"/>
+        <Parameter Identifier="ValueB" Type="Int64"/>
+        <Parameter Identifier="ValueTypeB" Type="TValueType"/>
+        <Parameter Identifier="ValueMinB" Type="Int64"/>
+        <Parameter Identifier="ValueMinTypeB" Type="TValueType"/>
+        <Parameter Identifier="ValueMaxB" Type="Int64"/>
+        <Parameter Identifier="ValueMaxTypeB" Type="TValueType"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TSource" Elements="None, Min, Value, Max, SourceEnd"/>
+      </Type>
+      <Variables>
+        <Variable Identifier="CheckValueA" Type="Int64"/>
+        <Variable Identifier="CheckTypeA" Type="TValueType"/>
+        <Variable Identifier="CheckValueB" Type="Int64"/>
+        <Variable Identifier="CheckTypeB" Type="TValueType"/>
+      </Variables>
+      <Block>
+        <Variable Identifier="SourceA" Type="TSource" Init="TSource.None"/>
+        <Variable Identifier="SourceB" Type="TSource" Init="TSource.None"/>
+        <Variable Identifier="MinSource" Type="TSource" Init="TSource.Min"/>
+        <Execute Statement="Result:= 0"/>
+        <RepeatUntilLoop Expression="MinSource &gt;= TSource.SourceEnd">
+          <ForLoop  Indexer="I" From="MinSource" To="TSource.SourceEnd">
+            <Execute Statement="SourceA:= I"/>
+            <Case Expression="I" Optimalisation="integermapping">
+              <On Select="TSource.Min">
+                <Execute Statement="CheckTypeA:= ValueMinTypeA"/>
+                <Case Expression="ValueMinTypeA">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="CheckValueA:= ValueMinA"/>
+                    <Break/>
+                  </On>
+                  <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                    <Break/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TSource.Value">
+                <Execute Statement="CheckTypeA:= ValueTypeA"/>
+                <Case Expression="ValueTypeA">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="CheckValueA:= ValueA"/>
+                    <Break/>
+                  </On>
+                  <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                    <Break/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TSource.Max">
+                <Execute Statement="CheckTypeA:= ValueMaxTypeA"/>
+                <Case Expression="ValueMaxTypeA">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="CheckValueA:= ValueMaxA"/>
+                    <Break/>
+                  </On>
+                  <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                    <Break/>
+                  </On>
+                </Case>
+              </On>
+            </Case>
+          </ForLoop>
+          <ForLoop  Indexer="I" From="MinSource" To="TSource.SourceEnd">
+            <Execute Statement="SourceB:= I"/>
+            <Case Expression="I" Optimalisation="integermapping">
+              <On Select="TSource.Min">
+                <Execute Statement="CheckTypeB:= ValueMinTypeB"/>
+                <Case Expression="ValueMinTypeB">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="CheckValueB:= ValueMinB"/>
+                    <Break/>
+                  </On>
+                  <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                    <Break/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TSource.Value">
+                <Execute Statement="CheckTypeB:= ValueTypeB"/>
+                <Case Expression="ValueTypeB">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="CheckValueB:= ValueB"/>
+                    <Break/>
+                  </On>
+                  <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                    <Break/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TSource.Max">
+                <Execute Statement="CheckTypeB:= ValueMaxTypeB"/>
+                <Case Expression="ValueMaxTypeB">
+                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                    <Execute Statement="CheckValueB:= ValueMaxB"/>
+                    <Break/>
+                  </On>
+                  <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                    <Break/>
+                  </On>
+                </Case>
+              </On>
+            </Case>
+          </ForLoop>
+          <Case Expression="CheckTypeA">
+            <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+              <Case Expression="CheckTypeB">
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Exit Result="-1"/>
+                </On>
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <Execute Statement="Result:= 1"/>
+                </On>
+              </Case>
+            </On>
+            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <Case Expression="CheckTypeB">
+                <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+                  <Exit Result="-1"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Exit Result="-1"/>
+                </On>
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <Choose>
+                    <When Expression="CheckValueA &lt; CheckValueB">
+                      <Exit Result="-1"/>
+                    </When>
+                    <When Expression="CheckValueA &gt; CheckValueB">
+                      <Exit Result="1"/>
+                    </When>
+                  </Choose>
+                  <Block Condition="SourceA &lt;&gt; SourceB">
+                    <Exit Result="SourceA - SourceB"/>
+                  </Block>
+                </On>
+              </Case>
+            </On>
+            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+              <Case Expression="CheckTypeB">
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Block Condition="SourceA &lt;&gt; SourceB">
+                    <Exit Result="SourceA - SourceB"/>
+                  </Block>
+                  <Exit Result="-1" Condition="ItemIDA &lt; ItemIDB"/>
+                  <Exit Result="1"/>
+                </On>
+                <Otherwise>
+                  <Exit Result="1"/>
+                </Otherwise>
+              </Case>
+            </On>
+          </Case>
+          <Execute Statement="MinSource:= SourceA + 1"/>
+          <ExitOnAbortRequest/>
+        </RepeatUntilLoop>
+
       </Block>
     </Function>
 
@@ -2061,6 +2242,23 @@
       </Block>
     </Procedure>
 
+    <Procedure Identifier="TComponentCategory.Add">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec" />
+      </Parameters>
+      <Block>
+        <Choose>
+          <When Expression="Assigned(ComponentSpecHead)">
+            <Execute Statement="ComponentSpecTail.Next:= Specification"/>
+          </When>
+          <Otherwise>
+            <Execute Statement="ComponentSpecHead:= Specification"/>
+          </Otherwise>
+        </Choose>
+        <Execute Statement="ComponentSpecTail:= Specification"/>
+      </Block>
+    </Procedure>
+
     <Function Identifier="TComponentCategory.ProcessSchemaXml" Type="Boolean">
       <Parameters>
         <Parameter Identifier="Element" Type="IXMLDomElement" />
@@ -2086,15 +2284,7 @@
               <Execute Statement="Specification.SchemaComponentTail:= Component"/>
               <Execute Statement="Specification.Template:= GetTemplate(Specification)"/>
               <Execute Statement="Specification.ApplyTemplate"/>
-              <Choose>
-                <When Expression="Assigned(ComponentSpecHead)">
-                  <Execute Statement="ComponentSpecTail.Next:= Specification"/>
-                </When>
-                <Otherwise>
-                  <Execute Statement="ComponentSpecHead:= Specification"/>
-                </Otherwise>
-              </Choose>
-              <Execute Statement="ComponentSpecTail:= Specification"/>
+              <Execute Statement="Add(Specification)"/>
             </ConditionalBlock>
           </Try>
           <Finally>
@@ -2120,7 +2310,6 @@
           <Try>
             <Execute Statement="Specification:= CreateSpecification" />
             <Execute Statement="Specification.Template:= StockComponent.StockCategory.ComponentSpec"/>
-            <Execute Statement="Specification.ApplyTemplate"/>
             <Execute Statement="Specification.HandleField(TCustomField.Value, '', StockComponent.Name, StockComponent.Name='-')"/>
             <Execute Statement="Specification.HandleField(TCustomField.InternalPartNumber, '', StockComponent.InternalPartNumber, StockComponent.InternalPartNumber='-')" Condition="IsNonEmptyString(StockComponent.InternalPartNumber)"/>
             <Execute Statement="Specification.HandleField(TCustomField.Footprint, '', StockComponent.FootprintInfo.Name, False)" Condition="Assigned(StockComponent.FootprintInfo)"/>
@@ -2130,6 +2319,7 @@
               <Execute Statement="Specification.HandleField(CustomField, RunningComponentValue.Name, RunningComponentValue.Value, RunningComponentValue.Value='-')" />
             </lil:LinkedList.Iterate>
 
+            <Execute Statement="Specification.ApplyTemplate"/>
             <ConditionalBlock Expression="IsValidSpecification(Specification)">
               <rep:Reporter.Information Text="Format('Valid #%d: %s', StockComponent.ID, Specification.SpecificationAsString(TSpecFormatType.Description, ObjNil))" Condition="IsVerbose"/>
               <Execute Statement="Result:= True"/>
@@ -2169,6 +2359,12 @@
           <On Select="TCustomField.Value">
             <Execute Statement="Result:= 'Value'"/>
           </On>
+          <On Select="TCustomField.ValueMin">
+            <Execute Statement="Result:= 'Value.Min'"/>
+          </On>
+          <On Select="TCustomField.ValueMax">
+            <Execute Statement="Result:= 'Value.Max'"/>
+          </On>
           <On Select="TCustomField.Footprint">
             <Execute Statement="Result:= 'Footprint'"/>
           </On>
@@ -2184,14 +2380,38 @@
           <On Select="TCustomField.PowerRating">
             <Execute Statement="Result:= 'PowerRating'"/>
           </On>
+          <On Select="TCustomField.PowerRatingMin">
+            <Execute Statement="Result:= 'PowerRating.Min'"/>
+          </On>
+          <On Select="TCustomField.PowerRatingMax">
+            <Execute Statement="Result:= 'PowerRating.Max'"/>
+          </On>
           <On Select="TCustomField.VoltageRating">
             <Execute Statement="Result:= 'VoltageRating'"/>
+          </On>
+          <On Select="TCustomField.VoltageRatingMin">
+            <Execute Statement="Result:= 'VoltageRating.Min'"/>
+          </On>
+          <On Select="TCustomField.VoltageRatingMax">
+            <Execute Statement="Result:= 'VoltageRating.Max'"/>
           </On>
           <On Select="TCustomField.AmperageRating">
             <Execute Statement="Result:= 'AmperageRating'"/>
           </On>
+          <On Select="TCustomField.AmperageRatingMin">
+            <Execute Statement="Result:= 'AmperageRating.Min'"/>
+          </On>
+          <On Select="TCustomField.AmperageRatingMax">
+            <Execute Statement="Result:= 'AmperageRating.Max'"/>
+          </On>
           <On Select="TCustomField.Tolerance">
             <Execute Statement="Result:= 'Tolerance'"/>
+          </On>
+          <On Select="TCustomField.ToleranceMin">
+            <Execute Statement="Result:= 'Tolerance.Min'"/>
+          </On>
+          <On Select="TCustomField.ToleranceMax">
+            <Execute Statement="Result:= 'Tolerance.Max'"/>
           </On>
           <On Select="TCustomField.Technology">
             <Execute Statement="Result:= 'Technology'"/>
@@ -2202,8 +2422,20 @@
           <On Select="TCustomField.ForwardVoltage">
             <Execute Statement="Result:= 'ForwardVoltage'"/>
           </On>
-          <On Select="TCustomField.ReverseVoltage">
-            <Execute Statement="Result:= 'ReverseVoltage'"/>
+          <On Select="TCustomField.ForwardVoltageMin">
+            <Execute Statement="Result:= 'ForwardVoltage.Min'"/>
+          </On>
+          <On Select="TCustomField.ForwardVoltageMax">
+            <Execute Statement="Result:= 'ForwardVoltage.Max'"/>
+          </On>
+          <On Select="TCustomField.ReverseVoltageRating">
+            <Execute Statement="Result:= 'ReverseVoltageRating'"/>
+          </On>
+          <On Select="TCustomField.ReverseVoltageRatingMin">
+            <Execute Statement="Result:= 'ReverseVoltageRating.Min'"/>
+          </On>
+          <On Select="TCustomField.ReverseVoltageRatingMax">
+            <Execute Statement="Result:= 'ReverseVoltageRating.Max'"/>
           </On>
           <On Select="TCustomField.BreakSpeed">
             <Execute Statement="Result:= 'BreakSpeed'"/>
@@ -2224,13 +2456,7 @@
       </Parameters>
       <Block>
         <ForLoop Indexer="I" From="TCustomField.Low" To="TCustomField.High">
-          <Case Expression="I" Optimalisation="integermapping">
-            <On Select="TCustomField.Value">
-            </On>
-            <Otherwise>
-              <inx:Index.MapValue Index="Index" Key="GetCustomFieldName(I)" Value="I"/>
-            </Otherwise>
-          </Case>
+          <inx:Index.MapValue Index="Index" Key="GetCustomFieldName(I)" Value="I"/>
         </ForLoop>
       </Block>
     </Procedure>

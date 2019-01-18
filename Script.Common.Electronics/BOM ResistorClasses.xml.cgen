@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns="urn:schemas-www-wisware.nl-codegen-document"
+ xmlns:doc="urn:schemas-www-wisware.nl-codegen-document"
+ xmlns:scg="urn:schemas-www-wisware.nl-codegen-scriptcodegenerator"
+ xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+ xsi:schemaLocation="urn:schemas-www-wisware.nl-codegen-document ..\XmlSchemas.Common.CodeGen\CodeGen.xsd"
+   Codepage="0" NameEncapsulation="xml">
+  <CodeGenerators>
+    <scg:ScriptCodeGenerator Description="Generate sections">
+      <pkg:Program xmlns="urn:schemas-www-wisware.nl-xmlscripting">
+
+        <pkg:ReportTargets>
+          <pkg:Target Identifier="TComponentSpec.Fields"/>
+          <pkg:Target Identifier="TComponentSpec.HandleField"/>
+          <pkg:Target Identifier="TComponentSpec.GetSpecificationValues"/>
+          <pkg:Target Identifier="TComponentSpec.ApplyTemplate"/>
+          <pkg:Target Identifier="TComponentSpec.CompareSpecifications"/>
+          <pkg:Target Identifier="TComponentSpec.DoesMatchSpecification"/>
+        </pkg:ReportTargets>
+
+        <Imports>
+          <Import Identifier="ComponentClassGenerationUtils" Filename="ComponentClassGenerationUtils.xml"/>
+        </Imports>
+
+        <Uses>
+          <Use Identifier="ComponentClassGenerationUtils"/>
+        </Uses>
+
+        <Block>
+          <Execute Statement="GenerateFieldSections(GetResistorsFieldInfos)"/>
+        </Block>
+
+      </pkg:Program>
+    </scg:ScriptCodeGenerator>
+  </CodeGenerators>
+</Document>

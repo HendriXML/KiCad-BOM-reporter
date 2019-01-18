@@ -32,20 +32,32 @@
       <VirtualMethod Identifier="vmApplyTemplate" Override="true"/>
       <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
       <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
+      <!--<-<TComponentSpec.Fields-->
       <Field Identifier="AmperageVT" Type="TValueType"/>
       <Field Identifier="Amperage" Type="Int64"/>
       <Field Identifier="ErrorAmperage" Type="string"/>
-      
+      <Field Identifier="AmperageMinVT" Type="TValueType"/>
+      <Field Identifier="AmperageMin" Type="Int64"/>
+      <Field Identifier="ErrorAmperageMin" Type="string"/>
+      <Field Identifier="AmperageMaxVT" Type="TValueType"/>
+      <Field Identifier="AmperageMax" Type="Int64"/>
+      <Field Identifier="ErrorAmperageMax" Type="string"/>
       <Field Identifier="VoltageRatingVT" Type="TValueType"/>
       <Field Identifier="VoltageRating" Type="Int64"/>
       <Field Identifier="ErrorVoltageRating" Type="string"/>
-      
+      <Field Identifier="VoltageRatingMinVT" Type="TValueType"/>
+      <Field Identifier="VoltageRatingMin" Type="Int64"/>
+      <Field Identifier="ErrorVoltageRatingMin" Type="string"/>
+      <Field Identifier="VoltageRatingMaxVT" Type="TValueType"/>
+      <Field Identifier="VoltageRatingMax" Type="Int64"/>
+      <Field Identifier="ErrorVoltageRatingMax" Type="string"/>
       <Field Identifier="BreakSpeedVT" Type="TValueType"/>
       <Field Identifier="BreakSpeed" Type="TBreakSpeed"/>
       <Field Identifier="ErrorBreakSpeed" Type="string"/>
-      
       <Field Identifier="DimensionsVT" Type="TValueType"/>
       <Field Identifier="Dimensions" Type="string"/>
+      <Field Identifier="ErrorDimensions" Type="string"/>
+<!-->->-->
     </DataClass>
 
     <DataClass Identifier="TFuseCategory" Inherit="TComponentCategory">
@@ -95,7 +107,7 @@
       </Block>
     </Function>
 
-    <Function Identifier="FuseSpeedDescription" Type="string">
+    <Function Identifier="BreakSpeedAsString" Type="string">
       <Parameters>
         <Parameter Identifier="BreakSpeed" Type="TBreakSpeed"/>
       </Parameters>
@@ -156,38 +168,114 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
-        <Case Expression="AmperageVT">
+        <Variable Identifier="IsRanged" Type="Boolean"/>
+        <!--<-<TComponentSpec.DoesMatchSpecification-->
+        <Execute Statement="IsRanged:= False"/>
+        <Case Expression="AmperageMinVT">
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Exit Condition="not (ComponentSpec is TFuseSpec)"/>
             <Case Expression="TFuseSpec(ComponentSpec).AmperageVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="Amperage &lt;&gt; TFuseSpec(ComponentSpec).Amperage"/>
+                <Exit Condition="AmperageMin &gt; TFuseSpec(ComponentSpec).Amperage"/>
+                <Execute Statement="IsRanged:= True"/>
               </On>
-              <Otherwise>
-                <Exit/>
-              </Otherwise>
+               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                 <Exit/>
+               </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
-        <Case Expression="VoltageRatingVT">
+        <Case Expression="AmperageMaxVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Exit Condition="not (ComponentSpec is TFuseSpec)"/>
+            <Case Expression="TFuseSpec(ComponentSpec).AmperageVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="AmperageMax &lt; TFuseSpec(ComponentSpec).Amperage"/>
+                <Execute Statement="IsRanged:= True"/>
+              </On>
+               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                 <Exit/>
+               </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Block Condition="not IsRanged">
+          <Case Expression="AmperageVT">
+            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <Exit Condition="not (ComponentSpec is TFuseSpec)"/>
+              <Case Expression="TFuseSpec(ComponentSpec).AmperageVT">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <Exit Condition="Amperage &lt;&gt; TFuseSpec(ComponentSpec).Amperage"/>
+                </On>
+                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                   <Exit/>
+                 </On>
+              </Case>
+            </On>
+            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+              <Exit/>
+            </On>
+          </Case>
+        </Block>
+        <Execute Statement="IsRanged:= False"/>
+        <Case Expression="VoltageRatingMinVT">
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Exit Condition="not (ComponentSpec is TFuseSpec)"/>
             <Case Expression="TFuseSpec(ComponentSpec).VoltageRatingVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="VoltageRating &gt; TFuseSpec(ComponentSpec).VoltageRating"/>
+                <Exit Condition="VoltageRatingMin &gt; TFuseSpec(ComponentSpec).VoltageRating"/>
+                <Execute Statement="IsRanged:= True"/>
               </On>
-              <Otherwise>
-                <Exit/>
-              </Otherwise>
+               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                 <Exit/>
+               </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
+        <Case Expression="VoltageRatingMaxVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Exit Condition="not (ComponentSpec is TFuseSpec)"/>
+            <Case Expression="TFuseSpec(ComponentSpec).VoltageRatingVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="VoltageRatingMax &lt; TFuseSpec(ComponentSpec).VoltageRating"/>
+                <Execute Statement="IsRanged:= True"/>
+              </On>
+               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                 <Exit/>
+               </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Block Condition="not IsRanged">
+          <Case Expression="VoltageRatingVT">
+            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <Exit Condition="not (ComponentSpec is TFuseSpec)"/>
+              <Case Expression="TFuseSpec(ComponentSpec).VoltageRatingVT">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <Exit Condition="VoltageRating &lt;&gt; TFuseSpec(ComponentSpec).VoltageRating"/>
+                </On>
+                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                   <Exit/>
+                 </On>
+              </Case>
+            </On>
+            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+              <Exit/>
+            </On>
+          </Case>
+        </Block>
         <Case Expression="BreakSpeedVT">
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
             <Exit Condition="not (ComponentSpec is TFuseSpec)"/>
@@ -195,15 +283,32 @@
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                 <Exit Condition="BreakSpeed &lt;&gt; TFuseSpec(ComponentSpec).BreakSpeed"/>
               </On>
-              <Otherwise>
-                <Exit/>
-              </Otherwise>
+               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                 <Exit/>
+               </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
+        <Case Expression="DimensionsVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Exit Condition="not (ComponentSpec is TFuseSpec)"/>
+            <Case Expression="TFuseSpec(ComponentSpec).DimensionsVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="CompareText(Dimensions, TFuseSpec(ComponentSpec).Dimensions) &lt;&gt; 0"/>
+              </On>
+               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                 <Exit/>
+               </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+<!-->->-->
         <Execute Statement="Result:= True"/>
       </Block>
     </Function>
@@ -352,29 +457,58 @@
         <Parameter Identifier="Clear" Type="Boolean"/>
       </Parameters>
       <Variables>
-        <Variable Identifier="LocForwardVoltage" Type="Int64"/>
-        <Variable Identifier="LocVoltageRating" Type="Int64"/>
-        <Variable Identifier="LocAmperage" Type="Int64"/>
+        <Variable Identifier="LocValue" Type="Int64"/>
         <Variable Identifier="LocBreakSpeed" Type="TBreakSpeed"/>
         <Variable Identifier="Found" Type="Boolean"/>
       </Variables>
       <Block>
         <Case Expression="CustomField" Optimalisation="integermapping">
+          <!--<-<TComponentSpec.HandleField-->
           <On Select="TCustomField.Value">
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="AmperageVT:= TValueType.Cleared"/>
                 <Execute Statement="Amperage:= -1"/>
               </When>
-              <When Expression="FuseAmperageConv.StrToIntValue(Value, LocAmperage)">
-                <rep:Reporter.Information Text="Format('Amperage: %s', FuseAmperageConv.IntValueToStr(LocAmperage, False))" Condition="IsVerbose"/>
+              <When Expression="FuseAmperageConv.StrToIntValue(Value, LocValue)">
                 <Execute Statement="AmperageVT:= TValueType.Specified"/>
-                <Execute Statement="Amperage:= LocAmperage"/>
+                <Execute Statement="Amperage:= LocValue"/>
               </When>
               <Otherwise>
-                <rep:Reporter.Error Text="Format('Amperage could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
                 <Execute Statement="AmperageVT:= TValueType.Error"/>
                 <Execute Statement="ErrorAmperage:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.ValueMin">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="AmperageMinVT:= TValueType.Cleared"/>
+                <Execute Statement="AmperageMin:= -1"/>
+              </When>
+              <When Expression="FuseAmperageConv.StrToIntValue(Value, LocValue)">
+                <Execute Statement="AmperageMinVT:= TValueType.Specified"/>
+                <Execute Statement="AmperageMin:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="AmperageMinVT:= TValueType.Error"/>
+                <Execute Statement="ErrorAmperageMin:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.ValueMax">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="AmperageMaxVT:= TValueType.Cleared"/>
+                <Execute Statement="AmperageMax:= -1"/>
+              </When>
+              <When Expression="FuseAmperageConv.StrToIntValue(Value, LocValue)">
+                <Execute Statement="AmperageMaxVT:= TValueType.Specified"/>
+                <Execute Statement="AmperageMax:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="AmperageMaxVT:= TValueType.Error"/>
+                <Execute Statement="ErrorAmperageMax:= Value"/>
               </Otherwise>
             </Choose>
           </On>
@@ -384,52 +518,81 @@
                 <Execute Statement="VoltageRatingVT:= TValueType.Cleared"/>
                 <Execute Statement="VoltageRating:= -1"/>
               </When>
-              <When Expression="FuseVoltageRatingConv.StrToIntValue(Value, LocVoltageRating)">
-                <rep:Reporter.Information Text="Format('VoltageRating: %s', FuseVoltageRatingConv.IntValueToStr(LocVoltageRating, False))" Condition="IsVerbose"/>
+              <When Expression="FuseVoltageRatingConv.StrToIntValue(Value, LocValue)">
                 <Execute Statement="VoltageRatingVT:= TValueType.Specified"/>
-                <Execute Statement="VoltageRating:= LocVoltageRating"/>
+                <Execute Statement="VoltageRating:= LocValue"/>
               </When>
               <Otherwise>
-                <rep:Reporter.Error Text="Format('VoltageRating could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
                 <Execute Statement="VoltageRatingVT:= TValueType.Error"/>
                 <Execute Statement="ErrorVoltageRating:= Value"/>
               </Otherwise>
             </Choose>
           </On>
+          <On Select="TCustomField.VoltageRatingMin">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="VoltageRatingMinVT:= TValueType.Cleared"/>
+                <Execute Statement="VoltageRatingMin:= -1"/>
+              </When>
+              <When Expression="FuseVoltageRatingConv.StrToIntValue(Value, LocValue)">
+                <Execute Statement="VoltageRatingMinVT:= TValueType.Specified"/>
+                <Execute Statement="VoltageRatingMin:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="VoltageRatingMinVT:= TValueType.Error"/>
+                <Execute Statement="ErrorVoltageRatingMin:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.VoltageRatingMax">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="VoltageRatingMaxVT:= TValueType.Cleared"/>
+                <Execute Statement="VoltageRatingMax:= -1"/>
+              </When>
+              <When Expression="FuseVoltageRatingConv.StrToIntValue(Value, LocValue)">
+                <Execute Statement="VoltageRatingMaxVT:= TValueType.Specified"/>
+                <Execute Statement="VoltageRatingMax:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="VoltageRatingMaxVT:= TValueType.Error"/>
+                <Execute Statement="ErrorVoltageRatingMax:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
           <On Select="TCustomField.BreakSpeed">
             <Choose>
-             <When Expression="Clear">
+              <When Expression="Clear">
                 <Execute Statement="BreakSpeedVT:= TValueType.Cleared"/>
               </When>
               <Otherwise>
-                <inx:Index.FindValue Index="BreakSpeedIndex" Key="Value" Value="LocBreakSpeed" Found="Found" Flags="NoErrorOnNotFound" />
-                <Choose>
-                  <When Expression="Found">
-                    <rep:Reporter.Information Text="Format('Break speed: %d', LocBreakSpeed)" Condition="Found and IsVerbose"/>
-                    <Execute Statement="BreakSpeedVT:= TValueType.Specified"/>
-                    <Execute Statement="BreakSpeed:= LocBreakSpeed"/>
-                  </When>
-                  <Otherwise>
-                    <rep:Reporter.Error Text="Format('Break speed could not be matched: %s', Value)" Condition="not Found"/>
-                    <Execute Statement="BreakSpeedVT:= TValueType.Error"/>
-                    <Execute Statement="ErrorBreakSpeed:= Value"/>
-                  </Otherwise>
-                </Choose>
+                <inx:Index.FindValue Index="BreakSpeedIndex" Key="Value" Value="LocBreakSpeed" Found="Found" Flags="NoErrorOnNotFound"/>
+                  <Choose>
+                    <When Expression="Found">
+                      <Execute Statement="BreakSpeed:= LocBreakSpeed"/>
+                      <Execute Statement="BreakSpeedVT:= TValueType.Specified"/>
+                    </When>
+                    <Otherwise>
+                      <Execute Statement="ErrorBreakSpeed:= Value"/>
+                      <Execute Statement="BreakSpeedVT:= TValueType.Error"/>
+                    </Otherwise>
+                 </Choose>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TCustomField.Dimensions">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="Self.Dimensions:= ''"/>
                 <Execute Statement="DimensionsVT:= TValueType.Cleared"/>
+                <Execute Statement="Dimensions:= ''"/>
               </When>
               <Otherwise>
-                <Execute Statement="Self.Dimensions:= Value"/>
                 <Execute Statement="DimensionsVT:= TValueType.Specified"/>
+                <Execute Statement="Dimensions:= Value"/>
               </Otherwise>
             </Choose>
           </On>
+<!-->->-->
           <Otherwise>
             <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
           </Otherwise>
@@ -452,42 +615,85 @@
       </Parameters>
       <Block>
         <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
+        <Variable Identifier="Range" Type="string"/>
+        <!--<-<TComponentSpec.GetSpecificationValues-->
+        <Case Expression="AmperageMinVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="Range:= ''"/>
+          </On>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Range:= FuseAmperageConv.IntValueToStr(Self.AmperageMin, Compact) + '..'"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="Range:= '!' + ErrorAmperageMin + '!' + '..'"/>
+          </On>
+        </Case>
+        <Case Expression="AmperageMaxVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Range:= '..'" Condition="IsEmptyString(Range)"/>
+            <Execute Statement="Range:= Range + FuseAmperageConv.IntValueToStr(Self.AmperageMax, Compact)"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="Range:= '..'" Condition="IsEmptyString(Range)"/>
+            <Execute Statement="Range:= Range + '!' + ErrorAmperageMax + '!' "/>
+          </On>
+        </Case>
+        <Execute Statement="Range:= '{' + Range + '}'" Condition="IsNonEmptyString(Range)"/>
         <Case Expression="AmperageVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Amperage:= ''"/>
+            <Execute Statement="Amperage:= Range"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Amperage:= FuseAmperageConv.IntValueToStr(Self.Amperage, Compact)"/>
+            <Execute Statement="Amperage:= FuseAmperageConv.IntValueToStr(Self.Amperage, Compact) + Range"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Amperage:= '!' + ErrorAmperage + '!'"/>
+            <Execute Statement="Amperage:= '!' + ErrorAmperage + '!' + Range"/>
           </On>
         </Case>
-
+        <Case Expression="VoltageRatingMinVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="Range:= ''"/>
+          </On>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Range:= FuseVoltageRatingConv.IntValueToStr(Self.VoltageRatingMin, Compact) + '..'"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="Range:= '!' + ErrorVoltageRatingMin + '!' + '..'"/>
+          </On>
+        </Case>
+        <Case Expression="VoltageRatingMaxVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Range:= '..'" Condition="IsEmptyString(Range)"/>
+            <Execute Statement="Range:= Range + FuseVoltageRatingConv.IntValueToStr(Self.VoltageRatingMax, Compact)"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="Range:= '..'" Condition="IsEmptyString(Range)"/>
+            <Execute Statement="Range:= Range + '!' + ErrorVoltageRatingMax + '!' "/>
+          </On>
+        </Case>
+        <Execute Statement="Range:= '{' + Range + '}'" Condition="IsNonEmptyString(Range)"/>
         <Case Expression="VoltageRatingVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="VoltageRating:= ''"/>
+            <Execute Statement="VoltageRating:= Range"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="VoltageRating:= FuseVoltageRatingConv.IntValueToStr(Self.VoltageRating, Compact)"/>
+            <Execute Statement="VoltageRating:= FuseVoltageRatingConv.IntValueToStr(Self.VoltageRating, Compact) + Range"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="VoltageRating:= '!' + ErrorVoltageRating + '!'"/>
+            <Execute Statement="VoltageRating:= '!' + ErrorVoltageRating + '!' + Range"/>
           </On>
         </Case>
-
         <Case Expression="BreakSpeedVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="BreakSpeed:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="BreakSpeed:= FuseSpeedDescription(Self.BreakSpeed)"/>
+            <Execute Statement="BreakSpeed:= BreakSpeedAsString(Self.BreakSpeed)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="BreakSpeed:= '!' + ErrorBreakSpeed + '!'"/>
           </On>
         </Case>
-        
         <Case Expression="DimensionsVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Dimensions:= ''"/>
@@ -496,10 +702,10 @@
             <Execute Statement="Dimensions:= Self.Dimensions"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Dimensions:= '!!'"/>
+            <Execute Statement="Dimensions:= '!' + Dimensions + '!'"/>
           </On>
         </Case>
-
+<!-->->-->
         <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
@@ -571,61 +777,120 @@
         <Exit Condition="not Assigned(Template)"/>
         <ConditionalBlock Expression="Template is TFuseSpec">
           <Execute Statement="locTemplate:= TFuseSpec(Template)"/>
-          <Case Expression="AmperageVT" Optimalisation="integermapping">
+          <!--<-<TComponentSpec.ApplyTemplate-->
+          <Case Expression="AmperageVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="locTemplate.AmperageVT" Optimalisation="integermapping">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                  <Execute Statement="Amperage:= locTemplate.Amperage"/>
-                  <Execute Statement="AmperageVT:= TValueType.SpecifiedByTemplate"/>
-                </On>
-                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                  <Execute Statement="ErrorAmperage:= locTemplate.ErrorAmperage"/>
-                  <Execute Statement="AmperageVT:= TValueType.ErrorByTemplate"/>
+              <Case Expression="AmperageMinVT">
+                <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+                  <Case Expression="AmperageMaxVT">
+                    <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+                      <Case Expression="locTemplate.AmperageVT">
+                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                          <Execute Statement="Amperage:= locTemplate.Amperage"/>
+                          <Execute Statement="AmperageVT:= TValueType.SpecifiedByTemplate"/>
+                        </On>
+                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                          <Execute Statement="Amperage:= locTemplate.ErrorAmperage"/>
+                          <Execute Statement="AmperageVT:= TValueType.ErrorByTemplate"/>
+                        </On>
+                      </Case>
+                      <Case Expression="locTemplate.AmperageMinVT">
+                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                          <Execute Statement="AmperageMin:= locTemplate.AmperageMin"/>
+                          <Execute Statement="AmperageMinVT:= TValueType.SpecifiedByTemplate"/>
+                        </On>
+                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                          <Execute Statement="AmperageMin:= locTemplate.ErrorAmperageMin"/>
+                          <Execute Statement="AmperageMinVT:= TValueType.ErrorByTemplate"/>
+                        </On>
+                      </Case>
+                      <Case Expression="locTemplate.AmperageMaxVT">
+                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                          <Execute Statement="AmperageMax:= locTemplate.AmperageMax"/>
+                          <Execute Statement="AmperageMaxVT:= TValueType.SpecifiedByTemplate"/>
+                        </On>
+                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                          <Execute Statement="AmperageMax:= locTemplate.ErrorAmperageMax"/>
+                          <Execute Statement="AmperageMaxVT:= TValueType.ErrorByTemplate"/>
+                        </On>
+                      </Case>
+                    </On>
+                  </Case>
                 </On>
               </Case>
             </On>
           </Case>
-          <Case Expression="VoltageRatingVT" Optimalisation="integermapping">
+          <Case Expression="VoltageRatingVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="locTemplate.VoltageRatingVT" Optimalisation="integermapping">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                  <Execute Statement="VoltageRating:= locTemplate.VoltageRating"/>
-                  <Execute Statement="VoltageRatingVT:= TValueType.SpecifiedByTemplate"/>
-                </On>
-                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                  <Execute Statement="ErrorVoltageRating:= locTemplate.ErrorVoltageRating"/>
-                  <Execute Statement="VoltageRatingVT:= TValueType.ErrorByTemplate"/>
+              <Case Expression="VoltageRatingMinVT">
+                <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+                  <Case Expression="VoltageRatingMaxVT">
+                    <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+                      <Case Expression="locTemplate.VoltageRatingVT">
+                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                          <Execute Statement="VoltageRating:= locTemplate.VoltageRating"/>
+                          <Execute Statement="VoltageRatingVT:= TValueType.SpecifiedByTemplate"/>
+                        </On>
+                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                          <Execute Statement="VoltageRating:= locTemplate.ErrorVoltageRating"/>
+                          <Execute Statement="VoltageRatingVT:= TValueType.ErrorByTemplate"/>
+                        </On>
+                      </Case>
+                      <Case Expression="locTemplate.VoltageRatingMinVT">
+                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                          <Execute Statement="VoltageRatingMin:= locTemplate.VoltageRatingMin"/>
+                          <Execute Statement="VoltageRatingMinVT:= TValueType.SpecifiedByTemplate"/>
+                        </On>
+                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                          <Execute Statement="VoltageRatingMin:= locTemplate.ErrorVoltageRatingMin"/>
+                          <Execute Statement="VoltageRatingMinVT:= TValueType.ErrorByTemplate"/>
+                        </On>
+                      </Case>
+                      <Case Expression="locTemplate.VoltageRatingMaxVT">
+                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                          <Execute Statement="VoltageRatingMax:= locTemplate.VoltageRatingMax"/>
+                          <Execute Statement="VoltageRatingMaxVT:= TValueType.SpecifiedByTemplate"/>
+                        </On>
+                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                          <Execute Statement="VoltageRatingMax:= locTemplate.ErrorVoltageRatingMax"/>
+                          <Execute Statement="VoltageRatingMaxVT:= TValueType.ErrorByTemplate"/>
+                        </On>
+                      </Case>
+                    </On>
+                  </Case>
                 </On>
               </Case>
             </On>
           </Case>
-          <Case Expression="BreakSpeedVT" Optimalisation="integermapping">
+          <Case Expression="BreakSpeedVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="locTemplate.BreakSpeedVT" Optimalisation="integermapping">
+              <Case Expression="locTemplate.BreakSpeedVT">
                 <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                   <Execute Statement="BreakSpeed:= locTemplate.BreakSpeed"/>
                   <Execute Statement="BreakSpeedVT:= TValueType.SpecifiedByTemplate"/>
                 </On>
                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                  <Execute Statement="ErrorBreakSpeed:= locTemplate.ErrorBreakSpeed"/>
+                  <Execute Statement="BreakSpeed:= locTemplate.ErrorBreakSpeed"/>
                   <Execute Statement="BreakSpeedVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
           </Case>
-          <Case Expression="DimensionsVT" Optimalisation="integermapping">
+          <Case Expression="DimensionsVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="locTemplate.DimensionsVT" Optimalisation="integermapping">
+              <Case Expression="locTemplate.DimensionsVT">
                 <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                   <Execute Statement="Dimensions:= locTemplate.Dimensions"/>
                   <Execute Statement="DimensionsVT:= TValueType.SpecifiedByTemplate"/>
                 </On>
                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="Dimensions:= locTemplate.ErrorDimensions"/>
                   <Execute Statement="DimensionsVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
           </Case>
+<!-->->-->
         </ConditionalBlock>
         <Execute Statement="inherited ApplyTemplate"/>
       </Block>
@@ -710,14 +975,16 @@
       <Block>
         <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-        <Execute Statement="Result:= CompareStateValue(A.ID, A.Amperage, A.AmperageVT, B.ID, B.Amperage, B.AmperageVT)"/>
+        <!--<-<TComponentSpec.CompareSpecifications-->
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.Amperage, A.AmperageVT, A.AmperageMin, A.AmperageMinVT, A.AmperageMax, A.AmperageMaxVT, B.ID, B.Amperage, B.AmperageVT, B.AmperageMin, B.AmperageMinVT, B.AmperageMax, B.AmperageMaxVT)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-        <Execute Statement="Result:= CompareStateValue(A.ID, A.VoltageRating, A.VoltageRatingVT, B.ID, B.VoltageRating, B.VoltageRatingVT)"/>
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.VoltageRating, A.VoltageRatingVT, A.VoltageRatingMin, A.VoltageRatingMinVT, A.VoltageRatingMax, A.VoltageRatingMaxVT, B.ID, B.VoltageRating, B.VoltageRatingVT, B.VoltageRatingMin, B.VoltageRatingMinVT, B.VoltageRatingMax, B.VoltageRatingMaxVT)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
         <Execute Statement="Result:= CompareStateValue(A.ID, A.BreakSpeed, A.BreakSpeedVT, B.ID, B.BreakSpeed, B.BreakSpeedVT)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
         <Execute Statement="Result:= CompareStateStringValue(A.ID, A.Dimensions, A.DimensionsVT, B.ID, B.Dimensions, B.DimensionsVT)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
+<!-->->-->
         <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
       </Block>
     </Function>
