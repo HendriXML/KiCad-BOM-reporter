@@ -366,38 +366,43 @@
         <Parameter Identifier="Iterator"/>
       </Parameters>
       <Block>
-        <rep:Reporter.Information Text="'[tt]'"/>
         <rep:Reporter.IterateTarget Iterator="Iterator">
           <rep:Information Text="Text" Markup="Markup">
             <Case Expression="Markup">
               <On Select="TMarkupKind.mkNormal">
-                <rep:Reporter.Information Text="'[size=8pt]' + Text + '[/size]'"/>
+                <Choose>
+                  <When Expression="IsEmptyString(Text)">
+                    <rep:Reporter.Information Text="'\\'"/>
+                  </When>
+                  <Otherwise>
+                <rep:Reporter.Information Text="'''''%%' + StringReplace(Text, ' ', #160, True, True) + '%%''''\\'"/>
+                  </Otherwise>
+                </Choose>
               </On>
               <On Select="TMarkupKind.mkHeader1">
-                <rep:Reporter.Information Text="'[color=blue][size=18pt]' + Text + '[/size][/color]'" Markup="Header1"/>
+                <rep:Reporter.Information Text="'==== ' + Text + ' ===='" Markup="Header1"/>
               </On>
               <On Select="TMarkupKind.mkHeader2">
-                <rep:Reporter.Information Text="'[color=blue][size=13pt]' + Text + '[/size][/color]'" Markup="Header2"/>
+                <rep:Reporter.Information Text="'=== ' + Text + ' ==='" Markup="Header2"/>
               </On>
               <On Select="TMarkupKind.mkHeader3">
-                <rep:Reporter.Information Text="'[color=blue][size=10pt]' + Text + '[/size][/color]'" Markup="Header3"/>
+                <rep:Reporter.Information Text="'== ' + Text + ' =='" Markup="Header3"/>
               </On>
               <On Select="TMarkupKind.mkHeader4">
-                <rep:Reporter.Information Text="'[color=blue][size=8pt]' + Text + '[/size][/color]'" Markup="Header4"/>
+                <rep:Reporter.Information Text="'== ' + Text + ' =='" Markup="Header4"/>
               </On>
               <On Select="TMarkupKind.mkHeader5">
-                <rep:Reporter.Information Text="'[color=blue][size=6pt]' + Text + '[/size][/color]'" Markup="Header5"/>
+                <rep:Reporter.Information Text="'== ' + Text + ' =='" Markup="Header5"/>
               </On>
               <On Select="TMarkupKind.mkHeader6">
-                <rep:Reporter.Information Text="'[color=blue][size=7pt]' + Text + '[/size][/color]'" Markup="Header6"/>
+                <rep:Reporter.Information Text="'== ' + Text + ' =='" Markup="Header6"/>
               </On>
             </Case>
           </rep:Information>
           <rep:Error Text="Text">
-            <rep:Reporter.Information Text="'[color=red][size=8pt]' + Text + '[/size][/color]'" Markup="Header4"/>
+            <rep:Reporter.Error Text="'''''' + Text + '''''\\'"/>
           </rep:Error>
         </rep:Reporter.IterateTarget>
-        <rep:Reporter.Information Text="'[/tt]'"/>
       </Block>
     </Procedure>
   </Procedures>

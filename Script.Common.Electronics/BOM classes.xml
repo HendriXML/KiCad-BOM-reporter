@@ -201,8 +201,8 @@
         <Parameter Identifier="ItemIDA" Type="Integer"/>
         <Parameter Identifier="ValueA" Type="string"/>
         <Parameter Identifier="ValueTypeA" Type="TValueType"/>
-        <Parameter Identifier="ItemIDB" Type="string"/>
-        <Parameter Identifier="ValueB" Type="Int64"/>
+        <Parameter Identifier="ItemIDB" Type="Integer"/>
+        <Parameter Identifier="ValueB" Type="string"/>
         <Parameter Identifier="ValueTypeB" Type="TValueType"/>
       </Parameters>
       <Block>
