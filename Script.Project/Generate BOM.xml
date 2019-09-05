@@ -29,7 +29,7 @@
   </pkg:ReportTargets>
   <pkg:Config xml:space="preserve">[Settings]
 BomFilename=..\Resources.Project\ESeriesBOM.xml
-BomCount=100
+BomCount=1
 ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr
 SymbolMappingDirectory=..\Resources.Project.ComponentMappings
 
