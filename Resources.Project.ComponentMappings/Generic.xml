@@ -1,5 +1,7 @@
-<Devices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../XmlSchemas.Common.KiCadBOMReporter/ComponentMapping.xsd"> 
+<Devices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../XmlSchemas.Common.KiCadBOMReporter/ComponentMapping.xsd">
   <Library Name="Amplifier_Operational" Component="OpAmp">
+  </Library>
+  <Library Name="Comparator" Component="Comparator">
   </Library>
   <Library Name="Connector_Generic" Component="Connector">
   </Library>
@@ -9,7 +11,15 @@
   </Library>
   <Library Name="Switch" Component="Switch">
   </Library>
-  <Library Name="Comparator" Component="Comparator">
+  <Library Name="Switch" Component="Switch">
+  </Library>
+  <Library Name="Mechanical">
+    <Part Part="Heatsink" Component="Heatsink"/>
+  </Library>
+  <Library Name="Reference_Voltage" Component="ReferenceVoltageIC">
+  </Library>
+  <Library Name="74xx" Component="IntegratedCircuit">
+    <Part Part="74HC14" Component="SchmittTrigger"/>
   </Library>
   <Library Name="Diode">
     <Part Part="1N5817" Component="SchottkyDiode"/>
@@ -27,6 +37,7 @@
     <Part Part="2N3906" Component="PNPTransistor"/>
     <Part Part="2N3904" Component="NPNTransistor"/>
     <Part Part="TIP125" Component="PNPTransistor"/>
+    <Part Part="TIP120" Component="NPNTransistor"/>
   </Library>
   <Library Name="Transistor_FET">
     <Part Part="2N7000" Component="NMOSFET"/>

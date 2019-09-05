@@ -160,8 +160,16 @@
     <Constant Identifier="sSchmittTriggerHeader" Expression="'Schmitt triggers'"/>
     <Constant Identifier="sOptocouplerDescription" Expression="'optocoupler'"/>
     <Constant Identifier="sOptocouplerHeader" Expression="'Optocouplers'"/>
+    <Constant Identifier="sReferenceVoltageICDescription" Expression="'reference voltage IC'"/>
+    <Constant Identifier="sReferenceVoltageICHeader" Expression="'Reference voltage IC''s'"/>
     <Constant Identifier="sSwitchDescription" Expression="'switch'"/>
     <Constant Identifier="sSwitchHeader" Expression="'Switches'"/>
+    <Constant Identifier="sHeatsinkDescription" Expression="'heatsink'"/>
+    <Constant Identifier="sHeatsinkHeader" Expression="'Heatsinks'"/>
+    <Constant Identifier="sRelayDescription" Expression="'relay'"/>
+    <Constant Identifier="sRelayHeader" Expression="'Relays'"/>
+    <Constant Identifier="sIntegratedCircuitDescription" Expression="'integrated circuit'"/>
+    <Constant Identifier="sIntegratedCircuitHeader" Expression="'Integrated Circuits'"/>
     <Constant Identifier="sModuleDescription" Expression="'module'"/>
     <Constant Identifier="sModuleHeader" Expression="'Modules'"/>
     <Constant Identifier="sComponentDescription" Expression="'component'"/>
@@ -172,6 +180,8 @@
     <Constant Identifier="sBOMHeader" Type="string" Expression="'Bill of materials'"/>
     <Constant Identifier="sStockHeader" Type="string" Expression="'Bill of available materials'"/>
     <Constant Identifier="sDesignatorReport" Type="string" Expression="'Designator specifications'"/>
+    <Constant Identifier="sReportStorageLocations" Type="string" Expression="'Material locations'"/>
+    <Constant Identifier="sReportOutOfStockMaterials" Type="string" Expression="'Out of stock materials'"/>
 
     <Constant Identifier="sMissingComponentHeader" Type="string" Expression="'Missing component class name'"/>
     <Constant Identifier="sResistorTechnologyMetalFilm" Type="string" Expression="'metal film'"/>

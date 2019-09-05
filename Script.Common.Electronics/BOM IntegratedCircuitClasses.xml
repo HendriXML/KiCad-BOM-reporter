@@ -1,0 +1,359 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement">
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="BomStrings"/>
+    <Use Identifier="NamedComponentClasses"/>
+    <Use Identifier="MultiFunctionComponentClasses"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TIntegratedCircuitSpec" Inherit="TMultiFunctionComponentSpec" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmHandleField" Override="true"/>
+      <VirtualMethod Identifier="vmCheckComponentKind" Override="true"/>
+      <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
+      <VirtualMethod Identifier="vmApplyTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
+      <!--<-<TComponentSpec.Fields-->
+<!-->->-->
+    </DataClass>
+
+    <DataClass Identifier="TIntegratedCircuitCategory" Inherit="TMultiFunctionComponentCategory" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmCreateSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmIsValidSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCompareSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmLoadTemplatesFromIniFile" Override="true"/>
+      <VirtualMethod Identifier="vmGetTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile" Override="true"/>
+      <Field Identifier="TemplateConnector" Type="TIntegratedCircuitSpec"/>
+    </DataClass>
+  </Type>
+
+  <Procedures>
+
+    <Function Identifier="TIntegratedCircuitSpec.CheckComponentKind" VirtualMethod="vmCheckComponentKind" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="ComponentKind" Optimalisation="integermapping">
+          <!--<-<TIntegratedCircuitSpec.CheckComponentKind-->
+          <On Select="TComponentKind.OpAmp, TComponentKind.Comparator, TComponentKind.Timer, TComponentKind.SchmittTrigger, TComponentKind.Optocoupler, TComponentKind.ReferenceVoltageIC, TComponentKind.IntegratedCircuit">
+            <Execute Statement="Result:= True"/>
+          </On>
+<!-->->-->
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TIntegratedCircuitSpec.DoesMatchSpecification" VirtualMethod="vmDoesMatchSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
+        <Variable Identifier="IsRanged" Type="Boolean"/>
+        <!--<-<TComponentSpec.DoesMatchSpecification-->
+<!-->->-->
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TIntegratedCircuitSpec.CategoryMatchScore" VirtualMethod="vmCategoryMatchScore" Type="Int64">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Case Expression="ComponentKindVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ComponentKindVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="PartNumberVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.PartNumberVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="SameText(PartNumber, ComponentSpec.PartNumber)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ManufacturerVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ManufacturerVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="SameText(Manufacturer, ComponentSpec.Manufacturer)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="FootprintVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.FootprintVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TIntegratedCircuitSpec.HandleField" VirtualMethod="vmHandleField">
+      <Parameters>
+        <Parameter Identifier="CustomField" Type="TCustomField"/>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="Clear" Type="Boolean"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="LocPinRowsLow" Type="Integer"/>
+        <Variable Identifier="LocPinColsLow" Type="Integer"/>
+        <Variable Identifier="LocPinRowsHigh" Type="Integer"/>
+        <Variable Identifier="LocPinColsHigh" Type="Integer"/>
+        <Variable Identifier="LocValue" Type="Int64"/>
+      </Variables>
+      <Block>
+        <Case Expression="CustomField" Optimalisation="integermapping">
+          <!--<-<TComponentSpec.HandleField-->
+<!-->->-->
+          <Otherwise>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TIntegratedCircuitSpec.GetSpecificationValues">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="Name" Type="string" Direction="Output"/>
+        <Parameter Identifier="Functions" Type="string" Direction="Output"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
+        <Parameter Identifier="InternalPartNumber" Type="string" Direction="Output"/>
+        <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="Range" Type="string"/>
+        <!--<-<TComponentSpec.GetSpecificationValues-->
+<!-->->-->
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Name, Functions, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TIntegratedCircuitSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="ReportContext" Type="TSpecReportContext"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Name" Type="string" Init="''"/>
+        <Variable Identifier="Functions" Type="string"/>
+        <Variable Identifier="FootPrint" Type="string"/>
+        <Variable Identifier="PartNumberModel" Type="string"/>
+        <Variable Identifier="InternalPartNumber" Type="string"/>
+        <Variable Identifier="ComponentKind" Type="string"/>
+      </Variables>
+      <Block>
+        <Execute Statement="GetSpecificationValues(FormatType, Name, Functions, FootPrint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Case Expression="FormatType" Optimalisation="integermapping">
+          <On Select="TSpecFormatType.Fixed">
+            <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
+            <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
+            <Execute Statement="Name:= Name + ' '" Condition="IsNonEmptyString(Name)"/>
+            <Execute Statement="Functions:= Functions + ' '" Condition="IsNonEmptyString(Functions)"/>
+            <Execute Statement="FootPrint:= FootPrint + ' '" Condition="IsNonEmptyString(FootPrint)"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="IsNonEmptyString(PartNumberModel)"/>
+            <Execute Statement="InternalPartNumber:= InternalPartNumber + ' '" Condition="IsNonEmptyString(InternalPartNumber)"/>
+            <Choose>
+              <When Expression="ReportContext.Measure">
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TIntegratedCircuitSpecColumns.Value, 2, Length(Name))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TIntegratedCircuitSpecColumns.Functions, 4, Length(Functions))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TIntegratedCircuitSpecColumns.FootPrint, 1, Length(FootPrint))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TIntegratedCircuitSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TIntegratedCircuitSpecColumns.InternalPartNumber, 1, Length(InternalPartNumber))"/>
+                <Execute Statement="Result:= ''"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= Format('%-*s%*s%*s%-*s%-*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TIntegratedCircuitSpecColumns.Value, 2), Name,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TIntegratedCircuitSpecColumns.Functions, 4), Functions,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TIntegratedCircuitSpecColumns.FootPrint, 1), FootPrint,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TIntegratedCircuitSpecColumns.PartNumberModel, 1), PartNumberModel,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TIntegratedCircuitSpecColumns.InternalPartNumber, 1), InternalPartNumber)"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TSpecFormatType.Description">
+            <Case Expression="FunctionsVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="ComponentKind:= ''" Condition="Assigned(FunctionHead)"/>
+              </On>
+            </Case>
+            <Execute Statement="Result:= ConcatExt(' ', True, Name, Functions, FootPrint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+          </On>
+          <On Select="TSpecFormatType.Name">
+            <Execute Statement="Result:= Name"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TIntegratedCircuitSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
+      <Variables>
+        <Variable Identifier="locTemplate" Type="TIntegratedCircuitSpec"/>
+      </Variables>
+      <Block>
+        <Exit Condition="not Assigned(Template)"/>
+        <Block Condition="Template is TIntegratedCircuitSpec">
+          <Execute Statement="locTemplate:= TIntegratedCircuitSpec(Template)"/>
+          <!--<-<TComponentSpec.ApplyTemplate-->
+<!-->->-->
+        </Block>
+        <Execute Statement="inherited ApplyTemplate"/>
+      </Block>
+    </Procedure>
+
+
+    <Procedure Identifier="TIntegratedCircuitCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="sSectionIntegratedCircuits" Type="string" Expression="'Template.IntegratedCircuits'"/>
+      </Constants>
+      <Block>
+        <ConditionalBlock Expression="IniFile.SectionExists(sSectionIntegratedCircuits)">
+          <Execute Statement="TemplateConnector:= TIntegratedCircuitSpec.Create"/>
+          <Execute Statement="TemplateConnector.LoadFromIniFileSection(IniFile, sSectionIntegratedCircuits)"/>
+        </ConditionalBlock>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TIntegratedCircuitCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
+      <Block>
+        <Execute Statement="Result:= TIntegratedCircuitSpec.Create"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TIntegratedCircuitCategory.IsValidSpecification" VirtualMethod="vmIsValidSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Specification.ComponentKindVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate"/>
+          <Otherwise>
+            <Exit Result="False"/>
+          </Otherwise>
+        </Case>
+        <Case Expression="Specification.ComponentKind">
+          <!--<-<TIntegratedCircuitCategory.IsValidSpecification-->
+          <On Select="TComponentKind.OpAmp, TComponentKind.Comparator, TComponentKind.Timer, TComponentKind.SchmittTrigger, TComponentKind.Optocoupler, TComponentKind.ReferenceVoltageIC, TComponentKind.IntegratedCircuit">
+            <Execute Statement="Result:= True"/>
+          </On>
+<!-->->-->
+          <Otherwise>
+            <Exit Result="False"/>
+          </Otherwise>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TIntegratedCircuitCategory.GetTemplate" VirtualMethod="vmGetTemplate" Type="TComponentSpec">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ObjNil"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TIntegratedCircuitCategory.CompareSpecifications" Type="Integer" VirtualMethod="vmCompareSpecifications">
+      <Parameters>
+        <Parameter Identifier="A" Type="TIntegratedCircuitSpec"/>
+        <Parameter Identifier="B" Type="TIntegratedCircuitSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <!--<-<TComponentSpec.CompareSpecifications-->
+<!-->->-->
+        <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TIntegratedCircuitCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="cIntegratedCircuit" Type="string" Expression="'IntegratedCircuit'"/>
+      </Constants>
+      <Block>
+        <Execute Statement="Result:= IniFile.SectionExists(cIntegratedCircuit)"/>
+        <Block Condition="Result">
+          <Execute Statement="ComponentSpec:= TIntegratedCircuitSpec.Create"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cIntegratedCircuit)"/>
+        </Block>
+      </Block>
+    </Function>
+
+  </Procedures>
+
+</pkg:Library>

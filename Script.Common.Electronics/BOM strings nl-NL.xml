@@ -160,8 +160,16 @@
     <Constant Identifier="sSchmittTriggerHeader" Expression="'Schmitt-triggers'"/>
     <Constant Identifier="sOptocouplerDescription" Expression="'optocoupler'"/>
     <Constant Identifier="sOptocouplerHeader" Expression="'Optocouplers'"/>
+    <Constant Identifier="sReferenceVoltageICDescription" Expression="'spanningsreferentie IC'"/>
+    <Constant Identifier="sReferenceVoltageICHeader" Expression="'Spanningsreferentie IC''s'"/>
     <Constant Identifier="sSwitchDescription" Expression="'schakelaar'"/>
     <Constant Identifier="sSwitchHeader" Expression="'Schakelaars'"/>
+    <Constant Identifier="sHeatsinkDescription" Expression="'koellichaam'"/>
+    <Constant Identifier="sHeatsinkHeader" Expression="'Koellichamen'"/>
+    <Constant Identifier="sRelayDescription" Expression="'relais'"/>
+    <Constant Identifier="sRelayHeader" Expression="'Relais'"/>
+    <Constant Identifier="sIntegratedCircuitDescription" Expression="'integrated circuit'"/>
+    <Constant Identifier="sIntegratedCircuitHeader" Expression="'Integrated circuits'"/>
     <Constant Identifier="sModuleDescription" Expression="'module'"/>
     <Constant Identifier="sModuleHeader" Expression="'Modules'"/>
     <Constant Identifier="sComponentDescription" Expression="'component'"/>
@@ -172,6 +180,8 @@
     <Constant Identifier="sBOMHeader" Type="string" Expression="'Lijst van materialen'"/>
     <Constant Identifier="sStockHeader" Type="string" Expression="'Lijst van beschikbare materialen'"/>
     <Constant Identifier="sDesignatorReport" Type="string" Expression="'Designator specificaties'"/>
+    <Constant Identifier="sReportStorageLocations" Type="string" Expression="'Materiaal locaties'"/>
+    <Constant Identifier="sReportOutOfStockMaterials" Type="string" Expression="'Niet beschikbaar materiaal'"/>
 
     <Constant Identifier="sMissingComponentHeader" Type="string" Expression="'Component klasse naam niet vermeld'"/>
     <Constant Identifier="sResistorTechnologyMetalFilm" Type="string" Expression="'metaalfilm'"/>

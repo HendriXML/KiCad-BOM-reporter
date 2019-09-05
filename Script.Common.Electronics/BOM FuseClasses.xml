@@ -20,7 +20,7 @@
     <Use Identifier="ElectronicUtils"/>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
-    <Use Identifier="GenericComponentClasses"/>
+    <Use Identifier="NamedComponentClasses"/>
   </Uses>
   <Type>
     <Enumeration Identifier="TBreakSpeed" Elements="VeryFast, Fast, Medium, Slow, VerySlow" LowAlias="Low" HighAlias="High"/>

@@ -368,7 +368,16 @@
               <Parameter Identifier="State" Type="TState"/>
             </Parameters>
             <Block>
-              <Execute Statement="ChangeVariable('State', Format('TState.%s', StateName(State)))"/>
+              <!--<Execute Statement="ChangeVariable('State', Format('TState.%s', StateName(State)))"/>-->
+              <rep:Reporter.Information Text="Format('                  &lt;stm:SetState Name=&quot;%s&quot;/&gt;', StateName(State))"/>
+              <Case Expression="State" Optimalisation="integermapping">
+                <On Select="TState.InNum, TState.AfterDecimalChar, TState.InDecimalFrac, TState.AfterNumSep, TState.AfterPrefix, TState.AfterMilliOrMeter, TState.AfterPrefixFracSep, TState.InPrefixFrac, TState.Final">
+                  <Execute Statement="ChangeVariable('ValidEndState', 'True')"/>
+                </On>
+                <Otherwise>
+                  <Execute Statement="ChangeVariable('ValidEndState', 'False')"/>
+                </Otherwise>
+              </Case>
             </Block>
           </Procedure>
 
@@ -395,7 +404,7 @@
                   <Execute Statement="BeginCharSelector('cSpace')"/>
                   <Execute Statement="ChangeState(TState.AfterNumSep)"/>
                   <Execute Statement="EndCharSelector"/>
-                  
+
                   <Execute Statement="BeginCharSelector('cTab')"/>
                   <Execute Statement="ChangeState(TState.Final)"/>
                   <Execute Statement="EndCharSelector"/>
@@ -487,35 +496,28 @@
                   <Parameter Identifier="ToState" Type="TState"/>
                 </Parameters>
                 <Block>
-                  <Execute Statement="BeginCharSelector('c0')"/>
                   <Choose>
                     <When Expression="IsStart">
-                      <Execute Statement="ChangeVariable('Num', '0')"/>
-                      <Execute Statement="ChangeVariable('NumNumScale', '0')"/>
-                    </When>
-                    <Otherwise>
-                      <Execute Statement="ChangeVariable('NumNumScale', 'NumNumScale + 1')"/>
-                    </Otherwise>
-                  </Choose>
-                  <Execute Statement="ChangeState(ToState)" Condition="IsStart"/>
-                  <Execute Statement="EndCharSelector"/>
-
-                  <Execute Statement="BeginCharSelector('c1..c9')"/>
-                  <Choose>
-                    <When Expression="IsStart">
+                      <Execute Statement="BeginCharSelector('c0..c9')"/>
                       <Execute Statement="ChangeVariable('Num', 'ChrI - CharOrd(c0)')"/>
                       <Execute Statement="ChangeVariable('NumNumScale', '0')"/>
+                      <Execute Statement="ChangeState(ToState)"/>
+                      <Execute Statement="EndCharSelector"/>
                     </When>
                     <Otherwise>
+                      <Execute Statement="BeginCharSelector('c0')"/>
+                      <Execute Statement="ChangeVariable('NumNumScale', 'NumNumScale + 1')"/>
+                      <Execute Statement="EndCharSelector"/>
+
+                      <Execute Statement="BeginCharSelector('c1..c9')"/>
                       <rep:Reporter.Information Text="Format('                  &lt;ForLoop Indexer=&quot;I&quot; From=&quot;0&quot; To=&quot;NumNumScale - 1&quot;&gt;')"/>
                       <Execute Statement="ChangeVariable('Num', 'Num * 10')"/>
                       <rep:Reporter.Information Text="Format('                  &lt;/ForLoop&gt;')"/>
                       <Execute Statement="ChangeVariable('NumNumScale', '0')"/>
                       <Execute Statement="ChangeVariable('Num', 'Num * 10 + ChrI - CharOrd(c0)')"/>
+                      <Execute Statement="EndCharSelector"/>
                     </Otherwise>
                   </Choose>
-                  <Execute Statement="ChangeState(ToState)" Condition="IsStart"/>
-                  <Execute Statement="EndCharSelector"/>
                 </Block>
               </Procedure>
             </Procedures>
@@ -751,7 +753,7 @@
             <Block>
               <Execute Statement="InitEvents"/>
               <ForLoop Indexer="I" From="TState.Low" To="TState.High">
-                <rep:Reporter.Information Text="Format('            &lt;On Select=&quot;TState.%s&quot;&gt;', StateName(I))"/>
+                <rep:Reporter.Information Text="Format('            &lt;stm:State Name=&quot;%s&quot;&gt;', StateName(I))"/>
                 <rep:Reporter.Information Text="Format('              &lt;Case Expression=&quot;ChrI&quot; Optimalisation=&quot;integermapping&quot; OrdinalType=&quot;widechar&quot;&gt;', StateName(I))"/>
                 <lil:LinkedList.Iterate Head="EventsHead" ItemType="TBaseCharacterEvent" RunningItem="RunningEvent" Next="RunningEvent.Next">
                   <Execute Statement="RunningEvent.HandleState(I)"/>
@@ -760,7 +762,7 @@
                 <rep:Reporter.Information Text="Format('                  &lt;Exit/&gt;')"/>
                 <rep:Reporter.Information Text="Format('                &lt;/Otherwise&gt;')"/>
                 <rep:Reporter.Information Text="Format('              &lt;/Case&gt;', StateName(I))"/>
-                <rep:Reporter.Information Text="Format('            &lt;/On&gt;')"/>
+                <rep:Reporter.Information Text="Format('            &lt;/stm:State&gt;')"/>
               </ForLoop>
             </Block>
           </Procedure>

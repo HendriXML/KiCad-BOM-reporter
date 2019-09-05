@@ -22,8 +22,8 @@
 
   <Type>
     <Enumeration Identifier="TFieldKind" Elements="Value"/>
-    
-    <Enumeration Identifier="TComponentClass" Elements="Resistor"/>
+
+    <Enumeration Identifier="TComponentClass" Elements="Resistor, ZenerDiode"/>
 
     <DataClass Identifier="TReportComponentField">
       <Field Identifier="FieldKind" Type="TFieldKind"/>
@@ -39,7 +39,7 @@
       <Field Identifier="Designator" Type="string"/>
       <Field Identifier="Next" Type="TReportComponent"/>
     </DataClass>
-    
+
     <DataClass Identifier="TComponentContainer">
       <Field Identifier="ComponentHead" Type="TReportComponent"/>
       <Field Identifier="ComponentTail" Type="TReportComponent"/>
@@ -49,21 +49,29 @@
       <VirtualMethod Identifier="vmFinalize" IsFinalizer="true"/>
       <Field Identifier="DesignatorIndex" Type="TMappingCaseInSensitiveUnicodeStringToObject"/>
       <Field Identifier="Resistors" Type="TComponentContainer"/>
+      <Field Identifier="ZenerDiodes" Type="TComponentContainer"/>
     </DataClass>
   </Type>
-  
+
   <Constants>
     <Constant Identifier="DefaultDeviation" Type="Extended" Expression="0.0001"/>
     <Constant Identifier="sLabelValue" Type="string" Expression="'  %-*s: %s'"/>
-    <Constant Identifier="sGoal" Type="string" Expression="'GOAL'"/>
+    <Constant Identifier="sGoal" Type="string" Expression="'goal'"/>
+    <Constant Identifier="sIn" Type="string" Expression="'consumes'"/>
+    <Constant Identifier="sOut" Type="string" Expression="'provides'"/>
+    <Constant Identifier="sIntermediate" Type="string" Expression="'intermediate'"/>
+    <Constant Identifier="sNeeds" Type="string" Expression="'needs'"/>
+    <Constant Identifier="sNeededBy" Type="string" Expression="'needed by'"/>
+    <!--<Constant Identifier="sGoal" Type="string" Expression="'GOAL'"/>
     <Constant Identifier="sIn" Type="string" Expression="'CONSUMES'"/>
     <Constant Identifier="sOut" Type="string" Expression="'PROVIDES'"/>
-    <Constant Identifier="sIntermediate" Type="string" Expression="'INTERMEDIATE'"/>
+    <Constant Identifier="sIntermediate" Type="string" Expression="'INTERMEDIATE'"/>-->
     <Constant Identifier="cLabelLength" Type="Integer" Expression="25"/>
   </Constants>
 
   <Variables>
     <Variable Identifier="ResistanceConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.MicroOhm)"/>
+    <Variable Identifier="ZenerVoltageConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoVolt)"/>
     <Variable Identifier="Components" Type="TComponents"/>
   </Variables>
 
@@ -90,11 +98,13 @@
       <Block>
         <Execute Statement="DesignatorIndex:= TMappingCaseInSensitiveUnicodeStringToObject.Create"/>
         <Execute Statement="Resistors:= TComponentContainer.Create"/>
+        <Execute Statement="ZenerDiodes:= TComponentContainer.Create"/>
       </Block>
     </Constructor>
 
     <Procedure Identifier="TComponents.Finalize" VirtualMethod="vmFinalize">
       <Block>
+        <Free Expression="ZenerDiodes"/>
         <Free Expression="Resistors"/>
         <Free Expression="DesignatorIndex"/>
       </Block>
@@ -147,6 +157,7 @@
         <msx:Document.Create Identifier="xmlDoc"/>
         <msx:Document.CreateElement Document="xmlDoc" Name="Components" ParentElement="xmlDoc" Element="RootXE"/>
         <Execute Statement="ReportContainer(Resistors, 'Resistors')"/>
+        <Execute Statement="ReportContainer(ZenerDiodes, 'ZenerDiodes')"/>
         <Variable Identifier="WriteStream" Type="TSequentialFileWriteStream" Init="TSequentialFileWriteStream.Create(Filename)"/>
         <Variable Identifier="Stream" Type="IStream" Init="WriteStream as IStream"/>
         <Variable Identifier="MXWriter" Type="IMXWriter" Init="CoMXXMLWriter60.Create"/>
@@ -194,6 +205,9 @@
               <On Select="TComponentClass.Resistor">
                 <Execute Statement="Resistors.Add(NewComponent)"/>
               </On>
+              <On Select="TComponentClass.ZenerDiode">
+                <Execute Statement="ZenerDiodes.Add(NewComponent)"/>
+              </On>
             </Case>
           </Otherwise>
         </Choose>
@@ -240,6 +254,28 @@
       </Block>
     </Function>
 
+    <Function Identifier="ReportThermalResistance" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, LabelS, FormatThermalResistance(Result))"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportTemperatureCelcius" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, LabelS, FormatTemperatureCelcius(Result))"/>
+      </Block>
+    </Function>
+
     <Function Identifier="ReportResistance" Type="Extended">
       <Parameters>
         <Parameter Identifier="LabelS" Type="string"/>
@@ -250,6 +286,50 @@
         <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, LabelS, FormatResistance(Result))"/>
       </Block>
     </Function>
+
+    <Function Identifier="ReportValue" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+        <Parameter Identifier="UnitS" Type="string"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, LabelS, CreatePrefix(Value, UnitS, False))"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportPower" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, LabelS, FormatPower(Result))"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportAmplification" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, LabelS, Format('%.2f', Result))"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="ReportTaskDescription">
+      <Parameters>
+        <Parameter Identifier="Task" Type="TTask"/>
+      </Parameters>
+      <Block>
+        <rep:Reporter.Information Text="'  ' + Task.Description" Markup="Header4"/>
+
+      </Block>
+    </Procedure>
 
     <Function Identifier="ReportResistorDev" Type="Extended">
       <Parameters>
@@ -268,6 +348,32 @@
           <Otherwise>
             <rep:Reporter.Error Text="Format(sLabelValue, cLabelLength, 'ohm' + Designator, FormatResistance(Result))"/>
             <Execute Statement="Components.SetExtField(Designator, TComponentClass.Resistor, TFieldKind.Value, Result)"/>
+          </Otherwise>
+        </Choose>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportZenerDiode" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+        <Parameter Identifier="ESerie" Type="TESerie"/>
+        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ESerieObj" Type="TSerie" Init="GetESerie(ESerie)"/>
+        <Variable Identifier="Scale" Type="Extended"/>
+        <Variable Identifier="LogScale" Type="Integer"/>
+        <Variable Identifier="SerieNode" Type="TSerieNode" Init="ESerieObj.MatchNodeExtended(Value, MatchKind, Result, Scale, LogScale)"/>
+        <Variable Identifier="ConvValue" Type="Int64"/>
+        <Choose>
+          <When Expression="ZenerVoltageConv.SerieNodeToIntValue(SerieNode, LogScale, ConvValue)">
+            <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, 'volt' + Designator, ZenerVoltageConv.IntValueToStr(ConvValue, False))"/>
+            <Execute Statement="Components.SetConvField(Designator, TComponentClass.ZenerDiode, TFieldKind.Value, ZenerVoltageConv, ConvValue)"/>
+          </When>
+          <Otherwise>
+            <rep:Reporter.Error Text="Format(sLabelValue, cLabelLength, 'volt' + Designator, FormatVoltage(Result))"/>
+            <Execute Statement="Components.SetExtField(Designator, TComponentClass.ZenerDiode, TFieldKind.Value, Value)"/>
           </Otherwise>
         </Choose>
       </Block>
@@ -296,6 +402,18 @@
             <Execute Statement="Components.SetExtField(Designator, TComponentClass.Resistor, TFieldKind.Value, Value)"/>
           </Otherwise>
         </Choose>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportHandPickedResistor" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <rep:Reporter.Information Text="Format(sLabelValue, cLabelLength, 'ohm' + Designator, FormatResistance(Result))"/>
+        <Execute Statement="Components.SetExtField(Designator, TComponentClass.Resistor, TFieldKind.Value, Value)"/>
+        <Execute Statement="Result:= Value"/>
       </Block>
     </Function>
 
@@ -375,7 +493,7 @@
                     <rep:Reporter.Information Text="'\\'"/>
                   </When>
                   <Otherwise>
-                <rep:Reporter.Information Text="'''''%%' + StringReplace(Text, ' ', #160, True, True) + '%%''''\\'"/>
+                    <rep:Reporter.Information Text="'''''%%' + StringReplace(Text, ' ', #160, True, True) + '%%''''\\'"/>
                   </Otherwise>
                 </Choose>
               </On>
@@ -406,11 +524,11 @@
       </Block>
     </Procedure>
   </Procedures>
-  
+
   <Initialization>
     <Execute Statement="Components:= TComponents.Create"/>
   </Initialization>
-  
+
   <Finalization>
     <Free Expression="Components"/>
   </Finalization>

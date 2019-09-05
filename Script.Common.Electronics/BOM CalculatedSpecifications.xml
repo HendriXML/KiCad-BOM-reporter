@@ -26,7 +26,7 @@
     <Use Identifier="DiodeClasses"/>
     <Use Identifier="FuseClasses"/>
     <Use Identifier="ConnectorClasses"/>
-    <Use Identifier="GenericComponentClasses"/>
+    <Use Identifier="NamedComponentClasses"/>
     <Use Identifier="StockManager"/>
     <Use Identifier="CategoryContainer"/>
   </Uses>
@@ -96,6 +96,11 @@
                 <msx:OnElement baseName="'Resistors'">
                   <msx:Block>
                     <Execute Statement="ProcessComponentCategoryElement(Resistors, Node)"/>
+                  </msx:Block>
+                </msx:OnElement>
+                <msx:OnElement baseName="'ZenerDiodes'">
+                  <msx:Block>
+                    <Execute Statement="ProcessComponentCategoryElement(ZenerDiodes, Node)"/>
                   </msx:Block>
                 </msx:OnElement>
                 <msx:OnOtherElement>
@@ -189,7 +194,7 @@
                 <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
                 <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, Length(Component.Reference)+2)"/>
-                <Execute Statement="ColumnManager.RequestColumnWidth(TGenComponentSpecColumns.Max+3, 1, Length(ComponentKindDescription(ComponentSpec.ComponentKind)))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(TNamedComponentSpecColumns.Max+3, 1, Length(ComponentKindDescription(ComponentSpec.ComponentKind)))"/>
               </lil:LinkedList.Iterate>
               <!--<ForLoop Indexer="I" From="0" To="ColumnManager.ColumnCount - 1">
                 <rep:Reporter.Information Text="Format('%*d: %d', 3, I, ColumnManager.GetColumnWidth(I, 1))"/>
@@ -212,8 +217,8 @@
                 </Choose>
                 <rep:Reporter.Information Text="Format('%-*s%-*s%-*s', 
                                           ColumnManager.GetColumnWidth(0, 1), Component.Reference,
-                                          ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max+2), ComponentSpecAsString,
-                                          ColumnManager.GetColumnWidth(TGenComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
+                                          ColumnManager.GetColumnWidth(1, TNamedComponentSpecColumns.Max+2), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(TNamedComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
                                           )"/>
               </lil:LinkedList.Iterate>
             </Object.Use>
@@ -264,7 +269,8 @@
           <Execute Statement="Diodes.AssignStockSpecsFromCategory(StockManager.Diodes, InternalPartNumberIndex)"/>
           <Execute Statement="Fuses.AssignStockSpecsFromCategory(StockManager.Fuses, InternalPartNumberIndex)"/>
           <Execute Statement="Connectors.AssignStockSpecsFromCategory(StockManager.Connectors, InternalPartNumberIndex)"/>
-          <Execute Statement="GenericComponents.AssignStockSpecsFromCategory(StockManager.GenericComponents, InternalPartNumberIndex)"/>
+          <Execute Statement="IntegratedCircuits.AssignStockSpecsFromCategory(StockManager.IntegratedCircuits, InternalPartNumberIndex)"/>
+          <Execute Statement="NamedComponents.AssignStockSpecsFromCategory(StockManager.NamedComponents, InternalPartNumberIndex)"/>
         </Object.Use>
       </Block>
     </Procedure>

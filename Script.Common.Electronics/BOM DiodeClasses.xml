@@ -20,10 +20,10 @@
     <Use Identifier="ElectronicUtils"/>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
-    <Use Identifier="GenericComponentClasses"/>
+    <Use Identifier="NamedComponentClasses"/>
   </Uses>
   <Type>
-    <DataClass Identifier="TDiodeSpec" Inherit="TGenericComponentSpec" DefaultConstructor="createonly">
+    <DataClass Identifier="TDiodeSpec" Inherit="TNamedComponentSpec" DefaultConstructor="createonly">
       <VirtualMethod Identifier="vmHandleField" Override="true"/>
       <VirtualMethod Identifier="vmCheckComponentKind" Override="true"/>
       <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
@@ -61,7 +61,7 @@
 <!-->->-->
     </DataClass>
 
-    <DataClass Identifier="TDiodeCategory" Inherit="TGenericComponentCategory">
+    <DataClass Identifier="TDiodeCategory" Inherit="TNamedComponentCategory">
       <VirtualMethod Identifier="vmCreateSpecification" Override="true"/>
       <VirtualMethod Identifier="vmIsValidSpecification" Override="true"/>
       <VirtualMethod Identifier="vmIndexSearchSpecifications" Override="true"/>

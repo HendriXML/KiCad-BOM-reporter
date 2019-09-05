@@ -25,6 +25,7 @@
               </xs:element>
             </xs:sequence>
             <xs:attribute name="Name" type="xs:string" use="required" />
+            <xs:attribute name="IsIntegratedCircuit" type="xs:boolean" use="optional" />
           </xs:complexType>
         </xs:element>
       </xs:sequence>

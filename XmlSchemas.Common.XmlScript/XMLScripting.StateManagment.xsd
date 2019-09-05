@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting-statemanagement" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" 
+  targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-statemanagement" elementFormDefault="qualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+  
+  <xs:simpleType name="stateidentifier">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="statehandleridentifier">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:complexType name="T_StateHandler">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalBlockProcessItem">
+        <xs:attribute name="InitialState" type="stateidentifier" use="required"/>
+        <xs:attribute name="Name" type="statehandleridentifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_HandleStates">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+          <xs:element name="State">
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:extension base="sys:T_Block">
+                  <xs:attribute name="Name" type="stateidentifier" use="required"/>
+                </xs:extension>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Handler" type="statehandleridentifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_SetState">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Name" type="stateidentifier" use="required"/>
+        <xs:attribute name="Handler" type="statehandleridentifier" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="StateHandler" type="T_StateHandler" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="HandleStates " type="T_HandleStates" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="SetState" type="T_SetState" substitutionGroup="sys:AbstractProcessItem"/>
+</xs:schema>

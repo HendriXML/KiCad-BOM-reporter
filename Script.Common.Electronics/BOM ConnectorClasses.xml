@@ -15,7 +15,7 @@
   xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
   xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
-  >
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement">
   <Uses>
     <Use Identifier="ElectronicUtils"/>
     <Use Identifier="BomClasses"/>
@@ -46,7 +46,7 @@
       <Field Identifier="AmperageRatingMaxVT" Type="TValueType"/>
       <Field Identifier="AmperageRatingMax" Type="Int64"/>
       <Field Identifier="ErrorAmperageRatingMax" Type="string"/>
-<!-->->-->
+      <!-->->-->
     </DataClass>
 
     <DataClass Identifier="TConnectorCategory" Inherit="TComponentCategory" DefaultConstructor="createonly">
@@ -59,13 +59,13 @@
       <Field Identifier="TemplateConnector" Type="TConnectorSpec"/>
     </DataClass>
   </Type>
-  
+
   <Variables>
     <Variable Identifier="ConnectorAmperageRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoAmp)"/>
   </Variables>
 
   <Procedures>
-    
+
     <Function Identifier="PinsToString" Type="string">
       <Parameters>
         <Parameter Identifier="PinRowsLow" Type="Integer"/>
@@ -105,141 +105,148 @@
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="Value" OrdinalIdentifier="ChrI">
-          <Case Expression="State" Optimalisation="integermapping">
-            <On Select="TState.Start">
-              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                <On Select="' ', #9"/>
-                <On Select="'0'..'9'">
-                  <Execute Statement="locRows:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.InRows"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.InRows">
-              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                <On Select="'0'..'9'">
-                  <Execute Statement="locRows:= locRows * 10 + ChrI - CharOrd('0')"/>
-                </On>
-                <On Select="'x', 'X'">
-                  <Execute Statement="State:= TState.AfterSep"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterSep">
-              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                <On Select="'0'..'9'">
-                  <Execute Statement="locCols:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.InCols"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.InCols">
-              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                <On Select="'0'..'9'">
-                  <Execute Statement="locCols:= locCols * 10 + ChrI - CharOrd('0')"/>
-                </On>
-                <On Select="'.'">
-                  <Execute Statement="State:= TState.AfterRangeSep1"/>
-                </On>
-                <On Select="' ', #9">
-                  <Execute Statement="State:= TState.Ended"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterRangeSep1">
-              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                <On Select="'.'">
-                  <Execute Statement="State:= TState.AfterRangeSep2"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterRangeSep2">
-              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                <On Select="'0'..'9'">
-                  <Execute Statement="locRowsHigh:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.InRowsHigh"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.InRowsHigh">
-              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                <On Select="'0'..'9'">
-                  <Execute Statement="locRowsHigh:= locRowsHigh * 10 + ChrI - CharOrd('0')"/>
-                </On>
-                <On Select="'x', 'X'">
-                  <Execute Statement="State:= TState.AfterSepHigh"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterSepHigh">
-              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                <On Select="'0'..'9'">
-                  <Execute Statement="locColsHigh:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.InColsHigh"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.InColsHigh">
-              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                <On Select="'0'..'9'">
-                  <Execute Statement="locColsHigh:= locColsHigh * 10 + ChrI - CharOrd('0')"/>
-                </On>
-                <On Select="' ', #9">
-                  <Execute Statement="State:= TState.EndedHigh"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.Ended, TState.EndedHigh">
-              <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                <On Select="' ', #9"/>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.InCols, TState.Ended">
-            <Execute Statement="RowsHigh:= locRows"/>
-            <Execute Statement="ColsHigh:= locCols"/>
-          </On>
-          <On Select="TState.InColsHigh, TState.EndedHigh">
-            <Execute Statement="RowsHigh:= locRowsHigh"/>
-            <Execute Statement="ColsHigh:= locColsHigh"/>
-          </On>
-          <Otherwise>
-            <Exit/>
-          </Otherwise>
-        </Case>
+        <stm:StateHandler Name="ResultSH" InitialState="Invalid">
+          <stm:StateHandler InitialState="Start">
+            <StringLoop StringValue="Value" OrdinalIdentifier="ChrI">
+              <stm:HandleStates>
+                <stm:State Name="Start">
+                  <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                    <On Select="' ', #9"/>
+                    <On Select="'0'..'9'">
+                      <Execute Statement="locRows:= ChrI - CharOrd('0')"/>
+                      <stm:SetState Name="InRows"/>
+                    </On>
+                    <Otherwise>
+                      <Exit/>
+                    </Otherwise>
+                  </Case>
+                </stm:State>
+                <stm:State Name="InRows">
+                  <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                    <On Select="'0'..'9'">
+                      <Execute Statement="locRows:= locRows * 10 + ChrI - CharOrd('0')"/>
+                    </On>
+                    <On Select="'x', 'X'">
+                      <stm:SetState Name="AfterSep"/>
+                    </On>
+                    <Otherwise>
+                      <Exit/>
+                    </Otherwise>
+                  </Case>
+                </stm:State>
+                <stm:State Name="AfterSep">
+                  <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                    <On Select="'0'..'9'">
+                      <Execute Statement="locCols:= ChrI - CharOrd('0')"/>
+                      <stm:SetState Name="InCols"/>
+                      <stm:SetState Handler="ResultSH" Name="Single"/>
+                    </On>
+                    <Otherwise>
+                      <Exit/>
+                    </Otherwise>
+                  </Case>
+                </stm:State>
+                <stm:State Name="InCols">
+                  <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                    <On Select="'0'..'9'">
+                      <Execute Statement="locCols:= locCols * 10 + ChrI - CharOrd('0')"/>
+                    </On>
+                    <On Select="'.'">
+                      <stm:SetState Name="AfterRangeSep1"/>
+                      <stm:SetState Handler="ResultSH" Name="Invalid"/>
+                    </On>
+                    <On Select="' ', #9">
+                      <stm:SetState Name="Ended"/>
+                    </On>
+                    <Otherwise>
+                      <Exit/>
+                    </Otherwise>
+                  </Case>
+                </stm:State>
+                <stm:State Name="AfterRangeSep1">
+                  <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                    <On Select="'.'">
+                      <stm:SetState Name="AfterRangeSep2"/>
+                    </On>
+                    <Otherwise>
+                      <Exit/>
+                    </Otherwise>
+                  </Case>
+                </stm:State>
+                <stm:State Name="AfterRangeSep2">
+                  <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                    <On Select="'0'..'9'">
+                      <Execute Statement="locRowsHigh:= ChrI - CharOrd('0')"/>
+                      <stm:SetState Name="InRowsHigh"/>
+                    </On>
+                    <Otherwise>
+                      <Exit/>
+                    </Otherwise>
+                  </Case>
+                </stm:State>
+                <stm:State Name="InRowsHigh">
+                  <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                    <On Select="'0'..'9'">
+                      <Execute Statement="locRowsHigh:= locRowsHigh * 10 + ChrI - CharOrd('0')"/>
+                    </On>
+                    <On Select="'x', 'X'">
+                      <stm:SetState Name="AfterSepHigh"/>
+                    </On>
+                    <Otherwise>
+                      <Exit/>
+                    </Otherwise>
+                  </Case>
+                </stm:State>
+                <stm:State Name="AfterSepHigh">
+                  <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                    <On Select="'0'..'9'">
+                      <Execute Statement="locColsHigh:= ChrI - CharOrd('0')"/>
+                      <stm:SetState Name="InColsHigh"/>
+                      <stm:SetState Handler="ResultSH" Name="Range"/>
+                    </On>
+                    <Otherwise>
+                      <Exit/>
+                    </Otherwise>
+                  </Case>
+                </stm:State>
+                <stm:State Name="InColsHigh">
+                  <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                    <On Select="'0'..'9'">
+                      <Execute Statement="locColsHigh:= locColsHigh * 10 + ChrI - CharOrd('0')"/>
+                    </On>
+                    <On Select="' ', #9">
+                      <stm:SetState Name="Ended"/>
+                    </On>
+                    <Otherwise>
+                      <Exit/>
+                    </Otherwise>
+                  </Case>
+                </stm:State>
+                <stm:State Name="Ended">
+                  <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                    <On Select="' ', #9"/>
+                    <Otherwise>
+                      <Exit/>
+                    </Otherwise>
+                  </Case>
+                </stm:State>
+              </stm:HandleStates>
+            </StringLoop>
+          </stm:StateHandler>
+          <stm:HandleStates>
+            <stm:State Name="Invalid">
+              <Exit/>
+            </stm:State>
+            <stm:State Name="Single">
+              <Execute Statement="RowsHigh:= locRows"/>
+              <Execute Statement="ColsHigh:= locCols"/>
+            </stm:State>
+            <stm:State Name="Range">
+              <Execute Statement="RowsHigh:= locRowsHigh"/>
+              <Execute Statement="ColsHigh:= locColsHigh"/>
+            </stm:State>
+          </stm:HandleStates>
+        </stm:StateHandler>
         <Execute Statement="Result:= True"/>
         <Execute Statement="Rows:= locRows"/>
         <Execute Statement="Cols:= locCols"/>
@@ -323,7 +330,7 @@
             <On Select="TState.InRows">
               <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
                 <On Select="'0'..'9'">
-                  <Execute Statement="locRows:= locRows + ChrI - CharOrd('0')"/>
+                  <Execute Statement="locRows:= locRows * 10 + ChrI - CharOrd('0')"/>
                 </On>
                 <On Select="'x', 'X'">
                   <Execute Statement="State:= TState.AfterSep"/>
@@ -347,7 +354,7 @@
             <On Select="TState.InCols">
               <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
                 <On Select="'0'..'9'">
-                  <Execute Statement="locCols:= locCols + ChrI - CharOrd('0')"/>
+                  <Execute Statement="locCols:= locCols * 10 + ChrI - CharOrd('0')"/>
                 </On>
                 <On Select="'_'">
                   <Execute Statement="State:= TState.Ended"/>
@@ -457,9 +464,9 @@
                 <Exit Condition="AmperageRatingMin &gt; TConnectorSpec(ComponentSpec).AmperageRating"/>
                 <Execute Statement="IsRanged:= True"/>
               </On>
-               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                 <Exit/>
-               </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -474,9 +481,9 @@
                 <Exit Condition="AmperageRatingMax &lt; TConnectorSpec(ComponentSpec).AmperageRating"/>
                 <Execute Statement="IsRanged:= True"/>
               </On>
-               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                 <Exit/>
-               </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -491,9 +498,9 @@
                 <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                   <Exit Condition="AmperageRating &lt;&gt; TConnectorSpec(ComponentSpec).AmperageRating"/>
                 </On>
-                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                   <Exit/>
-                 </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Exit/>
+                </On>
               </Case>
             </On>
             <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -501,7 +508,7 @@
             </On>
           </Case>
         </Block>
-<!-->->-->
+        <!-->->-->
         <Execute Statement="Result:= True"/>
       </Block>
     </Function>
@@ -664,14 +671,14 @@
               </Otherwise>
             </Choose>
           </On>
-<!-->->-->
+          <!-->->-->
           <Otherwise>
             <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
           </Otherwise>
         </Case>
       </Block>
     </Procedure>
-    
+
     <Procedure Identifier="TConnectorSpec.GetSpecificationValues">
       <Parameters>
         <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
@@ -683,7 +690,7 @@
         <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
-       <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
+        <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
         <Case Expression="PinsVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Value:= ''"/>
@@ -738,7 +745,7 @@
             <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!' + Range"/>
           </On>
         </Case>
-<!-->->-->
+        <!-->->-->
         <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
@@ -796,7 +803,7 @@
       </Block>
     </Function>
 
-  <Procedure Identifier="TConnectorSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
+    <Procedure Identifier="TConnectorSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
       <Variables>
         <Variable Identifier="locTemplate" Type="TConnectorSpec"/>
       </Variables>
@@ -864,7 +871,7 @@
               </Case>
             </On>
           </Case>
-<!-->->-->
+          <!-->->-->
         </Block>
         <Execute Statement="inherited ApplyTemplate"/>
       </Block>
@@ -946,7 +953,7 @@
         <!--<-<TComponentSpec.CompareSpecifications-->
         <Execute Statement="Result:= CompareStateValueRange(A.ID, A.AmperageRating, A.AmperageRatingVT, A.AmperageRatingMin, A.AmperageRatingMinVT, A.AmperageRatingMax, A.AmperageRatingMaxVT, B.ID, B.AmperageRating, B.AmperageRatingVT, B.AmperageRatingMin, B.AmperageRatingMinVT, B.AmperageRatingMax, B.AmperageRatingMaxVT)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-<!-->->-->
+        <!-->->-->
         <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
       </Block>
     </Function>

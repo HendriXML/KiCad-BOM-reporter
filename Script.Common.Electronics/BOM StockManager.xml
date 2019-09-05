@@ -27,7 +27,7 @@
     <Use Identifier="DiodeClasses"/>
     <Use Identifier="FuseClasses"/>
     <Use Identifier="ConnectorClasses"/>
-    <Use Identifier="GenericComponentClasses"/>
+    <Use Identifier="NamedComponentClasses"/>
     <Use Identifier="CategoryContainer"/>
   </Uses>
   <Type>
@@ -36,6 +36,8 @@
     <DataClass Identifier="TStockManager" Inherit="TCategoryContainer" DefaultConstructor="none">
       <VirtualMethod Identifier="vmFinalize" IsFinalizer="true"/>
       <Field Identifier="CategoryList" Type="TObjectList"/>
+      <Field Identifier="StorageLocationIndex" Type="TMappingInt64ToObject"/>
+      <Field Identifier="RootStorageLocationCategory" Type="TStorageLocationCategory"/>
     </DataClass>
 
     <DataClass Identifier="TUnitInfo">
@@ -49,17 +51,21 @@
   <Constants>
     <Constant Identifier="cLF" Type="string"  Expression="#13#10"/>
     <Constant Identifier="sqlParts" Type="string"  Expression="
-      'SELECT prt.id' + cLF + 
-      ', prt.category_id' + cLF + 
-      ', prt.name' + cLF + 
-      ', prt.description' + cLF + 
-      ', prt.stockLevel' + cLF + 
-      ', loc.name  ''location''' + cLF + 
-      ', prt.footprint_id' + cLF + 
-      ', prt.internalPartNumber' + cLF + 
-      'FROM Part prt ' + cLF + 
-      'LEFT JOIN StorageLocation loc ON (prt.storageLocation_id = loc.id) ' + cLF + 
-      'ORDER BY prt.id'"/>
+      'SELECT id' + cLF + 
+      ', category_id' + cLF + 
+      ', name' + cLF + 
+      ', description' + cLF + 
+      ', needsReview' + cLF + 
+      ', partCondition' + cLF + 
+      ', status' + cLF + 
+      ', comment' + cLF + 
+      ', productionRemarks' + cLF + 
+      ', stockLevel' + cLF + 
+      ', storageLocation_id' + cLF + 
+      ', footprint_id' + cLF + 
+      ', internalPartNumber' + cLF + 
+      'FROM Part' + cLF + 
+      'ORDER BY id'"/>
     <Constant Identifier="sqlPartParameters" Type="string"  Expression="
       'SELECT id' + cLF + 
       ',      part_id' + cLF + 
@@ -92,6 +98,7 @@
   <Procedures>
     <Procedure Identifier="TStockManager.Finalize" VirtualMethod="vmFinalize">
       <Block>
+        <Free Expression="StorageLocationIndex"/>
         <Free Expression="CategoryList"/>
       </Block>
     </Procedure>
@@ -278,6 +285,77 @@
         <Variable Identifier="Count" Type="Integer" Init="0"/>
       </Variables>
       <Procedures>
+        <Procedure Identifier="LoadStorageLocations">
+          <Block>
+            <Variable Identifier="NewCategory" Type="TStorageLocationCategory"/>
+            <Variable Identifier="NewStorageLocation" Type="TStorageLocation"/>
+            <Variable Identifier="ParentCategory" Type="TStorageLocationCategory"/>
+            <Variable Identifier="Category" Type="TStorageLocationCategory"/>
+            <Variable Identifier="ID"/>
+            <Variable Identifier="ParentID"/>
+            <Variable Identifier="CategoryID"/>
+            <Variable Identifier="Name"/>
+            <Variable Identifier="Description"/>
+            <Variable Identifier="StorageLocationIndex" Type="TMappingInt64ToObject" Init="TMappingInt64ToObject.Create"/>
+            <Execute Statement="Self.StorageLocationIndex:= StorageLocationIndex"/>
+            <Object.Use Identifier="StorageCategoryIndex" Type="TMappingInt64ToObject" Expression="TMappingInt64ToObject.Create">
+              <ado:Command.CreateBlock  CommandText="'SELECT id, parent_id, name, description FROM StorageLocationCategory ORDER BY lft ASC'" CommandType="adCmdText" Connection="DBConnection">
+                <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+                  <ado:Recordset.Iterate>
+                    <ado:Field.GetValue Index="0" Identifier="ID"/>
+                    <ado:Field.GetValue Index="1" Identifier="ParentID"/>
+                    <ado:Field.GetValue Index="2" Identifier="Name"/>
+                    <ado:Field.GetValue Index="3" Identifier="Description"/>
+                    <Execute Statement="NewCategory:= TStorageLocationCategory.Create(Name)"/>
+                    <Execute Statement="NewCategory.Description:= Description" Condition="not IsNull(Description)"/>
+                    <Choose>
+                      <When Expression="IsNullOrEmpty(ParentID)">
+                        <Execute Statement="Self.RootStorageLocationCategory:= NewCategory"/>
+                      </When>
+                      <Otherwise>
+                        <inx:Index.FindValue Index="StorageCategoryIndex" Key="ParentID" Value="ParentCategory" Flags=""/>
+                        <Choose>
+                          <When Expression="Assigned(ParentCategory.FirstChild)">
+                            <Execute Statement="ParentCategory.LastChild.NextSibling:= NewCategory"/>
+                          </When>
+                          <Otherwise>
+                            <Execute Statement="ParentCategory.FirstChild:= NewCategory"/>
+                          </Otherwise>
+                        </Choose>
+                        <Execute Statement="ParentCategory.LastChild:= NewCategory"/>
+                        <Execute Statement="NewCategory.Parent:= ParentCategory"/>
+                      </Otherwise>
+                    </Choose>
+                    <inx:Index.MapValue Index="StorageCategoryIndex" Key="ID" Value="NewCategory" Flags="" />
+                  </ado:Recordset.Iterate>
+                </ado:Recordset.OpenBlock>
+              </ado:Command.CreateBlock>
+              <ado:Command.CreateBlock  CommandText="'SELECT id, category_id, name FROM StorageLocation'" CommandType="adCmdText" Connection="DBConnection">
+                <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+                  <ado:Recordset.Iterate>
+                    <ado:Field.GetValue Index="0" Identifier="ID"/>
+                    <ado:Field.GetValue Index="1" Identifier="CategoryID"/>
+                    <ado:Field.GetValue Index="2" Identifier="Name"/>
+                    <Execute Statement="NewStorageLocation:= TStorageLocation.Create(Name)"/>
+                    <inx:Index.FindValue Index="StorageCategoryIndex" Key="CategoryID" Value="Category" Flags=""/>
+                    <Choose>
+                      <When Expression="Assigned(Category.FirstStorageLocation)">
+                        <Execute Statement="Category.LastStorageLocation.NextSibling:= NewStorageLocation"/>
+                      </When>
+                      <Otherwise>
+                        <Execute Statement="Category.FirstStorageLocation:= NewStorageLocation"/>
+                      </Otherwise>
+                    </Choose>
+                    <Execute Statement="Category.LastStorageLocation:= NewStorageLocation"/>
+                    <Execute Statement="NewStorageLocation.Category:= Category"/>
+                    <inx:Index.MapValue Index="StorageLocationIndex" Key="ID" Value="NewStorageLocation" Flags="" />
+                  </ado:Recordset.Iterate>
+                </ado:Recordset.OpenBlock>
+              </ado:Command.CreateBlock>
+            </Object.Use>
+          </Block>
+
+        </Procedure>
         <Procedure Identifier="ProcessStockComponent">
           <Parameters>
             <Parameter Identifier="StockComponent" Type="TStockComponent"/>
@@ -301,7 +379,8 @@
               <When Expression="Diodes.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
               <When Expression="Fuses.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
               <When Expression="Connectors.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
-              <When Expression="GenericComponents.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <When Expression="IntegratedCircuits.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <When Expression="NamedComponents.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
               <Otherwise>
                 <rep:Reporter.Error Text="Format('Component %d werd niet herkend', StockComponent.ID)" Target="Errors"/>
               </Otherwise>
@@ -325,10 +404,16 @@
         <Variable Identifier="CategoryID"/>
         <Variable Identifier="Description"/>
         <Variable Identifier="Amount"/>
-        <Variable Identifier="Location"/>
+        <Variable Identifier="LocationID"/>
+        <Variable Identifier="Location" Type="TStorageLocation"/>
         <Variable Identifier="FootPrintID"/>
         <Variable Identifier="InternalPartNumber"/>
         <Variable Identifier="Symbol"/>
+        <Variable Identifier="NeedsReview"/>
+        <Variable Identifier="PartCondition"/>
+        <Variable Identifier="Status"/>
+        <Variable Identifier="Comment"/>
+        <Variable Identifier="ProductionRemarks"/>
         <Variable Identifier="UnitInfo" Type="TUnitInfo"/>
         <Variable Identifier="FootprintInfo" Type="TFootprintInfo"/>
         <Variable Identifier="ComponentSpec" Type="TComponentSpec"/>
@@ -347,6 +432,7 @@
         <Variable Identifier="PrevPartID" Type="Integer"/>
       </Variables>
       <Block>
+        <Execute Statement="LoadStorageLocations"/>
         <Variable Identifier="CategoryList" Type="TObjectList" Init="TObjectList.Create(False)"/>
         <Execute Statement="Self.CategoryList:= CategoryList"/>
         <Object.Use Identifier="SL" Type="TStringList" Expression="TStringList.Create">
@@ -392,7 +478,8 @@
                           <When Expression="Diodes.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
                           <When Expression="Fuses.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
                           <When Expression="Connectors.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
-                          <When Expression="GenericComponents.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                          <When Expression="IntegratedCircuits.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                          <When Expression="NamedComponents.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
                         </Choose>
                         <Execute Statement="Category.ID:= ID"/>
                         <Execute Statement="Category.Name:= Name"/>
@@ -412,8 +499,13 @@
                         <ado:Field.GetValue Name="category_id" Identifier="CategoryID"/>
                         <ado:Field.GetValue Name="name" Identifier="Name"/>
                         <ado:Field.GetValue Name="description" Identifier="Description"/>
+                        <ado:Field.GetValue Name="needsReview" Identifier="NeedsReview"/>
+                        <ado:Field.GetValue Name="partCondition" Identifier="PartCondition"/>
+                        <ado:Field.GetValue Name="status" Identifier="Status"/>
+                        <ado:Field.GetValue Name="comment" Identifier="Comment"/>
+                        <ado:Field.GetValue Name="productionRemarks" Identifier="ProductionRemarks"/>
                         <ado:Field.GetValue Name="stockLevel" Identifier="Amount"/>
-                        <ado:Field.GetValue Name="location" Identifier="Location"/>
+                        <ado:Field.GetValue Name="storageLocation_id" Identifier="LocationID"/>
                         <ado:Field.GetValue Name="footprint_id" Identifier="FootPrintID"/>
                         <ado:Field.GetValue Name="internalPartNumber" Identifier="InternalPartNumber"/>
                         <inx:Index.FindValue Index="CategoryIndex" Key="CategoryID" Value="Category"/>
@@ -421,10 +513,16 @@
                         <Execute Statement="StockComponent:= TStockComponent.Create"/>
                         <Execute Statement="StockComponent.ID:= ID"/>
                         <Execute Statement="StockComponent.Name:= Name"/>
-                        <Execute Statement="StockComponent.Description:= IfElse(IsNull(Description), '', Description)"/>
+                        <Execute Statement="StockComponent.Description:= Description" Condition="not IsNull(Description)"/>
+                        <Execute Statement="StockComponent.NeedsReview:= NeedsReview &lt;&gt; 0" Condition="not IsNull(NeedsReview)"/>
+                        <Execute Statement="StockComponent.PartCondition:= PartCondition" Condition="not IsNull(PartCondition)"/>
+                        <Execute Statement="StockComponent.Status:= Status" Condition="not IsNull(Status)"/>
+                        <Execute Statement="StockComponent.Comment:= Comment" Condition="not IsNull(Comment)"/>
+                        <Execute Statement="StockComponent.ProductionRemarks:= ProductionRemarks" Condition="not IsNull(ProductionRemarks)"/>
                         <Execute Statement="StockComponent.Amount:= Amount"/>
                         <Execute Statement="StockComponent.InternalPartNumber:= IfElse(IsNull(InternalPartNumber), '', InternalPartNumber)"/>
-                        <Execute Statement="StockComponent.Location:= IfElse(IsNull(Location), '', Location)"/>
+                        <inx:Index.FindValue Index="StorageLocationIndex" Key="LocationID" Value="Location" Flags=""/>
+                        <Execute Statement="StockComponent.Location:= Location"/>
                         <Block Condition="not IsNull(FootPrintID)">
                           <inx:Index.FindValue Index="FootPrintInfoIndex" Key="FootPrintID" Value="FootprintInfo" Flags=""/>
                           <Execute Statement="StockComponent.FootprintInfo:= FootprintInfo"/>

@@ -26,7 +26,7 @@
     <Use Identifier="DiodeClasses"/>
     <Use Identifier="FuseClasses"/>
     <Use Identifier="ConnectorClasses"/>
-    <Use Identifier="GenericComponentClasses"/>
+    <Use Identifier="NamedComponentClasses"/>
     <Use Identifier="StockManager"/>
     <Use Identifier="CategoryContainer"/>
     <Use Identifier="CalculatedSpecificationsClasses"/>
@@ -42,6 +42,8 @@
       <Field Identifier="Comment2" Type="string"/>
       <Field Identifier="Comment3" Type="string"/>
       <Field Identifier="Comment4" Type="string"/>
+      <Field Identifier="BomCount" Type="UInt32"/>
+      <Field Identifier="PickRequestList" Type="TObjectList"/>
     </DataClass>
   </Type>
   <Procedures>
@@ -73,7 +75,8 @@
           <When Expression="Diodes.ProcessSchemaXml(Element, Reference, ID)"/>
           <When Expression="Fuses.ProcessSchemaXml(Element, Reference, ID)"/>
           <When Expression="Connectors.ProcessSchemaXml(Element, Reference, ID)"/>
-          <When Expression="GenericComponents.ProcessSchemaXml(Element, Reference, ID)"/>
+          <When Expression="IntegratedCircuits.ProcessSchemaXml(Element, Reference, ID)"/>
+          <When Expression="NamedComponents.ProcessSchemaXml(Element, Reference, ID)"/>
           <Otherwise>
             <rep:Reporter.Error Text="Format('Component %s werd niet herkend', Reference)"/>
           </Otherwise>
@@ -186,7 +189,7 @@
         </msx:Node.IterateChilds>
       </Block>
     </Procedure>
-    
+
     <Procedure Identifier="TBillOfMaterials.ReportTitleBlock">
       <Block>
         <rep:Reporter.Information Text="Format(sTitleField, Title)" Condition="IsNonEmptystring(Title)"/>
@@ -202,13 +205,10 @@
     </Procedure>
 
     <Procedure Identifier="TBillOfMaterials.Report">
-      <Parameters>
-        <Parameter Identifier="Count" Type="Integer"/>
-      </Parameters>
       <Block>
         <rep:Reporter.Information Text="sBOMHeader" Markup="Header1"/>
         <Execute Statement="ReportTitleBlock"/>
-        <rep:Reporter.Information Text="Format(sCountField, Count)"/>
+        <rep:Reporter.Information Text="Format(sCountField, BomCount)"/>
 
         <Object.Use Identifier="SchemaContext" Type="TSchemaReportContext" Expression="TSchemaReportContext.Create">
           <Object.Use Identifier="StockContext" Type="TStockReportContext" Expression="TStockReportContext.Create">
@@ -222,14 +222,14 @@
                 <Execute Statement="SpecReportContext.Measure:= True"/>
                 <Execute Statement="SchemaContext.Measure:= True"/>
                 <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
-                  <Execute Statement="RunningCategory.ReportSchema(Count, SchemaContext, StockContext)"/>
+                  <Execute Statement="RunningCategory.ReportSchema(BomCount, SchemaContext, StockContext)"/>
                 </lil:LinkedList.Iterate>
                 <rep:Reporter.Information Text="''"/>
                 <Execute Statement="StockContext.Measure:= False"/>
                 <Execute Statement="SpecReportContext.Measure:= False"/>
                 <Execute Statement="SchemaContext.Measure:= False"/>
                 <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
-                  <Execute Statement="RunningCategory.ReportSchema(Count, SchemaContext, StockContext)"/>
+                  <Execute Statement="RunningCategory.ReportSchema(BomCount, SchemaContext, StockContext)"/>
                 </lil:LinkedList.Iterate>
                 <rep:Reporter.Information Text="''"/>
               </Object.Use>
@@ -239,6 +239,15 @@
 
       </Block>
     </Procedure>
+
+    <Procedure Identifier="TBillOfMaterials.FinalizeSchemaComponents">
+      <Block>
+        <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
+          <Execute Statement="RunningItem.FinalizeSchemaComponents(BomCount)"/>
+        </lil:LinkedList.Iterate>
+      </Block>
+    </Procedure>
+
 
     <Procedure Identifier="TBillOfMaterials.ReportDesignators">
       <Parameters>
@@ -272,14 +281,14 @@
                 <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
                 <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, Length(Component.Reference)+2)"/>
-                <Execute Statement="ColumnManager.RequestColumnWidth(TGenComponentSpecColumns.Max+3, 1, Length(ComponentKindDescription(ComponentSpec.ComponentKind)))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(TNamedComponentSpecColumns.Max+3, 1, Length(ComponentKindDescription(ComponentSpec.ComponentKind)))"/>
               </lil:LinkedList.Iterate>
               <lil:LinkedList.Iterate Head="CalculatedDesignatorInfoHead" ItemType="TDesignatorInfo" RunningItem="RunningDesignatorInfo" Next="RunningDesignatorInfo.Next">
                 <Execute Statement="ComponentSpec:= RunningDesignatorInfo.ComponentSpec"/>
                 <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
                 <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, Length(Component.Reference)+2)"/>
-                <Execute Statement="ColumnManager.RequestColumnWidth(TGenComponentSpecColumns.Max+3, 1, Length(ComponentKindDescription(ComponentSpec.ComponentKind)))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(TNamedComponentSpecColumns.Max+3, 1, Length(ComponentKindDescription(ComponentSpec.ComponentKind)))"/>
               </lil:LinkedList.Iterate>
               <!--<ForLoop Indexer="I" From="0" To="ColumnManager.ColumnCount - 1">
                 <rep:Reporter.Information Text="Format('%*d: %d', 3, I, ColumnManager.GetColumnWidth(I, 1))"/>
@@ -313,8 +322,8 @@
                 </Choose>
                 <rep:Reporter.Information Text="Format('%-*s%-*s%-*s', 
                                           ColumnManager.GetColumnWidth(0, 1), Component.Reference,
-                                          ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max+2), ComponentSpecAsString,
-                                          ColumnManager.GetColumnWidth(TGenComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
+                                          ColumnManager.GetColumnWidth(1, TNamedComponentSpecColumns.Max+2), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(TNamedComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
                                           )"/>
                 <Choose>
                   <When Expression="CompResult = 0">
@@ -323,8 +332,8 @@
                     <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
                     <rep:Reporter.Information Text="Format('%-*s%-*s%-*s', 
                                           ColumnManager.GetColumnWidth(0, 1), '',
-                                          ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max+2), ComponentSpecAsString,
-                                          ColumnManager.GetColumnWidth(TGenComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
+                                          ColumnManager.GetColumnWidth(1, TNamedComponentSpecColumns.Max+2), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(TNamedComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
                                           )"/>
                     <Execute Statement="RunningDesignatorInfo:= RunningDesignatorInfo.Next"/>
                     <Execute Statement="RunningCalcDesignatorInfo:= RunningCalcDesignatorInfo.Next"/>
@@ -353,8 +362,8 @@
                 </Choose>
                 <rep:Reporter.Information Text="Format('%-*s%-*s%-*s', 
                                           ColumnManager.GetColumnWidth(0, 1), Component.Reference,
-                                          ColumnManager.GetColumnWidth(1, TGenComponentSpecColumns.Max+2), ComponentSpecAsString,
-                                          ColumnManager.GetColumnWidth(TGenComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
+                                          ColumnManager.GetColumnWidth(1, TNamedComponentSpecColumns.Max+2), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(TNamedComponentSpecColumns.Max+3, 1), ComponentKindDescription(ComponentSpec.ComponentKind) 
                                           )"/>
 
                 <Execute Statement="RunningDesignatorInfo:= RunningDesignatorInfo.Next"/>
@@ -369,6 +378,136 @@
           </Object.Use>
         </Object.Use>
 
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TBillOfMaterials.ReportOrderPicking">
+      <Parameters>
+        <Parameter Identifier="StockManager" Type="TStockManager"/>
+      </Parameters>
+      <Procedures>
+        <ProcedureHeader Identifier="ReportLocationCategory">
+          <Parameters>
+            <Parameter Identifier="Category" Type="TStorageLocationCategory"/>
+            <Parameter Identifier="SchemaContext" Type="TSchemaReportContext"/>
+            <Parameter Identifier="StockContext" Type="TStockReportContext"/>
+          </Parameters>
+        </ProcedureHeader>
+        <Implementation Identifier="ReportLocationCategory">
+          <Block>
+            <rep:Reporter.Information Text="Category.Description" Markup="Header2" Condition="not SchemaContext.Measure and IsNonEmptyString(Category.Description)"/>
+            <lil:LinkedList.Iterate Head="Category.FirstStorageLocation" ItemType="TStorageLocation" RunningItem="StorageLocation" Next="StorageLocation.NextSibling">
+              <Block Condition="Assigned(StorageLocation.FirstPickRequest)">
+                <rep:Reporter.Information Text="StorageLocation.Name" Markup="Header3" Condition="not StockContext.Measure"/>
+                <lil:LinkedList.Iterate Head="StorageLocation.FirstPickRequest" ItemType="TPickRequest" RunningItem="PickRequest" Next="PickRequest.Next">
+                  <Variable Identifier="SchemaSpec" Type="TComponentSpec" Init="PickRequest.SchemaComponentSpec"/>
+                  <Variable Identifier="StockSpec" Type="TComponentSpec" Init="PickRequest.StockSpec"/>
+                  <Variable Identifier="StockComponent" Type="TStockComponent" Init="PickRequest.StockComponent"/>
+                  <Variable Identifier="AvailableAmount" Type="UInt32" Init="StockComponent.Amount - StockComponent.PickedCount"/>
+                  <Variable Identifier="RequestedAmount" Type="UInt32" Init="SchemaSpec.SchemaUsageCount - SchemaSpec.PickedCount"/>
+                  <Variable Identifier="TransferAmount" Type="UInt32" Init="RequestedAmount"/>
+                  <Execute Statement="TransferAmount:= AvailableAmount" Condition="AvailableAmount &lt; TransferAmount"/>
+
+                  <Execute Statement="StockComponent.PickedCount:= StockComponent.PickedCount + TransferAmount"/>
+                  <Execute Statement="SchemaSpec.PickedCount:= SchemaSpec.PickedCount + TransferAmount"/>
+
+                  <Variable Identifier="SpecAsString" Type="string"/>
+                  <Variable Identifier="RunningSpecLink" Type="TSpecificationLink"/>
+                  <Execute Statement="SpecAsString:= SchemaSpec.SpecificationAsString(TSpecFormatType.Fixed, SchemaContext.SpecContext)"/>
+                  <Block Condition="not SchemaContext.Measure">
+                    <rep:Reporter.Information Text="Format('%3dx %3dx %-*s(%s)', RequestedAmount, RequestedAmount - TransferAmount, SchemaContext.SpecContext.ColumnManager.GetColumnWidth(1, TNamedComponentSpecColumns.Max + 1), SpecAsString, SchemaSpec.ComponentDesignators)" Markup="Header4"/>
+                  </Block>
+                  <Execute Statement="SpecAsString:= StockSpec.SpecificationAsString(TSpecFormatType.Fixed, StockContext.SpecContext)"/>
+                  <Block Condition="not StockContext.Measure">
+                    <Variable Identifier="ExtraInfo" Type="string"/>
+                    <Execute Statement="ExtraInfo:= ConcatExt(', ', True, StockComponent.PartCondition, StockComponent.Status, StockComponent.Comment, StockComponent.ProductionRemarks)"/>
+                    <Execute Statement="ExtraInfo:= ' ' + ExtraInfo" Condition="IsNonEmptyString(ExtraInfo)"/>
+                    <rep:Reporter.Information Text="Format('%3dx %3dx %-*s(%s)%s', AvailableAmount, AvailableAmount - TransferAmount, StockContext.SpecContext.ColumnManager.GetColumnWidth(1, TNamedComponentSpecColumns.Max + 1), SpecAsString, Format('#%d', PickRequest.StockComponent.ID), ExtraInfo)"/>
+                    <rep:Reporter.Information Text="''"/>
+                  </Block>
+                </lil:LinkedList.Iterate>
+              </Block>
+            </lil:LinkedList.Iterate>
+            <lil:LinkedList.Iterate Head="Category.FirstChild" ItemType="TStorageLocationCategory" RunningItem="ChildCategory" Next="ChildCategory.NextSibling">
+              <Execute Statement="ReportLocationCategory(ChildCategory, SchemaContext, StockContext)"/>
+            </lil:LinkedList.Iterate>
+          </Block>
+        </Implementation>
+        <Procedure Identifier="ReportRequestsOutOfStock">
+          <Parameters>
+            <Parameter Identifier="SchemaContext" Type="TSchemaReportContext"/>
+          </Parameters>
+          <Block>
+            <Variable Identifier="ReportHeader" Type="Boolean" Init="not SchemaContext.Measure"/>
+            <Variable Identifier="PickRequestList" Type="TObjectList" Init="Self.PickRequestList"/>
+            <ForLoop Indexer="I" From="0" To="PickRequestList.Count - 1">
+              <Variable Identifier="PickRequest" Type="TPickRequest" Init="PickRequestList[I]"/>
+              <Variable Identifier="SchemaSpec" Type="TComponentSpec" Init="PickRequest.SchemaComponentSpec"/>
+              <Block Condition="SchemaSpec.PickedCount &lt; SchemaSpec.SchemaUsageCount">
+                <Block Condition="ReportHeader">
+                  <rep:Reporter.Information Text="''"/>
+                  <rep:Reporter.Information Text="sReportOutOfStockMaterials" Markup="Header1"/>
+                  <Execute Statement="ReportHeader:= False"/>
+                </Block>
+                <Variable Identifier="SpecAsString" Type="string" Init="SchemaSpec.SpecificationAsString(TSpecFormatType.Fixed, SchemaContext.SpecContext)"/>
+                <Block Condition="not SchemaContext.Measure">
+                  <Variable Identifier="RequestedAmount" Type="UInt32" Init="SchemaSpec.SchemaUsageCount - SchemaSpec.PickedCount"/>
+                  <rep:Reporter.Information Text="Format('%8dx %-*s(%s)', RequestedAmount, SchemaContext.SpecContext.ColumnManager.GetColumnWidth(1, TNamedComponentSpecColumns.Max + 1), SpecAsString, SchemaSpec.ComponentDesignators)" Markup="Header4"/>
+                  <rep:Reporter.Information Text="''"/>
+                </Block>
+              </Block>
+            </ForLoop>
+          </Block>
+        </Procedure>
+        <Procedure Identifier="ClearPickCount">
+          <Block>
+            <Variable Identifier="PickRequestList" Type="TObjectList" Init="Self.PickRequestList"/>
+            <ForLoop Indexer="I" From="0" To="PickRequestList.Count - 1">
+              <Variable Identifier="PickRequest" Type="TPickRequest" Init="PickRequestList[I]"/>
+              <Execute Statement="PickRequest.SchemaComponentSpec.PickedCount:= 0"/>
+              <Execute Statement="PickRequest.StockComponent.PickedCount:= 0" Condition="Assigned(PickRequest.StockComponent)"/>
+            </ForLoop>
+          </Block>
+        </Procedure>
+      </Procedures>
+      <Variables>
+        <Variable Identifier="DesignatorInfoHead" Type="TDesignatorInfo"/>
+        <Variable Identifier="CalculatedDesignatorInfoHead" Type="TDesignatorInfo" Init="ObjNil"/>
+        <Variable Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Variable Identifier="ComponentSpecAsString" Type="string"/>
+        <Variable Identifier="Component" Type="TSchemaComponent"/>
+        <Variable Identifier="PrevDecodedComponent" Type="TSchemaComponent" DisabledChecks="empty"/>
+      </Variables>
+      <Block>
+        <Object.Use Identifier="SchemaContext" Type="TSchemaReportContext" Expression="TSchemaReportContext.Create">
+          <Object.Use Identifier="StockContext" Type="TStockReportContext" Expression="TStockReportContext.Create">
+            <Object.Use Identifier="SpecReportContext" Type="TSpecReportContext" Expression="TSpecReportContext.Create">
+              <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create">
+                <Execute Statement="ClearPickCount"/>
+                <Execute Statement="SpecReportContext.ColumnManager:= ColumnManager"/>
+                <Execute Statement="SpecReportContext.ColumnOffset:= 1"/>
+                <Execute Statement="StockContext.SpecContext:= SpecReportContext"/>
+                <Execute Statement="SchemaContext.SpecContext:= SpecReportContext"/>
+                <Execute Statement="StockContext.Measure:= True"/>
+                <Execute Statement="SpecReportContext.Measure:= True"/>
+                <Execute Statement="SchemaContext.Measure:= True"/>
+                <Execute Statement="ReportLocationCategory(StockManager.RootStorageLocationCategory, SchemaContext, StockContext)"/>
+                <Execute Statement="ReportRequestsOutOfStock(StockContext)"/>
+                <Execute Statement="StockContext.Measure:= False"/>
+                <Execute Statement="SpecReportContext.Measure:= False"/>
+                <Execute Statement="SchemaContext.Measure:= False"/>
+                <Execute Statement="ClearPickCount"/>
+                <rep:Reporter.Information Text="sReportStorageLocations" Markup="Header1"/>
+                <Execute Statement="ReportTitleBlock"/>
+                <rep:Reporter.Information Text="Format(sCountField, BomCount)"/>
+                <rep:Reporter.Information Text="''"/>
+                <Execute Statement="ReportLocationCategory(StockManager.RootStorageLocationCategory, SchemaContext, StockContext)"/>
+                <Execute Statement="ReportRequestsOutOfStock(StockContext)"/>
+                <rep:Reporter.Information Text="''"/>
+              </Object.Use>
+            </Object.Use>
+          </Object.Use>
+        </Object.Use>
       </Block>
     </Procedure>
 
@@ -406,14 +545,17 @@
             </lil:LinkedList.Iterate>
           </lil:LinkedList.Iterate>
           <Free Expression="Value"/>
-          <Execute Statement="Resistors.AssignStockSpecsFromCategory(StockManager.Resistors, InternalPartNumberIndex)"/>
-          <Execute Statement="Capacitors.AssignStockSpecsFromCategory(StockManager.Capacitors, InternalPartNumberIndex)"/>
-          <Execute Statement="Inductors.AssignStockSpecsFromCategory(StockManager.Inductors, InternalPartNumberIndex)"/>
-          <Execute Statement="ZenerDiodes.AssignStockSpecsFromCategory(StockManager.ZenerDiodes, InternalPartNumberIndex)"/>
-          <Execute Statement="Diodes.AssignStockSpecsFromCategory(StockManager.Diodes, InternalPartNumberIndex)"/>
-          <Execute Statement="Fuses.AssignStockSpecsFromCategory(StockManager.Fuses, InternalPartNumberIndex)"/>
-          <Execute Statement="Connectors.AssignStockSpecsFromCategory(StockManager.Connectors, InternalPartNumberIndex)"/>
-          <Execute Statement="GenericComponents.AssignStockSpecsFromCategory(StockManager.GenericComponents, InternalPartNumberIndex)"/>
+          <Execute Statement="PickRequestList:= TObjectList.Create(False)"/>
+          <Execute Statement="Resistors.AssignStockSpecsFromCategory(StockManager.Resistors, InternalPartNumberIndex, PickRequestList, BomCount)"/>
+          <Execute Statement="Capacitors.AssignStockSpecsFromCategory(StockManager.Capacitors, InternalPartNumberIndex, PickRequestList, BomCount)"/>
+          <Execute Statement="Inductors.AssignStockSpecsFromCategory(StockManager.Inductors, InternalPartNumberIndex, PickRequestList, BomCount)"/>
+          <Execute Statement="ZenerDiodes.AssignStockSpecsFromCategory(StockManager.ZenerDiodes, InternalPartNumberIndex, PickRequestList, BomCount)"/>
+          <Execute Statement="Diodes.AssignStockSpecsFromCategory(StockManager.Diodes, InternalPartNumberIndex, PickRequestList, BomCount)"/>
+          <Execute Statement="Fuses.AssignStockSpecsFromCategory(StockManager.Fuses, InternalPartNumberIndex, PickRequestList, BomCount)"/>
+          <Execute Statement="Connectors.AssignStockSpecsFromCategory(StockManager.Connectors, InternalPartNumberIndex, PickRequestList, BomCount)"/>
+          <Execute Statement="IntegratedCircuits.AssignStockSpecsFromCategory(StockManager.IntegratedCircuits, InternalPartNumberIndex, PickRequestList, BomCount)"/>
+          <Execute Statement="NamedComponents.AssignStockSpecsFromCategory(StockManager.NamedComponents, InternalPartNumberIndex, PickRequestList, BomCount)"/>
+          <Execute Statement="StockManager.RootStorageLocationCategory.FinalizeOrderPicking" Condition="Assigned(StockManager.RootStorageLocationCategory)"/>
         </Object.Use>
       </Block>
     </Procedure>

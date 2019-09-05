@@ -15,6 +15,7 @@
       <xs:extension base="sys:T_AbstractConditionalProcessItem">
         <xs:attribute name="Document" type="sys:expression" use="required"/>
         <xs:attribute name="Filename" type="sys:expression" use="required"/>
+        <xs:attribute name="Encoding" type="sys:expression" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

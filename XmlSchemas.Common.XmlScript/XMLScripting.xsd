@@ -202,14 +202,6 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="T_Set">
-    <xs:complexContent>
-      <xs:extension base="T_AbstractConditionalProcessItem">
-        <xs:attribute name="Identifier" type="identifier" use="required"/>
-        <xs:attribute name="Expression" type="expression" use="required"/>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
   <xs:complexType name="T_Raise">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalProcessItem">
@@ -236,6 +228,7 @@
       </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="Type" type="typeidentifier" use="optional"/>
+    <xs:attribute name="DisabledChecks" type="valuestatuschecks" use="optional"/>
   </xs:complexType>
   <xs:complexType name="T_PropertyParameter">
     <xs:attribute name="Identifier" type="parameteridentifier" use="required"/>
@@ -257,16 +250,6 @@
       </xs:simpleType>
     </xs:attribute>
   </xs:complexType>
-  <xs:complexType name="T_Call">
-    <xs:complexContent>
-      <xs:extension base="T_AbstractConditionalProcessItem">
-        <xs:sequence>
-          <xs:element name="Parameter" type="T_Parameter" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-        <xs:attribute name="Identifier" type="procedureidentifier" use="required"/>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
   <xs:complexType name="TExecute">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalProcessItem">
@@ -284,7 +267,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  
+
   <xs:complexType name="TVariable">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalProcessItem">
@@ -685,9 +668,10 @@
     </xs:complexContent>
   </xs:complexType>
 
+
   <xs:complexType name="T_CaseSelectBlock">
     <xs:complexContent>
-      <xs:extension base="T_AbstractBlockProcessItem">
+      <xs:extension base="T_Block">
         <xs:attribute name="Select" type="caseselectexpression" use="required"/>
       </xs:extension>
     </xs:complexContent>
@@ -959,7 +943,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  
+
   <xs:complexType name="T_Task.Iterate.DependOnTasks">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalBlockProcessItem">
@@ -1110,13 +1094,11 @@
   <xs:element name="Block" type="T_BlockProcessItem" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Choose" type="T_Choose" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Case" type="T_Case" substitutionGroup="AbstractProcessItem"/>
-  <xs:element name="Set" type="T_Set" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Raise" type="T_Raise" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Breakpoint" type="T_AbstractConditionalProcessItem" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="RepeatUntilLoop" type="T_RepeatUntilLoop" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="ForLoop" type="T_ForLoop" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="StringLoop" type="T_StringLoop" substitutionGroup="AbstractProcessItem"/>
-  <xs:element name="Call" type="T_Call" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Execute" type="TExecute" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Variable" type="TVariable" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Break" type="T_AbstractConditionalProcessItem" substitutionGroup="AbstractProcessItem"/>

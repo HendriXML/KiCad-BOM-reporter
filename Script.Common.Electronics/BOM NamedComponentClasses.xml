@@ -1,0 +1,333 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="BomStrings"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TNamedComponentSpec" Inherit="TComponentSpec" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmHandleField" Override="true"/>
+      <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
+      <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
+      <Field Identifier="Name" Type="string"/>
+      <Field Identifier="NameVT" Type="TValueType"/>
+    </DataClass>
+
+    <DataClass Identifier="TNamedComponentNameSpecificationIndex" Inherit="TSpecificationIndex" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetKey" Override="true"/>
+    </DataClass>
+
+    <DataClass Identifier="TNamedComponentCategory" Inherit="TComponentCategory">
+      <VirtualMethod Identifier="vmCreateSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmIndexSearchSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmCompareSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile" Override="true"/>
+      <Field Identifier="NamedComponentNameSpecificationIndex" Type="TNamedComponentNameSpecificationIndex"/>
+    </DataClass>
+
+  </Type>
+
+  <Procedures>
+
+    <Function Identifier="TNamedComponentSpec.DoesMatchSpecification" VirtualMethod="vmDoesMatchSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
+        <Case Expression="NameVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Exit Condition="not (ComponentSpec is TNamedComponentSpec)"/>
+            <Case Expression="TNamedComponentSpec(ComponentSpec).NameVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="not SameText(Name, TNamedComponentSpec(ComponentSpec).Name)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TNamedComponentSpec.CategoryMatchScore" VirtualMethod="vmCategoryMatchScore" Type="Int64">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Case Expression="ComponentKindVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ComponentKindVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="PartNumberVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.PartNumberVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="SameText(PartNumber, ComponentSpec.PartNumber)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ManufacturerVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ManufacturerVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="SameText(Manufacturer, ComponentSpec.Manufacturer)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="FootprintVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.FootprintVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TNamedComponentSpec.HandleField" VirtualMethod="vmHandleField">
+      <Parameters>
+        <Parameter Identifier="CustomField" Type="TCustomField"/>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="Clear" Type="Boolean"/>
+      </Parameters>
+      <Block>
+        <Case Expression="CustomField" Optimalisation="integermapping">
+          <On Select="TCustomField.Value">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="NameVT:= TValueType.Cleared"/>
+                <Execute Statement="Self.Name:= '-'"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Self.Name:= Value"/>
+                <Execute Statement="NameVT:= TValueType.Specified"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <Otherwise>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TNamedComponentSpec.GetSpecificationValues">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="Name" Type="string" Direction="Output"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
+        <Parameter Identifier="InternalPartNumber" Type="string" Direction="Output"/>
+        <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Case Expression="NameVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="Name:= ''"/>
+          </On>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Name:= Self.Name"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="Name:= '!!'"/>
+          </On>
+        </Case>
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TNamedComponentSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="ReportContext" Type="TSpecReportContext"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Name" Type="string"/>
+        <Variable Identifier="Footprint" Type="string"/>
+        <Variable Identifier="PartNumberModel" Type="string"/>
+        <Variable Identifier="InternalPartNumber" Type="string"/>
+        <Variable Identifier="ComponentKind" Type="string"/>
+      </Variables>
+      <Block>
+        <Execute Statement="GetSpecificationValues(FormatType, Name, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Case Expression="FormatType" Optimalisation="integermapping">
+          <On Select="TSpecFormatType.Fixed">
+            <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
+            <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
+            <Execute Statement="Name:= Name + ' '" Condition="IsNonEmptyString(Name)"/>
+            <Execute Statement="Footprint:= Footprint + ' '" Condition="IsNonEmptyString(Footprint)"/>
+            <Execute Statement="InternalPartNumber:= InternalPartNumber + ' '" Condition="IsNonEmptyString(InternalPartNumber)"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="IsNonEmptyString(PartNumberModel)"/>
+            <Choose>
+              <When Expression="ReportContext.Measure">
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TNamedComponentSpecColumns.Value, 6, Length(Name))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TNamedComponentSpecColumns.FootPrint, 1, Length(Footprint))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TNamedComponentSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TNamedComponentSpecColumns.InternalPartNumber, 1, Length(InternalPartNumber))"/>
+                <Execute Statement="Result:= ''"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= Format('%-*s%-*s%-*s%-*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TNamedComponentSpecColumns.Value, 6), Name,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TNamedComponentSpecColumns.FootPrint, 1), Footprint,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TNamedComponentSpecColumns.PartNumberModel, 1), PartNumberModel,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TNamedComponentSpecColumns.InternalPartNumber, 1), InternalPartNumber)"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TSpecFormatType.Description">
+            <Case Expression="ComponentKindVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="ComponentKind:= ''" Condition="(Self.ComponentKind = TComponentKind.Component) or (Self.ComponentKind = TComponentKind.Module) or (SameText(ComponentKind, Name))"/>
+              </On>
+            </Case>
+            <Execute Statement="Result:= ConcatExt(' ', True, Name, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+          </On>
+          <On Select="TSpecFormatType.Name">
+            <Execute Statement="Result:= Name"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TNamedComponentNameSpecificationIndex.GetKey" VirtualMethod="vmGetKey" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TNamedComponentSpec"/>
+        <Parameter Identifier="Key" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="ComponentSpec.NameVT" Optimalisation="integermapping">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Result:= True"/>
+            <Execute Statement="Key:= ComponentSpec.Name"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Constructor Identifier="TNamedComponentCategory.Create">
+      <Block>
+        <Execute Statement="NamedComponentNameSpecificationIndex:= TNamedComponentNameSpecificationIndex.Create(TMappingCaseInSensitiveUnicodeStringToObject.Create)"/>
+      </Block>
+    </Constructor>
+
+    <Function Identifier="TNamedComponentCategory.IndexSearchSpecifications" VirtualMethod="vmIndexSearchSpecifications" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Parameter Identifier="Specifications" Type="TSpecificationLink" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Choose>
+          <When Expression="NamedComponentNameSpecificationIndex.GetLinks(ComponentSpec, ComponentSpecHead, Specifications)">
+            <Execute Statement="Result:= True"/>
+          </When>
+        </Choose>
+      </Block>
+    </Function>
+
+    <Function Identifier="TNamedComponentCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
+      <Block>
+        <Execute Statement="Result:= TNamedComponentSpec.Create"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TNamedComponentCategory.CompareSpecifications" Type="Integer" VirtualMethod="vmCompareSpecifications">
+      <Parameters>
+        <Parameter Identifier="A" Type="TNamedComponentSpec"/>
+        <Parameter Identifier="B" Type="TNamedComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateStringValue(A.ID, A.Name, A.NameVT, B.ID, B.Name, B.NameVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TNamedComponentCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="cComponent" Type="string" Expression="'Component'"/>
+      </Constants>
+      <Block>
+        <Execute Statement="Result:= IniFile.SectionExists(cComponent)"/>
+        <Block Condition="Result">
+          <Execute Statement="ComponentSpec:= TNamedComponentSpec.Create"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cComponent)"/>
+        </Block>
+      </Block>
+    </Function>
+
+  </Procedures>
+
+</pkg:Library>

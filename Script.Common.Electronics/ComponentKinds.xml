@@ -260,7 +260,7 @@
       <Header Text="N-UJT's"/>
     </Language>
   </ComponentKind>
-  <ComponentKind Name="OpAmp">
+  <ComponentKind Name="OpAmp" IsIntegratedCircuit="true">
     <Language LangID="en-GB">
       <Name Text="op amp"/>
       <Header Text="Op amps"/>
@@ -270,7 +270,7 @@
       <Header Text="Opamps"/>
     </Language>
   </ComponentKind>
-  <ComponentKind Name="Comparator">
+  <ComponentKind Name="Comparator" IsIntegratedCircuit="true">
     <Language LangID="en-GB">
       <Name Text="comparator"/>
       <Header Text="Comparators"/>
@@ -680,7 +680,7 @@
       <Header Text="Meetapparaten"/>
     </Language>
   </ComponentKind>
-  <ComponentKind Name="Timer">
+  <ComponentKind Name="Timer" IsIntegratedCircuit="true">
     <Language LangID="en-GB">
       <Name Text="timer"/>
       <Header Text="Timers"/>
@@ -690,7 +690,7 @@
       <Header Text="Timers"/>
     </Language>
   </ComponentKind>
-  <ComponentKind Name="SchmittTrigger">
+  <ComponentKind Name="SchmittTrigger" IsIntegratedCircuit="true">
     <Language LangID="en-GB">
       <Name Text="schmitt trigger"/>
       <Header Text="Schmitt triggers"/>
@@ -700,7 +700,7 @@
       <Header Text="Schmitt-triggers"/>
     </Language>
   </ComponentKind>
-  <ComponentKind Name="Optocoupler">
+  <ComponentKind Name="Optocoupler" IsIntegratedCircuit="true">
     <Language LangID="en-GB">
       <Name Text="optocoupler"/>
       <Header Text="Optocouplers"/>
@@ -708,6 +708,16 @@
     <Language LangID="nl-NL">
       <Name Text="optocoupler"/>
       <Header Text="Optocouplers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="ReferenceVoltageIC" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="reference voltage IC"/>
+      <Header Text="Reference voltage IC's"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="spanningsreferentie IC"/>
+      <Header Text="Spanningsreferentie IC's"/>
     </Language>
   </ComponentKind>
   <ComponentKind Name="Switch">
@@ -718,6 +728,36 @@
     <Language LangID="nl-NL">
       <Name Text="schakelaar"/>
       <Header Text="Schakelaars"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Heatsink">
+    <Language LangID="en-GB">
+      <Name Text="heatsink"/>
+      <Header Text="Heatsinks"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="koellichaam"/>
+      <Header Text="Koellichamen"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Relay">
+    <Language LangID="en-GB">
+      <Name Text="relay"/>
+      <Header Text="Relays"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="relais"/>
+      <Header Text="Relais"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="IntegratedCircuit" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="integrated circuit"/>
+      <Header Text="Integrated Circuits"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="integrated circuit"/>
+      <Header Text="Integrated circuits"/>
     </Language>
   </ComponentKind>
   <ComponentKind Name="Module">

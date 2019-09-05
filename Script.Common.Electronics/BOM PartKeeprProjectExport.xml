@@ -27,7 +27,7 @@
     <Use Identifier="DiodeClasses"/>
     <Use Identifier="FuseClasses"/>
     <Use Identifier="ConnectorClasses"/>
-    <Use Identifier="GenericComponentClasses"/>
+    <Use Identifier="NamedComponentClasses"/>
     <Use Identifier="BillOfMaterialClass"/>
     <Use Identifier="CategoryContainer"/>
     <Use Identifier="StockManager"/>
@@ -1118,9 +1118,9 @@
             </Choose>
           </When>
           <When Expression="SchemaSpec is TDiodeSpec">
-            <Case Expression="TDiodeSpec(SchemaSpec).ValueVT">
+            <Case Expression="TDiodeSpec(SchemaSpec).NameVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= TDiodeSpec(SchemaSpec).Value"/>
+                <Execute Statement="Part.Name:= TDiodeSpec(SchemaSpec).Name"/>
               </On>
             </Case>
             <Choose>
@@ -1271,10 +1271,10 @@
               </Otherwise>
             </Choose>
           </When>
-          <When Expression="SchemaSpec is TGenericComponentSpec">
-            <Case Expression="TGenericComponentSpec(SchemaSpec).ValueVT">
+          <When Expression="SchemaSpec is TNamedComponentSpec">
+            <Case Expression="TNamedComponentSpec(SchemaSpec).NameVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= TGenericComponentSpec(SchemaSpec).Value"/>
+                <Execute Statement="Part.Name:= TNamedComponentSpec(SchemaSpec).Name"/>
               </On>
             </Case>
           </When>

@@ -1,0 +1,343 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement">
+  <Uses>
+    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="BomStrings"/>
+    <Use Identifier="NamedComponentClasses"/>
+    <Use Identifier="DeviceFunctions"/>
+    <Use Identifier="DeviceFunctionDescription"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TMultiFunctionComponentSpec" Inherit="TNamedComponentSpec" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmHandleField" Override="true"/>
+      <VirtualMethod Identifier="vmApplyTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
+      <Field Identifier="FunctionsVT" Type="TValueType"/>
+      <Field Identifier="Functions" Type="string"/>
+      <Field Identifier="FunctionHead" Type="TBaseImplementedFunction"/>
+      <!--<-<TComponentSpec.Fields-->
+<!-->->-->
+    </DataClass>
+
+    <DataClass Identifier="TMultiFunctionComponentCategory" Inherit="TNamedComponentCategory" DefaultConstructor="createonly">
+      <VirtualMethod Identifier="vmCreateSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCompareSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmLoadTemplatesFromIniFile" Override="true"/>
+      <VirtualMethod Identifier="vmGetTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile" Override="true"/>
+      <Field Identifier="TemplateConnector" Type="TMultiFunctionComponentSpec"/>
+    </DataClass>
+  </Type>
+
+  <Procedures>
+
+    <Function Identifier="GetDeviceFunctionsDescription" Type="string">
+      <Parameters>
+        <Parameter Identifier="FunctionHead" Type="TBaseImplementedFunction"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ''"/>
+        <stm:StateHandler InitialState="First">
+          <lil:LinkedList.Iterate Head="FunctionHead" ItemType="TBaseImplementedFunction" RunningItem="Item" Next="Item.Next">
+            <stm:HandleStates>
+              <stm:State Name="First">
+                <Execute Statement="Result:= GetDeviceFunctionDescription(Item)"/>
+                <stm:SetState Name="NonFirst"/>
+              </stm:State>
+              <stm:State Name="NonFirst">
+                <Execute Statement="Result:= Result + '; ' + GetDeviceFunctionDescription(Item)"/>
+              </stm:State>
+            </stm:HandleStates>
+          </lil:LinkedList.Iterate>
+        </stm:StateHandler>
+      </Block>
+    </Function>
+
+    <Function Identifier="TMultiFunctionComponentSpec.DoesMatchSpecification" VirtualMethod="vmDoesMatchSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
+        <Case Expression="FunctionsVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Exit Condition="not (ComponentSpec is TMultiFunctionComponentSpec)"/>
+            <Case Expression="TMultiFunctionComponentSpec(ComponentSpec).FunctionsVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="not FunctionsMatches(Self.FunctionHead,  TMultiFunctionComponentSpec(ComponentSpec).FunctionHead)"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Variable Identifier="IsRanged" Type="Boolean"/>
+        <!--<-<TComponentSpec.DoesMatchSpecification-->
+<!-->->-->
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TMultiFunctionComponentSpec.CategoryMatchScore" VirtualMethod="vmCategoryMatchScore" Type="Int64">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Case Expression="ComponentKindVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ComponentKindVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="PartNumberVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.PartNumberVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="SameText(PartNumber, ComponentSpec.PartNumber)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ManufacturerVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.ManufacturerVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="SameText(Manufacturer, ComponentSpec.Manufacturer)"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="FootprintVT">
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Case Expression="ComponentSpec.FootprintVT">
+              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TMultiFunctionComponentSpec.HandleField" VirtualMethod="vmHandleField">
+      <Parameters>
+        <Parameter Identifier="CustomField" Type="TCustomField"/>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="Clear" Type="Boolean"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="ImplementedFunctionHead" Type="TBaseImplementedFunction"/>
+      </Variables>
+      <Block>
+        <Case Expression="CustomField" Optimalisation="integermapping">
+          <On Select="TCustomField.Functions">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="FunctionsVT:= TValueType.Cleared"/>
+              </When>
+              <When Expression="ParseFunctions(Value, ImplementedFunctionHead)">
+                <Execute Statement="FunctionsVT:= TValueType.Specified"/>
+                <Execute Statement="Functions:= Value"/>
+                <Execute Statement="FunctionHead:= ImplementedFunctionHead"/>
+              </When>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('Functions could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
+                <Execute Statement="FunctionsVT:= TValueType.Error"/>
+                <Execute Statement="Functions:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <!--<-<TComponentSpec.HandleField-->
+<!-->->-->
+          <Otherwise>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TMultiFunctionComponentSpec.GetSpecificationValues">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="Name" Type="string" Direction="Output"/>
+        <Parameter Identifier="Functions" Type="string" Direction="Output"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
+        <Parameter Identifier="InternalPartNumber" Type="string" Direction="Output"/>
+        <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
+        <Case Expression="FunctionsVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="Functions:= ''"/>
+          </On>
+          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <Execute Statement="Functions:= GetDeviceFunctionsDescription(Self.FunctionHead)"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="Functions:= '!' + Self.Functions + '!'"/>
+          </On>
+        </Case>
+
+        <Variable Identifier="Range" Type="string"/>
+        <!--<-<TComponentSpec.GetSpecificationValues-->
+<!-->->-->
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Name, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TMultiFunctionComponentSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
+      <Variables>
+        <Variable Identifier="locTemplate" Type="TMultiFunctionComponentSpec"/>
+      </Variables>
+      <Block>
+        <Exit Condition="not Assigned(Template)"/>
+        <Block Condition="Template is TMultiFunctionComponentSpec">
+          <Execute Statement="locTemplate:= TMultiFunctionComponentSpec(Template)"/>
+          <Case Expression="FunctionsVT" Optimalisation="integermapping">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+              <Case Expression="locTemplate.FunctionsVT" Optimalisation="integermapping">
+                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <Execute Statement="Functions:= locTemplate.Functions"/>
+                  <Execute Statement="FunctionHead:= locTemplate.FunctionHead"/>
+                  <Execute Statement="FunctionsVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="Functions:= locTemplate.Functions"/>
+                  <Execute Statement="FunctionsVT:= TValueType.ErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+          <!--<-<TComponentSpec.ApplyTemplate-->
+<!-->->-->
+        </Block>
+        <Execute Statement="inherited ApplyTemplate"/>
+      </Block>
+    </Procedure>
+
+
+    <Procedure Identifier="TMultiFunctionComponentCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="sSectionMultiFunctionComponents" Type="string" Expression="'Template.MultiFunctionComponents'"/>
+      </Constants>
+      <Block>
+        <ConditionalBlock Expression="IniFile.SectionExists(sSectionMultiFunctionComponents)">
+          <Execute Statement="TemplateConnector:= TMultiFunctionComponentSpec.Create"/>
+          <Execute Statement="TemplateConnector.LoadFromIniFileSection(IniFile, sSectionMultiFunctionComponents)"/>
+        </ConditionalBlock>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TMultiFunctionComponentCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
+      <Block>
+        <Execute Statement="Result:= TMultiFunctionComponentSpec.Create"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TMultiFunctionComponentCategory.GetTemplate" VirtualMethod="vmGetTemplate" Type="TComponentSpec">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ObjNil"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TMultiFunctionComponentCategory.CompareSpecifications" Type="Integer" VirtualMethod="vmCompareSpecifications">
+      <Parameters>
+        <Parameter Identifier="A" Type="TMultiFunctionComponentSpec"/>
+        <Parameter Identifier="B" Type="TMultiFunctionComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateFunctions(A.ID, A.FunctionHead, A.FunctionsVT, B.ID, B.FunctionHead, B.FunctionsVT)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+
+        <!--<-<TComponentSpec.CompareSpecifications-->
+<!-->->-->
+        <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TMultiFunctionComponentCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="cMultiFunctionComponent" Type="string" Expression="'MultiFunctionComponent'"/>
+      </Constants>
+      <Block>
+        <Execute Statement="Result:= IniFile.SectionExists(cMultiFunctionComponent)"/>
+        <Block Condition="Result">
+          <Execute Statement="ComponentSpec:= TMultiFunctionComponentSpec.Create"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cMultiFunctionComponent)"/>
+        </Block>
+      </Block>
+    </Function>
+
+  </Procedures>
+
+</pkg:Library>

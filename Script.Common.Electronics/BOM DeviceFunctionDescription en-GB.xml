@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado" 
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report" 
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus" 
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index" 
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry" 
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils" 
+  xmlns:sim="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput" 
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement" 
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall" 
+  xmlns:cod="urn:schemas-www-wisware.nl-xmlscripting-codeparser" 
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist" 
+  xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers" 
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement" 
+  >
+  <Uses>
+    <Use Identifier="DeviceFunctions"/>
+  </Uses>
+	<Procedures>
+
+    <Function Identifier="GetCountPrefix" Type="string">
+      <Parameters>
+        <Parameter Identifier="Count" Type="Integer"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Count" Optimalisation="integermapping">
+          <On Select="1">
+            <Execute Statement="Result:= ''"/>
+          </On>
+          <On Select="2">
+            <Execute Statement="Result:= 'dual '"/>
+          </On>
+          <On Select="3">
+            <Execute Statement="Result:= 'tripple '"/>
+          </On>
+          <On Select="4">
+            <Execute Statement="Result:= 'quad '"/>
+          </On>
+          <On Select="5">
+            <Execute Statement="Result:= 'penta '"/>
+          </On>
+          <On Select="6">
+            <Execute Statement="Result:= 'hexa '"/>
+          </On>
+          <On Select="8">
+            <Execute Statement="Result:= 'octa '"/>
+          </On>
+          <Otherwise>
+            <Execute Statement="Result:= Format('%d x ', Count)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+
+    <Function Identifier="GetDeviceFunctionDescription" Type="string">
+			<Parameters>
+				<Parameter Identifier="ImplementedFunction" Type="TBaseImplementedFunction"/>
+			</Parameters>
+      <Block>
+        <Case Expression="ImplementedFunction.DeviceFunction" Optimalisation="integermapping">
+          <On Select="TDeviceFunction.OpAmp">
+            <Execute Statement="Result:= 'opamp'"/>
+          </On>
+          <On Select="TDeviceFunction.Comparator">
+            <Execute Statement="Result:= 'comparator'"/>
+          </On>
+          <On Select="TDeviceFunction.SchmittTrigger">
+            <Execute Statement="Result:= 'schmitt trigger'"/>
+          </On>
+          <On Select="TDeviceFunction.Optocoupler">
+            <Execute Statement="Result:= 'optocoupler'"/>
+          </On>
+          <On Select="TDeviceFunction.Timer">
+            <Execute Statement="Result:= 'timer'"/>
+          </On>
+          <On Select="TDeviceFunction.AndGate">
+            <Execute Statement="Result:= 'AND gate'"/>
+          </On>
+          <On Select="TDeviceFunction.OrGate">
+            <Execute Statement="Result:= 'OR gate'"/>
+          </On>
+          <On Select="TDeviceFunction.XorGate">
+            <Execute Statement="Result:= 'XOR gate'"/>
+          </On>
+          <On Select="TDeviceFunction.XnorGate">
+            <Execute Statement="Result:= 'XNOR gate'"/>
+          </On>
+          <On Select="TDeviceFunction.NandGate">
+            <Execute Statement="Result:= 'NAND gate'"/>
+          </On>
+          <On Select="TDeviceFunction.NorGate">
+            <Execute Statement="Result:= 'NOR gate'"/>
+          </On>
+          <On Select="TDeviceFunction.NotGate">
+            <Execute Statement="Result:= 'NOT gate'"/>
+          </On>
+          <On Select="TDeviceFunction.VRef">
+            <Execute Statement="Result:= 'reference voltage'"/>
+          </On>
+          <On Select="TDeviceFunction.TempSens">
+            <Execute Statement="Result:= 'temperature sensor'"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create('Unsupported device function')"/>
+          </Otherwise>
+        </Case>
+        <Execute Statement="Result:= GetCountPrefix(ImplementedFunction.Count) + Result"/>
+      </Block>
+		</Function>
+    
+	</Procedures>
+</pkg:Library>

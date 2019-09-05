@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns="urn:schemas-www-wisware.nl-codegen-document"
+ xmlns:doc="urn:schemas-www-wisware.nl-codegen-document"
+ xmlns:scg="urn:schemas-www-wisware.nl-codegen-scriptcodegenerator"
+ xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+ xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+ xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+ xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+ xmlns:indx="urn:schemas-www-wisware.nl-xmlscripting-index"
+ xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+ xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+ xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+ xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+ xsi:schemaLocation="urn:schemas-www-wisware.nl-codegen-document ..\XmlSchemas.Common.CodeGen\CodeGen.xsd"
+   Codepage="0" NameEncapsulation="xml">
+  <CodeGenerators>
+    <scg:ScriptCodeGenerator Description="Generate sections">
+      <pkg:Program xmlns="urn:schemas-www-wisware.nl-xmlscripting">
+
+        <pkg:ReportTargets>
+          <pkg:Target Identifier="TComponentSpec.Fields"/>
+          <pkg:Target Identifier="TComponentSpec.HandleField"/>
+          <pkg:Target Identifier="TComponentSpec.GetSpecificationValues"/>
+          <pkg:Target Identifier="TComponentSpec.ApplyTemplate"/>
+          <pkg:Target Identifier="TComponentSpec.CompareSpecifications"/>
+          <pkg:Target Identifier="TComponentSpec.DoesMatchSpecification"/>
+          <pkg:Target Identifier="TIntegratedCircuitSpec.CheckComponentKind"/>
+          <pkg:Target Identifier="TIntegratedCircuitCategory.IsValidSpecification"/>
+        </pkg:ReportTargets>
+
+        <Imports>
+          <Import Identifier="ComponentClassGenerationUtils" Filename="ComponentClassGenerationUtils.xml"/>
+        </Imports>
+
+        <Uses>
+          <Use Identifier="ComponentClassGenerationUtils"/>
+        </Uses>
+
+        <Variables>
+          <Variable Identifier="XmlDoc" Type="IXmlDomDocument"/>
+        </Variables>
+        <Procedures>
+
+          <Procedure Identifier="GenerateMultiFunctionComponentSpecCheckComponentKind">
+            <Variables>
+              <Variable Identifier="ComponentKind" Type="string"/>
+              <Variable Identifier="ComponentKinds" Type="string" DisabledChecks="empty"/>
+              <Variable Identifier="CharactersOnSinglelineCount" Type="Integer" Init="0"/>
+            </Variables>
+            <Block>
+              <msx:Node.IterateChilds Node="XmlDoc.DocumentElement">
+                <msx:OnElement baseName="'ComponentKind'">
+                  <msx:Attribute baseName="'Name'"/>
+                  <msx:Attribute baseName="'IsIntegratedCircuit'" Required="false"/>
+                  <msx:Block>
+                    <Choose>
+                      <When Expression="not Assigned(IsIntegratedCircuit)">
+                      </When>
+                      <When Expression="(IsIntegratedCircuit.Text &lt;&gt; '1') and (IsIntegratedCircuit.Text &lt;&gt; 'true')">
+                      </When>
+                      <When Expression="IsEmpty(ComponentKinds)">
+                        <Execute Statement="ComponentKind:= 'TComponentKind.' + Name.Text"/>
+                        <Execute Statement="ComponentKinds:= ComponentKind"/>
+                        <Execute Statement="CharactersOnSinglelineCount:= Length(ComponentKind)"/>
+                      </When>
+                      <When Expression="CharactersOnSinglelineCount &gt; 200">
+                        <Execute Statement="ComponentKind:= 'TComponentKind.' + Name.Text"/>
+                        <Execute Statement="CharactersOnSinglelineCount:= Length(ComponentKind)"/>
+                        <Execute Statement="ComponentKinds:= ComponentKinds + ',' + #13#10 + '                      ' + ComponentKind"/>
+                      </When>
+                      <Otherwise>
+                        <Execute Statement="ComponentKind:= 'TComponentKind.' + Name.Text"/>
+                        <Execute Statement="CharactersOnSinglelineCount:= CharactersOnSinglelineCount + Length(ComponentKind)"/>
+                        <Execute Statement="ComponentKinds:= ComponentKinds + ', ' + ComponentKind"/>
+                      </Otherwise>
+                    </Choose>
+                  </msx:Block>
+                </msx:OnElement>
+              </msx:Node.IterateChilds>
+              <rep:Reporter.Information Text="'          &lt;On Select=&quot;'+ComponentKinds+'&quot;&gt;'"/>
+              <rep:Reporter.Information Text="'            &lt;Execute Statement=&quot;Result:= True&quot;/&gt;'"/>
+              <rep:Reporter.Information Text="'          &lt;/On&gt;'"/>
+            </Block>
+          </Procedure>
+        </Procedures>
+
+        <Block>
+          <Execute Statement="GenerateFieldSections(ObjNil)"/>
+          <msx:Document.Create Identifier="XmlDoc"/>
+          <msx:Document.LoadFromFile Document="XmlDoc" Filename="GetFilenameFromBase(ExtractFilePath(ScriptFilename), 'ComponentKinds.xml')"/>
+          
+          <rep:Reporter.DefaultTarget Identifier="TIntegratedCircuitSpec.CheckComponentKind"/>
+          <rep:Reporter.Information Text="''"/>
+          <Execute Statement="GenerateMultiFunctionComponentSpecCheckComponentKind"/>
+          <rep:Reporter.DefaultTarget Identifier="TIntegratedCircuitCategory.IsValidSpecification"/>
+          <rep:Reporter.Information Text="''"/>
+          <Execute Statement="GenerateMultiFunctionComponentSpecCheckComponentKind"/>
+        </Block>
+
+      </pkg:Program>
+    </scg:ScriptCodeGenerator>
+  </CodeGenerators>
+</Document>

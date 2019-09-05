@@ -3,18 +3,22 @@
   xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="urn:schemas-www-wisware.nl-xmlscripting"
-  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
-  xmlns:fw="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
-  xmlns:su="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
-  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
-  xmlns:indx="urn:schemas-www-wisware.nl-xmlscripting-index"
-  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
-  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
-  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
-  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
   xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:sim="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:cod="urn:schemas-www-wisware.nl-xmlscripting-codeparser"
   xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
-  xmlns:sui="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput">
+  xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers"
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement">
   <Type>
     <DataClass.Forwarded Identifier="TSerie"/>
 
@@ -197,6 +201,8 @@ Meter
     <Constant Identifier="cHz2" Type="Char" Expression="'z'"/>
     <Constant Identifier="cMeter" Type="Char" Expression="'m'"/>
     <Constant Identifier="cPercentage" Type="Char" Expression="'%'"/>
+    <Constant Identifier="sKW" Type="string" Expression="'K/W'"/>
+    <Constant Identifier="sCelcius" Type="string" Expression="'°C'"/>
 
     <Constant Identifier="cScaleYotta" Type="Integer" Expression="24"/>
     <Constant Identifier="cScaleZetta" Type="Integer" Expression="21"/>
@@ -326,77 +332,75 @@ Meter
         <Parameter Identifier="Prefix" Type="string" Direction="Output"/>
         <Parameter Identifier="Counter" Type="UInt32" Direction="Output"/>
       </Parameters>
-      <Type>
-        <Enumeration Identifier="TState" Elements="stStart, stInPrefix, stInNum, stInEndWhitespace"/>
-      </Type>
       <Variables>
-        <Variable Identifier="State" Type="TState" Init="TState.stStart"/>
+        <Variable Identifier="ValidEndState" Type="Boolean" Init="False"/>
         <Variable Identifier="locCounter" Type="UInt64"/>
         <Variable Identifier="locPrefix" Type="string"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="Reference" OrdinalIdentifier="ChrI" CharacterIdentifier="Chr">
-          <Case Expression="State" Optimalisation="integermapping">
-            <On Select="TState.stStart">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <On Select="'a'..'z', 'A'..'Z'">
-                  <Execute Statement="locPrefix:= Chr"/>
-                  <Execute Statement="State:= TState.stInPrefix"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInPrefix">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="'a'..'z', 'A'..'Z'">
-                  <Execute Statement="locPrefix:= locPrefix + Chr"/>
-                </On>
-                <On Select="'0'..'9'">
-                  <Execute Statement="locCounter:= ChrI - CharOrd('0')"/>
-                  <Execute Statement="State:= TState.stInNum"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInNum">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                  <Execute Statement="State:= TState.stInEndWhitespace"/>
-                </On>
-                <On Select="'0'..'9'">
-                  <Execute Statement="locCounter:= locCounter * 10 + (ChrI - CharOrd('0'))"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.stInEndWhitespace">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="' ', #9">
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.stInNum, TState.stInEndWhitespace">
-            <Execute Statement="Counter:= locCounter"/>
-            <Execute Statement="Prefix:= locPrefix"/>
-            <Execute Statement="Result:= True"/>
-            <!--<rep:Reporter.Information Text="Format('%s = %s - %d', Reference, Prefix, Counter)"/>-->
-          </On>
-        </Case>
+        <stm:StateHandler InitialState="Start">
+          <StringLoop StringValue="Reference" OrdinalIdentifier="ChrI" CharacterIdentifier="Chr">
+            <stm:HandleStates>
+              <stm:State Name="Start">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="' ', #9">
+                  </On>
+                  <On Select="'a'..'z', 'A'..'Z'">
+                    <Execute Statement="locPrefix:= Chr"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                    <stm:SetState Name="InPrefix"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="InPrefix">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="'a'..'z', 'A'..'Z'">
+                    <Execute Statement="locPrefix:= locPrefix + Chr"/>
+                  </On>
+                  <On Select="'0'..'9'">
+                    <Execute Statement="locCounter:= ChrI - CharOrd('0')"/>
+                    <stm:SetState Name="InNum"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="InNum">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="' ', #9">
+                    <stm:SetState Name="InEndWhitespace"/>
+                  </On>
+                  <On Select="'0'..'9'">
+                    <Execute Statement="locCounter:= locCounter * 10 + (ChrI - CharOrd('0'))"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="InEndWhitespace">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="' ', #9">
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+            </stm:HandleStates>
+          </StringLoop>
+        </stm:StateHandler>
+        <Block Condition="ValidEndState">
+          <Execute Statement="Counter:= locCounter"/>
+          <Execute Statement="Prefix:= locPrefix"/>
+          <Execute Statement="Result:= True"/>
+        </Block>
       </Block>
     </Function>
 
@@ -444,6 +448,22 @@ Meter
       </Parameters>
       <Block>
         <Execute Statement="Result:= CreatePrefix(voltValue, cVolt, False)"/>
+      </Block>
+    </Function>
+    <Function Identifier="FormatThermalResistance" Type="string" IsDeterministic="1">
+      <Parameters>
+        <Parameter Identifier="kwValue" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= CreatePrefix(kwValue, sKW, False)"/>
+      </Block>
+    </Function>
+    <Function Identifier="FormatTemperatureCelcius" Type="string" IsDeterministic="1">
+      <Parameters>
+        <Parameter Identifier="centigradeValue" Type="Extended"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= CreatePrefix(centigradeValue, sCelcius, False)"/>
       </Block>
     </Function>
     <Function Identifier="FormatDistance" Type="string" IsDeterministic="1">
@@ -777,6 +797,278 @@ Meter
             </Choose>
           </Otherwise>
         </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSerie.MatchNode" Type="TSerieNode">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt64"/>
+        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
+        <Parameter Identifier="MatchedValue" Type="UInt64" Direction="Output"/>
+        <Parameter Identifier="MatchedLogScale" Type="Integer" Direction="Output"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Less" Type="TSerieNode" Init="ObjNil"/>
+        <Variable Identifier="More" Type="TSerieNode" Init="ObjNil"/>
+        <Variable Identifier="Factor" Type="UInt64" Init="1"/>
+        <Variable Identifier="LogScale" Type="Integer" Init="0"/>
+        <Variable Identifier="MoreValue" Type="UInt64"/>
+        <Variable Identifier="LessValue" Type="UInt64"/>
+        <Variable Identifier="MoreScale" Type="UInt64"/>
+        <Variable Identifier="LessScale" Type="UInt64"/>
+        <Variable Identifier="LessLogScale" Type="Integer"/>
+        <Variable Identifier="MoreLogScale" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Choose>
+          <When Expression="Value = 0">
+            <Execute Statement="MatchedValue:= 0"/>
+            <Execute Statement="MatchedLogScale:= 0"/>
+            <Exit Result="ObjNil"/>
+          </When>
+          <When Expression="Value &lt; Head.Value">
+            <!--UpScale-->
+            <RepeatUntilLoop Expression="Value * Factor &gt;= Head.Value">
+              <Execute Statement="Factor:= Factor * 10"/>
+              <Execute Statement="LogScale:= LogScale - 1"/>
+            </RepeatUntilLoop>
+            <Execute Statement="Result:= Root"/>
+            <WhileLoop Expression="Assigned(Result)">
+              <Choose>
+                <When Expression="(Value * Factor) &lt; Result.Value">
+                  <Execute Statement="More:= Result"/>
+                  <Execute Statement="Result:= Result.Less"/>
+                </When>
+                <When Expression="(Value * Factor) &gt; Result.Value">
+                  <Execute Statement="Less:= Result"/>
+                  <Execute Statement="Result:= Result.More"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="MatchedLogScale:= LogScale"/>
+                  <Execute Statement="MatchedValue:= Value"/>
+                  <Exit/>
+                </Otherwise>
+              </Choose>
+            </WhileLoop>
+            <Case Expression="MatchKind" Optimalisation="integermapping">
+              <On Select="TMatchValueKind.LessOrEqual">
+                <Choose>
+                  <When Expression="Assigned(Less)">
+                    <Execute Statement="MatchedLogScale:= LogScale"/>
+                    <Execute Statement="MatchedValue:= (Less.Value + Factor shr 1) div Factor"/>
+                    <Exit Result="Less"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
+                    <Execute Statement="MatchedValue:= (Tail.Value * 10 + Factor shr 1) div Factor"/>
+                    <Exit Result="Tail"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <On Select="TMatchValueKind.MoreOrEqual">
+                <Choose>
+                  <When Expression="Assigned(More)">
+                    <Execute Statement="MatchedLogScale:= LogScale"/>
+                    <Execute Statement="MatchedValue:= (More.Value + Factor shr 1) div Factor"/>
+                    <Exit Result="More"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="Factor:= Factor * 10"/>
+                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
+                    <Execute Statement="MatchedValue:= (Head.Value + Factor shr 1) div Factor"/>
+                    <Exit Result="Head"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <On Select="TMatchValueKind.Closest">
+                <Choose>
+                  <When Expression="Assigned(Less)">
+                    <Execute Statement="LessLogScale:= LogScale"/>
+                    <Execute Statement="LessValue:= (Less.Value + Factor shr 1) div Factor"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="LessValue:= LogScale + 1"/>
+                    <Execute Statement="LessValue:= (Tail.Value * 10 + Factor shr 1) div Factor"/>
+                    <Execute Statement="Less:= Tail"/>
+                  </Otherwise>
+                </Choose>
+
+                <Choose>
+                  <When Expression="Assigned(More)">
+                    <Execute Statement="MoreLogScale:= LogScale"/>
+                    <Execute Statement="MoreValue:= (More.Value + Factor shr 2) div Factor"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="Factor:= Factor * 10"/>
+                    <Execute Statement="MoreLogScale:= LogScale + 1"/>
+                    <Execute Statement="MoreValue:= (Head.Value + Factor shr 2) div Factor"/>
+                    <Execute Statement="More:= Head"/>
+                  </Otherwise>
+                </Choose>
+
+                <Choose>
+                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
+                    <Execute Statement="MatchedValue:= LessValue"/>
+                    <Execute Statement="MatchedLogScale:= LessLogScale"/>
+                    <Exit Result="Less"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedValue:= MoreValue"/>
+                    <Execute Statement="MatchedLogScale:= MoreLogScale"/>
+                    <Exit Result="More"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <Otherwise>
+                <Raise Expression="Exception.Create('Unknown matchkind')"/>
+              </Otherwise>
+            </Case>
+          </When>
+          <When Expression="Value &gt; Tail.Value">
+            <!--DownScale-->
+            <RepeatUntilLoop Expression="Value &lt;= Tail.Value * Scale">
+              <Execute Statement="Factor:= Factor * 10"/>
+              <Execute Statement="LogScale:= LogScale + 1"/>
+            </RepeatUntilLoop>
+            <Execute Statement="Result:= Root"/>
+            <WhileLoop Expression="Assigned(Result)">
+              <Choose>
+                <When Expression="Value &lt; (Result.Value * Factor)">
+                  <Execute Statement="More:= Result"/>
+                  <Execute Statement="Result:= Result.Less"/>
+                </When>
+                <When Expression="Value &gt; (Result.Value * Factor)">
+                  <Execute Statement="Less:= Result"/>
+                  <Execute Statement="Result:= Result.More"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="MatchedValue:= Value"/>
+                  <Execute Statement="MatchedLogScale:= LogScale"/>
+                  <Exit/>
+                </Otherwise>
+              </Choose>
+            </WhileLoop>
+            <Case Expression="MatchKind" Optimalisation="integermapping">
+              <On Select="TMatchValueKind.LessOrEqual">
+                <Choose>
+                  <When Expression="Assigned(Less)">
+                    <Execute Statement="MatchedLogScale:= LogScale"/>
+                    <Execute Statement="MatchedValue:= Less.Value * Factor"/>
+                    <Exit Result="Less"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedLogScale:= LogScale-1"/>
+                    <Execute Statement="MatchedValue:= (Tail.Value * Factor + 5) div 10"/>
+                    <Exit Result="Tail"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <On Select="TMatchValueKind.MoreOrEqual">
+                <Choose>
+                  <When Expression="Assigned(More)">
+                    <Execute Statement="MatchedLogScale:= LogScale"/>
+                    <Execute Statement="MatchedValue:= More.Value * Factor"/>
+                    <Exit Result="More"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="Factor:= Factor * 10"/>
+                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
+                    <Execute Statement="MatchedValue:= Head.Value * Factor"/>
+                    <Exit Result="Head"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <On Select="TMatchValueKind.Closest">
+                <Choose>
+                  <When Expression="Assigned(Less)">
+                    <Execute Statement="LessLogScale:= LogScale"/>
+                    <Execute Statement="LessValue:= Less.Value * Factor"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="LessLogScale:= LogScale-1"/>
+                    <Execute Statement="LessValue:= (Tail.Value * Factor + 5) div 10"/>
+                    <Execute Statement="Less:= Tail"/>
+                  </Otherwise>
+                </Choose>
+                <Choose>
+                  <When Expression="Assigned(More)">
+                    <Execute Statement="MoreLogScale:= LogScale"/>
+                    <Execute Statement="MatchedValue:= More.Value * Factor"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="Factor:= Factor * 10"/>
+                    <Execute Statement="MoreLogScale:= LogScale + 1"/>
+                    <Execute Statement="MoreValue:= Head.Value * Factor"/>
+                    <Execute Statement="More:= Head"/>
+                  </Otherwise>
+                </Choose>
+                <Choose>
+                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
+                    <Execute Statement="MatchedValue:= LessValue"/>
+                    <Execute Statement="MatchedLogScale:= LessLogScale"/>
+                    <Exit Result="Less"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedValue:= MoreValue"/>
+                    <Execute Statement="MatchedLogScale:= MoreLogScale"/>
+                    <Exit Result="More"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <Otherwise>
+                <Raise Expression="Exception.Create('Unknown matchkind')"/>
+              </Otherwise>
+            </Case>
+          </When>
+          <Otherwise>
+            <!--NoScale-->
+            <Execute Statement="MatchedLogScale:= 0"/>
+            <Execute Statement="Result:= Root"/>
+            <WhileLoop Expression="Assigned(Result)">
+              <Choose>
+                <When Expression="Value &lt; Result.Value">
+                  <Execute Statement="More:= Result"/>
+                  <Execute Statement="Result:= Result.Less"/>
+                </When>
+                <When Expression="Value &gt; Result.Value">
+                  <Execute Statement="Less:= Result"/>
+                  <Execute Statement="Result:= Result.More"/>
+                </When>
+                <Otherwise>
+                  <Execute Statement="MatchedValue:= Value"/>
+                  <Exit/>
+                </Otherwise>
+              </Choose>
+            </WhileLoop>
+            <Case Expression="MatchKind" Optimalisation="integermapping">
+              <On Select="TMatchValueKind.LessOrEqual">
+                <Execute Statement="MatchedValue:= Less.Value"/>
+                <Exit Result="Less"/>
+              </On>
+              <On Select="TMatchValueKind.MoreOrEqual">
+                <Execute Statement="MatchedValue:= More.Value"/>
+                <Exit Result="More"/>
+              </On>
+              <On Select="TMatchValueKind.Closest">
+                <Execute Statement="LessValue:= Less.Value"/>
+                <Execute Statement="MoreValue:= More.Value"/>
+                <Choose>
+                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
+                    <Execute Statement="MatchedValue:= LessValue"/>
+                    <Exit Result="Less"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="MatchedValue:= MoreValue"/>
+                    <Exit Result="More"/>
+                  </Otherwise>
+                </Choose>
+              </On>
+              <Otherwise>
+                <Raise Expression="Exception.Create('Unknown matchkind')"/>
+              </Otherwise>
+            </Case>
+          </Otherwise>
+        </Choose>
       </Block>
     </Function>
 
@@ -1620,11 +1912,7 @@ Done:
         <Parameter Identifier="TextValue" Type="string"/>
         <Parameter Identifier="IntValue" Type="Int64" Direction="Output"/>
       </Parameters>
-      <Type>
-        <Enumeration Identifier="TState" Elements="Start, AfterSign, InNum, AfterDecimalChar, InDecimalFrac, AfterNumSep, AfterPrefix, AfterMilliOrMeter, AfterPrefixFracSep, InPrefixFrac, AfterFirstUnitChar, Final"/>
-      </Type>
       <Variables>
-        <Variable Identifier="State" Type="TState" Init="TState.Start"/>
         <Variable Identifier="Num" Type="UInt64"/>
         <Variable Identifier="Scale" Type="Integer" Init="0"/>
         <Variable Identifier="FracScale" Type="Integer" Init="0"/>
@@ -1633,874 +1921,968 @@ Done:
         <Variable Identifier="FracNumScale" Type="Integer" Init="0"/>
         <Variable Identifier="NumNumScale" Type="Integer" Init="0"/>
         <Variable Identifier="IsNegative" Type="Boolean" Init="False"/>
+        <Variable Identifier="ValidEndState" Type="Boolean" Init="False"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= False"/>
-        <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
-          <Case Expression="State" Optimalisation="integermapping">
-            <!--<-<TUnitConvertor.StrToIntValue.StringLoop-->
-            <On Select="TState.Start">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cSpace, cTab">
-                </On>
-                <On Select="cNegative">
-                  <Execute Statement="IsNegative:= True"/>
-                  <Execute Statement="State:= TState.AfterSign"/>
-                </On>
-                <On Select="cPositive">
-                  <Execute Statement="State:= TState.AfterSign"/>
-                </On>
-                <On Select="c0">
-                  <Execute Statement="Num:= 0"/>
-                  <Execute Statement="NumNumScale:= 0"/>
-                  <Execute Statement="State:= TState.InNum"/>
-                </On>
-                <On Select="c1..c9">
-                  <Execute Statement="Num:= ChrI - CharOrd(c0)"/>
-                  <Execute Statement="NumNumScale:= 0"/>
-                  <Execute Statement="State:= TState.InNum"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterSign">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="c0">
-                  <Execute Statement="Num:= 0"/>
-                  <Execute Statement="NumNumScale:= 0"/>
-                  <Execute Statement="State:= TState.InNum"/>
-                </On>
-                <On Select="c1..c9">
-                  <Execute Statement="Num:= ChrI - CharOrd(c0)"/>
-                  <Execute Statement="NumNumScale:= 0"/>
-                  <Execute Statement="State:= TState.InNum"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.InNum">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cSpace">
-                  <Execute Statement="State:= TState.AfterNumSep"/>
-                </On>
-                <On Select="cTab">
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="c0">
-                  <Execute Statement="NumNumScale:= NumNumScale + 1"/>
-                </On>
-                <On Select="c1..c9">
-                  <ForLoop Indexer="I" From="0" To="NumNumScale - 1">
-                    <Execute Statement="Num:= Num * 10"/>
-                  </ForLoop>
-                  <Execute Statement="NumNumScale:= 0"/>
-                  <Execute Statement="Num:= Num * 10 + ChrI - CharOrd(c0)"/>
-                </On>
-                <On Select="cDecimalSep1, cDecimalSep2">
-                  <Execute Statement="State:= TState.AfterDecimalChar"/>
-                </On>
-                <On Select="cTera">
-                  <Execute Statement="Scale:= cScaleTera"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="Scale:= cScaleGiga"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="Scale:= cScaleMega"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="Scale:= cScaleKilo"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cK">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="Scale:= cScaleKilo"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cR, cE">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cMilliOrMeter">
-                  <Choose>
-                    <When Expression="SiUnit = TSiUnit.Meter">
-                      <Execute Statement="State:= TState.AfterMilliOrMeter"/>
-                    </When>
-                    <Otherwise>
-                      <Execute Statement="Scale:= cScaleMilli"/>
-                      <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                    </Otherwise>
-                  </Choose>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="Scale:= cScaleMicro"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cNano">
-                  <Execute Statement="Scale:= cScaleNano"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cPico">
-                  <Execute Statement="Scale:= cScalePico"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cFemto">
-                  <Execute Statement="Scale:= cScaleFemto"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cOhm">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cWatt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cFarad">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHenry">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cVolt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                  <Execute Statement="State:= TState.AfterPrefixFracSep"/>
-                </On>
-                <On Select="cAmp">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cPerc">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHz">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterDecimalChar">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="c0">
-                  <Execute Statement="Frac:= 0"/>
-                  <Execute Statement="FracScale:= - NumNumScale"/>
-                  <Execute Statement="FracNumScale:= 1"/>
-                  <Execute Statement="State:= TState.InDecimalFrac"/>
-                </On>
-                <On Select="c1..c9">
-                  <Execute Statement="Frac:= ChrI - CharOrd(c0)"/>
-                  <Execute Statement="FracScale:= -1 - NumNumScale"/>
-                  <Execute Statement="FracNumScale:= 0"/>
-                  <Execute Statement="State:= TState.InDecimalFrac"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.InDecimalFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cSpace">
-                  <Execute Statement="State:= TState.AfterNumSep"/>
-                </On>
-                <On Select="cTab">
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="c0">
-                  <Execute Statement="FracNumScale:= FracNumScale + 1"/>
-                </On>
-                <On Select="c1..c9">
-                  <ForLoop Indexer="I" From="0" To="FracNumScale - 1">
-                    <Execute Statement="Frac:= Frac * 10"/>
+        <stm:StateHandler InitialState="Start">
+          <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
+            <stm:HandleStates>
+              <!--<-<TUnitConvertor.StrToIntValue.StringLoop-->
+              <stm:State Name="Start">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="cSpace, cTab">
+                  </On>
+                  <On Select="cNegative">
+                    <Execute Statement="IsNegative:= True"/>
+                    <stm:SetState Name="AfterSign"/>
+                    <Execute Statement="ValidEndState:= False"/>
+                  </On>
+                  <On Select="cPositive">
+                    <stm:SetState Name="AfterSign"/>
+                    <Execute Statement="ValidEndState:= False"/>
+                  </On>
+                  <On Select="c0..c9">
+                    <Execute Statement="Num:= ChrI - CharOrd(c0)"/>
+                    <Execute Statement="NumNumScale:= 0"/>
+                    <stm:SetState Name="InNum"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="AfterSign">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="c0..c9">
+                    <Execute Statement="Num:= ChrI - CharOrd(c0)"/>
+                    <Execute Statement="NumNumScale:= 0"/>
+                    <stm:SetState Name="InNum"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="InNum">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="cSpace">
+                    <stm:SetState Name="AfterNumSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cTab">
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="c0">
+                    <Execute Statement="NumNumScale:= NumNumScale + 1"/>
+                  </On>
+                  <On Select="c1..c9">
+                    <ForLoop Indexer="I" From="0" To="NumNumScale - 1">
+                      <Execute Statement="Num:= Num * 10"/>
+                    </ForLoop>
+                    <Execute Statement="NumNumScale:= 0"/>
+                    <Execute Statement="Num:= Num * 10 + ChrI - CharOrd(c0)"/>
+                  </On>
+                  <On Select="cDecimalSep1, cDecimalSep2">
+                    <stm:SetState Name="AfterDecimalChar"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cTera">
+                    <Execute Statement="Scale:= cScaleTera"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cGiga">
+                    <Execute Statement="Scale:= cScaleGiga"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMega">
+                    <Execute Statement="Scale:= cScaleMega"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cKilo">
+                    <Execute Statement="Scale:= cScaleKilo"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cK">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <Execute Statement="Scale:= cScaleKilo"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cR, cE">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMilliOrMeter">
+                    <Choose>
+                      <When Expression="SiUnit = TSiUnit.Meter">
+                        <stm:SetState Name="AfterMilliOrMeter"/>
+                        <Execute Statement="ValidEndState:= True"/>
+                      </When>
+                      <Otherwise>
+                        <Execute Statement="Scale:= cScaleMilli"/>
+                        <stm:SetState Name="AfterPrefixFracSep"/>
+                        <Execute Statement="ValidEndState:= True"/>
+                      </Otherwise>
+                    </Choose>
+                  </On>
+                  <On Select="cMicro, cMicroAlt, cMicroAlt2">
+                    <Execute Statement="Scale:= cScaleMicro"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cNano">
+                    <Execute Statement="Scale:= cScaleNano"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cPico">
+                    <Execute Statement="Scale:= cScalePico"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cFemto">
+                    <Execute Statement="Scale:= cScaleFemto"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cOhm">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cWatt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cFarad">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHenry">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cVolt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                    <stm:SetState Name="AfterPrefixFracSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cAmp">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cPerc">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHz">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                    <stm:SetState Name="AfterFirstUnitChar"/>
+                    <Execute Statement="ValidEndState:= False"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="AfterDecimalChar">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="c0">
+                    <Execute Statement="Frac:= 0"/>
+                    <Execute Statement="FracScale:= - NumNumScale"/>
+                    <Execute Statement="FracNumScale:= 1"/>
+                    <stm:SetState Name="InDecimalFrac"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="c1..c9">
+                    <Execute Statement="Frac:= ChrI - CharOrd(c0)"/>
+                    <Execute Statement="FracScale:= -1 - NumNumScale"/>
+                    <Execute Statement="FracNumScale:= 0"/>
+                    <stm:SetState Name="InDecimalFrac"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="InDecimalFrac">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="cSpace">
+                    <stm:SetState Name="AfterNumSep"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cTab">
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="c0">
+                    <Execute Statement="FracNumScale:= FracNumScale + 1"/>
+                  </On>
+                  <On Select="c1..c9">
+                    <ForLoop Indexer="I" From="0" To="FracNumScale - 1">
+                      <Execute Statement="Frac:= Frac * 10"/>
+                      <Execute Statement="FracScale:= FracScale - 1"/>
+                    </ForLoop>
                     <Execute Statement="FracScale:= FracScale - 1"/>
-                  </ForLoop>
-                  <Execute Statement="FracScale:= FracScale - 1"/>
-                  <Execute Statement="FracNumScale:= 0"/>
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd(c0)"/>
-                </On>
-                <On Select="cTera">
-                  <Execute Statement="Scale:= cScaleTera"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="Scale:= cScaleGiga"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="Scale:= cScaleMega"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="Scale:= cScaleKilo"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cK">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="Scale:= cScaleKilo"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cR, cE">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cMilliOrMeter">
-                  <Execute Statement="Scale:= cScaleMilli"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="Scale:= cScaleMicro"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cNano">
-                  <Execute Statement="Scale:= cScaleNano"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cPico">
-                  <Execute Statement="Scale:= cScalePico"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cFemto">
-                  <Execute Statement="Scale:= cScaleFemto"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cOhm">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cWatt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cFarad">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHenry">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cVolt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cAmp">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cPerc">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHz">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterNumSep">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cSpace, cTab">
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cTera">
-                  <Execute Statement="Scale:= cScaleTera"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cGiga">
-                  <Execute Statement="Scale:= cScaleGiga"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cMega">
-                  <Execute Statement="Scale:= cScaleMega"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cKilo">
-                  <Execute Statement="Scale:= cScaleKilo"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cK">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="Scale:= cScaleKilo"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cMilliOrMeter">
-                  <Execute Statement="Scale:= cScaleMilli"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                  <Execute Statement="Scale:= cScaleMicro"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cNano">
-                  <Execute Statement="Scale:= cScaleNano"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cPico">
-                  <Execute Statement="Scale:= cScalePico"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cFemto">
-                  <Execute Statement="Scale:= cScaleFemto"/>
-                  <Execute Statement="State:= TState.AfterPrefix"/>
-                </On>
-                <On Select="cOhm">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cWatt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cFarad">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHenry">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cVolt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cAmp">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cPerc">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHz">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterPrefix">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cSpace, cTab">
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cMeter">
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cOhm">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cWatt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cFarad">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHenry">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cVolt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cAmp">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cPerc">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHz">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterMilliOrMeter">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cSpace, cTab">
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cMeter">
-                  <Execute Statement="Scale:= cScaleMilli"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterPrefixFracSep">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cSpace, cTab">
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="c0">
-                  <Execute Statement="Frac:= 0"/>
-                  <Execute Statement="FracScale:= - NumNumScale"/>
-                  <Execute Statement="FracNumScale:= 1"/>
-                  <Execute Statement="State:= TState.InPrefixFrac"/>
-                </On>
-                <On Select="c1..c9">
-                  <Execute Statement="Frac:= ChrI - CharOrd(c0)"/>
-                  <Execute Statement="FracScale:= -1 - NumNumScale"/>
-                  <Execute Statement="FracNumScale:= 0"/>
-                  <Execute Statement="State:= TState.InPrefixFrac"/>
-                </On>
-                <On Select="cMeter">
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cOhm">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cWatt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cFarad">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHenry">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cVolt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cAmp">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cPerc">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHz">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.InPrefixFrac">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cSpace, cTab">
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="c0">
-                  <Execute Statement="FracNumScale:= FracNumScale + 1"/>
-                </On>
-                <On Select="c1..c9">
-                  <ForLoop Indexer="I" From="0" To="FracNumScale - 1">
-                    <Execute Statement="Frac:= Frac * 10"/>
+                    <Execute Statement="FracNumScale:= 0"/>
+                    <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd(c0)"/>
+                  </On>
+                  <On Select="cTera">
+                    <Execute Statement="Scale:= cScaleTera"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cGiga">
+                    <Execute Statement="Scale:= cScaleGiga"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMega">
+                    <Execute Statement="Scale:= cScaleMega"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cKilo">
+                    <Execute Statement="Scale:= cScaleKilo"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cK">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <Execute Statement="Scale:= cScaleKilo"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cR, cE">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMilliOrMeter">
+                    <Execute Statement="Scale:= cScaleMilli"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMicro, cMicroAlt, cMicroAlt2">
+                    <Execute Statement="Scale:= cScaleMicro"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cNano">
+                    <Execute Statement="Scale:= cScaleNano"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cPico">
+                    <Execute Statement="Scale:= cScalePico"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cFemto">
+                    <Execute Statement="Scale:= cScaleFemto"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cOhm">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cWatt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cFarad">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHenry">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cVolt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cAmp">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cPerc">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHz">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                    <stm:SetState Name="AfterFirstUnitChar"/>
+                    <Execute Statement="ValidEndState:= False"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="AfterNumSep">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="cSpace, cTab">
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cTera">
+                    <Execute Statement="Scale:= cScaleTera"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cGiga">
+                    <Execute Statement="Scale:= cScaleGiga"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMega">
+                    <Execute Statement="Scale:= cScaleMega"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cKilo">
+                    <Execute Statement="Scale:= cScaleKilo"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cK">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <Execute Statement="Scale:= cScaleKilo"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMilliOrMeter">
+                    <Execute Statement="Scale:= cScaleMilli"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMicro, cMicroAlt, cMicroAlt2">
+                    <Execute Statement="Scale:= cScaleMicro"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cNano">
+                    <Execute Statement="Scale:= cScaleNano"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cPico">
+                    <Execute Statement="Scale:= cScalePico"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cFemto">
+                    <Execute Statement="Scale:= cScaleFemto"/>
+                    <stm:SetState Name="AfterPrefix"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cOhm">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cWatt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cFarad">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHenry">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cVolt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cAmp">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cPerc">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHz">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                    <stm:SetState Name="AfterFirstUnitChar"/>
+                    <Execute Statement="ValidEndState:= False"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="AfterPrefix">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="cSpace, cTab">
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMeter">
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cOhm">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cWatt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cFarad">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHenry">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cVolt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cAmp">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cPerc">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHz">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                    <stm:SetState Name="AfterFirstUnitChar"/>
+                    <Execute Statement="ValidEndState:= False"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="AfterMilliOrMeter">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="cSpace, cTab">
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMeter">
+                    <Execute Statement="Scale:= cScaleMilli"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="AfterPrefixFracSep">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="cSpace, cTab">
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="c0">
+                    <Execute Statement="Frac:= 0"/>
+                    <Execute Statement="FracScale:= - NumNumScale"/>
+                    <Execute Statement="FracNumScale:= 1"/>
+                    <stm:SetState Name="InPrefixFrac"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="c1..c9">
+                    <Execute Statement="Frac:= ChrI - CharOrd(c0)"/>
+                    <Execute Statement="FracScale:= -1 - NumNumScale"/>
+                    <Execute Statement="FracNumScale:= 0"/>
+                    <stm:SetState Name="InPrefixFrac"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cMeter">
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cOhm">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cWatt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cFarad">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHenry">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cVolt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cAmp">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cPerc">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHz">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                    <stm:SetState Name="AfterFirstUnitChar"/>
+                    <Execute Statement="ValidEndState:= False"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="InPrefixFrac">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="cSpace, cTab">
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="c0">
+                    <Execute Statement="FracNumScale:= FracNumScale + 1"/>
+                  </On>
+                  <On Select="c1..c9">
+                    <ForLoop Indexer="I" From="0" To="FracNumScale - 1">
+                      <Execute Statement="Frac:= Frac * 10"/>
+                      <Execute Statement="FracScale:= FracScale - 1"/>
+                    </ForLoop>
                     <Execute Statement="FracScale:= FracScale - 1"/>
-                  </ForLoop>
-                  <Execute Statement="FracScale:= FracScale - 1"/>
-                  <Execute Statement="FracNumScale:= 0"/>
-                  <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd(c0)"/>
-                </On>
-                <On Select="cMeter">
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cOhm">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cWatt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cFarad">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHenry">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cVolt">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cAmp">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cPerc">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <On Select="cHz">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                  <Execute Statement="State:= TState.AfterFirstUnitChar"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.AfterFirstUnitChar">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cHz2">
-                  <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                  <Execute Statement="State:= TState.Final"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <On Select="TState.Final">
-              <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                <On Select="cSpace, cTab">
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </On>
-            <!-->->-->
-          </Case>
-        </StringLoop>
-        <Case Expression="State" Optimalisation="integermapping">
-          <On Select="TState.InNum, TState.AfterDecimalChar, TState.InDecimalFrac, TState.AfterNumSep, TState.AfterPrefix, TState.AfterMilliOrMeter, TState.AfterPrefixFracSep, TState.InPrefixFrac, TState.Final">
-            <!--<rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsDebugging"/>
+                    <Execute Statement="FracNumScale:= 0"/>
+                    <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd(c0)"/>
+                  </On>
+                  <On Select="cMeter">
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cOhm">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cWatt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cFarad">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHenry">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cVolt">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cAmp">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cPerc">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <On Select="cHz">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                    <stm:SetState Name="AfterFirstUnitChar"/>
+                    <Execute Statement="ValidEndState:= False"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="AfterFirstUnitChar">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="cHz2">
+                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
+                    <stm:SetState Name="Final"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="Final">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="cSpace, cTab">
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <!-->->-->
+            </stm:HandleStates>
+          </StringLoop>
+        </stm:StateHandler>
+        <Exit Condition="not ValidEndState"/>
+        <!--<rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsDebugging"/>
             <rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>
             <rep:Reporter.Information Text="Format('NumNumScale: %d', NumNumScale)" Condition="IsDebugging"/>
             <rep:Reporter.Information Text="Format('BaseScale: %d', BaseScale)" Condition="IsDebugging"/>-->
-            <Execute Statement="Scale:= Scale + NumNumScale - BaseScale"/>
-            <!--<rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>-->
-            <Case Expression="Scale" Optimalisation="integermapping">
-              <!--<-<TUnitConvertor.StrToIntValue.NumScaling-->
-              <On Select="-19">
-                <Exit Condition="(Num mod cScaleFactor19) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor19"/>
-              </On>
-              <On Select="-18">
-                <Exit Condition="(Num mod cScaleFactor18) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor18"/>
-              </On>
-              <On Select="-17">
-                <Exit Condition="(Num mod cScaleFactor17) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor17"/>
-              </On>
-              <On Select="-16">
-                <Exit Condition="(Num mod cScaleFactor16) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor16"/>
-              </On>
-              <On Select="-15">
-                <Exit Condition="(Num mod cScaleFactor15) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor15"/>
-              </On>
-              <On Select="-14">
-                <Exit Condition="(Num mod cScaleFactor14) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor14"/>
-              </On>
-              <On Select="-13">
-                <Exit Condition="(Num mod cScaleFactor13) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor13"/>
-              </On>
-              <On Select="-12">
-                <Exit Condition="(Num mod cScaleFactor12) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor12"/>
-              </On>
-              <On Select="-11">
-                <Exit Condition="(Num mod cScaleFactor11) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor11"/>
-              </On>
-              <On Select="-10">
-                <Exit Condition="(Num mod cScaleFactor10) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor10"/>
-              </On>
-              <On Select="-9">
-                <Exit Condition="(Num mod cScaleFactor09) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor09"/>
-              </On>
-              <On Select="-8">
-                <Exit Condition="(Num mod cScaleFactor08) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor08"/>
-              </On>
-              <On Select="-7">
-                <Exit Condition="(Num mod cScaleFactor07) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor07"/>
-              </On>
-              <On Select="-6">
-                <Exit Condition="(Num mod cScaleFactor06) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor06"/>
-              </On>
-              <On Select="-5">
-                <Exit Condition="(Num mod cScaleFactor05) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor05"/>
-              </On>
-              <On Select="-4">
-                <Exit Condition="(Num mod cScaleFactor04) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor04"/>
-              </On>
-              <On Select="-3">
-                <Exit Condition="(Num mod cScaleFactor03) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor03"/>
-              </On>
-              <On Select="-2">
-                <Exit Condition="(Num mod cScaleFactor02) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor02"/>
-              </On>
-              <On Select="-1">
-                <Exit Condition="(Num mod cScaleFactor01) &gt; 0"/>
-                <Execute Statement="CheckIntValue:= Num div cScaleFactor01"/>
-              </On>
-              <On Select="1">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor01"/>
-              </On>
-              <On Select="2">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor02"/>
-              </On>
-              <On Select="3">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor03"/>
-              </On>
-              <On Select="4">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor04"/>
-              </On>
-              <On Select="5">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor05"/>
-              </On>
-              <On Select="6">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor06"/>
-              </On>
-              <On Select="7">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor07"/>
-              </On>
-              <On Select="8">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor08"/>
-              </On>
-              <On Select="9">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor09"/>
-              </On>
-              <On Select="10">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor10"/>
-              </On>
-              <On Select="11">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor11"/>
-              </On>
-              <On Select="12">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor12"/>
-              </On>
-              <On Select="13">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor13"/>
-              </On>
-              <On Select="14">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor14"/>
-              </On>
-              <On Select="15">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor15"/>
-              </On>
-              <On Select="16">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor16"/>
-              </On>
-              <On Select="17">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor17"/>
-              </On>
-              <On Select="18">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor18"/>
-              </On>
-              <On Select="19">
-                <Execute Statement="CheckIntValue:= Num * cScaleFactor19"/>
-              </On>
-              <!-->->-->
-              <On Select="0">
-                <Execute Statement="CheckIntValue:= Num"/>
-              </On>
-              <Otherwise>
-                <Exit/>
-              </Otherwise>
-            </Case>
-            <rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>
-            <Block Condition="FracScale &lt; 0">
-              <!--<rep:Reporter.Information Text="'*****************'" Condition="IsDebugging"/>
+        <Execute Statement="Scale:= Scale + NumNumScale - BaseScale"/>
+        <!--<rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>-->
+        <Case Expression="Scale" Optimalisation="integermapping">
+          <!--<-<TUnitConvertor.StrToIntValue.NumScaling-->
+          <On Select="-19">
+            <Exit Condition="(Num mod cScaleFactor19) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor19"/>
+          </On>
+          <On Select="-18">
+            <Exit Condition="(Num mod cScaleFactor18) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor18"/>
+          </On>
+          <On Select="-17">
+            <Exit Condition="(Num mod cScaleFactor17) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor17"/>
+          </On>
+          <On Select="-16">
+            <Exit Condition="(Num mod cScaleFactor16) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor16"/>
+          </On>
+          <On Select="-15">
+            <Exit Condition="(Num mod cScaleFactor15) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor15"/>
+          </On>
+          <On Select="-14">
+            <Exit Condition="(Num mod cScaleFactor14) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor14"/>
+          </On>
+          <On Select="-13">
+            <Exit Condition="(Num mod cScaleFactor13) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor13"/>
+          </On>
+          <On Select="-12">
+            <Exit Condition="(Num mod cScaleFactor12) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor12"/>
+          </On>
+          <On Select="-11">
+            <Exit Condition="(Num mod cScaleFactor11) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor11"/>
+          </On>
+          <On Select="-10">
+            <Exit Condition="(Num mod cScaleFactor10) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor10"/>
+          </On>
+          <On Select="-9">
+            <Exit Condition="(Num mod cScaleFactor09) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor09"/>
+          </On>
+          <On Select="-8">
+            <Exit Condition="(Num mod cScaleFactor08) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor08"/>
+          </On>
+          <On Select="-7">
+            <Exit Condition="(Num mod cScaleFactor07) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor07"/>
+          </On>
+          <On Select="-6">
+            <Exit Condition="(Num mod cScaleFactor06) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor06"/>
+          </On>
+          <On Select="-5">
+            <Exit Condition="(Num mod cScaleFactor05) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor05"/>
+          </On>
+          <On Select="-4">
+            <Exit Condition="(Num mod cScaleFactor04) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor04"/>
+          </On>
+          <On Select="-3">
+            <Exit Condition="(Num mod cScaleFactor03) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor03"/>
+          </On>
+          <On Select="-2">
+            <Exit Condition="(Num mod cScaleFactor02) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor02"/>
+          </On>
+          <On Select="-1">
+            <Exit Condition="(Num mod cScaleFactor01) &gt; 0"/>
+            <Execute Statement="CheckIntValue:= Num div cScaleFactor01"/>
+          </On>
+          <On Select="1">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor01"/>
+          </On>
+          <On Select="2">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor02"/>
+          </On>
+          <On Select="3">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor03"/>
+          </On>
+          <On Select="4">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor04"/>
+          </On>
+          <On Select="5">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor05"/>
+          </On>
+          <On Select="6">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor06"/>
+          </On>
+          <On Select="7">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor07"/>
+          </On>
+          <On Select="8">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor08"/>
+          </On>
+          <On Select="9">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor09"/>
+          </On>
+          <On Select="10">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor10"/>
+          </On>
+          <On Select="11">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor11"/>
+          </On>
+          <On Select="12">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor12"/>
+          </On>
+          <On Select="13">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor13"/>
+          </On>
+          <On Select="14">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor14"/>
+          </On>
+          <On Select="15">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor15"/>
+          </On>
+          <On Select="16">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor16"/>
+          </On>
+          <On Select="17">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor17"/>
+          </On>
+          <On Select="18">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor18"/>
+          </On>
+          <On Select="19">
+            <Execute Statement="CheckIntValue:= Num * cScaleFactor19"/>
+          </On>
+          <!-->->-->
+          <On Select="0">
+            <Execute Statement="CheckIntValue:= Num"/>
+          </On>
+          <Otherwise>
+            <Exit/>
+          </Otherwise>
+        </Case>
+        <rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>
+        <Block Condition="FracScale &lt; 0">
+          <!--<rep:Reporter.Information Text="'*****************'" Condition="IsDebugging"/>
               <rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>
               <rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>
               <rep:Reporter.Information Text="Format('FracNumScale: %d', FracNumScale)" Condition="IsDebugging"/>-->
-              <Execute Statement="FracScale:= Scale + FracScale"/>
-              <!--<rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>-->
-              <Case Expression="FracScale" Optimalisation="integermapping">
-                <!--<-<TUnitConvertor.StrToIntValue.FracScaling-->
-                <On Select="-19">
-                  <Exit Condition="(Frac mod cScaleFactor19) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor19"/>
-                </On>
-                <On Select="-18">
-                  <Exit Condition="(Frac mod cScaleFactor18) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor18"/>
-                </On>
-                <On Select="-17">
-                  <Exit Condition="(Frac mod cScaleFactor17) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor17"/>
-                </On>
-                <On Select="-16">
-                  <Exit Condition="(Frac mod cScaleFactor16) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor16"/>
-                </On>
-                <On Select="-15">
-                  <Exit Condition="(Frac mod cScaleFactor15) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor15"/>
-                </On>
-                <On Select="-14">
-                  <Exit Condition="(Frac mod cScaleFactor14) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor14"/>
-                </On>
-                <On Select="-13">
-                  <Exit Condition="(Frac mod cScaleFactor13) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor13"/>
-                </On>
-                <On Select="-12">
-                  <Exit Condition="(Frac mod cScaleFactor12) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor12"/>
-                </On>
-                <On Select="-11">
-                  <Exit Condition="(Frac mod cScaleFactor11) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor11"/>
-                </On>
-                <On Select="-10">
-                  <Exit Condition="(Frac mod cScaleFactor10) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor10"/>
-                </On>
-                <On Select="-9">
-                  <Exit Condition="(Frac mod cScaleFactor09) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor09"/>
-                </On>
-                <On Select="-8">
-                  <Exit Condition="(Frac mod cScaleFactor08) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor08"/>
-                </On>
-                <On Select="-7">
-                  <Exit Condition="(Frac mod cScaleFactor07) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor07"/>
-                </On>
-                <On Select="-6">
-                  <Exit Condition="(Frac mod cScaleFactor06) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor06"/>
-                </On>
-                <On Select="-5">
-                  <Exit Condition="(Frac mod cScaleFactor05) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor05"/>
-                </On>
-                <On Select="-4">
-                  <Exit Condition="(Frac mod cScaleFactor04) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor04"/>
-                </On>
-                <On Select="-3">
-                  <Exit Condition="(Frac mod cScaleFactor03) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor03"/>
-                </On>
-                <On Select="-2">
-                  <Exit Condition="(Frac mod cScaleFactor02) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor02"/>
-                </On>
-                <On Select="-1">
-                  <Exit Condition="(Frac mod cScaleFactor01) &gt; 0"/>
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor01"/>
-                </On>
-                <On Select="1">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor01"/>
-                </On>
-                <On Select="2">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor02"/>
-                </On>
-                <On Select="3">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor03"/>
-                </On>
-                <On Select="4">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor04"/>
-                </On>
-                <On Select="5">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor05"/>
-                </On>
-                <On Select="6">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor06"/>
-                </On>
-                <On Select="7">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor07"/>
-                </On>
-                <On Select="8">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor08"/>
-                </On>
-                <On Select="9">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor09"/>
-                </On>
-                <On Select="10">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor10"/>
-                </On>
-                <On Select="11">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor11"/>
-                </On>
-                <On Select="12">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor12"/>
-                </On>
-                <On Select="13">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor13"/>
-                </On>
-                <On Select="14">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor14"/>
-                </On>
-                <On Select="15">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor15"/>
-                </On>
-                <On Select="16">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor16"/>
-                </On>
-                <On Select="17">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor17"/>
-                </On>
-                <On Select="18">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor18"/>
-                </On>
-                <On Select="19">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor19"/>
-                </On>
-                <!-->->-->
-                <On Select="0">
-                  <Execute Statement="CheckIntValue:= CheckIntValue + Frac"/>
-                </On>
-                <Otherwise>
-                  <Exit/>
-                </Otherwise>
-              </Case>
-            </Block>
-            <Execute Statement="CheckIntValue:= -CheckIntValue" Condition="IsNegative"/>
-            <Exit Condition="IsError(CheckIntValue)"/>
-            <Execute Statement="IntValue:= CheckIntValue"/>
-            <Exit Result="True"/>
-          </On>
-        </Case>
+          <Execute Statement="FracScale:= Scale + FracScale"/>
+          <!--<rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>-->
+          <Case Expression="FracScale" Optimalisation="integermapping">
+            <!--<-<TUnitConvertor.StrToIntValue.FracScaling-->
+            <On Select="-19">
+              <Exit Condition="(Frac mod cScaleFactor19) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor19"/>
+            </On>
+            <On Select="-18">
+              <Exit Condition="(Frac mod cScaleFactor18) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor18"/>
+            </On>
+            <On Select="-17">
+              <Exit Condition="(Frac mod cScaleFactor17) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor17"/>
+            </On>
+            <On Select="-16">
+              <Exit Condition="(Frac mod cScaleFactor16) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor16"/>
+            </On>
+            <On Select="-15">
+              <Exit Condition="(Frac mod cScaleFactor15) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor15"/>
+            </On>
+            <On Select="-14">
+              <Exit Condition="(Frac mod cScaleFactor14) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor14"/>
+            </On>
+            <On Select="-13">
+              <Exit Condition="(Frac mod cScaleFactor13) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor13"/>
+            </On>
+            <On Select="-12">
+              <Exit Condition="(Frac mod cScaleFactor12) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor12"/>
+            </On>
+            <On Select="-11">
+              <Exit Condition="(Frac mod cScaleFactor11) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor11"/>
+            </On>
+            <On Select="-10">
+              <Exit Condition="(Frac mod cScaleFactor10) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor10"/>
+            </On>
+            <On Select="-9">
+              <Exit Condition="(Frac mod cScaleFactor09) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor09"/>
+            </On>
+            <On Select="-8">
+              <Exit Condition="(Frac mod cScaleFactor08) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor08"/>
+            </On>
+            <On Select="-7">
+              <Exit Condition="(Frac mod cScaleFactor07) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor07"/>
+            </On>
+            <On Select="-6">
+              <Exit Condition="(Frac mod cScaleFactor06) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor06"/>
+            </On>
+            <On Select="-5">
+              <Exit Condition="(Frac mod cScaleFactor05) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor05"/>
+            </On>
+            <On Select="-4">
+              <Exit Condition="(Frac mod cScaleFactor04) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor04"/>
+            </On>
+            <On Select="-3">
+              <Exit Condition="(Frac mod cScaleFactor03) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor03"/>
+            </On>
+            <On Select="-2">
+              <Exit Condition="(Frac mod cScaleFactor02) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor02"/>
+            </On>
+            <On Select="-1">
+              <Exit Condition="(Frac mod cScaleFactor01) &gt; 0"/>
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor01"/>
+            </On>
+            <On Select="1">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor01"/>
+            </On>
+            <On Select="2">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor02"/>
+            </On>
+            <On Select="3">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor03"/>
+            </On>
+            <On Select="4">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor04"/>
+            </On>
+            <On Select="5">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor05"/>
+            </On>
+            <On Select="6">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor06"/>
+            </On>
+            <On Select="7">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor07"/>
+            </On>
+            <On Select="8">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor08"/>
+            </On>
+            <On Select="9">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor09"/>
+            </On>
+            <On Select="10">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor10"/>
+            </On>
+            <On Select="11">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor11"/>
+            </On>
+            <On Select="12">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor12"/>
+            </On>
+            <On Select="13">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor13"/>
+            </On>
+            <On Select="14">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor14"/>
+            </On>
+            <On Select="15">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor15"/>
+            </On>
+            <On Select="16">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor16"/>
+            </On>
+            <On Select="17">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor17"/>
+            </On>
+            <On Select="18">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor18"/>
+            </On>
+            <On Select="19">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor19"/>
+            </On>
+            <!-->->-->
+            <On Select="0">
+              <Execute Statement="CheckIntValue:= CheckIntValue + Frac"/>
+            </On>
+            <Otherwise>
+              <Exit/>
+            </Otherwise>
+          </Case>
+        </Block>
+        <Execute Statement="CheckIntValue:= -CheckIntValue" Condition="IsNegative"/>
+        <Exit Condition="IsError(CheckIntValue)"/>
+        <Execute Statement="IntValue:= CheckIntValue"/>
+        <Exit Result="True"/>
       </Block>
     </Function>
 
