@@ -85,7 +85,7 @@ VoltageRating = 250V
     <Import Identifier="BomClasses" Filename="..\Script.Common.Electronics\BOM classes.xml"/>
     <Import Identifier="NamedComponentClasses" Filename="..\Script.Common.Electronics\BOM NamedComponentClasses.xml"/>
     <Import Identifier="DeviceFunctions" Filename="..\Script.Common.Electronics\BOM DeviceFunctions.xml"/>
-    <Import Identifier="DeviceFunctionDescription" Filename="..\Script.Common.Electronics\BOM DeviceFunctionDescription nl-NL.xml"/>
+    <Import Identifier="DeviceFunctionDescription" Filename="..\Script.Common.Electronics\BOM DeviceFunctionDescription en-GB.xml"/>
     <Import Identifier="MultiFunctionComponentClasses" Filename="..\Script.Common.Electronics\BOM MultiFunctionComponentClasses.xml"/>
     <Import Identifier="IntegratedCircuitClasses" Filename="..\Script.Common.Electronics\BOM IntegratedCircuitClasses.xml"/>
     <Import Identifier="ResistorClasses" Filename="..\Script.Common.Electronics\BOM ResistorClasses.xml"/>
