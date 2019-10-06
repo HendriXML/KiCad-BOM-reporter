@@ -43,4 +43,7 @@
     <Part Part="2N7000" Component="NMOSFET"/>
     <Part Part="IRLZ44N" Component="NMOSFET"/>
   </Library>
+  <Library Name="LM335">
+    <Part Part="LM335" Component="IntegratedCircuit"/>
+  </Library>
 </Devices>

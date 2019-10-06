@@ -42,7 +42,7 @@
       <!--Initialized in task-->
       <Field Identifier="Name" Type="string"/>
       <Field Identifier="StockCategory" Type="TStockCategory"/>
-      <Field Identifier="FootPrintInfo" Type="TFootprintInfo"/>
+      <!--<Field Identifier="FootPrintInfo" Type="TFootprintInfo"/>-->
       <Field Identifier="InternalPartNumber" Type="string"/>
       <Field Identifier="Error" Type="Boolean"/>
       <!--Initialized in create task-->
@@ -857,7 +857,7 @@
         <Variable Identifier="Footprint" Type="string" Init="''"/>
       </Variables>
       <Init>
-        <Execute Statement="Footprint:= PartKeeprPart.FootprintInfo.Name" Condition="Assigned(PartKeeprPart.FootprintInfo)"/>
+        <!--<Execute Statement="Footprint:= PartKeeprPart.FootprintInfo.Name" Condition="Assigned(PartKeeprPart.FootprintInfo)"/>-->
         <Task.Description Expression="Format(sCreatePart, ConcatExt(' - ', True, PartKeeprPart.Name, Footprint, PartKeeprPart.InternalPartNumber))"/>
         <Task.MarkFailed Condition="PartKeeprPart.Error"/>
       </Init>
@@ -866,7 +866,7 @@
           <ado:Recordset.AddNew/>
           <ado:Field.SetValue Name="category_id" Value="PartKeeprPart.StockCategory.ID"/>
           <ado:Field.SetValue Name="name" Value="PartKeeprPart.Name"/>
-          <ado:Field.SetValue Name="footprint_id" Value="PartKeeprPart.FootprintInfo.ID" Condition="Assigned(PartKeeprPart.FootprintInfo)"/>
+          <!--<ado:Field.SetValue Name="footprint_id" Value="PartKeeprPart.FootprintInfo.ID" Condition="Assigned(PartKeeprPart.FootprintInfo)"/>-->
           <ado:Field.SetValue Name="storageLocation_id" Value="UnmatchedComponentsStorageID"/>
           <Choose>
             <When Expression="IsNonEmptyString(PartKeeprPart.InternalPartNumber)" >
@@ -955,7 +955,7 @@
         <Variable Identifier="StockSpec" Type="TComponentSpec"/>
         <Variable Identifier="NumericPartParameter" Type="TNumericPartParameter"/>
         <Variable Identifier="StringPartParameter" Type="TStringPartParameter"/>
-        <Variable Identifier="FootprintInfo" Type="TFootprintInfo"/>
+        <!--<Variable Identifier="FootprintInfo" Type="TFootprintInfo"/>-->
         <Variable Identifier="Found" Type="Boolean"/>
       </Variables>
       <Init>
@@ -971,10 +971,36 @@
             <Execute Statement="Part.InternalPartNumber:= SchemaSpec.InternalPartNumber"/>
           </On>
         </Case>
-        <Block Condition="NumericParameterNeeded(SchemaSpec.FootPrint, SchemaSpec.FootPrintVT, StockSpec.FootPrint, StockSpec.FootPrintVT)">
+        <!--<Block Condition="NumericParameterNeeded(SchemaSpec.FootPrint, SchemaSpec.FootPrintVT, StockSpec.FootPrint, StockSpec.FootPrintVT)">
           <inx:Index.FindValue Index="FootPrintToFootPrintInfoMapping" Key="SchemaSpec.Footprint" Value="FootprintInfo" Found="Found" Flags="NoErrorOnNotFound"/>
           <Execute Statement="Part.FootprintInfo:= FootprintInfo" Condition="Found"/>
-        </Block>
+        </Block>-->
+        <Case Expression="SchemaSpec.FootprintVT">
+          <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+            <Case Expression="StockSpec.FootprintVT">
+              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+                <Block Condition="StockSpec.Footprint = SchemaSpec.Footprint">
+                  <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Footprint, SchemaSpec.Footprint)"/>
+                  <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+                </Block>
+              </On>
+              <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+                <Block Condition="StockSpec.FootprintMask.Matches(SchemaSpec.Footprint)">
+                  <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Footprint, SchemaSpec.Footprint)"/>
+                  <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
+                </Block>
+              </On>
+              <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
         <Block Condition="StringParameterNeeded(SchemaSpec.PartNumber, SchemaSpec.PartNumberVT, StockSpec.PartNumber, StockSpec.PartNumberVT)">
           <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.PartNumber, SchemaSpec.PartNumber)"/>
           <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>

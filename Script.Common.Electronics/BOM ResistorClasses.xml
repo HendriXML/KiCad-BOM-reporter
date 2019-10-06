@@ -77,8 +77,8 @@
       <VirtualMethod Identifier="vmLoadTemplatesFromIniFile" Override="true"/>
       <VirtualMethod Identifier="vmGetTemplate" Override="true"/>
       <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile" Override="true"/>
-      <Field Identifier="TemplateTHT" Type="TResistorSpec"/>
-      <Field Identifier="TemplateVariableTHT" Type="TResistorSpec"/>
+      <Field Identifier="Template" Type="TResistorSpec"/>
+      <Field Identifier="TemplateVariable" Type="TResistorSpec"/>
       <Field Identifier="ResistanceSpecificationIndex" Type="TResistanceSpecificationIndex"/>
     </DataClass>
   </Type>
@@ -428,19 +428,23 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="FootprintVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
             <Case Expression="ComponentSpec.FootprintVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="Footprint &lt;&gt; ComponentSpec.Footprint" Result="0"/>
-                <Execute Statement="Result:= Result + 1"/>
+              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+                <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
               </On>
-              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                <Exit Result="0"/>
+              <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+                <Execute Statement="Result:= Result + 1" Condition="ComponentSpec.FootprintMask.Matches(Footprint)"/>
               </On>
+              <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
             </Case>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Exit Result="0"/>
+          <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+            <Exit/>
           </On>
         </Case>
 
@@ -1183,10 +1187,10 @@
         <Execute Statement="Result:= ObjNil"/>
         <Case Expression="Specification.ComponentKind">
           <On Select="TComponentKind.Resistor">
-            <Execute Statement="Result:= TemplateTHT"/>
+            <Execute Statement="Result:= Template"/>
           </On>
           <On Select="TComponentKind.VariableResistor">
-            <Execute Statement="Result:= TemplateVariableTHT"/>
+            <Execute Statement="Result:= TemplateVariable"/>
           </On>
         </Case>
       </Block>
@@ -1219,18 +1223,18 @@
         <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
       </Parameters>
       <Constants>
-        <Constant Identifier="sSectionTHT" Type="string" Expression="'Template.Resistor.THT'"/>
-        <Constant Identifier="sSectionVariableTHT" Type="string" Expression="'Template.Resistor.Variable.THT'"/>
+        <Constant Identifier="sSection" Type="string" Expression="'Template.Resistor'"/>
+        <Constant Identifier="sSectionVariable" Type="string" Expression="'Template.Resistor.Variable'"/>
       </Constants>
 
       <Block>
-        <ConditionalBlock Expression="IniFile.SectionExists(sSectionTHT)">
-          <Execute Statement="TemplateTHT:= TResistorSpec.Create"/>
-          <Execute Statement="TemplateTHT.LoadFromIniFileSection(IniFile, sSectionTHT)"/>
+        <ConditionalBlock Expression="IniFile.SectionExists(sSection)">
+          <Execute Statement="Template:= TResistorSpec.Create"/>
+          <Execute Statement="Template.LoadFromIniFileSection(IniFile, sSection)"/>
         </ConditionalBlock>
-        <ConditionalBlock Expression="IniFile.SectionExists(sSectionVariableTHT)">
-          <Execute Statement="TemplateVariableTHT:= TResistorSpec.Create"/>
-          <Execute Statement="TemplateVariableTHT.LoadFromIniFileSection(IniFile, sSectionVariableTHT)"/>
+        <ConditionalBlock Expression="IniFile.SectionExists(sSectionVariable)">
+          <Execute Statement="TemplateVariable:= TResistorSpec.Create"/>
+          <Execute Statement="TemplateVariable.LoadFromIniFileSection(IniFile, sSectionVariable)"/>
         </ConditionalBlock>
       </Block>
     </Procedure>

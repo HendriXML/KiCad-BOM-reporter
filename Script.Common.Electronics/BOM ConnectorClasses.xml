@@ -569,17 +569,22 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="FootprintVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
             <Case Expression="ComponentSpec.FootprintVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
                 <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
+              </On>
+              <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+                <Execute Statement="Result:= Result + 1" Condition="ComponentSpec.FootprintMask.Matches(Footprint)"/>
+              </On>
+              <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
               </On>
               <Otherwise>
                 <Exit/>
               </Otherwise>
             </Case>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+          <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
@@ -784,7 +789,7 @@
                 <Execute Statement="Result:= ''"/>
               </When>
               <Otherwise>
-                <Execute Statement="Result:= Format('%-*s%*s%*s%-*s%-*s',
+                <Execute Statement="Result:= Format('%-*s%*s%-*s%-*s%-*s',
                          ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.Value, 4), Value,
                          ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.AmpRating, 2), AmpRating,
                          ColumnManager.GetColumnWidth(ColumnOffset + TConnectorSpecColumns.FootPrint, 1), FootPrint,

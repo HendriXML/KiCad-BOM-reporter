@@ -17,15 +17,12 @@
     <pkg:Target Identifier="Report" Description="BOM report"/>
     <pkg:Target Identifier="DesignatorReport" Description="Designator report"/>
     <pkg:Target Identifier="StorageLocationReport" Description="Storage location report"/>
-    <!--<pkg:Target Identifier="DesignatorStockReport" Description="Designator stock report"/>-->
     <pkg:Target Identifier="StockReport" Description="Partkeepr components"/>
     <pkg:Target Identifier="TaskOutput" Description="Task output"/>
     <pkg:Target Identifier="Info" Description="Info"/>
     <pkg:Target Identifier="Warnings" Description="Warnings"/>
     <pkg:Target Identifier="Errors" Description="Errors"/>
     <pkg:Target Identifier="ReportEEVBlog" Description="BOM report - EEVBlog"/>
-    <!--<pkg:Target Identifier="Errors" Description="Fouten"/>
-    <pkg:Target Identifier="Warnings" Description="Waarschuwingen"/>-->
   </pkg:ReportTargets>
   <pkg:Config xml:space="preserve">[Settings]
 BomFilename=..\Resources.Project\ESeriesBOM.xml
@@ -43,36 +40,36 @@ ExportUnmatchedComponentsStorageID=1
 HideESerieOfValue=0
 HideResistorMaxAmpVolt=0
 HideZenerDiodeMaxAmp=0
+HideFootprint=0
 MaxShowResistorVoltage=230V
 ;Defaults to system
 ;DecimalSeparator=,
 
-[Template.Resistor.THT]
+[Matching]
+SkipFootprint=0
+
+
+[Template.Resistor]
 PowerRating = 250mW
 Tolerance = 2%
 Technology = metal film
-Footprint = THT
-
 
 [Template.Resistor.Variable.THT.rem]
 ;PowerRating = 250mW
 
-[Template.PolarisedCapacitor.THT]
+[Template.PolarisedCapacitor]
 ;Tolerance = 10%
 VoltageRating = 50V
 Technology = electrolytic
-Footprint = THT
 
-[Template.Capacitor.THT]
+[Template.Capacitor]
 ;Tolerance = 10%
 VoltageRating = 50V
 Technology = ceramic
-Footprint = THT
 
-[Template.ZenderDiode.THT]
+[Template.ZenderDiode]
 ;Tolerance = 10%
 PowerRating = 1W
-;Footprint = THT
 
 [Template.Fuse]
 VoltageRating = 250V
@@ -118,6 +115,7 @@ VoltageRating = 250V
     <Constant Identifier="secSettings" Type="string" Expression="'Settings'"/>
     <Constant Identifier="secDisplay" Type="string" Expression="'Display'"/>
     <Constant Identifier="secTasks" Type="string" Expression="'Tasks'"/>
+    <Constant Identifier="secMatching" Type="string" Expression="'Matching'"/>
     <Constant Identifier="keyBomFilename" Type="string" Expression="'BomFilename'"/>
     <Constant Identifier="keyDecimalSeparator" Type="string" Expression="'DecimalSeparator'"/>
     <Constant Identifier="keyBomCount" Type="string" Expression="'BomCount'"/>
@@ -128,8 +126,10 @@ VoltageRating = 250V
     <Constant Identifier="keyHideESerieOfValue" Type="string" Expression="'HideESerieOfValue'"/>
     <Constant Identifier="keyHideResistorMaxAmpVolt" Type="string" Expression="'HideResistorMaxAmpVolt'"/>
     <Constant Identifier="keyHideZenerDiodeMaxAmp" Type="string" Expression="'HideZenerDiodeMaxAmp'"/>
+    <Constant Identifier="keyHideFootprint" Type="string" Expression="'HideFootprint'"/>
     <Constant Identifier="keyMaxShowResistorVoltage" Type="string" Expression="'MaxShowResistorVoltage'"/>
     <Constant Identifier="keySymbolMappingDirectory" Type="string" Expression="'SymbolMappingDirectory'"/>
+    <Constant Identifier="keySkipFootprint" Type="string" Expression="'SkipFootprint'"/>
   </Constants>
   <Variables>
     <Variable Identifier="ConnectionString" Type="string" Init="connsPartKeepr"/>
@@ -153,6 +153,10 @@ VoltageRating = 250V
     <Execute Statement="HideESerieOfValue:= ConfigInifile.ReadBool(secDisplay, keyHideESerieOfValue, HideESerieOfValue)"/>
     <Execute Statement="HideResistorMaxAmpVolt:= ConfigInifile.ReadBool(secDisplay, keyHideResistorMaxAmpVolt, HideESerieOfValue)"/>
     <Execute Statement="HideZenerDiodeMaxAmp:= ConfigInifile.ReadBool(secDisplay, keyHideZenerDiodeMaxAmp, HideESerieOfValue)"/>
+    <Execute Statement="HideFootprint:= ConfigInifile.ReadBool(secDisplay, keyHideFootprint, HideFootprint)"/>
+
+    <Execute Statement="SkipFootprintMatching:= ConfigInifile.ReadBool(secMatching, keySkipFootprint, SkipFootprintMatching)"/>
+
     <Variable Identifier="MaxShowResistorVoltageS" Type="string" Init="ConfigInifile.ReadString(secDisplay, keyMaxShowResistorVoltage, ResistorMaxVoltConv.IntValueToStr(MaxShowResistorVoltage, True))"/>
     <Raise Expression="Exception.Create('Invalid voltage: ' + MaxShowResistorVoltageS)" Condition="not ResistorMaxVoltConv.StrToIntValue(MaxShowResistorVoltageS, MaxShowResistorVoltage)"/>
     <Execute Statement="ConnectionString:= ConfigInifile.ReadString(secSettings, keyConnectionString, ConnectionString)"/>
@@ -188,8 +192,8 @@ VoltageRating = 250V
       <sts:ShowStatus.Information Text="sReadingKnownUnits"/>
       <Execute Statement="ReadKnownUnits(DBConnection)"/>
 
-      <sts:ShowStatus.Information Text="sReadingKnownFootPrints"/>
-      <Execute Statement="ReadKnownFootPrints(DBConnection)"/>
+      <!--<sts:ShowStatus.Information Text="sReadingKnownFootPrints"/>
+      <Execute Statement="ReadKnownFootPrints(DBConnection)"/>-->
       
       <sts:ShowStatus.Information Text="sReadingStock"/>
       <Execute Statement="globStockManager.LoadFromDB(DBConnection)"/>

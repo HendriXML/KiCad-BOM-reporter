@@ -27,11 +27,13 @@
 
     <Enumeration Identifier="TComponentSpecConsolidateKind" Elements="Schema, Stock"/>
 
-    <Enumeration Identifier="TCustomField" Elements="Unknown, ComponentKind, Value, ValueMin, ValueMax, Footprint, InternalPartNumber, PartNumber, Manufacturer, PowerRating, PowerRatingMin, PowerRatingMax, 
+    <Enumeration Identifier="TCustomField" Elements="Unknown, ComponentKind, Value, ValueMin, ValueMax, Footprint, FootprintMask, InternalPartNumber, PartNumber, Manufacturer, PowerRating, PowerRatingMin, PowerRatingMax, 
                  VoltageRating, VoltageRatingMin, VoltageRatingMax, AmperageRating, AmperageRatingMin, AmperageRatingMax, Tolerance, ToleranceMin, ToleranceMax, Technology, Pins, 
                  ForwardVoltage, ForwardVoltageMin, ForwardVoltageMax, ReverseVoltageRating, ReverseVoltageRatingMin, ReverseVoltageRatingMax, BreakSpeed, Dimensions, Functions" LowAlias="Low" HighAlias="High"/>
 
     <Enumeration Identifier="TValueType" Elements="Unspecified, Cleared, ClearedByTemplate, Specified, SpecifiedByTemplate, Error, ErrorByTemplate"/>
+
+    <Enumeration Identifier="TFootPrintValueType" Elements="Unspecified, Cleared, ClearedByTemplate, Specified, MaskSpecified, SpecifiedByTemplate, MaskSpecifiedByTemplate, Error, ErrorByTemplate"/>
 
     <!--<-<Type.TComponentKind-->
     <Enumeration Identifier="TComponentKind" Elements="None, Resistor, VariableResistor, Capacitor, PolarisedCapacitor, VariableCapacitor, Inductor, BridgeRectifier, ZenerDiode, Diode, SchottkyDiode, Laserdiode, 
@@ -40,7 +42,7 @@
         RFShield, RotaryEncoder, Thermocouple, VoltageDivider, Jumper, Connector, SolarCell, Battery, Adapter, Transformer, Peltier, Speaker, Buzzer, Earphone, Lamp, Heater, ElectromagneticActor, MeasuringDevice, 
         Timer, SchmittTrigger, Optocoupler, ReferenceVoltageIC, Switch, Heatsink, Relay, IntegratedCircuit, Module, Component, NonComponent" LowAlias="Low" HighAlias="High"/>
     <!-->->-->
-    <Enumeration Identifier="TFootprint" Elements="Unspecified, THT, SMD" LowAlias="Low" HighAlias="High"/>
+    <!--<Enumeration Identifier="TFootprint" Elements="Unspecified, THT, SMD" LowAlias="Low" HighAlias="High"/>-->
 
     <Enumeration Identifier="TDeepSearchstate" Elements="None, Running, Done"/>
 
@@ -98,11 +100,11 @@
       <Field Identifier="Next" Type="TComponentValue"/>
     </DataClass>
 
-    <DataClass Identifier="TFootprintInfo">
+    <!--<DataClass Identifier="TFootprintInfo">
       <Field Identifier="ID" Type="Integer"/>
       <Field Identifier="Name" Type="string"/>
       <Field Identifier="Footprint" Type="TFootprint"/>
-    </DataClass>
+    </DataClass>-->
 
     <DataClass Identifier="TStockComponent" DefaultConstructor="createonly">
       <Field Identifier="ID" Type="Integer"/>
@@ -117,7 +119,7 @@
       <Field Identifier="PickedCount" Type="UInt32"/>
       <Field Identifier="Location" Type="TStorageLocation"/>
       <Field Identifier="InternalPartNumber" Type="string"/>
-      <Field Identifier="FootPrintInfo" Type="TFootprintInfo"/>
+      <!--<Field Identifier="FootPrintInfo" Type="TFootprintInfo"/>-->
       <Field Identifier="StockCategory" Type="TStockCategory"/>
       <Field Identifier="Next" Type="TStockComponent"/>
     </DataClass>
@@ -178,8 +180,9 @@
       <Field Identifier="ComponentKind" Type="TComponentKind"/>
       <Field Identifier="ComponentKindVT" Type="TValueType"/>
       <Field Identifier="ErrorComponentKind" Type="string"/>
-      <Field Identifier="Footprint" Type="TFootprint"/>
-      <Field Identifier="FootprintVT" Type="TValueType"/>
+      <Field Identifier="Footprint" Type="string"/>
+      <Field Identifier="FootprintMask" Type="TAnsiMaskObject"/>
+      <Field Identifier="FootprintVT" Type="TFootPrintValueType"/>
       <Field Identifier="ErrorFootprint" Type="string"/>
       <Field Identifier="ID" Type="Integer"/>
       <Field Identifier="SchemaComponentHead" Type="TSchemaComponent"/>
@@ -221,6 +224,7 @@
     <Constant Identifier="sUnitName" Type="string" Expression="'BOM classes.xml'"/>
   </Constants>
   <Variables>
+    <Variable Identifier="MaskManager" Type="TAnsiMaskManager"/>
     <Variable Identifier="SymbolComponentKindIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
     <Variable Identifier="CustomFieldsIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
     <Variable Identifier="ComponentKindIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
@@ -230,6 +234,8 @@
     <Variable Identifier="HideESerieOfValue" Type="Boolean" Init="False"/>
     <Variable Identifier="HideResistorMaxAmpVolt" Type="Boolean" Init="False"/>
     <Variable Identifier="HideZenerDiodeMaxAmp" Type="Boolean" Init="False"/>
+    <Variable Identifier="HideFootPrint" Type="Boolean" Init="False"/>
+    <Variable Identifier="SkipFootprintMatching" Type="Boolean" Init="False"/>
     <Variable Identifier="MaxShowResistorVoltage" Type="Int64" Init="1000*cFactorToPico"/>
   </Variables>
 
@@ -280,7 +286,7 @@
       </Block>
     </Function>
 
-    <Function Identifier="FootprintAsString" Type="string" IsDeterministic="true">
+    <!--<Function Identifier="FootprintAsString" Type="string" IsDeterministic="true">
       <Parameters>
         <Parameter Identifier="Footprint" Type="TFootprint"/>
       </Parameters>
@@ -298,7 +304,7 @@
           </Otherwise>
         </Case>
       </Block>
-    </Function>
+    </Function>-->
 
     <Function Identifier="ESerieOfValue" Type="string" IsDeterministic="true">
       <Parameters>
@@ -1558,17 +1564,22 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="FootprintVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
             <Case Expression="ComponentSpec.FootprintVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
                 <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
+              </On>
+              <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+                <Execute Statement="Result:= Result + 1" Condition="ComponentSpec.FootprintMask.Matches(Footprint)"/>
+              </On>
+              <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
               </On>
               <Otherwise>
                 <Exit/>
               </Otherwise>
             </Case>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+          <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
@@ -1642,21 +1653,28 @@
             <Exit/>
           </On>
         </Case>
-        <Case Expression="FootprintVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Case Expression="ComponentSpec.FootprintVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="Footprint &lt;&gt; ComponentSpec.Footprint"/>
-              </On>
-              <Otherwise>
-                <Exit/>
-              </Otherwise>
-            </Case>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Exit/>
-          </On>
-        </Case>
+        <Block Condition="not SkipFootprintMatching">
+          <Case Expression="FootprintVT">
+            <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+              <Case Expression="ComponentSpec.FootprintVT">
+                <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+                  <Exit Condition="Footprint &lt;&gt; ComponentSpec.Footprint"/>
+                </On>
+                <On Select="TFootPrintValueType.MaskSpecified, TFootPrintValueType.MaskSpecifiedByTemplate">
+                  <Exit Condition="not ComponentSpec.FootprintMask.Matches(Footprint)"/>
+                </On>
+                <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+                </On>
+                <Otherwise>
+                  <Exit/>
+                </Otherwise>
+              </Case>
+            </On>
+            <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+              <Exit/>
+            </On>
+          </Case>
+        </Block>
         <Execute Statement="Result:= True"/>
       </Block>
     </Function>
@@ -1684,17 +1702,22 @@
           </On>
         </Case>
         <Execute Statement="PartNumberModel:= locPartNumberModel"/>
-        <Case Expression="FootPrintVT">
-          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Footprint:= ''"/>
-          </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Footprint:= FootprintAsString(Self.Footprint)"/>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Footprint:= '!' + ErrorFootprint + '!'"/>
-          </On>
-        </Case>
+        <Execute Statement="Footprint:= ''"/>
+        <Block Condition="not HideFootprint">
+          <Case Expression="FootPrintVT">
+            <!--<On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+            </On>-->
+            <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+              <Execute Statement="Footprint:= Self.Footprint"/>
+            </On>
+            <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+              <Execute Statement="Footprint:= Self.FootprintMask.Mask"/>
+            </On>
+            <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+              <Execute Statement="Footprint:= '!' + ErrorFootprint + '!'"/>
+            </On>
+          </Case>
+        </Block>
         <Case Expression="InternalPartNumberVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="InternalPartNumber:= ''"/>
@@ -1798,7 +1821,7 @@
       </Parameters>
       <Variables>
         <Variable Identifier="locComponentKind" Type="TComponentKind"/>
-        <Variable Identifier="locFootprint" Type="TFootprint"/>
+        <!--<Variable Identifier="locFootprint" Type="TFootprint"/>-->
         <Variable Identifier="Found" Type="Boolean"/>
       </Variables>
       <Block>
@@ -1822,24 +1845,23 @@
           <On Select="TCustomField.Footprint">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="FootprintVT:= TValueType.Cleared"/>
+                <Execute Statement="FootprintVT:= TFootPrintValueType.Cleared"/>
                 <Execute Statement="Self.Footprint:= ''"/>
               </When>
               <Otherwise>
-                <rep:Reporter.Information Text="Format('Footprint: %s', Value)" Condition="IsVerbose"/>
-                <inx:Index.FindValue Index="FootprintIndex" Key="Value" Value="locFootprint" Found="Found" Flags="NoErrorOnNotFound" />
-                <Choose>
-                  <When Expression="Found">
-                    <rep:Reporter.Information Text="Format('Footprint: %d', locFootprint)" Condition="IsVerbose"/>
-                    <Execute Statement="FootprintVT:= TValueType.Specified"/>
-                    <Execute Statement="Footprint:= locFootprint"/>
-                  </When>
-                  <Otherwise>
-                    <rep:Reporter.Error Text="Format('Footprint could not be matched: %s', Value)" Target="Errors"/>
-                    <Execute Statement="FootprintVT:= TValueType.Error"/>
-                    <Execute Statement="ErrorFootprint:= Value"/>
-                  </Otherwise>
-                </Choose>
+                <Execute Statement="Self.Footprint:= Value"/>
+                <Execute Statement="FootprintVT:= TFootPrintValueType.Specified"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.FootprintMask">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="FootprintVT:= TFootPrintValueType.Cleared"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="FootprintMask:= MaskManager.NewObject(Value)"/>
+                <Execute Statement="FootprintVT:= TFootPrintValueType.MaskSpecified"/>
               </Otherwise>
             </Choose>
           </On>
@@ -1932,14 +1954,18 @@
           </On>
         </Case>
         <Case Expression="FootprintVT" Optimalisation="integermapping">
-          <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+          <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.ClearedByTemplate, TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.ErrorByTemplate">
             <Case Expression="locTemplate.FootprintVT" Optimalisation="integermapping">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
                 <Execute Statement="Footprint:= locTemplate.Footprint"/>
-                <Execute Statement="FootprintVT:= TValueType.SpecifiedByTemplate"/>
+                <Execute Statement="FootprintVT:= TFootPrintValueType.SpecifiedByTemplate"/>
               </On>
-              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                <Execute Statement="FootprintVT:= TValueType.ErrorByTemplate"/>
+              <On Select="TFootPrintValueType.MaskSpecified, TFootPrintValueType.MaskSpecifiedByTemplate">
+                <Execute Statement="FootprintMask:= locTemplate.FootprintMask"/>
+                <Execute Statement="FootprintVT:= TFootPrintValueType.MaskSpecifiedByTemplate"/>
+              </On>
+              <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+                <Execute Statement="FootprintVT:= TFootPrintValueType.ErrorByTemplate"/>
               </On>
             </Case>
           </On>
@@ -1993,6 +2019,12 @@
             <msx:Block>
               <rep:Reporter.Information Text="Format('Value=%s', Node.Text)" Condition="IsVerbose"/>
               <Execute Statement="HandleField(TCustomField.Value, 'Value', Node.Text, Node.Text='-')"/>
+            </msx:Block>
+          </msx:OnElement>
+          <msx:OnElement baseName="'footprint'">
+            <msx:Block>
+              <rep:Reporter.Information Text="Format('Footprint=%s', Node.Text)" Condition="IsVerbose"/>
+              <Execute Statement="HandleField(TCustomField.Footprint, 'Footprint', Node.Text, Node.Text='')"/>
             </msx:Block>
           </msx:OnElement>
           <msx:OnElement baseName="'fields'">
@@ -2075,7 +2107,53 @@
         <Exit Condition="Result &lt;&gt; 0"/>
         <Execute Statement="Result:= CompareStateStringValue(A.ID, A.Manufacturer, A.ManufacturerVT, B.ID, B.Manufacturer, B.ManufacturerVT)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-        <Execute Statement="Result:= CompareStateValue(A.ID, A.Footprint, A.FootprintVT, B.ID, B.Footprint, B.FootprintVT)"/>
+        <Block Condition="not (HideFootprint and SkipFootprintMatching)">
+          <Case Expression="A.FootprintVT">
+            <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+              <Case Expression="B.FootprintVT">
+                <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+                  <Exit Result="-1"/>
+                </On>
+                <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified, TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+                  <Execute Statement="Result:= 1"/>
+                </On>
+              </Case>
+            </On>
+            <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+              <Case Expression="B.FootprintVT">
+                <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate, TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate, TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+                  <Execute Statement="Result:= -1"/>
+                </On>
+                <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+                  <Execute Statement="Result:= AnsiCompareStr(A.Footprint, B.Footprint)"/>
+                </On>
+              </Case>
+            </On>
+            <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+              <Case Expression="B.FootprintVT">
+                <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate, TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+                  <Execute Statement="Result:= -1"/>
+                </On>
+                <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+                  <Execute Statement="Result:= 1"/>
+                </On>
+                <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+                  <Execute Statement="Result:= AnsiCompareStr(A.FootprintMask.Mask, B.FootprintMask.Mask)"/>
+                </On>
+              </Case>
+            </On>
+            <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+              <Case Expression="B.FootprintVT">
+                <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+                  <Exit Result="-1" Condition="A.ID &lt; B.ID"/>
+                </On>
+                <Otherwise>
+                  <Execute Statement="Result:= 1"/>
+                </Otherwise>
+              </Case>
+            </On>
+          </Case>
+        </Block>
       </Block>
     </Function>
 
@@ -2517,7 +2595,7 @@
             <Execute Statement="Specification.Template:= StockComponent.StockCategory.ComponentSpec"/>
             <Execute Statement="Specification.HandleField(TCustomField.Value, '', StockComponent.Name, StockComponent.Name='-')"/>
             <Execute Statement="Specification.HandleField(TCustomField.InternalPartNumber, '', StockComponent.InternalPartNumber, StockComponent.InternalPartNumber='-')" Condition="IsNonEmptyString(StockComponent.InternalPartNumber)"/>
-            <Execute Statement="Specification.HandleField(TCustomField.Footprint, '', StockComponent.FootprintInfo.Name, False)" Condition="Assigned(StockComponent.FootprintInfo)"/>
+            <!--<Execute Statement="Specification.HandleField(TCustomField.Footprint, '', StockComponent.FootprintInfo.Name, False)" Condition="Assigned(StockComponent.FootprintInfo)"/>-->
             <lil:LinkedList.Iterate Head="ValueHead" ItemType="TComponentValue" RunningItem="RunningComponentValue" Next="RunningComponentValue.Next">
               <Execute Statement="CustomField:= TCustomField.Unknown"/>
               <inx:Index.FindValue Index="CustomFieldsIndex" Key="RunningComponentValue.Name" Value="CustomField" Flags="NoErrorOnNotFound" />
@@ -2572,6 +2650,9 @@
           </On>
           <On Select="TCustomField.Footprint">
             <Execute Statement="Result:= 'Footprint'"/>
+          </On>
+          <On Select="TCustomField.FootprintMask">
+            <Execute Statement="Result:= 'Footprint.Mask'"/>
           </On>
           <On Select="TCustomField.InternalPartNumber">
             <Execute Statement="Result:= 'InternalPartNumber'"/>
@@ -2669,7 +2750,7 @@
       </Block>
     </Procedure>
 
-    <Function Identifier="FootprintName" Type="string">
+    <!--<Function Identifier="FootprintName" Type="string">
       <Parameters>
         <Parameter Identifier="Footprint" Type="TFootprint"/>
       </Parameters>
@@ -2689,9 +2770,9 @@
           </Otherwise>
         </Case>
       </Block>
-    </Function>
+    </Function>-->
 
-    <Procedure Identifier="InitFootprintIndex">
+    <!--<Procedure Identifier="InitFootprintIndex">
       <Parameters>
         <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
       </Parameters>
@@ -2700,7 +2781,7 @@
           <inx:Index.MapValue Index="Index" Key="FootprintName(I)" Value="I"/>
         </ForLoop>
       </Block>
-    </Procedure>
+    </Procedure>-->
 
     <Procedure Identifier="InitSymbolComponentKindIndex">
       <Parameters>
@@ -2794,17 +2875,22 @@
   </Procedures>
 
   <Initialization>
+    <Execute Statement="MaskManager:= TAnsiMaskManager.Create"/>
+    <Execute Statement="MaskManager.Groups:= True"/>
+    <Execute Statement="MaskManager.CaseSensitive:= True"/>
+    <Execute Statement="MaskManager.RepeatingGroup:= True"/>
     <Execute Statement="InitCustomFieldIndex(CustomFieldsIndex)"/>
     <Execute Statement="InitComponentKindIndex(ComponentKindIndex)"/>
-    <Execute Statement="InitFootprintIndex(FootprintIndex)"/>
+    <!--<Execute Statement="InitFootprintIndex(FootprintIndex)"/>-->
     <Execute Statement="InitSymbolComponentKindIndex(SymbolComponentKindIndex)"/>
   </Initialization>
 
   <Finalization>
     <Free Identifier="CustomFieldsIndex"/>
-    <Free Identifier="FootprintIndex"/>
+    <!--<Free Identifier="FootprintIndex"/>-->
     <Free Identifier="ComponentKindIndex"/>
     <Free Identifier="SymbolComponentKindIndex"/>
+    <Free Identifier="MaskManager"/>
   </Finalization>
 
 </pkg:Library>

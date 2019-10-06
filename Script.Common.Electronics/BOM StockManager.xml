@@ -249,14 +249,14 @@
       </Block>
     </Procedure>
 
-    <Procedure Identifier="ReadKnownFootPrints">
+    <!--<Procedure Identifier="ReadKnownFootPrints">
       <Parameters>
         <Parameter Identifier="DBConnection" Type="Connection"/>
       </Parameters>
       <Variables>
         <Variable Identifier="Found" Type="Boolean"/>
-        <Variable Identifier="FootPrint" Type="TFootPrint"/>
-        <Variable Identifier="FootPrintInfo" Type="TFootprintInfo"/>
+        --><!--<Variable Identifier="FootPrint" Type="TFootPrint"/>--><!--
+        --><!--<Variable Identifier="FootPrintInfo" Type="TFootprintInfo"/>--><!--
         <Variable Identifier="ID" Type="Integer"/>
         <Variable Identifier="Name" Type="string"/>
       </Variables>
@@ -275,7 +275,7 @@
           </ado:Recordset.OpenBlock>
         </ado:Command.CreateBlock>
       </Block>
-    </Procedure>
+    </Procedure>-->
 
     <Procedure Identifier="TStockManager.LoadFromDB">
       <Parameters>
@@ -415,7 +415,7 @@
         <Variable Identifier="Comment"/>
         <Variable Identifier="ProductionRemarks"/>
         <Variable Identifier="UnitInfo" Type="TUnitInfo"/>
-        <Variable Identifier="FootprintInfo" Type="TFootprintInfo"/>
+        <!--<Variable Identifier="FootprintInfo" Type="TFootprintInfo"/>-->
         <Variable Identifier="ComponentSpec" Type="TComponentSpec"/>
         <Variable Identifier="StockComponent" Type="TStockComponent"/>
         <Variable Identifier="StockComponentDetached" Type="TStockComponent"/>
@@ -523,10 +523,10 @@
                         <Execute Statement="StockComponent.InternalPartNumber:= IfElse(IsNull(InternalPartNumber), '', InternalPartNumber)"/>
                         <inx:Index.FindValue Index="StorageLocationIndex" Key="LocationID" Value="Location" Flags=""/>
                         <Execute Statement="StockComponent.Location:= Location"/>
-                        <Block Condition="not IsNull(FootPrintID)">
+                        <!--<Block Condition="not IsNull(FootPrintID)">
                           <inx:Index.FindValue Index="FootPrintInfoIndex" Key="FootPrintID" Value="FootprintInfo" Flags=""/>
                           <Execute Statement="StockComponent.FootprintInfo:= FootprintInfo"/>
-                        </Block>
+                        </Block>-->
                         <Execute Statement="StockComponent.StockCategory:= Category"/>
                         <lil:LinkedList.LinkUp Head="StockComponentHead" Tail="StockComponentTail" Item="StockComponent" TailLinkStatement="StockComponentTail.Next:= Item"/>
                       </ado:Recordset.Iterate>
