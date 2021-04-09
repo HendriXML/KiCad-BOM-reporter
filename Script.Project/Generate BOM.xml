@@ -30,8 +30,8 @@ ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=Part
 SymbolMappingDirectory=..\Resources.Project.ComponentMappings
 
 [Tasks]
-ExportProjectID=1
-ExportUnmatchedComponentsStorageID=1
+ExportProjectID=-1
+ExportUnmatchedComponentsStorageID=-1
 
 [Display]
 HideESerieOfValue=0
