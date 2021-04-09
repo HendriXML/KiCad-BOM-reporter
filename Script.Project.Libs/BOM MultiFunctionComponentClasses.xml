@@ -223,7 +223,8 @@
         <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
-        <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
+        <Variable Identifier="UnitPostFix" Type="TUnitPostFix" Init="TUnitPostFix.Compact"/>
+        <Execute Statement="UnitPostFix:= TUnitPostFix.Separated" Condition="FormatType = TSpecFormatType.Name"/>
         <Case Expression="FunctionsVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Functions:= ''"/>

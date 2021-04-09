@@ -245,7 +245,7 @@
                 <Execute Statement="ComponentKind:= ''" Condition="(Self.ComponentKind = TComponentKind.Component) or (Self.ComponentKind = TComponentKind.Module) or (SameText(ComponentKind, Name))"/>
               </On>
             </Case>
-            <Execute Statement="Result:= ConcatExt(' ', True, Name, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+            <Execute Statement="Result:= ConcatExt(' ', True, Name, PartNumberModel, InternalPartNumber, ComponentKind)"/>
           </On>
           <On Select="TSpecFormatType.Name">
             <Execute Statement="Result:= Name"/>

@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:sim="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:cod="urn:schemas-www-wisware.nl-xmlscripting-codeparser"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers"
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement"
+  >
+  <Constants>
+    <Constant Identifier="sLabelValue" Type="string" Expression="'  %-*s: %s'"/>
+    <Constant Identifier="cLabelLength" Type="Integer" Expression="40"/>
+  </Constants>
+
+  <Procedures>
+    <Procedure Identifier="ReportAsSimpleMachines">
+      <Parameters>
+        <Parameter Identifier="Iterator"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="InList" Type="Boolean" Init="False"/>
+        <rep:Reporter.Information Text="'[tt]'"/>
+        <rep:Reporter.IterateTarget Iterator="Iterator">
+          <rep:Information Text="Text" Markup="Markup">
+            <Case Expression="Markup">
+              <On Select="TMarkupKind.mkBulletList">
+                <Block Condition="not InList">
+                  <rep:Reporter.Information Text="'[/tt][list]'"/>
+                  <Execute Statement="InList:= True"/>
+                </Block>
+              </On>
+              <Otherwise>
+                <Block Condition="InList">
+                  <rep:Reporter.Information Text="'[/list][tt]'"/>
+                  <Execute Statement="InList:= False"/>
+                </Block>
+              </Otherwise>
+            </Case>
+
+            <rep:Reporter.Information Text="'[/list]'" Condition="InList and not (Markup = TMarkupKind.mkBulletList)"/>
+            <Case Expression="Markup">
+              <On Select="TMarkupKind.mkNormal">
+                <rep:Reporter.Information Text="'[size=8pt]' + Text + '[/size]'"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader1">
+                <rep:Reporter.Information Text="'[color=blue][size=18pt]' + Text + '[/size][/color]'" Markup="Header1"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader2">
+                <rep:Reporter.Information Text="'[color=blue][size=13pt]' + Text + '[/size][/color]'" Markup="Header2"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader3">
+                <rep:Reporter.Information Text="'[color=blue][size=10pt]' + Text + '[/size][/color]'" Markup="Header3"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader4">
+                <rep:Reporter.Information Text="'[color=blue][size=8pt]' + Text + '[/size][/color]'" Markup="Header4"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader5">
+                <rep:Reporter.Information Text="'[color=blue][size=6pt]' + Text + '[/size][/color]'" Markup="Header5"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader6">
+                <rep:Reporter.Information Text="'[color=blue][size=7pt]' + Text + '[/size][/color]'" Markup="Header6"/>
+              </On>
+              <On Select="TMarkupKind.mkComment">
+                <rep:Reporter.Information Text="'[color=green][size=8pt]' + Text + '[/size][/color]'" Markup="Comment"/>
+              </On>
+              <On Select="TMarkupKind.mkError">
+                <rep:Reporter.Information Text="'[color=red][size=8pt]' + Text + '[/size][/color]'" Markup="Comment"/>
+              </On>
+              <On Select="TMarkupKind.mkBulletList">
+                <rep:Reporter.Information Text="'[li][tt]' + Text + '[/tt][/li]'" Markup="Comment"/>
+              </On>
+              <Otherwise>
+                <rep:Reporter.Information Text="Text"/>
+              </Otherwise>
+            </Case>
+          </rep:Information>
+          <rep:LabelValue Label="LabelS" Value="Value">
+            <Block Condition="InList">
+              <rep:Reporter.Information Text="'[/list]'"/>
+              <Execute Statement="InList:= False"/>
+            </Block>
+            <rep:Reporter.Information Text="'[size=8pt][color=red]' + Format('  %-*s:[/color] %s', cLabelLength, LabelS, Value) + '[/size]'"/>
+          </rep:LabelValue>
+        </rep:Reporter.IterateTarget>
+        <Block Condition="InList">
+          <rep:Reporter.Information Text="'[/list]'"/>
+          <Execute Statement="InList:= False"/>
+        </Block>
+        <rep:Reporter.Information Text="'[/tt]'"/>
+      </Block>
+    </Procedure>
+  </Procedures>
+</pkg:Library>

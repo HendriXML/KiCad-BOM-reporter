@@ -270,6 +270,16 @@
       <Header Text="Opamps"/>
     </Language>
   </ComponentKind>
+  <ComponentKind Name="AudioAmplifier" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="audio amplifier"/>
+      <Header Text="Audio amplifiers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="Audioversterker"/>
+      <Header Text="Audioversterkers"/>
+    </Language>
+  </ComponentKind>
   <ComponentKind Name="Comparator" IsIntegratedCircuit="true">
     <Language LangID="en-GB">
       <Name Text="comparator"/>

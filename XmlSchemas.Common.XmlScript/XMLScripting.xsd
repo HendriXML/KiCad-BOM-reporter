@@ -38,6 +38,7 @@
       <xs:enumeration value="object"/>
       <xs:enumeration value="variant"/>
       <xs:enumeration value="interface"/>
+      <xs:enumeration value="quantity"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="caseoptimalisation">
@@ -67,8 +68,40 @@
       <xs:enumeration value="error"/>
     </xs:restriction>
   </xs:simpleType>
+  <xs:simpleType name="unitbasescale">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="kilo"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="prefixtype">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="y"/>
+      <xs:enumeration value="z"/>
+      <xs:enumeration value="a"/>
+      <xs:enumeration value="f"/>
+      <xs:enumeration value="p"/>
+      <xs:enumeration value="n"/>
+      <xs:enumeration value="μ"/>
+      <xs:enumeration value="m"/>
+      <xs:enumeration value="c"/>
+      <xs:enumeration value="d"/>
+      <xs:enumeration value="da"/>
+      <xs:enumeration value="h"/>
+      <xs:enumeration value="k"/>
+      <xs:enumeration value="M"/>
+      <xs:enumeration value="G"/>
+      <xs:enumeration value="T"/>
+      <xs:enumeration value="P"/>
+      <xs:enumeration value="E"/>
+      <xs:enumeration value="Z"/>
+      <xs:enumeration value="Y"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="prefixset">
+    <xs:list itemType="prefixtype"/>
+  </xs:simpleType>
   <xs:simpleType name="valuestatuschecks">
-    <xs:list itemType="valuestatuschecktype"></xs:list>
+    <xs:list itemType="valuestatuschecktype"/>
   </xs:simpleType>
   <xs:simpleType name="typeidentifier">
     <xs:restriction base="xs:string"/>
@@ -92,6 +125,15 @@
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
   <xs:simpleType name="maskstring">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="unitsymbolstring">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="unitstring">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="matchunitstring">
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
   <xs:simpleType name="taskidentifier">
@@ -209,6 +251,36 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  <xs:complexType name="T_Breakpoint.CompileTime">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractProcessItem">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_ExitOnAbortRequest">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractConditionalProcessItem">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Break">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractConditionalProcessItem">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Continue">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractConditionalProcessItem">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="T_Breakpoint">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractConditionalProcessItem">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:complexType name="T_Exit">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalProcessItem">
@@ -287,7 +359,7 @@
   </xs:complexType>
 
   <xs:complexType name="T_Variables">
-    <xs:sequence>
+    <xs:sequence minOccurs="0">
       <xs:element name="Variable" type="T_Variable" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
@@ -299,7 +371,7 @@
   </xs:complexType>
 
   <xs:complexType name="T_Constants">
-    <xs:sequence>
+    <xs:sequence minOccurs="0">
       <xs:element name="Constant" type="T_Constant" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
@@ -466,6 +538,13 @@
     <xs:attribute name="Type" type="typeidentifier" use="optional"/>
   </xs:complexType>
 
+  <xs:complexType name="T_FieldIndexed">
+    <xs:attribute name="Identifier" type="fieldidentifier" use="required"/>
+    <xs:attribute name="DataType" type="fielddatatype" use="optional"/>
+    <xs:attribute name="Type" type="typeidentifier" use="optional"/>
+    <xs:attribute name="Count" type="constexpression" use="required"/>
+  </xs:complexType>
+
   <xs:complexType name="T_VirtualMethod">
     <xs:attribute name="Identifier" type="virtualmethodidentifier" use="required"/>
     <xs:attribute name="Override" type="xs:boolean" use="optional"/>
@@ -475,9 +554,14 @@
   <xs:complexType name="T_DataClass">
     <xs:sequence>
       <xs:element name="VirtualMethod" type="T_VirtualMethod" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Constant" type="T_Constant" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:choice  minOccurs="0" maxOccurs="unbounded">
       <xs:element name="Field" type="T_Field" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Field.Indexed" type="T_FieldIndexed" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:choice>
     </xs:sequence>
     <xs:attribute name="Identifier" type="typeidentifier" use="required"/>
+    <xs:attribute name="ClassOfIdentifier" type="typeidentifier" use="optional"/>
     <xs:attribute name="Inherit" type="dataobjecttypeidentifier" use="optional"/>
     <xs:attribute name="DefaultConstructor" type="defaultconstructortype" use="optional"/>
   </xs:complexType>
@@ -487,6 +571,30 @@
     <xs:attribute name="Elements" type="enumtypeelementlist" use="required"/>
     <xs:attribute name="LowAlias" type="identifier" use="optional"/>
     <xs:attribute name="HighAlias" type="identifier" use="optional"/>
+    <xs:attribute name="Flags" type="xs:boolean" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="T_Alias">
+    <xs:attribute name="Identifier" type="typeidentifier" use="required"/>
+    <xs:attribute name="RefersTo" type="identifierref" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="T_Unit">
+    <xs:attribute name="Identifier" type="typeidentifier" use="required"/>
+    <xs:attribute name="Symbol" type="unitsymbolstring" use="required"/>
+    <xs:attribute name="StandardPrefix" type="prefixtype" use="optional"/>
+    <xs:attribute name="Equivalent" type="unitstring" use="optional"/>
+    <xs:attribute name="Prefixes" type="prefixset" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="T_Quantity">
+    <xs:attribute name="Identifier" type="typeidentifier" use="required"/>
+    <xs:attribute name="Unit" type="unitstring" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="T_DecimalQuantity">
+    <xs:attribute name="Identifier" type="typeidentifier" use="required"/>
+    <xs:attribute name="Unit" type="unitstring" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="T_Type">
@@ -495,21 +603,44 @@
         <xs:complexType>
           <xs:annotation>
             <xs:documentation>
-              Pseudo object. Is aan te maken met &lt;Identifier&gt;.Create([Field, ..])
             </xs:documentation>
           </xs:annotation>
           <xs:attribute name="Identifier" type="typeidentifier" use="required"/>
+          <xs:attribute name="ClassOfIdentifier" type="typeidentifier" use="optional"/>
         </xs:complexType>
       </xs:element>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="DataClass" type="T_DataClass" minOccurs="0" maxOccurs="1">
           <xs:annotation>
             <xs:documentation>
-              Pseudo object. Is aan te maken met &lt;Identifier&gt;.Create([Field, ..])
             </xs:documentation>
           </xs:annotation>
         </xs:element>
         <xs:element name="Enumeration" type="T_Enumeration" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Alias" type="T_Alias" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Unit" type="T_Unit" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Quantity" type="T_Quantity" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="DecimalQuantity" type="T_DecimalQuantity" minOccurs="0" maxOccurs="1">
           <xs:annotation>
             <xs:documentation>
             </xs:documentation>
@@ -610,7 +741,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="T_AbstractConditionalProcessItem">
+  <xs:complexType name="T_AbstractConditionalProcessItem" abstract="true">
     <xs:complexContent>
       <xs:extension base="T_AbstractProcessItem">
         <xs:attribute name="Condition" type="expression" use="optional"/>
@@ -844,7 +975,7 @@
   <xs:complexType name="T_Task.AddDependency">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalProcessItem">
-        <xs:attribute name="Task" type="taskidentifier"/>
+        <xs:attribute name="Task" type="taskidentifier" use="required"/>
         <xs:attribute name="InstanceObject" type="expression"/>
         <xs:attribute name="Result" type="identifier"/>
         <xs:attribute name="ResultType" type="typeidentifier"/>
@@ -854,6 +985,39 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
+  <xs:complexType name="T_Task.AcquireTaskReference">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractConditionalProcessItem">
+        <xs:attribute name="Task" type="taskidentifier" use="required"/>
+        <xs:attribute name="InstanceObject" type="expression"/>
+        <xs:attribute name="RefObj" type="expression" use="required"/>
+        <xs:attribute name="ReleaseObj" type="identifier"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_Task.ReleaseTaskReference">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractConditionalProcessItem">
+        <xs:attribute name="ReleaseObj" type="identifier" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="T_Task.AddReferencedDependency">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractConditionalProcessItem">
+        <xs:attribute name="TaskReference" type="expression"/>
+        <xs:attribute name="Result" type="identifier"/>
+        <xs:attribute name="ResultType" type="typeidentifier"/>
+        <xs:attribute name="TaskInfo" type="identifier"/>
+        <xs:attribute name="IgnoreFailure" type="expression"/>
+        <xs:attribute name="DelayFinalization" type="expression"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
   <xs:complexType name="T_Task.CreateDependency">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalProcessItem">
@@ -863,6 +1027,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
   <xs:complexType name="T_Pause">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalProcessItem">
@@ -870,6 +1035,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
   <xs:complexType name="T_ExecuteTasks">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalProcessItem">
@@ -933,6 +1099,7 @@
           <xs:element name="AfterExecute" type="T_Block" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute name="ExecutableTasksInSelectionOnly" type="expression" use="optional"/>
+        <xs:attribute name="Unattended" type="expression" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1046,6 +1213,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
   <xs:complexType name="T_Free">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalProcessItem">
@@ -1054,6 +1222,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
   <xs:complexType name="T_Object.Use">
     <xs:complexContent>
       <xs:extension base="T_AbstractConditionalBlockProcessItem">
@@ -1064,20 +1233,71 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="T_DataObject.Create">
+
+  <xs:complexType name="T_Objects.Use">
     <xs:complexContent>
-      <xs:extension base="T_AbstractConditionalProcessItem">
-        <xs:attribute name="Identifier" type="identifier" use="required"/>
-        <xs:attribute name="DataClass" type="dataclassconst" use="required"/>
+      <xs:extension base="T_AbstractProcessItem">
+        <xs:sequence>
+          <xs:element name="Object" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="Identifier" type="identifier" use="required"/>
+              <xs:attribute name="Type" type="typeidentifier" use="required"/>
+              <xs:attribute name="Expression" type="expression" use="required"/>
+              <xs:attribute name="LocalVariable" type="xs:boolean" use="optional"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Block" type="T_Block" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="T_DataObject.SetField">
+
+  <xs:complexType name="T_DecimalQuantity.Format">
     <xs:complexContent>
-      <xs:extension base="T_AbstractConditionalProcessItem">
-        <xs:attribute name="DataObject" type="expression" use="required"/>
-        <xs:attribute name="Identifier" type="fieldidentifier" use="required"/>
-        <xs:attribute name="Value" type="expression" use="required"/>
+      <xs:extension base="T_AbstractProcessItem">
+        <xs:sequence>
+          <xs:element name="Group" maxOccurs="unbounded">
+            <xs:complexType >
+              <xs:sequence>
+                <xs:element name="Match" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Unit" type="matchunitstring" use="required"/>
+                    <xs:attribute name="MatchExpanded" type="xs:boolean" use="optional"/>
+                    <xs:attribute name="UnitOverride" type="xs:string" use="optional"/>
+                    <xs:attribute name="ScaledValue.Min" type="constexpression" use="optional"/>
+                    <xs:attribute name="ScaledValue.Max" type="constexpression" use="optional"/>
+                    <xs:attribute name="Statement" type="statement" use="optional"/>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="Block" type="T_Block" minOccurs="1" maxOccurs="1"/>
+              </xs:sequence>
+              <xs:attribute name="MatchedUnit" type="identifier" use="required"/>
+              <xs:attribute name="ScaledValue" type="identifier" use="required"/>
+              <xs:attribute name="ScaledUncertaintyValue" type="identifier" use="required"/>
+              <xs:attribute name="SignificantDigits" type="expression" use="optional"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Otherwise" type="T_Block"/>
+        </xs:sequence>
+        <xs:attribute name="Expression" type="expression" use="required"/>
+        <xs:attribute name="Condition" type="expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_DecimalQuantity.Parse">
+    <xs:complexContent>
+      <xs:extension base="T_AbstractProcessItem">
+        <xs:sequence>
+          <xs:element name="Unit" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType >
+              <xs:attribute name="Identifier" type="identifier" use="optional"/>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Expression" type="expression" use="required"/>
+        <xs:attribute name="Result" type="identifier" use="required"/>
+        <xs:attribute name="Succeeded" type="identifier" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1095,21 +1315,25 @@
   <xs:element name="Choose" type="T_Choose" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Case" type="T_Case" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Raise" type="T_Raise" substitutionGroup="AbstractProcessItem"/>
-  <xs:element name="Breakpoint" type="T_AbstractConditionalProcessItem" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Breakpoint" type="T_Breakpoint" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Breakpoint.CompileTime" type="T_Breakpoint.CompileTime" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="RepeatUntilLoop" type="T_RepeatUntilLoop" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="ForLoop" type="T_ForLoop" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="StringLoop" type="T_StringLoop" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Execute" type="TExecute" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Variable" type="TVariable" substitutionGroup="AbstractProcessItem"/>
-  <xs:element name="Break" type="T_AbstractConditionalProcessItem" substitutionGroup="AbstractProcessItem"/>
-  <xs:element name="Continue" type="T_AbstractConditionalProcessItem" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Break" type="T_Break" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Continue" type="T_Continue" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Exit" type="T_Exit" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.Description" type="T_Task.Description" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.Hint" type="T_Task.Hint" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.Kind" type="T_Task.Kind" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.SuccessfulExecuteTime" type="T_Task.SuccessfulExecuteTime" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.AddDependency" type="T_Task.AddDependency" substitutionGroup="AbstractProcessItem"/>
-  <xs:element name="Task.CreateDependency" type="T_Task.CreateDependency" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Task.AddReferencedDependency" type="T_Task.AddReferencedDependency" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Task.AcquireTaskReference" type="T_Task.AcquireTaskReference" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Task.ReleaseTaskReference" type="T_Task.ReleaseTaskReference" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Task.CreateDependency" type="T_Task.AcquireTaskReference" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.Iterate.DependOnTasks" type="T_Task.Iterate.DependOnTasks" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.Iterate.NeededForTasks" type="T_Task.Iterate.NeededForTasks" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Task.MarkUnhandled" type="T_TaskStatus" substitutionGroup="AbstractProcessItem"/>
@@ -1123,9 +1347,10 @@
   <xs:element name="Suspend" type="T_Suspend" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Free" type="T_Free" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="Object.Use" type="T_Object.Use" substitutionGroup="AbstractProcessItem"/>
-  <xs:element name="DataObject.Create" type="T_DataObject.Create" substitutionGroup="AbstractProcessItem"/>
-  <xs:element name="DataObject.SetField" type="T_DataObject.SetField" substitutionGroup="AbstractProcessItem"/>
-  <xs:element name="ExitOnAbortRequest" type="T_AbstractConditionalProcessItem" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="Objects.Use" type="T_Objects.Use" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="ExitOnAbortRequest" type="T_ExitOnAbortRequest" substitutionGroup="AbstractProcessItem"/>
   <xs:element name="CreateDirectoryChangeObject" type="T_CreateDirectoryChangeObject" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="DecimalQuantity.Format" type="T_DecimalQuantity.Format" substitutionGroup="AbstractProcessItem"/>
+  <xs:element name="DecimalQuantity.Parse" type="T_DecimalQuantity.Parse" substitutionGroup="AbstractProcessItem"/>
 
 </xs:schema>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting-quantityutils" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" 
+  targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-quantityutils" elementFormDefault="qualified">
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
+
+  <xs:complexType name="TQuantity.Set">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:sequence minOccurs="1" maxOccurs="1">
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="Uncertainty">
+            <xs:complexType>
+              <xs:attribute name="Value" type="sys:expression" use="required"/>
+              <xs:attribute name="PartialDiff" type="sys:expression" use="required"/>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Identifier" type="sys:identifier" use="required"/>
+        <xs:attribute name="Expression" type="sys:identifier" use="required"/>
+        <xs:attribute name="Unit" type="sys:unitstring" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+  <xs:element name="Quantity.Set" type="TQuantity.Set" substitutionGroup="sys:AbstractProcessItem"/>
+</xs:schema>

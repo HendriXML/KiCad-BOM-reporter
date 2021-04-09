@@ -72,6 +72,8 @@
     <Constant Identifier="sNUJTHeader" Expression="'N-UJT''s'"/>
     <Constant Identifier="sOpAmpDescription" Expression="'op amp'"/>
     <Constant Identifier="sOpAmpHeader" Expression="'Op amps'"/>
+    <Constant Identifier="sAudioAmplifierDescription" Expression="'audio amplifier'"/>
+    <Constant Identifier="sAudioAmplifierHeader" Expression="'Audio amplifiers'"/>
     <Constant Identifier="sComparatorDescription" Expression="'comparator'"/>
     <Constant Identifier="sComparatorHeader" Expression="'Comparators'"/>
     <Constant Identifier="sDiacDescription" Expression="'diac'"/>
@@ -177,6 +179,43 @@
     <Constant Identifier="sNonComponentDescription" Expression="'non component'"/>
     <Constant Identifier="sNonComponentHeader" Expression="'Non components'"/>
     <!-->->-->
+    <Constant Identifier="sScriptPathTD" Type="string" Expression="'Determine script folder'"/>
+    <Constant Identifier="sBomFilenameTD" Type="string" Expression="'Determine requested bill of materials input filename'"/>
+    <Constant Identifier="sCalculatedSpecificationsFilenameTD" Type="string" Expression="'Determine calculated specifications input filename'"/>
+    <Constant Identifier="sGlobalConfigTD" Type="string" Expression="'Read global config'"/>
+    <Constant Identifier="sPartkeeprDatabaseTD" Type="string" Expression="'Connect to Partkeepr database'"/>
+    <Constant Identifier="sBillOfMaterialsTD" Type="string" Expression="'Requested bill of materials object'"/>
+    <Constant Identifier="sStockManagerTD" Type="string" Expression="'Registered materials object'"/>
+    <Constant Identifier="sBillOfMaterialsLoadTemplatesFromIniFileTD" Type="string" Expression="'Read bill of materials templates'"/>
+    <Constant Identifier="sBillOfMaterialsLoadBomFileTD" Type="string" Expression="'Load requested bill of materials'"/>
+    <Constant Identifier="sCalculatedSpecificationsTD" Type="string" Expression="'Load calculated specifications'"/>
+    <Constant Identifier="sReportReportOrderPickingTD" Type="string" Expression="'Report order picking list'"/>
+    <Constant Identifier="sReadingStockTD" Type="string" Expression="'Load registered materials'"/>
+    <Constant Identifier="sStockManagerConsolidateSpecificationsTD" Type="string" Expression="'Consolidate registered material specifications'"/>
+    <Constant Identifier="sBillOfMaterialsConsolidateSpecificationsTD" Type="string" Expression="'Consolidate requested material specifications'"/>
+    <Constant Identifier="sBillOfMaterialsDetermineBomCountTD" Type="string" Expression="'Determine requested list amount'"/>
+    <Constant Identifier="sBillOfMaterialsProcessDesignatorsTD" Type="string" Expression="'Process designators'"/>
+    <Constant Identifier="sBillOfMaterialsAssignStockComponentsTD" Type="string" Expression="'Match requested specifications and registered material specifications'"/>
+    <Constant Identifier="sSymbolMappingPathTD" Type="string" Expression="'Symbol mapping directory'"/>
+    <Constant Identifier="sLoadSymbolMappingsTD" Type="string" Expression="'Read symbool component type mapping from directory'"/>
+    <Constant Identifier="sLoadKnownUnitsTD" Type="string" Expression="'Load known PartKeepr units'"/>
+    <Constant Identifier="sReportStorageLocationsTD" Type="string" Expression="'Report PartKeepr storage locations'"/>
+    <Constant Identifier="sReportPartKeeprProjectsTD" Type="string" Expression="'Report PartKeepr projects'"/>
+    <Constant Identifier="sReportStockTD" Type="string" Expression="'Report registered materials'"/>
+    <Constant Identifier="sUpdateDBChangeProjectPartsTD" Type="string" Expression="'Add requested materials to PartKeepr project'"/>
+    <Constant Identifier="sUpdateDBChangePartNamesTD" Type="string" Expression="'Update registered material names in PartKeepr'"/>
+    <Constant Identifier="sUpdateDBChangePartDescriptionsTD" Type="string" Expression="'Update registered material descriptions in PartKeepr'"/>
+    <Constant Identifier="sReportBomTD" Type="string" Expression="'Report requested bill of materials'"/>
+    <Constant Identifier="sReportBomEEVBlogTD" Type="string" Expression="'Report requested bill of materials for EEVBlog'"/>
+    <Constant Identifier="sReportBomDokuWikiTD" Type="string" Expression="'Report requested bill of materials for DokuWiki'"/>
+    <Constant Identifier="sReportDesignatorsTD" Type="string" Expression="'Report requested bill of materials designators'"/>
+    <Constant Identifier="sDatabaseExportProjectIdTD" Type="string" Expression="'Determine PartKeepr project ID'"/>
+    <Constant Identifier="sDatabaseUnmatchedComponentsStorageIdTD" Type="string" Expression="'Determine PartKeepr storage location ID for unmatched materials'"/>
+    <Constant Identifier="sMatchUnmatchedSchemaComponentsToCategoriesTD" Type="string" Expression="'Add unmatched materials to Partkeeper categories'"/>
+
+    <Constant Identifier="sUnsupportedUnattendedTask" Type="string" Expression="'Unsupported unattended task'"/>
+    <Constant Identifier="sUnsupportedHideSpecs" Type="string" Expression="'Unsupported hide specs'"/>
+
     <Constant Identifier="sBOMHeader" Type="string" Expression="'Bill of materials'"/>
     <Constant Identifier="sStockHeader" Type="string" Expression="'Bill of available materials'"/>
     <Constant Identifier="sDesignatorReport" Type="string" Expression="'Designator specifications'"/>
@@ -195,7 +234,8 @@
     <Constant Identifier="sFootprintTHT" Type="string" Expression="'THT'"/>
     <Constant Identifier="sFootprintSMD" Type="string" Expression="'SMD'"/>
     <Constant Identifier="sTimeMeasure" Type="string" Expression="'Elapsed time: %.4f sec'"/>
-    <Constant Identifier="sFilename" Type="string" Expression="'Filename: %s'"/>
+    <Constant Identifier="sFilename" Type="string" Expression="'Filename'"/>
+    <Constant Identifier="sPath" Type="string" Expression="'Folder'"/>
 
     <Constant Identifier="sUnknownComponentKind" Type="string" Expression="'TComponentKind(%d)'"/>
     <Constant Identifier="sMissingComponentKindMapping" Type="string" Expression="'%s - %s: Missing component kind mapping: %d'"/>
@@ -259,15 +299,15 @@
     <Constant Identifier="sMsgMissingLibrarysymbolMapping" Type="string" Expression="'Part &quot;%s&quot; was not mapped to a componentkind, and thus defaults to component'"/>
 
     <Constant Identifier="sMsgUnmatchedCalculatedDesignator" Type="string" Expression="'Calculated designator %s not found in schema'"/>
-    <Constant Identifier="sTitleField" Type="string"     Expression="'Title   : %s'"/>
-    <Constant Identifier="sCompanyField" Type="string"   Expression="'Company : %s'"/>
-    <Constant Identifier="sRevisionField" Type="string"  Expression="'Revision: %s'"/>
-    <Constant Identifier="sDateField" Type="string"      Expression="'Date    : %s'"/>
-    <Constant Identifier="sSourceField" Type="string"    Expression="'Source  : %s'"/>
-    <Constant Identifier="sComment1Field" Type="string"  Expression="'Comment1: %s'"/>
-    <Constant Identifier="sComment2Field" Type="string"  Expression="'Comment2: %s'"/>
-    <Constant Identifier="sComment3Field" Type="string"  Expression="'Comment3: %s'"/>
-    <Constant Identifier="sComment4Field" Type="string"  Expression="'Comment4: %s'"/>
-    <Constant Identifier="sCountField" Type="string"     Expression="'Amount  : %dx'"/>
+    <Constant Identifier="sTitleField" Type="string"     Expression="'Title'"/>
+    <Constant Identifier="sCompanyField" Type="string"   Expression="'Company'"/>
+    <Constant Identifier="sRevisionField" Type="string"  Expression="'Revision'"/>
+    <Constant Identifier="sDateField" Type="string"      Expression="'Date'"/>
+    <Constant Identifier="sSourceField" Type="string"    Expression="'Source'"/>
+    <Constant Identifier="sComment1Field" Type="string"  Expression="'Comment1'"/>
+    <Constant Identifier="sComment2Field" Type="string"  Expression="'Comment2'"/>
+    <Constant Identifier="sComment3Field" Type="string"  Expression="'Comment3'"/>
+    <Constant Identifier="sComment4Field" Type="string"  Expression="'Comment4'"/>
+    <Constant Identifier="sCountField" Type="string"     Expression="'Amount'"/>
   </Constants>
 </pkg:Library>

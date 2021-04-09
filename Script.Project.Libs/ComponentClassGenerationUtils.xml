@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <pkg:Library
-  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages …/XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="urn:schemas-www-wisware.nl-xmlscripting"
   xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
@@ -28,8 +28,9 @@
       <Field Identifier="Next" Type="TFieldInfo"/>
     </DataClass>
 
-    <DataClass Identifier="TRangedInt64FieldInfo" Inherit="TFieldInfo" DefaultConstructor="none">
+    <DataClass Identifier="TRangedDecimalQuantityFieldInfo" Inherit="TFieldInfo" DefaultConstructor="none">
       <Field Identifier="Converter" Type="string"/>
+      <Field Identifier="TypeName" Type="string"/>
     </DataClass>
 
     <DataClass Identifier="TEnumFieldInfo" Inherit="TFieldInfo" DefaultConstructor="none">
@@ -55,16 +56,18 @@
       </Block>
     </Constructor>
 
-    <Constructor Identifier="TRangedInt64FieldInfo.Create">
+    <Constructor Identifier="TRangedDecimalQuantityFieldInfo.Create">
       <Parameters>
         <Parameter Identifier="Name" Type="string"/>
         <Parameter Identifier="EnumName" Type="string"/>
         <Parameter Identifier="CompClass" Type="string"/>
         <Parameter Identifier="Converter" Type="string"/>
+        <Parameter Identifier="TypeName" Type="string"/>
       </Parameters>
       <Block>
         <Execute Statement="inherited Create(Name, EnumName, CompClass)"/>
         <Execute Statement="Self.Converter:= Converter"/>
+        <Execute Statement="Self.TypeName:= TypeName"/>
       </Block>
     </Constructor>
 
@@ -86,7 +89,7 @@
         <Parameter Identifier="Head" Type="TFieldInfo"/>
       </Parameters>
       <Procedures>
-        <Procedure Identifier="AddFieldRangedInt64">
+        <Procedure Identifier="AddFieldRangedDecimalQuantity">
           <Parameters>
             <Parameter Identifier="Name" Type="string"/>
             <Parameter Identifier="Converter" Type="string"/>
@@ -98,25 +101,25 @@
             <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= ''''&quot;/&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
-            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= %s.IntValueToStr(Self.%sMin, Compact) + ''..''&quot;/&gt;', Converter, Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= EDecimalQuantityToStr(%sMin, UnitPostFix) + #$2026&quot;/&gt;', Name)"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
-            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= ''!'' + Error%sMin + ''!'' + ''..''&quot;/&gt;', Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= ''!'' + Error%sMin + ''!'' + #$2026&quot;/&gt;', Name)"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
 
             <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sMaxVT&quot;&gt;', Name)"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
-            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= ''..''&quot; Condition=&quot;IsEmptyString(Range)&quot;/&gt;')"/>
-            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= Range + %s.IntValueToStr(Self.%sMax, Compact)&quot;/&gt;', Converter, Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= #$2026&quot; Condition=&quot;IsEmptyString(Range)&quot;/&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= Range + EDecimalQuantityToStr(%sMax, UnitPostFix)&quot;/&gt;', Name)"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
-            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= ''..''&quot; Condition=&quot;IsEmptyString(Range)&quot;/&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= #$2026&quot; Condition=&quot;IsEmptyString(Range)&quot;/&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Range:= Range + ''!'' + Error%sMax + ''!'' &quot;/&gt;', Name)"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
 
-            <rep:Reporter.Information Text="Indent + Format('&lt;Execute Statement=&quot;Range:= ''{'' + Range + ''}''&quot; Condition=&quot;IsNonEmptyString(Range)&quot;/&gt;')"/>
+            <rep:Reporter.Information Text="Indent + Format('&lt;Execute Statement=&quot;Range:=  Range &quot; Condition=&quot;IsNonEmptyString(Range)&quot;/&gt;')"/>
 
             <rep:Reporter.Information Text="Indent + Format('&lt;Case Expression=&quot;%sVT&quot;&gt;', Name)"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate&quot;&gt;')"/>
@@ -124,7 +127,7 @@
             <!--<rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''''&quot;/&gt;', ESerie)" Condition="IsNonEmptyString(ESerie)"/>-->
             <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
-            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= %s.IntValueToStr(Self.%:0s, Compact) + Range&quot;/&gt;', Name, Converter)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= EDecimalQuantityToStr(Self.%:0s, UnitPostFix) + Range&quot;/&gt;', Name)"/>
             <!--<rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ESerieOfValue(Self.%s)&quot;/&gt;', ESerie, Name)" Condition="IsNonEmptyString(ESerie)"/>-->
             <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
@@ -135,7 +138,7 @@
           </Block>
         </Procedure>
 
-        <Procedure Identifier="AddFieldInt64">
+        <Procedure Identifier="AddFieldDecimalQuantity">
           <Parameters>
             <Parameter Identifier="Name" Type="string"/>
             <Parameter Identifier="Converter" Type="string"/>
@@ -148,7 +151,7 @@
             <!--<rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ''''&quot;/&gt;', ESerie)" Condition="IsNonEmptyString(ESerie)"/>-->
             <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.SpecifiedByTemplate, TValueType.Specified&quot;&gt;')"/>
-            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Value:= %s.IntValueToStr(Self.%s, Compact)&quot;/&gt;', Converter, Name)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;Value:= EDecimalQuantityToStr(%s, UnitPostFix)&quot;/&gt;', Name)"/>
             <!--<rep:Reporter.Information Text="Indent + Format('    &lt;Execute Statement=&quot;%s:= ESerieOfValue(Self.%s)&quot;/&gt;', ESerie, Name)" Condition="IsNonEmptyString(ESerie)"/>-->
             <rep:Reporter.Information Text="Indent + Format('  &lt;/On&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('  &lt;On Select=&quot;TValueType.Error, TValueType.ErrorByTemplate&quot;&gt;')"/>
@@ -158,7 +161,7 @@
             <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
           </Block>
         </Procedure>
- <!--
+        <!--
  
          <Case Expression="TechnologyVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
@@ -194,7 +197,7 @@
             <rep:Reporter.Information Text="Indent + Format('&lt;/Case&gt;')"/>
           </Block>
         </Procedure>
-        
+
         <Procedure Identifier="AddFieldString">
           <Parameters>
             <Parameter Identifier="Name" Type="string"/>
@@ -219,8 +222,8 @@
         <rep:Reporter.Information Text="''"/>
         <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
           <Choose>
-            <When Expression="Item is TRangedInt64FieldInfo">
-              <Execute Statement="AddFieldRangedInt64(Item.Name, TRangedInt64FieldInfo(Item).Converter)"/>
+            <When Expression="Item is TRangedDecimalQuantityFieldInfo">
+              <Execute Statement="AddFieldRangedDecimalQuantity(Item.Name, TRangedDecimalQuantityFieldInfo(Item).Converter)"/>
             </When>
             <When Expression="Item is TEnumFieldInfo">
               <Execute Statement="AddFieldEnum(Item.Name, TEnumFieldInfo(Item).EnumType)"/>
@@ -238,7 +241,7 @@
         <Parameter Identifier="Head" Type="TFieldInfo"/>
       </Parameters>
       <Procedures>
-        <Procedure Identifier="AddFieldInt64">
+        <Procedure Identifier="AddFieldDecimalQuantity">
           <Parameters>
             <Parameter Identifier="Name" Type="string"/>
             <Parameter Identifier="EnumName" Type="string"/>
@@ -250,9 +253,9 @@
             <rep:Reporter.Information Text="Indent + Format('  &lt;Choose&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('    &lt;When Expression=&quot;Clear&quot;&gt;')"/>
             <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%sVT:= TValueType.Cleared&quot;/&gt;', Name)"/>
-            <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%s:= -1&quot;/&gt;', Name)"/>
+            <!--<rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%s:= -1&quot;/&gt;', Name)"/>-->
             <rep:Reporter.Information Text="Indent + Format('    &lt;/When&gt;')"/>
-            <rep:Reporter.Information Text="Indent + Format('    &lt;When Expression=&quot;%s.StrToIntValue(Value, LocValue)&quot;&gt;', Converter)"/>
+            <rep:Reporter.Information Text="Indent + Format('    &lt;When Expression=&quot;%s.EStrToIntValue(Value, LocValue)&quot;&gt;', Converter)"/>
             <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%sVT:= TValueType.Specified&quot;/&gt;', Name)"/>
             <rep:Reporter.Information Text="Indent + Format('      &lt;Execute Statement=&quot;%s:= LocValue&quot;/&gt;', Name)"/>
             <rep:Reporter.Information Text="Indent + Format('    &lt;/When&gt;')"/>
@@ -348,10 +351,10 @@
         <rep:Reporter.Information Text="''"/>
         <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
           <Choose>
-            <When Expression="Item is TRangedInt64FieldInfo">
-              <Execute Statement="AddFieldInt64(Item.Name, Item.EnumName, TRangedInt64FieldInfo(Item).Converter)"/>
-              <Execute Statement="AddFieldInt64(Item.Name + 'Min', Item.EnumName + 'Min', TRangedInt64FieldInfo(Item).Converter)"/>
-              <Execute Statement="AddFieldInt64(Item.Name + 'Max', Item.EnumName + 'Max', TRangedInt64FieldInfo(Item).Converter)"/>
+            <When Expression="Item is TRangedDecimalQuantityFieldInfo">
+              <Execute Statement="AddFieldDecimalQuantity(Item.Name, Item.EnumName, TRangedDecimalQuantityFieldInfo(Item).Converter)"/>
+              <Execute Statement="AddFieldDecimalQuantity(Item.Name + 'Min', Item.EnumName + 'Min', TRangedDecimalQuantityFieldInfo(Item).Converter)"/>
+              <Execute Statement="AddFieldDecimalQuantity(Item.Name + 'Max', Item.EnumName + 'Max', TRangedDecimalQuantityFieldInfo(Item).Converter)"/>
             </When>
             <When Expression="Item is TEnumFieldInfo">
               <Execute Statement="AddFieldEnum(Item.Name, Item.EnumName, TEnumFieldInfo(Item).EnumType)"/>
@@ -369,7 +372,7 @@
         <Parameter Identifier="Head" Type="TFieldInfo"/>
       </Parameters>
       <Procedures>
-        <Procedure Identifier="AddFieldRangedInt64">
+        <Procedure Identifier="AddFieldDecimalQuantity">
           <Parameters>
             <Parameter Identifier="Name" Type="string"/>
             <Parameter Identifier="EnumName" Type="string"/>
@@ -450,8 +453,8 @@
         <rep:Reporter.Information Text="''"/>
         <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
           <Choose>
-            <When Expression="Item is TRangedInt64FieldInfo">
-              <Execute Statement="AddFieldRangedInt64(Item.Name, Item.EnumName)"/>
+            <When Expression="Item is TRangedDecimalQuantityFieldInfo">
+              <Execute Statement="AddFieldDecimalQuantity(Item.Name, Item.EnumName)"/>
             </When>
             <When Expression="Item is TFieldInfo">
               <Execute Statement="AddField(Item.Name, Item.EnumName)"/>
@@ -491,10 +494,10 @@
         <rep:Reporter.Information Text="''"/>
         <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
           <Choose>
-            <When Expression="Item is TRangedInt64FieldInfo">
-              <Execute Statement="AddFieldBase(Item.Name, 'Int64')"/>
-              <Execute Statement="AddFieldBase(Item.Name + 'Min', 'Int64')"/>
-              <Execute Statement="AddFieldBase(Item.Name + 'Max', 'Int64')"/>
+            <When Expression="Item is TRangedDecimalQuantityFieldInfo">
+              <Execute Statement="AddFieldBase(Item.Name, TRangedDecimalQuantityFieldInfo(Item).TypeName)"/>
+              <Execute Statement="AddFieldBase(Item.Name + 'Min', TRangedDecimalQuantityFieldInfo(Item).TypeName)"/>
+              <Execute Statement="AddFieldBase(Item.Name + 'Max', TRangedDecimalQuantityFieldInfo(Item).TypeName)"/>
             </When>
             <When Expression="Item is TEnumFieldInfo">
               <Execute Statement="AddFieldBase(Item.Name, 'T' + TEnumFieldInfo(Item).EnumType)"/>
@@ -512,7 +515,7 @@
         <Parameter Identifier="Head" Type="TFieldInfo"/>
       </Parameters>
       <Procedures>
-        <Procedure Identifier="AddFieldInt64Range">
+        <Procedure Identifier="AddFieldDecimalQuantity">
           <Parameters>
             <Parameter Identifier="Name" Type="string"/>
           </Parameters>
@@ -522,7 +525,7 @@
             <rep:Reporter.Information Text="Indent + Format('&lt;Exit Condition=&quot;Result &amp;lt;&amp;gt; 0&quot;/&gt;')"/>
           </Block>
         </Procedure>
-        <Procedure Identifier="AddFieldInt64">
+        <Procedure Identifier="AddFieldEnum">
           <Parameters>
             <Parameter Identifier="Name" Type="string"/>
           </Parameters>
@@ -547,11 +550,11 @@
         <rep:Reporter.Information Text="''"/>
         <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
           <Choose>
-            <When Expression="Item is TRangedInt64FieldInfo">
-              <Execute Statement="AddFieldInt64Range(Item.Name)"/>
+            <When Expression="Item is TRangedDecimalQuantityFieldInfo">
+              <Execute Statement="AddFieldDecimalQuantity(Item.Name)"/>
             </When>
             <When Expression="Item is TEnumFieldInfo">
-              <Execute Statement="AddFieldInt64(Item.Name)"/>
+              <Execute Statement="AddFieldEnum(Item.Name)"/>
             </When>
             <When Expression="Item is TStringFieldInfo">
               <Execute Statement="AddFieldString(Item.Name)"/>
@@ -642,7 +645,7 @@
         <rep:Reporter.Information Text="''"/>
         <lil:LinkedList.Iterate Head="Head" ItemType="TFieldInfo" RunningItem="Item" Next="Item.Next">
           <Choose>
-            <When Expression="Item is TRangedInt64FieldInfo">
+            <When Expression="Item is TRangedDecimalQuantityFieldInfo">
               <Execute Statement="AddField(Item.Name, Item.EnumName, Item.CompClass, TGenKind.Min)"/>
               <Execute Statement="AddField(Item.Name, Item.EnumName, Item.CompClass, TGenKind.Max)"/>
               <Execute Statement="AddField(Item.Name, Item.EnumName, Item.CompClass, TGenKind.BoundedNominal)"/>
@@ -682,9 +685,9 @@
       <Block>
         <Variable Identifier="CompClass" Type="string" Init="'TResistorSpec'"/>
         <Variable Identifier="Tail" Type="TFieldInfo"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Resistance', 'Value', CompClass, 'ResistorResistanceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('PowerRating', 'PowerRating', CompClass, 'ResistorPowerRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'ResistorToleranceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('Resistance', 'Value', CompClass, 'ResistorResistanceConv', 'ResistanceDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('PowerRating', 'PowerRating', CompClass, 'ResistorPowerRatingConv', 'PowerDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'ResistorToleranceConv', 'ToleranceDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
         <lil:LinkedList.LinkUp Item="TEnumFieldInfo.Create('Technology', 'Technology', CompClass, 'ResistorTechnology')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
       </Block>
     </Function>
@@ -693,9 +696,9 @@
       <Block>
         <Variable Identifier="CompClass" Type="string" Init="'TCapacitorSpec'"/>
         <Variable Identifier="Tail" Type="TFieldInfo"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Capacitance', 'Value', CompClass, 'CapacitorCapacitanceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('VoltageRating', 'VoltageRating', CompClass, 'CapacitorVoltageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'CapacitorToleranceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('Capacitance', 'Value', CompClass, 'CapacitorCapacitanceConv', 'CapacitanceDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('VoltageRating', 'VoltageRating', CompClass, 'CapacitorVoltageRatingConv', 'VoltageDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'CapacitorToleranceConv', 'ToleranceDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
         <lil:LinkedList.LinkUp Item="TEnumFieldInfo.Create('Technology', 'Technology', CompClass, 'CapacitorTechnology')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
       </Block>
     </Function>
@@ -704,9 +707,9 @@
       <Block>
         <Variable Identifier="CompClass" Type="string" Init="'TZenerDiodeSpec'"/>
         <Variable Identifier="Tail" Type="TFieldInfo"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('ZenerVoltage', 'Value', CompClass, 'ZenerDiodeZenerVoltageConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('PowerRating', 'PowerRating', CompClass, 'ZenerDiodePowerRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'ZenerDiodeToleranceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('ZenerVoltage', 'Value', CompClass, 'ZenerDiodeZenerVoltageConv', 'VoltageDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('PowerRating', 'PowerRating', CompClass, 'ZenerDiodePowerRatingConv', 'PowerDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'ZenerDiodeToleranceConv', 'ToleranceDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
       </Block>
     </Function>
 
@@ -714,9 +717,9 @@
       <Block>
         <Variable Identifier="CompClass" Type="string" Init="'TInductorSpec'"/>
         <Variable Identifier="Tail" Type="TFieldInfo"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Inductance', 'Value', CompClass, 'InductorInductanceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('AmperageRating', 'AmperageRating', CompClass, 'InductorAmperageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'InductorToleranceConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('Inductance', 'Value', CompClass, 'InductorInductanceConv', 'InductanceDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('AmperageRating', 'AmperageRating', CompClass, 'InductorAmperageRatingConv', 'CurrentDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('Tolerance', 'Tolerance', CompClass, 'InductorToleranceConv', 'ToleranceDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
       </Block>
     </Function>
 
@@ -724,8 +727,8 @@
       <Block>
         <Variable Identifier="CompClass" Type="string" Init="'TFuseSpec'"/>
         <Variable Identifier="Tail" Type="TFieldInfo"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('Amperage', 'Value', CompClass, 'FuseAmperageConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('VoltageRating', 'VoltageRating', CompClass, 'FuseVoltageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('Amperage', 'Value', CompClass, 'FuseAmperageConv', 'CurrentDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('VoltageRating', 'VoltageRating', CompClass, 'FuseVoltageRatingConv', 'VoltageDQ')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
         <lil:LinkedList.LinkUp Item="TEnumFieldInfo.Create('BreakSpeed', 'BreakSpeed', CompClass, 'BreakSpeed')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
         <lil:LinkedList.LinkUp Item="TStringFieldInfo.Create('Dimensions', 'Dimensions', CompClass)" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
       </Block>
@@ -735,9 +738,9 @@
       <Block>
         <Variable Identifier="CompClass" Type="string" Init="'TDiodeSpec'"/>
         <Variable Identifier="Tail" Type="TFieldInfo"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('ReverseVoltageRating', 'ReverseVoltageRating', CompClass, 'DiodeReverseVoltageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('AmperageRating', 'AmperageRating', CompClass, 'DiodeAmperageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('ForwardVoltage', 'ForwardVoltage', CompClass, 'DiodeForwardVoltageConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('ReverseVoltageRating', 'ReverseVoltageRating', CompClass, 'DiodeReverseVoltageRatingConv', 'Voltage')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('AmperageRating', 'AmperageRating', CompClass, 'DiodeAmperageRatingConv', 'Current')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('ForwardVoltage', 'ForwardVoltage', CompClass, 'DiodeForwardVoltageConv', 'Voltage')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
       </Block>
     </Function>
 
@@ -745,7 +748,7 @@
       <Block>
         <Variable Identifier="CompClass" Type="string" Init="'TConnectorSpec'"/>
         <Variable Identifier="Tail" Type="TFieldInfo"/>
-        <lil:LinkedList.LinkUp Item="TRangedInt64FieldInfo.Create('AmperageRating', 'AmperageRating', CompClass, 'ConnectorAmperageRatingConv')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
+        <lil:LinkedList.LinkUp Item="TRangedDecimalQuantityFieldInfo.Create('AmperageRating', 'AmperageRating', CompClass, 'ConnectorAmperageRatingConv', 'Current')" TailLinkStatement="Tail.Next:= Item" Head="Result" Tail="Tail"/>
       </Block>
     </Function>
 

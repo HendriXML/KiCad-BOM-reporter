@@ -94,7 +94,6 @@
         <Variable Identifier="Count" Type="Integer" Init="0"/>
       </Variables>
       <Block>
-        <rep:Reporter.Information Text="Format(sFilename, Filename)"/>
         <msx:Document.Create Identifier="Document"/>
         <msx:Document.LoadFromFile Document="Document" Filename="Filename"/>
         <msx:Node.IterateChilds Node="Document">
@@ -192,15 +191,15 @@
 
     <Procedure Identifier="TBillOfMaterials.ReportTitleBlock">
       <Block>
-        <rep:Reporter.Information Text="Format(sTitleField, Title)" Condition="IsNonEmptystring(Title)"/>
-        <rep:Reporter.Information Text="Format(sCompanyField, Company)" Condition="IsNonEmptystring(Company)"/>
-        <rep:Reporter.Information Text="Format(sRevisionField, Revision)" Condition="IsNonEmptystring(Revision)"/>
-        <rep:Reporter.Information Text="Format(sDateField, Date)" Condition="IsNonEmptystring(Date)"/>
-        <rep:Reporter.Information Text="Format(sSourceField, Source)" Condition="IsNonEmptystring(Source)"/>
-        <rep:Reporter.Information Text="Format(sComment1Field, Comment1)" Condition="IsNonEmptystring(Comment1)"/>
-        <rep:Reporter.Information Text="Format(sComment2Field, Comment2)" Condition="IsNonEmptystring(Comment2)"/>
-        <rep:Reporter.Information Text="Format(sComment3Field, Comment3)" Condition="IsNonEmptystring(Comment3)"/>
-        <rep:Reporter.Information Text="Format(sComment4Field, Comment4)" Condition="IsNonEmptystring(Comment4)"/>
+        <rep:Reporter.LabelValue Label="sTitleField" Value="Title" Condition="IsNonEmptystring(Title)"/>
+        <rep:Reporter.LabelValue Label="sCompanyField" Value="Company" Condition="IsNonEmptystring(Company)"/>
+        <rep:Reporter.LabelValue Label="sRevisionField" Value="Revision" Condition="IsNonEmptystring(Revision)"/>
+        <rep:Reporter.LabelValue Label="sDateField" Value="Date" Condition="IsNonEmptystring(Date)"/>
+        <rep:Reporter.LabelValue Label="sSourceField" Value="Source" Condition="IsNonEmptystring(Source)"/>
+        <rep:Reporter.LabelValue Label="sComment1Field" Value="Comment1" Condition="IsNonEmptystring(Comment1)"/>
+        <rep:Reporter.LabelValue Label="sComment2Field" Value="Comment2" Condition="IsNonEmptystring(Comment2)"/>
+        <rep:Reporter.LabelValue Label="sComment3Field" Value="Comment3" Condition="IsNonEmptystring(Comment3)"/>
+        <rep:Reporter.LabelValue Label="sComment4Field" Value="Comment4" Condition="IsNonEmptystring(Comment4)"/>
       </Block>
     </Procedure>
 
@@ -208,7 +207,7 @@
       <Block>
         <rep:Reporter.Information Text="sBOMHeader" Markup="Header1"/>
         <Execute Statement="ReportTitleBlock"/>
-        <rep:Reporter.Information Text="Format(sCountField, BomCount)"/>
+        <rep:Reporter.LabelValue Label="sCountField" Value="IntToStr(BomCount)"/>
 
         <Object.Use Identifier="SchemaContext" Type="TSchemaReportContext" Expression="TSchemaReportContext.Create">
           <Object.Use Identifier="StockContext" Type="TStockReportContext" Expression="TStockReportContext.Create">
@@ -240,10 +239,10 @@
       </Block>
     </Procedure>
 
-    <Procedure Identifier="TBillOfMaterials.FinalizeSchemaComponents">
+    <Procedure Identifier="TBillOfMaterials.ProcessDesignators">
       <Block>
         <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
-          <Execute Statement="RunningItem.FinalizeSchemaComponents(BomCount)"/>
+          <Execute Statement="RunningItem.ProcessDesignators(BomCount)"/>
         </lil:LinkedList.Iterate>
       </Block>
     </Procedure>
@@ -304,7 +303,7 @@
               <WhileLoop Expression="Assigned(RunningDesignatorInfo) and Assigned(RunningCalcDesignatorInfo)">
                 <Execute Statement="CompResult:= CompareComponent(RunningDesignatorInfo.SchemaComponent, RunningCalcDesignatorInfo.SchemaComponent)"/>
                 <Block Condition="CompResult &gt; 0">
-                  <rep:Reporter.Error Target="Errors" Text="Format(sMsgUnmatchedCalculatedDesignator, RunningCalcDesignatorInfo.SchemaComponent.Reference)"/>
+                  <rep:Reporter.Error Target="Info" Text="Format(sMsgUnmatchedCalculatedDesignator, RunningCalcDesignatorInfo.SchemaComponent.Reference)"/>
                   <Execute Statement="RunningCalcDesignatorInfo:= RunningCalcDesignatorInfo.Next"/>
                   <Continue/>
                 </Block>
@@ -342,7 +341,7 @@
                     <Execute Statement="RunningDesignatorInfo:= RunningDesignatorInfo.Next"/>
                   </When>
                   <Otherwise>
-                    <rep:Reporter.Error Target="Errors" Text="Format(sMsgUnmatchedCalculatedDesignator, RunningCalcDesignatorInfo.SchemaComponent.Reference)"/>
+                    <rep:Reporter.Error Target="Info" Text="Format(sMsgUnmatchedCalculatedDesignator, RunningCalcDesignatorInfo.SchemaComponent.Reference)"/>
                     <Execute Statement="RunningCalcDesignatorInfo:= RunningCalcDesignatorInfo.Next"/>
                   </Otherwise>
                 </Choose>
@@ -370,7 +369,7 @@
               </WhileLoop>
 
               <WhileLoop Expression="Assigned(RunningCalcDesignatorInfo)">
-                <rep:Reporter.Error Target="Errors" Text="Format(sMsgUnmatchedCalculatedDesignator, RunningCalcDesignatorInfo.SchemaComponent.Reference)"/>
+                <rep:Reporter.Error Target="Info" Text="Format(sMsgUnmatchedCalculatedDesignator, RunningCalcDesignatorInfo.SchemaComponent.Reference)"/>
                 <Execute Statement="RunningCalcDesignatorInfo:= RunningCalcDesignatorInfo.Next"/>
               </WhileLoop>
 
@@ -433,6 +432,7 @@
             </lil:LinkedList.Iterate>
           </Block>
         </Implementation>
+
         <Procedure Identifier="ReportRequestsOutOfStock">
           <Parameters>
             <Parameter Identifier="SchemaContext" Type="TSchemaReportContext"/>
@@ -459,6 +459,7 @@
             </ForLoop>
           </Block>
         </Procedure>
+
         <Procedure Identifier="ClearPickCount">
           <Block>
             <Variable Identifier="PickRequestList" Type="TObjectList" Init="Self.PickRequestList"/>
@@ -469,6 +470,7 @@
             </ForLoop>
           </Block>
         </Procedure>
+
       </Procedures>
       <Variables>
         <Variable Identifier="DesignatorInfoHead" Type="TDesignatorInfo"/>
@@ -499,7 +501,7 @@
                 <Execute Statement="ClearPickCount"/>
                 <rep:Reporter.Information Text="sReportStorageLocations" Markup="Header1"/>
                 <Execute Statement="ReportTitleBlock"/>
-                <rep:Reporter.Information Text="Format(sCountField, BomCount)"/>
+                <rep:Reporter.LabelValue Label="sCountField" Value="IntToStr(BomCount)"/>
                 <rep:Reporter.Information Text="''"/>
                 <Execute Statement="ReportLocationCategory(StockManager.RootStorageLocationCategory, SchemaContext, StockContext)"/>
                 <Execute Statement="ReportRequestsOutOfStock(StockContext)"/>

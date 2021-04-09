@@ -16,8 +16,12 @@
       <xs:enumeration value="Header4"/>
       <xs:enumeration value="Header5"/>
       <xs:enumeration value="Header6"/>
+      <xs:enumeration value="Comment"/>
+      <xs:enumeration value="Error"/>
+      <xs:enumeration value="BulletList"/>
     </xs:restriction>
   </xs:simpleType>
+  
   <xs:complexType name="T_ReportItem">
     <xs:complexContent>
       <xs:extension base="sys:T_AbstractConditionalProcessItem">
@@ -26,6 +30,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
   <xs:complexType name="T_Reporter.DefaultTarget">
     <xs:complexContent>
       <xs:extension base="sys:T_AbstractConditionalProcessItem">
@@ -33,6 +38,17 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
+  <xs:complexType name="T_LabelValueReportItem">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Target" type="sys:reporttargetidentifier" use="optional"/>
+        <xs:attribute name="Label" type="sys:expression" use="required"/>
+        <xs:attribute name="Value" type="sys:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:complexType name="T_MarkupReportItem">
     <xs:complexContent>
       <xs:extension base="T_ReportItem">
@@ -56,11 +72,12 @@
               </xs:complexContent>
             </xs:complexType>
           </xs:element>
-          <xs:element name="Error" minOccurs="0">
+          <xs:element name="LabelValue" minOccurs="0">
             <xs:complexType>
               <xs:complexContent>
                 <xs:extension base="sys:T_Block">
-                  <xs:attribute name="Text" type="sys:identifier" use="required"/>
+                  <xs:attribute name="Label" type="sys:identifier" use="required"/>
+                  <xs:attribute name="Value" type="sys:identifier" use="required"/>
                 </xs:extension>
               </xs:complexContent>
             </xs:complexType>
@@ -81,6 +98,7 @@
   <xs:element name="Reporter.GetIterator" type="T_Reporter.GetIterator" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Reporter.IterateTarget" type="T_Reporter.IterateTarget" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Reporter.Information" type="T_MarkupReportItem" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Reporter.LabelValue" type="T_LabelValueReportItem" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Reporter.Error" type="T_ReportItem" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Reporter.DefaultTarget" type="T_Reporter.DefaultTarget" substitutionGroup="sys:AbstractProcessItem"/>
 </xs:schema>

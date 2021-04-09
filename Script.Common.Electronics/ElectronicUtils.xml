@@ -19,34 +19,18 @@
   xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
   xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers"
   xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement">
+  <Uses>
+    <Use Identifier="SiUnits"/>
+  </Uses>
   <Type>
     <DataClass.Forwarded Identifier="TSerie"/>
-
-    <Enumeration Identifier="TPrefix" Elements="Tera, Giga, Mega, Kilo, None, Milli, Micro, Nano, Pico, Femto" LowAlias="Low" HighAlias="High"/>
-
-    <Enumeration Identifier="TSiUnit" Elements="Ohm, Watt, Farad, Henry, Volt, Amp, Perc, Hz, Meter" LowAlias="Low" HighAlias="High"/>
-
-    <Enumeration Identifier="TGranularity" Elements="Femto, Pico, Micro"/>
-
-    <Enumeration Identifier="TConvertorKind" Elements="PicoVolt, PicoAmp, MicroOhm, FemtoFarad, FemtoHenry, MicroPerc, PicoWatt, PicoMeter, MicroHz" LowAlias="Low" HighAlias="High"/>
-    <!--
-PicoVolt
-PicoAmp
-MicroOhm
-FemtoFarad
-FemtoHenry
-MicroPerc
-PicoWatt
-PicoMeter
-MicroHz
-      -->
 
     <Enumeration Identifier="TESerie" Elements="E3, E6, E12, E24, E48, E96, E192"/>
 
     <Enumeration Identifier="TMatchValueKind" Elements="LessOrEqual, MoreOrEqual, Closest"/>
 
     <DataClass Identifier="TSerieNode">
-      <Field Identifier="Value" Type="UInt32"/>
+      <Field Identifier="Value" Type="Decimal"/>
       <Field Identifier="LowSerie" Type="TESerie"/>
       <Field Identifier="OrderedPosition" Type="UInt32"/>
       <Field Identifier="Previous" Type="TSerieNode"/>
@@ -67,7 +51,7 @@ MicroHz
     </DataClass>
 
     <DataClass Identifier="TValueLink">
-      <Field Identifier="Value" Type="Extended"/>
+      <Field Identifier="Value" Type="Quantity"/>
       <Field Identifier="Next" Type="TValueLink"/>
     </DataClass>
 
@@ -76,36 +60,8 @@ MicroHz
       <Field Identifier="LogScale" Type="Integer"/>
     </DataClass>
 
-    <DataClass Identifier="TUnitConvertor" DefaultConstructor="none">
-      <Field Identifier="SiUnit" Type="TSiUnit"/>
-      <Field Identifier="Granularity" Type="TGranularity"/>
-      <Field Identifier="BaseScale" Type="Integer"/>
-      <Field Identifier="ConvertorKind" Type="TConvertorKind"/>
-      <Field Identifier="UnitS" Type="string"/>
-      <Field Identifier="NumberUnitSeperator" Type="string"/>
-      <Field Identifier="FactorPrefixNone" Type="Int64"/>
-      <Field Identifier="ToExtendedFactor" Type="Extended"/>
-      <Field Identifier="FromExtendedFactor" Type="Extended"/>
-      <!--<-<TUnitConvertor.Fields-->
-      <Field Identifier="AllowPrefixTera" Type="Boolean"/>
-      <Field Identifier="AllowPrefixGiga" Type="Boolean"/>
-      <Field Identifier="AllowPrefixMega" Type="Boolean"/>
-      <Field Identifier="AllowPrefixKilo" Type="Boolean"/>
-      <Field Identifier="AllowPrefixMilli" Type="Boolean"/>
-      <Field Identifier="AllowPrefixMicro" Type="Boolean"/>
-      <Field Identifier="AllowPrefixNano" Type="Boolean"/>
-      <Field Identifier="AllowPrefixPico" Type="Boolean"/>
-      <Field Identifier="AllowPrefixFemto" Type="Boolean"/>
-      <!-->->-->
-    </DataClass>
   </Type>
   <Constants>
-    <Constant Identifier="MaxInt64" Type="Int64" Expression="9223372036854775807"/>
-    <Constant Identifier="MaxInt64RndExt" Type="Extended" Expression="9223372036854775807.0-1.0"/>
-    <Constant Identifier="MinInt64RndExt" Type="Extended" Expression="-9223372036854775807.0+1.0"/>
-    <Constant Identifier="MaxInt64Div10" Type="Int64" Expression="9223372036854775807 div 10"/>
-    <Constant Identifier="CopperResistivity" Type="Extended" Expression="1.75E-8"/>
-
     <Constant Identifier="cDeca1" Type="Char" Expression="'d'"/>
     <Constant Identifier="cDeca2" Type="Char" Expression="'a'"/>
     <!--
@@ -155,6 +111,7 @@ Yocto
     <Constant Identifier="cMicroAlt2" Type="Char" Expression="'u'"/>
     <Constant Identifier="cR" Type="Char" Expression="'R'"/>
     <Constant Identifier="cE" Type="Char" Expression="'E'"/>
+    <Constant Identifier="cE2" Type="Char" Expression="'e'"/>
     <Constant Identifier="cK" Type="Char" Expression="'K'"/>
 
 
@@ -196,11 +153,13 @@ Meter
     <Constant Identifier="cVolt" Type="Char" Expression="'V'"/>
     <Constant Identifier="cAmp" Type="Char" Expression="'A'"/>
     <Constant Identifier="cPerc" Type="Char" Expression="'%'"/>
-    <Constant Identifier="sHz" Type="string" Expression="'hz'"/>
-    <Constant Identifier="cHz" Type="Char" Expression="'h'"/>
+    <Constant Identifier="sHz" Type="string" Expression="'Hz'"/>
+    <Constant Identifier="cHz" Type="Char" Expression="'H'"/>
     <Constant Identifier="cHz2" Type="Char" Expression="'z'"/>
+    <Constant Identifier="cHenry_Hz" Type="Char" Expression="'H'"/>
     <Constant Identifier="cMeter" Type="Char" Expression="'m'"/>
     <Constant Identifier="cPercentage" Type="Char" Expression="'%'"/>
+    <Constant Identifier="cSecond" Type="Char" Expression="'s'"/>
     <Constant Identifier="sKW" Type="string" Expression="'K/W'"/>
     <Constant Identifier="sCelcius" Type="string" Expression="'°C'"/>
 
@@ -226,8 +185,6 @@ Meter
     <Constant Identifier="cScaleZepto" Type="Integer" Expression="-21"/>
     <Constant Identifier="cScaleYocto" Type="Integer" Expression="-24"/>
 
-
-
     <Constant Identifier="kilo" Type="Integer" Expression="1000"/>
     <Constant Identifier="Mega" Type="Integer" Expression="1000 * kilo"/>
     <Constant Identifier="Giga" Type="Integer" Expression="1000 * Mega"/>
@@ -236,73 +193,9 @@ Meter
     <Constant Identifier="M" Type="Integer" Expression="Mega"/>
     <Constant Identifier="G" Type="Integer" Expression="Giga"/>
 
-    <Constant Identifier="facMicroToMicro" Type="Int64" Expression="1"/>
-    <Constant Identifier="facMilliToMicro" Type="Int64" Expression="k*facMicroToMicro"/>
-    <Constant Identifier="facToMicro" Type="Int64" Expression="k*facMilliToMicro"/>
-    <Constant Identifier="facKiloToMicro" Type="Int64" Expression="k*facToMicro"/>
-    <Constant Identifier="facMegaToMicro" Type="Int64" Expression="k*facKiloToMicro"/>
-    <Constant Identifier="facGigaToMicro" Type="Int64" Expression="k*facMegaToMicro"/>
-
-    <Constant Identifier="facFemtoToFemto" Type="Int64" Expression="1"/>
-    <Constant Identifier="facPicoToFemto" Type="Int64" Expression="k*facFemtoToFemto"/>
-    <Constant Identifier="facNanoToFemto" Type="Int64" Expression="k*facPicoToFemto"/>
-    <Constant Identifier="facMicroToFemto" Type="Int64" Expression="k*facNanoToFemto"/>
-    <Constant Identifier="facMilliToFemto" Type="Int64" Expression="k*facMicroToFemto"/>
-    <Constant Identifier="facToFemto" Type="Int64" Expression="k*facMilliToFemto"/>
-    <Constant Identifier="facKiloToFemto" Type="Int64" Expression="k*facToFemto"/>
-
     <Constant Identifier="nano" Type="Extended" Expression="1/1000000000"/>
     <Constant Identifier="micro" Type="Extended" Expression="1/1000000"/>
     <Constant Identifier="Milli" Type="Extended" Expression="1/1000"/>
-
-    <Constant Identifier="cScaleFactor00" Type="UInt64" Expression="1"/>
-    <Constant Identifier="cScaleFactor01" Type="UInt64" Expression="10"/>
-    <Constant Identifier="cScaleFactor02" Type="UInt64" Expression="100"/>
-    <Constant Identifier="cScaleFactor03" Type="UInt64" Expression="1000"/>
-    <Constant Identifier="cScaleFactor04" Type="UInt64" Expression="10000"/>
-    <Constant Identifier="cScaleFactor05" Type="UInt64" Expression="100000"/>
-    <Constant Identifier="cScaleFactor06" Type="UInt64" Expression="1000000"/>
-    <Constant Identifier="cScaleFactor07" Type="UInt64" Expression="10000000"/>
-    <Constant Identifier="cScaleFactor08" Type="UInt64" Expression="100000000"/>
-    <Constant Identifier="cScaleFactor09" Type="UInt64" Expression="1000000000"/>
-    <Constant Identifier="cScaleFactor10" Type="UInt64" Expression="10000000000"/>
-    <Constant Identifier="cScaleFactor11" Type="UInt64" Expression="100000000000"/>
-    <Constant Identifier="cScaleFactor12" Type="UInt64" Expression="1000000000000"/>
-    <Constant Identifier="cScaleFactor13" Type="UInt64" Expression="10000000000000"/>
-    <Constant Identifier="cScaleFactor14" Type="UInt64" Expression="100000000000000"/>
-    <Constant Identifier="cScaleFactor15" Type="UInt64" Expression="1000000000000000"/>
-    <Constant Identifier="cScaleFactor16" Type="UInt64" Expression="10000000000000000"/>
-    <Constant Identifier="cScaleFactor17" Type="UInt64" Expression="100000000000000000"/>
-    <Constant Identifier="cScaleFactor18" Type="UInt64" Expression="1000000000000000000"/>
-    <Constant Identifier="cScaleFactor19" Type="UInt64" Expression="10000000000000000000"/>
-
-    <Constant Identifier="cFactorFromExa" Type="UInt64" Expression="cScaleFactor18"/>
-    <Constant Identifier="cFactorFromPeta" Type="UInt64" Expression="cScaleFactor15"/>
-    <Constant Identifier="cFactorFromTera" Type="UInt64" Expression="cScaleFactor12"/>
-    <Constant Identifier="cFactorFromGiga" Type="UInt64" Expression="cScaleFactor09"/>
-    <Constant Identifier="cFactorFromMega" Type="UInt64" Expression="cScaleFactor06"/>
-    <Constant Identifier="cFactorFromKilo" Type="UInt64" Expression="cScaleFactor03"/>
-    <Constant Identifier="cFactorFromHecto" Type="UInt64" Expression="cScaleFactor02"/>
-    <Constant Identifier="cFactorFromDeca" Type="UInt64" Expression="cScaleFactor01"/>
-
-    <Constant Identifier="cFactorToNone" Type="UInt64" Expression="cScaleFactor00"/>
-    <Constant Identifier="cFactorToDeci" Type="UInt64" Expression="cScaleFactor01"/>
-    <Constant Identifier="cFactorToCenti" Type="UInt64" Expression="cScaleFactor02"/>
-    <Constant Identifier="cFactorToMilli" Type="UInt64" Expression="cScaleFactor03"/>
-    <Constant Identifier="cFactorToMicro" Type="UInt64" Expression="cScaleFactor06"/>
-    <Constant Identifier="cFactorToNano" Type="UInt64" Expression="cScaleFactor09"/>
-    <Constant Identifier="cFactorToPico" Type="UInt64" Expression="cScaleFactor12"/>
-    <Constant Identifier="cFactorToFemto" Type="UInt64" Expression="cScaleFactor15"/>
-    <Constant Identifier="cFactorToAtto" Type="UInt64" Expression="cScaleFactor18"/>
-
-    <Constant Identifier="facMegaToPico" Type="Int64"  Expression="cFactorFromMega * cFactorToPico"/>
-    <Constant Identifier="facMicroToPico" Type="Int64"  Expression="cFactorToPico div cFactorToMicro"/>
-
-    <Constant Identifier="facFromPico" Type="Extended" Expression="1/cFactorToPico"/>
-    <Constant Identifier="facFromFemto" Type="Extended" Expression="1/cFactorToFemto"/>
-    <Constant Identifier="facFromMicro" Type="Extended" Expression="1/cFactorToMicro"/>
-
-
   </Constants>
   <Variables>
     <Variable Identifier="_E192Serie" Type="TSerie"/>
@@ -312,20 +205,9 @@ Meter
     <Variable Identifier="_E12Serie" Type="TSerie"/>
     <Variable Identifier="_E6Serie" Type="TSerie"/>
     <Variable Identifier="_E3Serie" Type="TSerie"/>
-    <!--<-<Variables.Converters-->
-    <Variable Identifier="_PicoVoltConverter" Type="TUnitConvertor"/>
-    <Variable Identifier="_PicoAmpConverter" Type="TUnitConvertor"/>
-    <Variable Identifier="_MicroOhmConverter" Type="TUnitConvertor"/>
-    <Variable Identifier="_FemtoFaradConverter" Type="TUnitConvertor"/>
-    <Variable Identifier="_FemtoHenryConverter" Type="TUnitConvertor"/>
-    <Variable Identifier="_MicroPercConverter" Type="TUnitConvertor"/>
-    <Variable Identifier="_PicoWattConverter" Type="TUnitConvertor"/>
-    <Variable Identifier="_PicoMeterConverter" Type="TUnitConvertor"/>
-    <Variable Identifier="_MicroHzConverter" Type="TUnitConvertor"/>
-    <!-->->-->
-    <Variable Identifier="DecimalSeparator" Type="Char"/>
   </Variables>
   <Procedures>
+
     <Function Identifier="DecodeReference" Type="Boolean">
       <Parameters>
         <Parameter Identifier="Reference" Type="string"/>
@@ -348,7 +230,6 @@ Meter
                   </On>
                   <On Select="'a'..'z', 'A'..'Z'">
                     <Execute Statement="locPrefix:= Chr"/>
-                    <Execute Statement="ValidEndState:= True"/>
                     <stm:SetState Name="InPrefix"/>
                   </On>
                   <Otherwise>
@@ -404,176 +285,6 @@ Meter
       </Block>
     </Function>
 
-    <Function Identifier="CreatePrefix" Type="string" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="Value" Type="Extended"/>
-        <Parameter Identifier="aUnit"/>
-        <Parameter Identifier="IsCapacitance" Type="Boolean"/>
-      </Parameters>
-      <Variables>
-        <Variable Identifier="Prefix" Type="string" Init="''"/>
-      </Variables>
-      <Block>
-        <Choose>
-          <When Expression="(Value &gt;= M) or (Value &lt;= -M)">
-            <Execute Statement="Prefix:= cMega"/>
-            <Execute Statement="Value:= Value / M"/>
-          </When>
-          <When Expression="(Value &gt;= k) or (Value &lt;= -k)">
-            <Execute Statement="Prefix:= cKilo"/>
-            <Execute Statement="Value:= Value / k"/>
-          </When>
-          <When Expression="(Value &gt;= 1) or (Value &lt;= -1)">
-            <Execute Statement="Prefix:= ''"/>
-          </When>
-          <When Expression="((Value &gt;= Milli) or (Value &lt;= -Milli)) and not IsCapacitance">
-            <Execute Statement="Prefix:= cMilli"/>
-            <Execute Statement="Value:= Value * 1000"/>
-          </When>
-          <When Expression="(Value &gt;= micro) or (Value &lt;= -micro)">
-            <Execute Statement="Prefix:= cMicro"/>
-            <Execute Statement="Value:= Value * 1000000"/>
-          </When>
-          <When Expression="(Value &gt;= nano) or (Value &lt;= -nano)">
-            <Execute Statement="Prefix:= cNano"/>
-            <Execute Statement="Value:= Value * 1000000000"/>
-          </When>
-        </Choose>
-        <Execute Statement="Result:= Format('%.2f %s%s', Value, Prefix, aUnit)"/>
-      </Block>
-    </Function>
-    <Function Identifier="FormatVoltage" Type="string" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="voltValue" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= CreatePrefix(voltValue, cVolt, False)"/>
-      </Block>
-    </Function>
-    <Function Identifier="FormatThermalResistance" Type="string" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="kwValue" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= CreatePrefix(kwValue, sKW, False)"/>
-      </Block>
-    </Function>
-    <Function Identifier="FormatTemperatureCelcius" Type="string" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="centigradeValue" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= CreatePrefix(centigradeValue, sCelcius, False)"/>
-      </Block>
-    </Function>
-    <Function Identifier="FormatDistance" Type="string" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="mValue" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= CreatePrefix(mValue, cMeter, False)"/>
-      </Block>
-    </Function>
-    <Function Identifier="FormatCurrent" Type="string" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="ampValue" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= CreatePrefix(ampValue, cAmp, False)"/>
-      </Block>
-    </Function>
-    <Function Identifier="FormatFrequency" Type="string" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="freqValue" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= CreatePrefix(freqValue, cHz, False)"/>
-      </Block>
-    </Function>
-    <Function Identifier="FormatCapacitance" Type="string" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="faradValue" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= CreatePrefix(faradValue, cFarad, True)"/>
-      </Block>
-    </Function>
-    <Function Identifier="FormatPower" Type="string" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="wattValue" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= CreatePrefix(wattValue, cWatt, False)"/>
-      </Block>
-    </Function>
-    <Function Identifier="FormatResistance" Type="string" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="Value" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= CreatePrefix(Value, cOhm, False)"/>
-      </Block>
-    </Function>
-    <Function Identifier="WireResistance" Type="Extended" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="mWireLength" Type="Extended"/>
-        <Parameter Identifier="m2WireSurface" Type="Extended"/>
-        <Parameter Identifier="Resistivity" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= mWireLength * Resistivity / m2WireSurface"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="CopperWireResistance" Type="Extended" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="mWireLength" Type="Extended"/>
-        <Parameter Identifier="m2WireSurface" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= WireResistance(mWireLength, m2WireSurface, CopperResistivity)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="RippleVoltage" Type="Extended" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="ampLoadCurrent" Type="Extended"/>
-        <Parameter Identifier="faradCapacitor" Type="Extended"/>
-        <Parameter Identifier="Factor" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= Factor * ampLoadCurrent / (faradCapacitor * 1000)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="DoubleFaseRippleVoltage" Type="Extended" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="ampLoadCurrent" Type="Extended"/>
-        <Parameter Identifier="faradCapacitor" Type="Extended"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= RippleVoltage(ampLoadCurrent, faradCapacitor, 1.5)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="SignificantTrunc" Type="Int64" IsDeterministic="1">
-      <Parameters>
-        <Parameter Identifier="Value" Type="Int64"/>
-        <Parameter Identifier="OrderValue" Type="Int64"/>
-      </Parameters>
-      <Variables>
-        <Variable Identifier="Modulus" Type="Int64" Init="1"/>
-        <Variable Identifier="Factor" Type="Int64" Init="1"/>
-      </Variables>
-      <Block>
-        <WhileLoop Expression="(Value div OrderValue) &gt; 0">
-          <Execute Statement="OrderValue:= OrderValue * 10"/>
-          <Execute Statement="Factor:= Factor * 10"/>
-        </WhileLoop>
-        <Execute Statement="Result:= Value div Factor * Factor"/>
-      </Block>
-    </Function>
-
     <Function Identifier="TSerie.RangeItemCount" Type="Int64">
       <Parameters>
         <Parameter Identifier="NodeLow" Type="TSerieNode"/>
@@ -592,17 +303,21 @@ Meter
         <Parameter Identifier="LogScaleLow" Type="Integer"/>
         <Parameter Identifier="NodeHigh" Type="TSerieNode"/>
         <Parameter Identifier="LogScaleHigh" Type="Integer"/>
+        <Parameter Identifier="UnitS" Type="UnitString"/>
+        <Parameter Identifier="ToleranceV" Type="Extended"/>
       </Parameters>
       <Variables>
         <Variable Identifier="RunningNode" Type="TSerieNode" Init="NodeLow"/>
         <Variable Identifier="RunningLogScale" Type="Integer" Init="LogScaleLow"/>
-        <Variable Identifier="Scale" Type="Extended" Init="Power(10, RunningLogScale)"/>
+        <Variable Identifier="Scale" Type="Extended" Init="Power10(1, RunningLogScale)"/>
         <Variable Identifier="Tail" Type="TESerieValueLink"/>
         <Variable Identifier="NewLink" Type="TESerieValueLink"/>
+        <Variable Identifier="Value" Type="Extended"/>
       </Variables>
       <Block>
         <Execute Statement="Result:= TESerieValueLink.Create"/>
-        <Execute Statement="Result.Value:= RunningNode.Value * Scale"/>
+        <Execute Statement="Value:= (RunningNode.Value * Scale)"/>
+        <Execute Statement="Result.Value:= Value ~ UnitS ± ((Value * ToleranceV) ~ UnitS)"/>
         <Execute Statement="Result.SerieNode:= RunningNode"/>
         <Execute Statement="Result.LogScale:= RunningLogScale"/>
         <Execute Statement="Tail:= Result"/>
@@ -619,7 +334,8 @@ Meter
             </Otherwise>
           </Choose>
           <Execute Statement="NewLink:= TESerieValueLink.Create"/>
-          <Execute Statement="NewLink.Value:= RunningNode.Value * Scale"/>
+          <Execute Statement="Value:= (RunningNode.Value * Scale)"/>
+          <Execute Statement="NewLink.Value:= Value ~ UnitS ± ((Value * ToleranceV) ~ UnitS)"/>
           <Execute Statement="NewLink.SerieNode:= RunningNode"/>
           <Execute Statement="NewLink.LogScale:= RunningLogScale"/>
           <Execute Statement="Tail.Next:= NewLink"/>
@@ -631,33 +347,18 @@ Meter
 
     <Function Identifier="TSerie.FindNode" Type="TSerieNode">
       <Parameters>
-        <Parameter Identifier="Value" Type="UInt64"/>
+        <Parameter Identifier="Value" Type="Decimal"/>
       </Parameters>
       <Block>
-        <Choose>
-          <When Expression="Value &gt; Tail.Value">
-            <RepeatUntilLoop Expression="Value &lt;= Tail.Value">
-              <Exit Result="ObjNil" Condition="Value mod 10 &lt;&gt; 0"/>
-              <Execute Statement="Value:= Value div 10"/>
-            </RepeatUntilLoop>
-          </When>
-          <When Expression="Value = 0">
-            <Exit Result="ObjNil"/>
-          </When>
-          <When Expression="Value &lt; Head.Value">
-            <RepeatUntilLoop Expression="Value &gt;= Head.Value">
-              <Execute Statement="Value:= Value * 10"/>
-            </RepeatUntilLoop>
-          </When>
-        </Choose>
-
+        <Variable Identifier="Scale" Type="Integer"/>
+        <Variable Identifier="UnscaledValue" Type="Decimal" Init="ExtractDecimalScale(Value, Scale)"/>
         <Execute Statement="Result:= Root"/>
         <WhileLoop Expression="Assigned(Result)">
           <Choose>
-            <When Expression="Value &lt; Result.Value">
+            <When Expression="UnscaledValue &lt; Result.Value">
               <Execute Statement="Result:= Result.Less"/>
             </When>
-            <When Expression="Value &gt; Result.Value">
+            <When Expression="UnscaledValue &gt; Result.Value">
               <Execute Statement="Result:= Result.More"/>
             </When>
             <Otherwise>
@@ -670,458 +371,36 @@ Meter
 
     <Function Identifier="TSerie.MatchNode" Type="TSerieNode">
       <Parameters>
-        <Parameter Identifier="Value" Type="Int64"/>
-        <Parameter Identifier="MatchedValue" Type="Int64" Direction="Output"/>
+        <Parameter Identifier="Value" Type="Decimal"/>
         <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
-      </Parameters>
-      <Variables>
-        <!--Values equal or below can be scaled one more time -->
-        <Variable Identifier="Less" Type="TSerieNode"/>
-        <Variable Identifier="More" Type="TSerieNode"/>
-        <Variable Identifier="OverFlowFactor" Type="Int64"/>
-        <Variable Identifier="MatchFactor" Type="Int64" Init="1"/>
-        <Variable Identifier="ValueFactor" Type="Int64" Init="1"/>
-        <Variable Identifier="ValueDivisor" Type="Int64" Init="1"/>
-        <Variable Identifier="ScaledValue" Type="Int64" Init="Value"/>
-        <Variable Identifier="MoreValue" Type="Int64"/>
-        <Variable Identifier="LessValue" Type="Int64"/>
-        <Variable Identifier="LessValueFactor" Type="Int64"/>
-      </Variables>
-      <Block>
-        <Choose>
-          <When Expression="Value &gt;= Tail.Value">
-            <!-- 
-            Tail.Value * 10 is max value when wrapped
-            Tail.Value * 10 * 10 because this value must be able to be scaled
-            -->
-            <Execute Statement="OverFlowFactor:= MaxInt64 div (Tail.Value * 100)" />
-            <RepeatUntilLoop Expression="ScaledValue &lt;= Tail.Value * MatchFactor">
-              <Choose>
-                <When Expression="MatchFactor &gt; OverFlowFactor">
-                  <Execute Statement="ValueDivisor:= ValueDivisor * 10"/>
-                  <Case Expression="MatchKind" Optimalisation="integermapping">
-                    <On Select="TMatchValueKind.LessOrEqual">
-                      <Execute Statement="ScaledValue:= Value div ValueDivisor"/>
-                    </On>
-                    <On Select="TMatchValueKind.MoreOrEqual">
-                      <Execute Statement="ScaledValue:= (Value + ValueDivisor - 1) div ValueDivisor"/>
-                    </On>
-                    <Otherwise>
-                      <Execute Statement="ScaledValue:= (Value + ValueDivisor shr 1) div ValueDivisor"/>
-                    </Otherwise>
-                  </Case>
-                </When>
-                <Otherwise>
-                  <Execute Statement="MatchFactor:= MatchFactor * 10"/>
-                </Otherwise>
-              </Choose>
-            </RepeatUntilLoop>
-          </When>
-          <When Expression="Value = 0">
-            <Execute Statement="MatchedValue:= 0"/>
-            <Exit Result="ObjNil"/>
-          </When>
-          <When Expression="Value &lt; Head.Value">
-            <RepeatUntilLoop Expression="ScaledValue &gt;= Head.Value">
-              <Execute Statement="ValueFactor:= ValueFactor * 10"/>
-              <Execute Statement="ScaledValue:= Value * ValueFactor"/>
-            </RepeatUntilLoop>
-          </When>
-        </Choose>
-
-        <Execute Statement="Result:= Root"/>
-        <WhileLoop Expression="Assigned(Result)">
-          <Choose>
-            <When Expression="ScaledValue &lt; Result.Value * MatchFactor">
-              <Execute Statement="More:= Result"/>
-              <Execute Statement="Result:= Result.Less"/>
-            </When>
-            <When Expression="ScaledValue &gt; Result.Value * MatchFactor">
-              <Execute Statement="Less:= Result"/>
-              <Execute Statement="Result:= Result.More"/>
-            </When>
-            <Otherwise>
-              <Case Expression="MatchKind" Optimalisation="integermapping">
-                <On Select="TMatchValueKind.LessOrEqual">
-                  <Execute Statement="MatchedValue:= (Result.Value * MatchFactor) div ValueFactor * ValueDivisor"/>
-                </On>
-                <On Select="TMatchValueKind.MoreOrEqual">
-                  <Execute Statement="MatchedValue:= (Result.Value * MatchFactor + ValueFactor - 1) div ValueFactor * ValueDivisor"/>
-                </On>
-                <Otherwise>
-                  <Execute Statement="MatchedValue:= (Result.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
-                </Otherwise>
-              </Case>
-              <Exit/>
-            </Otherwise>
-          </Choose>
-        </WhileLoop>
-        <Case Expression="MatchKind" Optimalisation="integermapping">
-          <On Select="TMatchValueKind.LessOrEqual">
-            <Block Condition="IsEmpty(Less)">
-              <Execute Statement="ValueFactor:= ValueFactor * 10"/>
-              <Execute Statement="Less:= Tail"/>
-            </Block>
-            <Execute Statement="Result:= Less"/>
-            <Execute Statement="MatchedValue:= (Result.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
-          </On>
-          <On Select="TMatchValueKind.MoreOrEqual">
-            <Block Condition="IsEmpty(More)">
-              <Execute Statement="MatchFactor:= MatchFactor * 10"/>
-              <Execute Statement="More:= Head"/>
-            </Block>
-            <Execute Statement="Result:= More"/>
-            <Execute Statement="MatchedValue:= (Result.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
-          </On>
-          <Otherwise>
-            <Execute Statement="LessValueFactor:= ValueFactor"/>
-            <Block Condition="IsEmpty(Less)">
-              <Execute Statement="LessValueFactor:= LessValueFactor * 10"/>
-              <Execute Statement="Less:= Tail"/>
-            </Block>
-            <Execute Statement="LessValue:= (Less.Value * MatchFactor + LessValueFactor shr 1) div LessValueFactor * ValueDivisor"/>
-            <Block Condition="IsEmpty(More)">
-              <Execute Statement="MatchFactor:= MatchFactor * 10"/>
-              <Execute Statement="More:= Head"/>
-            </Block>
-            <Execute Statement="MoreValue:= (More.Value * MatchFactor + ValueFactor shr 1) div ValueFactor * ValueDivisor"/>
-            <Choose>
-              <When Expression="(Value - LessValue) &lt; (MoreValue - Value)">
-                <Execute Statement="Result:= Less"/>
-                <Execute Statement="MatchedValue:= LessValue"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= More"/>
-                <Execute Statement="MatchedValue:= MoreValue"/>
-              </Otherwise>
-            </Choose>
-          </Otherwise>
-        </Case>
-      </Block>
-    </Function>
-
-    <Function Identifier="TSerie.MatchNode" Type="TSerieNode">
-      <Parameters>
-        <Parameter Identifier="Value" Type="UInt64"/>
-        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
-        <Parameter Identifier="MatchedValue" Type="UInt64" Direction="Output"/>
-        <Parameter Identifier="MatchedLogScale" Type="Integer" Direction="Output"/>
+        <Parameter Identifier="MatchedValue" Type="Decimal" Direction="Output"/>
       </Parameters>
       <Variables>
         <Variable Identifier="Less" Type="TSerieNode" Init="ObjNil"/>
         <Variable Identifier="More" Type="TSerieNode" Init="ObjNil"/>
-        <Variable Identifier="Factor" Type="UInt64" Init="1"/>
-        <Variable Identifier="LogScale" Type="Integer" Init="0"/>
-        <Variable Identifier="MoreValue" Type="UInt64"/>
-        <Variable Identifier="LessValue" Type="UInt64"/>
-        <Variable Identifier="MoreScale" Type="UInt64"/>
-        <Variable Identifier="LessScale" Type="UInt64"/>
-        <Variable Identifier="LessLogScale" Type="Integer"/>
-        <Variable Identifier="MoreLogScale" Type="Integer"/>
+        <Variable Identifier="Scale" Type="Integer"/>
+        <Variable Identifier="UnscaledValue" Type="Decimal"/>
       </Variables>
       <Block>
+        <Execute Statement="UnscaledValue:= ExtractDecimalScale(Value, Scale)"/>
         <Choose>
-          <When Expression="Value = 0">
-            <Execute Statement="MatchedValue:= 0"/>
-            <Execute Statement="MatchedLogScale:= 0"/>
+          <When Expression="IsZeroDecimal(Value)">
+            <Execute Statement="MatchedValue:= Value"/>
             <Exit Result="ObjNil"/>
           </When>
-          <When Expression="Value &lt; Head.Value">
-            <!--UpScale-->
-            <RepeatUntilLoop Expression="Value * Factor &gt;= Head.Value">
-              <Execute Statement="Factor:= Factor * 10"/>
-              <Execute Statement="LogScale:= LogScale - 1"/>
-            </RepeatUntilLoop>
-            <Execute Statement="Result:= Root"/>
-            <WhileLoop Expression="Assigned(Result)">
-              <Choose>
-                <When Expression="(Value * Factor) &lt; Result.Value">
-                  <Execute Statement="More:= Result"/>
-                  <Execute Statement="Result:= Result.Less"/>
-                </When>
-                <When Expression="(Value * Factor) &gt; Result.Value">
-                  <Execute Statement="Less:= Result"/>
-                  <Execute Statement="Result:= Result.More"/>
-                </When>
-                <Otherwise>
-                  <Execute Statement="MatchedLogScale:= LogScale"/>
-                  <Execute Statement="MatchedValue:= Value"/>
-                  <Exit/>
-                </Otherwise>
-              </Choose>
-            </WhileLoop>
-            <Case Expression="MatchKind" Optimalisation="integermapping">
-              <On Select="TMatchValueKind.LessOrEqual">
-                <Choose>
-                  <When Expression="Assigned(Less)">
-                    <Execute Statement="MatchedLogScale:= LogScale"/>
-                    <Execute Statement="MatchedValue:= (Less.Value + Factor shr 1) div Factor"/>
-                    <Exit Result="Less"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
-                    <Execute Statement="MatchedValue:= (Tail.Value * 10 + Factor shr 1) div Factor"/>
-                    <Exit Result="Tail"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <On Select="TMatchValueKind.MoreOrEqual">
-                <Choose>
-                  <When Expression="Assigned(More)">
-                    <Execute Statement="MatchedLogScale:= LogScale"/>
-                    <Execute Statement="MatchedValue:= (More.Value + Factor shr 1) div Factor"/>
-                    <Exit Result="More"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="Factor:= Factor * 10"/>
-                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
-                    <Execute Statement="MatchedValue:= (Head.Value + Factor shr 1) div Factor"/>
-                    <Exit Result="Head"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <On Select="TMatchValueKind.Closest">
-                <Choose>
-                  <When Expression="Assigned(Less)">
-                    <Execute Statement="LessLogScale:= LogScale"/>
-                    <Execute Statement="LessValue:= (Less.Value + Factor shr 1) div Factor"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="LessValue:= LogScale + 1"/>
-                    <Execute Statement="LessValue:= (Tail.Value * 10 + Factor shr 1) div Factor"/>
-                    <Execute Statement="Less:= Tail"/>
-                  </Otherwise>
-                </Choose>
-
-                <Choose>
-                  <When Expression="Assigned(More)">
-                    <Execute Statement="MoreLogScale:= LogScale"/>
-                    <Execute Statement="MoreValue:= (More.Value + Factor shr 2) div Factor"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="Factor:= Factor * 10"/>
-                    <Execute Statement="MoreLogScale:= LogScale + 1"/>
-                    <Execute Statement="MoreValue:= (Head.Value + Factor shr 2) div Factor"/>
-                    <Execute Statement="More:= Head"/>
-                  </Otherwise>
-                </Choose>
-
-                <Choose>
-                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
-                    <Execute Statement="MatchedValue:= LessValue"/>
-                    <Execute Statement="MatchedLogScale:= LessLogScale"/>
-                    <Exit Result="Less"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="MatchedValue:= MoreValue"/>
-                    <Execute Statement="MatchedLogScale:= MoreLogScale"/>
-                    <Exit Result="More"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <Otherwise>
-                <Raise Expression="Exception.Create('Unknown matchkind')"/>
-              </Otherwise>
-            </Case>
-          </When>
-          <When Expression="Value &gt; Tail.Value">
-            <!--DownScale-->
-            <RepeatUntilLoop Expression="Value &lt;= Tail.Value * Scale">
-              <Execute Statement="Factor:= Factor * 10"/>
-              <Execute Statement="LogScale:= LogScale + 1"/>
-            </RepeatUntilLoop>
-            <Execute Statement="Result:= Root"/>
-            <WhileLoop Expression="Assigned(Result)">
-              <Choose>
-                <When Expression="Value &lt; (Result.Value * Factor)">
-                  <Execute Statement="More:= Result"/>
-                  <Execute Statement="Result:= Result.Less"/>
-                </When>
-                <When Expression="Value &gt; (Result.Value * Factor)">
-                  <Execute Statement="Less:= Result"/>
-                  <Execute Statement="Result:= Result.More"/>
-                </When>
-                <Otherwise>
-                  <Execute Statement="MatchedValue:= Value"/>
-                  <Execute Statement="MatchedLogScale:= LogScale"/>
-                  <Exit/>
-                </Otherwise>
-              </Choose>
-            </WhileLoop>
-            <Case Expression="MatchKind" Optimalisation="integermapping">
-              <On Select="TMatchValueKind.LessOrEqual">
-                <Choose>
-                  <When Expression="Assigned(Less)">
-                    <Execute Statement="MatchedLogScale:= LogScale"/>
-                    <Execute Statement="MatchedValue:= Less.Value * Factor"/>
-                    <Exit Result="Less"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="MatchedLogScale:= LogScale-1"/>
-                    <Execute Statement="MatchedValue:= (Tail.Value * Factor + 5) div 10"/>
-                    <Exit Result="Tail"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <On Select="TMatchValueKind.MoreOrEqual">
-                <Choose>
-                  <When Expression="Assigned(More)">
-                    <Execute Statement="MatchedLogScale:= LogScale"/>
-                    <Execute Statement="MatchedValue:= More.Value * Factor"/>
-                    <Exit Result="More"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="Factor:= Factor * 10"/>
-                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
-                    <Execute Statement="MatchedValue:= Head.Value * Factor"/>
-                    <Exit Result="Head"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <On Select="TMatchValueKind.Closest">
-                <Choose>
-                  <When Expression="Assigned(Less)">
-                    <Execute Statement="LessLogScale:= LogScale"/>
-                    <Execute Statement="LessValue:= Less.Value * Factor"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="LessLogScale:= LogScale-1"/>
-                    <Execute Statement="LessValue:= (Tail.Value * Factor + 5) div 10"/>
-                    <Execute Statement="Less:= Tail"/>
-                  </Otherwise>
-                </Choose>
-                <Choose>
-                  <When Expression="Assigned(More)">
-                    <Execute Statement="MoreLogScale:= LogScale"/>
-                    <Execute Statement="MatchedValue:= More.Value * Factor"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="Factor:= Factor * 10"/>
-                    <Execute Statement="MoreLogScale:= LogScale + 1"/>
-                    <Execute Statement="MoreValue:= Head.Value * Factor"/>
-                    <Execute Statement="More:= Head"/>
-                  </Otherwise>
-                </Choose>
-                <Choose>
-                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
-                    <Execute Statement="MatchedValue:= LessValue"/>
-                    <Execute Statement="MatchedLogScale:= LessLogScale"/>
-                    <Exit Result="Less"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="MatchedValue:= MoreValue"/>
-                    <Execute Statement="MatchedLogScale:= MoreLogScale"/>
-                    <Exit Result="More"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <Otherwise>
-                <Raise Expression="Exception.Create('Unknown matchkind')"/>
-              </Otherwise>
-            </Case>
-          </When>
           <Otherwise>
-            <!--NoScale-->
-            <Execute Statement="MatchedLogScale:= 0"/>
             <Execute Statement="Result:= Root"/>
             <WhileLoop Expression="Assigned(Result)">
               <Choose>
-                <When Expression="Value &lt; Result.Value">
+                <When Expression="UnscaledValue &lt; Result.Value">
                   <Execute Statement="More:= Result"/>
                   <Execute Statement="Result:= Result.Less"/>
                 </When>
-                <When Expression="Value &gt; Result.Value">
+                <When Expression="UnscaledValue &gt; Result.Value">
                   <Execute Statement="Less:= Result"/>
                   <Execute Statement="Result:= Result.More"/>
                 </When>
                 <Otherwise>
-                  <Execute Statement="MatchedValue:= Value"/>
-                  <Exit/>
-                </Otherwise>
-              </Choose>
-            </WhileLoop>
-            <Case Expression="MatchKind" Optimalisation="integermapping">
-              <On Select="TMatchValueKind.LessOrEqual">
-                <Execute Statement="MatchedValue:= Less.Value"/>
-                <Exit Result="Less"/>
-              </On>
-              <On Select="TMatchValueKind.MoreOrEqual">
-                <Execute Statement="MatchedValue:= More.Value"/>
-                <Exit Result="More"/>
-              </On>
-              <On Select="TMatchValueKind.Closest">
-                <Execute Statement="LessValue:= Less.Value"/>
-                <Execute Statement="MoreValue:= More.Value"/>
-                <Choose>
-                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
-                    <Execute Statement="MatchedValue:= LessValue"/>
-                    <Exit Result="Less"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="MatchedValue:= MoreValue"/>
-                    <Exit Result="More"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <Otherwise>
-                <Raise Expression="Exception.Create('Unknown matchkind')"/>
-              </Otherwise>
-            </Case>
-          </Otherwise>
-        </Choose>
-      </Block>
-    </Function>
-
-    <Function Identifier="TSerie.MatchNodeExtended" Type="TSerieNode">
-      <Parameters>
-        <Parameter Identifier="Value" Type="Extended"/>
-        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
-        <Parameter Identifier="MatchedValue" Type="Extended" Direction="Output"/>
-        <Parameter Identifier="MatchedScale" Type="Extended" Direction="Output"/>
-        <Parameter Identifier="MatchedLogScale" Type="Integer" Direction="Output"/>
-      </Parameters>
-      <Variables>
-        <Variable Identifier="Less" Type="TSerieNode" Init="ObjNil"/>
-        <Variable Identifier="More" Type="TSerieNode" Init="ObjNil"/>
-        <Variable Identifier="ScaleDiv10" Type="Extended" Init="0.1"/>
-        <Variable Identifier="Scale" Type="Extended" Init="1.0"/>
-        <Variable Identifier="LogScale" Type="Integer" Init="0"/>
-        <Variable Identifier="MoreValue" Type="Extended"/>
-        <Variable Identifier="LessValue" Type="Extended"/>
-        <Variable Identifier="MoreScale" Type="Extended"/>
-        <Variable Identifier="LessScale" Type="Extended"/>
-        <Variable Identifier="LessLogScale" Type="Integer"/>
-        <Variable Identifier="MoreLogScale" Type="Integer"/>
-      </Variables>
-      <Block>
-        <Choose>
-          <When Expression="Value = 0.0">
-            <Execute Statement="MatchedValue:= 0.0"/>
-            <Execute Statement="MatchedScale:= 1.0"/>
-            <Execute Statement="MatchedLogScale:= 0"/>
-            <Exit Result="ObjNil"/>
-          </When>
-          <When Expression="Value &lt; Head.Value">
-            <!--UpScale-->
-            <RepeatUntilLoop Expression="Value * Scale &gt;= Head.Value">
-              <Execute Statement="ScaleDiv10:= Scale"/>
-              <Execute Statement="Scale:= Scale * 10"/>
-              <Execute Statement="LogScale:= LogScale - 1"/>
-            </RepeatUntilLoop>
-            <Execute Statement="Result:= Root"/>
-            <WhileLoop Expression="Assigned(Result)">
-              <Choose>
-                <When Expression="(Value * Scale) &lt; Result.Value">
-                  <Execute Statement="More:= Result"/>
-                  <Execute Statement="Result:= Result.Less"/>
-                </When>
-                <When Expression="(Value * Scale) &gt; Result.Value">
-                  <Execute Statement="Less:= Result"/>
-                  <Execute Statement="Result:= Result.More"/>
-                </When>
-                <Otherwise>
-                  <Execute Statement="MatchedScale:= 1/Scale"/>
-                  <Execute Statement="MatchedLogScale:= LogScale"/>
                   <Execute Statement="MatchedValue:= Value"/>
                   <Exit/>
                 </Otherwise>
@@ -1131,250 +410,83 @@ Meter
               <On Select="TMatchValueKind.LessOrEqual">
                 <Choose>
                   <When Expression="Assigned(Less)">
-                    <Execute Statement="MatchedScale:= 1/Scale"/>
-                    <Execute Statement="MatchedLogScale:= LogScale"/>
-                    <Execute Statement="MatchedValue:= Less.Value * MatchedScale"/>
-                    <Exit Result="Less"/>
+                    <Execute Statement="Result:= Less"/>
+                    <Execute Statement="MatchedValue:= ScaleDecimal(Result.Value, Scale)"/>
                   </When>
                   <Otherwise>
-                    <Execute Statement="MatchedScale:= 1/ScaleDiv10"/>
-                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
-                    <Execute Statement="MatchedValue:= Tail.Value * MatchedScale"/>
-                    <Exit Result="Tail"/>
+                    <Execute Statement="Result:= Tail"/>
+                    <Execute Statement="MatchedValue:= ScaleDecimal(Tail.Value, Scale - 1)"/>
                   </Otherwise>
                 </Choose>
               </On>
               <On Select="TMatchValueKind.MoreOrEqual">
                 <Choose>
                   <When Expression="Assigned(More)">
-                    <Execute Statement="MatchedScale:= 1/Scale"/>
-                    <Execute Statement="MatchedLogScale:= LogScale"/>
-                    <Execute Statement="MatchedValue:= More.Value * MatchedScale"/>
-                    <Exit Result="More"/>
+                    <Execute Statement="Result:= More"/>
+                    <Execute Statement="MatchedValue:= ScaleDecimal(Result.Value, Scale)"/>
                   </When>
                   <Otherwise>
-                    <Execute Statement="MatchedScale:= 1/(Scale * 10)"/>
-                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
-                    <Execute Statement="MatchedValue:= Head.Value * MatchedScale"/>
-                    <Exit Result="Head"/>
+                    <Execute Statement="Result:= Head"/>
+                    <Execute Statement="MatchedValue:= ScaleDecimal(Result.Value, Scale + 1)"/>
                   </Otherwise>
                 </Choose>
               </On>
               <On Select="TMatchValueKind.Closest">
-                <Execute Statement="MoreScale:= 1/Scale"/>
-                <Execute Statement="LessScale:= 1/Scale"/>
-                <Execute Statement="LessLogScale:= LogScale"/>
-                <Execute Statement="MoreLogScale:= LogScale"/>
-                <Block Condition="not Assigned(More)">
-                  <Execute Statement="MoreScale:= 1 / (Scale * 10)"/>
-                  <Execute Statement="More:= Head"/>
-                  <Execute Statement="MoreLogScale:= MoreLogScale - 1"/>
-                </Block>
-                <Block Condition="not Assigned(Less)">
-                  <Execute Statement="Less:= Tail"/>
-                  <Execute Statement="LessScale:= 1 / ScaleDiv10"/>
-                  <Execute Statement="LessLogScale:= LessLogScale - 1"/>
-                </Block>
-                <Execute Statement="MoreValue:= More.Value * MoreScale"/>
-                <Execute Statement="LessValue:= Less.Value * LessScale"/>
+                <Variable Identifier="CenterValueE" Type="Extended"/>
+                <Variable Identifier="CenterValue" Type="Decimal"/>
                 <Choose>
-                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
-                    <Execute Statement="MatchedValue:= LessValue"/>
-                    <Execute Statement="MatchedScale:= LessScale"/>
-                    <Execute Statement="MatchedLogScale:= LessLogScale"/>
-                    <Exit Result="Less"/>
+                  <When Expression="Assigned(Less) and Assigned(More)">
+                    <Execute Statement="CenterValueE:= (Less.Value * 0.5) + (More.Value * 0.5)"/>
+                    <Execute Statement="CenterValue:= CenterValueE"/>
+                    <Choose>
+                      <When Expression="UnscaledValue &lt;= CenterValue">
+                        <Execute Statement="Result:= Less"/>
+                        <Execute Statement="MatchedValue:= ScaleDecimal(Result.Value, Scale)"/>
+                      </When>
+                      <Otherwise>
+                        <Execute Statement="Result:= More"/>
+                        <Execute Statement="MatchedValue:= ScaleDecimal(Result.Value, Scale)"/>
+                      </Otherwise>
+                    </Choose>
+                  </When>
+                  <When Expression="not Assigned(Less)">
+                    <Execute Statement="CenterValueE:= (ScaleDecimal(Tail.Value, - 1) * 0.5) + (More.Value * 0.5)"/>
+                    <Execute Statement="CenterValue:= CenterValueE"/>
+                    <Choose>
+                      <When Expression="UnscaledValue &lt;= CenterValue">
+                        <Execute Statement="Result:= Tail"/>
+                        <Execute Statement="MatchedValue:= ScaleDecimal(Result.Value, Scale - 1)"/>
+                      </When>
+                      <Otherwise>
+                        <Execute Statement="Result:= More"/>
+                        <Execute Statement="MatchedValue:= ScaleDecimal(Result.Value, Scale)"/>
+                      </Otherwise>
+                    </Choose>
+                  </When>
+                  <When Expression="not Assigned(More)">
+                    <Execute Statement="CenterValueE:= (ScaleDecimal(Head.Value, 1) * 0.5) + (Less.Value * 0.5)"/>
+                    <Execute Statement="CenterValue:= CenterValueE"/>
+                    <!--<rep:Reporter.Information Text="Format('%s', DecimalToStr(UnscaledValue, 32, TDF.ScientificNoTrailingZero, True))"/>
+                    <rep:Reporter.Information Text="Format('More: %s', DecimalToStr(ScaleDecimal(Head.Value, Scale + 1), 32, TDF.ScientificNoTrailingZero, True))"/>
+                    <rep:Reporter.Information Text="Format('Less: %s', DecimalToStr(Less.Value, 32, TDF.ScientificNoTrailingZero, True))"/>
+                    <rep:Reporter.Information Text="Format('Mid: %s', DecimalToStr(CenterValue, 32, TDF.ScientificNoTrailingZero, True))"/>-->
+                    <Choose>
+                      <When Expression="UnscaledValue &lt;= CenterValue">
+                        <Execute Statement="Result:= Less"/>
+                        <Execute Statement="MatchedValue:= ScaleDecimal(Result.Value, Scale)"/>
+                      </When>
+                      <Otherwise>
+                        <Execute Statement="Result:= Head"/>
+                        <Execute Statement="MatchedValue:= ScaleDecimal(Result.Value, Scale + 1)"/>
+                      </Otherwise>
+                    </Choose>
                   </When>
                   <Otherwise>
-                    <Execute Statement="MatchedValue:= MoreValue"/>
-                    <Execute Statement="MatchedScale:= MoreScale"/>
-                    <Execute Statement="MatchedLogScale:= MoreLogScale"/>
-                    <Exit Result="More"/>
+                    <Raise Expression="Exception.Create('Invalid operation')"/>
                   </Otherwise>
                 </Choose>
               </On>
-              <Otherwise>
-                <Raise Expression="Exception.Create('Unknown matchkind')"/>
-              </Otherwise>
             </Case>
-          </When>
-          <When Expression="Value &gt; Tail.Value">
-            <!--DownScale-->
-            <RepeatUntilLoop Expression="Value &lt;= Tail.Value * Scale">
-              <Execute Statement="ScaleDiv10:= Scale"/>
-              <Execute Statement="Scale:= Scale * 10"/>
-              <Execute Statement="LogScale:= LogScale + 1"/>
-            </RepeatUntilLoop>
-            <Execute Statement="Result:= Root"/>
-            <WhileLoop Expression="Assigned(Result)">
-              <Choose>
-                <When Expression="Value &lt; (Result.Value * Scale)">
-                  <Execute Statement="More:= Result"/>
-                  <Execute Statement="Result:= Result.Less"/>
-                </When>
-                <When Expression="Value &gt; (Result.Value * Scale)">
-                  <Execute Statement="Less:= Result"/>
-                  <Execute Statement="Result:= Result.More"/>
-                </When>
-                <Otherwise>
-                  <Execute Statement="MatchedValue:= Value"/>
-                  <Execute Statement="MatchedScale:= Scale"/>
-                  <Execute Statement="MatchedLogScale:= LogScale"/>
-                  <Exit/>
-                </Otherwise>
-              </Choose>
-            </WhileLoop>
-            <Case Expression="MatchKind" Optimalisation="integermapping">
-              <On Select="TMatchValueKind.LessOrEqual">
-                <Choose>
-                  <When Expression="Assigned(Less)">
-                    <Execute Statement="MatchedScale:= Scale"/>
-                    <Execute Statement="MatchedLogScale:= LogScale"/>
-                    <Execute Statement="MatchedValue:= Less.Value * MatchedScale"/>
-                    <Exit Result="Less"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="MatchedScale:= ScaleDiv10"/>
-                    <Execute Statement="MatchedLogScale:= LogScale-1"/>
-                    <Execute Statement="MatchedValue:= Tail.Value * MatchedScale"/>
-                    <Exit Result="Tail"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <On Select="TMatchValueKind.MoreOrEqual">
-                <Choose>
-                  <When Expression="Assigned(More)">
-                    <Execute Statement="MatchedScale:= Scale"/>
-                    <Execute Statement="MatchedLogScale:= LogScale"/>
-                    <Execute Statement="MatchedValue:= More.Value * MatchedScale"/>
-                    <Exit Result="More"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="MatchedScale:= Scale * 10"/>
-                    <Execute Statement="MatchedLogScale:= LogScale + 1"/>
-                    <Execute Statement="MatchedValue:= Head.Value * MatchedScale"/>
-                    <Exit Result="Head"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <On Select="TMatchValueKind.Closest">
-                <Execute Statement="MoreScale:= Scale"/>
-                <Execute Statement="LessScale:= Scale"/>
-                <Execute Statement="MoreLogScale:= LogScale"/>
-                <Execute Statement="LessLogScale:= LogScale"/>
-                <Block Condition="not Assigned(More)">
-                  <Execute Statement="MoreScale:= Scale * 10"/>
-                  <Execute Statement="MoreLogScale:= MoreLogScale + 1"/>
-                  <Execute Statement="More:= Head"/>
-                </Block>
-                <Block Condition="not Assigned(Less)">
-                  <Execute Statement="Less:= Tail"/>
-                  <Execute Statement="LessScale:= ScaleDiv10"/>
-                  <Execute Statement="lessLogScale:= LessLogScale - 1"/>
-                </Block>
-                <Execute Statement="MoreValue:= More.Value * MoreScale"/>
-                <Execute Statement="LessValue:= Less.Value * LessScale"/>
-                <Choose>
-                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
-                    <Execute Statement="MatchedValue:= LessValue"/>
-                    <Execute Statement="MatchedScale:= LessScale"/>
-                    <Execute Statement="MatchedLogScale:= LessLogScale"/>
-                    <Exit Result="Less"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="MatchedValue:= MoreValue"/>
-                    <Execute Statement="MatchedScale:= MoreScale"/>
-                    <Execute Statement="MatchedLogScale:= MoreLogScale"/>
-                    <Exit Result="More"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <Otherwise>
-                <Raise Expression="Exception.Create('Unknown matchkind')"/>
-              </Otherwise>
-            </Case>
-          </When>
-          <Otherwise>
-            <!--NoScale-->
-            <Execute Statement="MatchedScale:= 1.0"/>
-            <Execute Statement="MatchedLogScale:= 0"/>
-            <Execute Statement="Result:= Root"/>
-            <WhileLoop Expression="Assigned(Result)">
-              <Choose>
-                <When Expression="Value &lt; Result.Value">
-                  <Execute Statement="More:= Result"/>
-                  <Execute Statement="Result:= Result.Less"/>
-                </When>
-                <When Expression="Value &gt; Result.Value">
-                  <Execute Statement="Less:= Result"/>
-                  <Execute Statement="Result:= Result.More"/>
-                </When>
-                <Otherwise>
-                  <Execute Statement="MatchedValue:= Value"/>
-                  <Exit/>
-                </Otherwise>
-              </Choose>
-            </WhileLoop>
-            <Case Expression="MatchKind" Optimalisation="integermapping">
-              <On Select="TMatchValueKind.LessOrEqual">
-                <Execute Statement="MatchedValue:= Less.Value"/>
-                <Exit Result="Less"/>
-              </On>
-              <On Select="TMatchValueKind.MoreOrEqual">
-                <Execute Statement="MatchedValue:= More.Value"/>
-                <Exit Result="More"/>
-              </On>
-              <On Select="TMatchValueKind.Closest">
-                <Execute Statement="LessValue:= Less.Value"/>
-                <Execute Statement="MoreValue:= More.Value"/>
-                <Choose>
-                  <When Expression="(Value - LessValue) &lt;= (MoreValue - Value)">
-                    <Execute Statement="MatchedValue:= LessValue"/>
-                    <Exit Result="Less"/>
-                  </When>
-                  <Otherwise>
-                    <Execute Statement="MatchedValue:= MoreValue"/>
-                    <Exit Result="More"/>
-                  </Otherwise>
-                </Choose>
-              </On>
-              <Otherwise>
-                <Raise Expression="Exception.Create('Unknown matchkind')"/>
-              </Otherwise>
-            </Case>
-          </Otherwise>
-        </Choose>
-      </Block>
-    </Function>
-
-    <Function Identifier="TSerie.ExtendedValue" Type="Extended">
-      <Parameters>
-        <Parameter Identifier="Value" Type="Extended"/>
-        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
-      </Parameters>
-      <Variables>
-        <Variable Identifier="MatchedValue" Type="Int64"/>
-        <Variable Identifier="Factor" Type="Int64" Init="1"/>
-        <Variable Identifier="Dividor" Type="Int64" Init="1"/>
-      </Variables>
-      <Block>
-        <Choose>
-          <When Expression="Value = 0">
-            <Execute Statement="MatchNode(0, MatchedValue, MatchKind)"/>
-            <Execute Statement="Result:= MatchedValue"/>
-          </When>
-          <When Expression="Value &gt; MaxInt64 - 1">
-            <RepeatUntilLoop Expression="Value / Dividor &gt;= MaxInt64 - 1">
-              <Execute Statement="Dividor:= Dividor * 10"/>
-            </RepeatUntilLoop>
-            <Execute Statement="MatchNode(Round(Value / Dividor), MatchedValue, MatchKind)"/>
-            <Execute Statement="Result:= MatchedValue * Dividor"/>
-          </When>
-          <Otherwise>
-            <WhileLoop Expression="Value * Factor &lt; MaxInt64Div10 - 1">
-              <Execute Statement="Factor:= Factor * 10"/>
-            </WhileLoop>
-            <Execute Statement="MatchNode(Round(Value * Factor), MatchedValue, MatchKind)"/>
-            <Execute Statement="Result:= MatchedValue / Factor"/>
           </Otherwise>
         </Choose>
       </Block>
@@ -1392,11 +504,12 @@ Meter
 
         <Procedure Identifier="AddValue">
           <Parameters>
-            <Parameter Identifier="Value" Type="UInt32"/>
+            <Parameter Identifier="Value" Type="Decimal"/>
             <Parameter Identifier="LowSerie" Type="TESerie"/>
           </Parameters>
           <Variables>
-            <Variable Identifier="NewNode" Type="TSerieNode" Init="TSerieNode.Create(Value, LowSerie)"/>
+            <Variable Identifier="Scale" Type="Integer"/>
+            <Variable Identifier="NewNode" Type="TSerieNode" Init="TSerieNode.Create(ExtractDecimalScale(Value, Scale), LowSerie)"/>
           </Variables>
           <Block>
             <Choose>
@@ -1414,7 +527,6 @@ Meter
 
         <Procedure Identifier="InitESerie2">
           <Block>
-            <Execute Statement="Self.Scale:= 10"/>
             <Execute Statement="AddValue(10, TESerie.E3)"  Condition="SerieType &gt;=TESerie.E3"/>
             <Execute Statement="AddValue(11, TESerie.E24)" Condition="SerieType &gt;=TESerie.E24"/>
             <Execute Statement="AddValue(12, TESerie.E12)" Condition="SerieType &gt;=TESerie.E12"/>
@@ -1444,7 +556,6 @@ Meter
 
         <Procedure Identifier="InitESerie3">
           <Block>
-            <Execute Statement="Self.Scale:= 100"/>
             <Execute Statement="AddValue(100, TESerie.E48)"  Condition="SerieType &gt;=TESerie.E48"/>
             <Execute Statement="AddValue(101, TESerie.E192)" Condition="SerieType &gt;=TESerie.E192"/>
             <Execute Statement="AddValue(102, TESerie.E96)"  Condition="SerieType &gt;=TESerie.E96"/>
@@ -1651,34 +762,12 @@ Meter
             <Variable Identifier="Head2x" Type="TSerieNode"/>
           </Variables>
           <Block>
-            <!--
-Result := Head;
-  if Head = Tail then
-  begin
-    Result^.RecLess := nil;
-    Result^.RecMore := nil;
-    Exit;
-  end;
-            -->
             <Execute Statement="Result:= Head"/>
             <Block Condition="Head = Tail">
               <Execute Statement="Result.Less := ObjNil"/>
               <Execute Statement="Result.More := ObjNil"/>
               <Exit/>
             </Block>
-            <!--
-  Head2x := Head;
-Continue:
-  Head2x := Head2x^.RecNext;
-  if Head2x = Tail then
-    goto Done;
-  Head2x := Head2x^.RecNext;
-  Result := Result^.RecNext;
-  if Head2x = Tail then
-    goto Done;
-  goto Continue;
-Done:
-            -->
             <Execute Statement="Head2x:= Head"/>
             <RepeatUntilLoop Expression="Head2x = Tail">
               <Execute Statement="Head2x:= Head2x.Next"/>
@@ -1686,18 +775,6 @@ Done:
               <Execute Statement="Head2x:= Head2x.Next"/>
               <Execute Statement="Result:= Result.Next"/>
             </RepeatUntilLoop>
-            <!--
-  Result^.RecLess := nil;
-  Result^.RecMore := nil;
-  if Result <> Head then
-  begin
-    Result^.RecLess := GetRootNode(Head, Result^.RecPrev);
-  end;
-  if Result <> Tail then
-  begin
-    Result^.RecMore := GetRootNode(Result^.RecNext, Tail);
-  end;
-            -->
             <Choose>
               <When Expression="Result &lt;&gt; Head">
                 <Execute Statement="Result.Less := GetRootNode(Head, Result.Previous)"/>
@@ -1763,6 +840,7 @@ Done:
         </Choose>
       </Block>
     </Procedure>
+    
     <Function Identifier="GetESerie" Type="TSerie">
       <Parameters>
         <Parameter Identifier="ESerie" Type="TESerie"/>
@@ -1853,1537 +931,5 @@ Done:
       </Block>
     </Function>
 
-    <Function Identifier="TUnitConvertor.SerieNodeToIntValue" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="Node" Type="TSerieNode"/>
-        <Parameter Identifier="LogScale" Type="Integer"/>
-        <Parameter Identifier="IntValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Block>
-        <Exit Condition="not Assigned(Node)" Result="False"/>
-        <Variable Identifier="Factor" Type="Integer" Init="-BaseScale + LogScale" />
-        <Variable Identifier="LocIntValue" Type="Int64" Init="Node.Value" />
-        <!--<rep:Reporter.Information Text="Format('Factor: %d', Factor)"/>
-        <rep:Reporter.Information Text="Format('LocIntValue: %d', LocIntValue)"/>-->
-        <Choose>
-          <When Expression="Factor &gt;= 0">
-            <ForLoop Indexer="I" From="0" To="Factor-1">
-              <Execute Statement="LocIntValue:= LocIntValue * 10"/>
-            </ForLoop>
-          </When>
-          <Otherwise>
-            <ForLoop Indexer="I" From="0" To="Factor + 1" Reverse="true">
-              <Exit Condition="(LocIntValue mod 10) &lt;&gt; 0" Result="False"/>
-              <Execute Statement="LocIntValue:= LocIntValue div 10"/>
-            </ForLoop>
-          </Otherwise>
-        </Choose>
-        <!--<rep:Reporter.Information Text="Format('LocIntValue: %d', LocIntValue)"/>-->
-        <Execute Statement="IntValue:= LocIntValue"/>
-        <Execute Statement="Result:= True"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TUnitConvertor.ExtendedToIntValue" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="ExtValue" Type="Extended"/>
-        <Parameter Identifier="MaxDeviation" Type="Extended"/>
-        <Parameter Identifier="IntValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Block>
-        <Block Condition="ExtValue = 0">
-          <Execute Statement="IntValue:= 0"/>
-          <Exit Result="True"/>
-        </Block>
-        <Variable Identifier="ScaledExt" Type="Extended" Init="ExtValue * FromExtendedFactor"/>
-        <!--<rep:Reporter.Information Text="Format('ScaledExt: %g', ScaledExt)"/>-->
-        <Exit Condition="(ScaledExt &gt; MaxInt64RndExt) or (ScaledExt &lt; MinInt64RndExt)" Result="False"/>
-        <Variable Identifier="LocIntValue" Type="Int64" Init="Round(ScaledExt)"/>
-        <Variable Identifier="Deviation" Type="Extended" Init="Abs((LocIntValue / ScaledExt) - 1)"/>
-        <!--<rep:Reporter.Information Text="Format('Deviation: %g', Deviation)"/>-->
-        <Exit Result="False" Condition="Deviation &gt; MaxDeviation"/>
-        <Execute Statement="IntValue:= LocIntValue"/>
-        <Execute Statement="Result:= True"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TUnitConvertor.StrToIntValue" Type="Boolean">
-      <Parameters>
-        <Parameter Identifier="TextValue" Type="string"/>
-        <Parameter Identifier="IntValue" Type="Int64" Direction="Output"/>
-      </Parameters>
-      <Variables>
-        <Variable Identifier="Num" Type="UInt64"/>
-        <Variable Identifier="Scale" Type="Integer" Init="0"/>
-        <Variable Identifier="FracScale" Type="Integer" Init="0"/>
-        <Variable Identifier="Frac" Type="UInt64"/>
-        <Variable Identifier="CheckIntValue" Type="Int64" DisabledChecks="error"/>
-        <Variable Identifier="FracNumScale" Type="Integer" Init="0"/>
-        <Variable Identifier="NumNumScale" Type="Integer" Init="0"/>
-        <Variable Identifier="IsNegative" Type="Boolean" Init="False"/>
-        <Variable Identifier="ValidEndState" Type="Boolean" Init="False"/>
-      </Variables>
-      <Block>
-        <Execute Statement="Result:= False"/>
-        <stm:StateHandler InitialState="Start">
-          <StringLoop StringValue="TextValue" OrdinalIdentifier="ChrI">
-            <stm:HandleStates>
-              <!--<-<TUnitConvertor.StrToIntValue.StringLoop-->
-              <stm:State Name="Start">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="cSpace, cTab">
-                  </On>
-                  <On Select="cNegative">
-                    <Execute Statement="IsNegative:= True"/>
-                    <stm:SetState Name="AfterSign"/>
-                    <Execute Statement="ValidEndState:= False"/>
-                  </On>
-                  <On Select="cPositive">
-                    <stm:SetState Name="AfterSign"/>
-                    <Execute Statement="ValidEndState:= False"/>
-                  </On>
-                  <On Select="c0..c9">
-                    <Execute Statement="Num:= ChrI - CharOrd(c0)"/>
-                    <Execute Statement="NumNumScale:= 0"/>
-                    <stm:SetState Name="InNum"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="AfterSign">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="c0..c9">
-                    <Execute Statement="Num:= ChrI - CharOrd(c0)"/>
-                    <Execute Statement="NumNumScale:= 0"/>
-                    <stm:SetState Name="InNum"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="InNum">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="cSpace">
-                    <stm:SetState Name="AfterNumSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cTab">
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="c0">
-                    <Execute Statement="NumNumScale:= NumNumScale + 1"/>
-                  </On>
-                  <On Select="c1..c9">
-                    <ForLoop Indexer="I" From="0" To="NumNumScale - 1">
-                      <Execute Statement="Num:= Num * 10"/>
-                    </ForLoop>
-                    <Execute Statement="NumNumScale:= 0"/>
-                    <Execute Statement="Num:= Num * 10 + ChrI - CharOrd(c0)"/>
-                  </On>
-                  <On Select="cDecimalSep1, cDecimalSep2">
-                    <stm:SetState Name="AfterDecimalChar"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cTera">
-                    <Execute Statement="Scale:= cScaleTera"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cGiga">
-                    <Execute Statement="Scale:= cScaleGiga"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMega">
-                    <Execute Statement="Scale:= cScaleMega"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cKilo">
-                    <Execute Statement="Scale:= cScaleKilo"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cK">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <Execute Statement="Scale:= cScaleKilo"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cR, cE">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMilliOrMeter">
-                    <Choose>
-                      <When Expression="SiUnit = TSiUnit.Meter">
-                        <stm:SetState Name="AfterMilliOrMeter"/>
-                        <Execute Statement="ValidEndState:= True"/>
-                      </When>
-                      <Otherwise>
-                        <Execute Statement="Scale:= cScaleMilli"/>
-                        <stm:SetState Name="AfterPrefixFracSep"/>
-                        <Execute Statement="ValidEndState:= True"/>
-                      </Otherwise>
-                    </Choose>
-                  </On>
-                  <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                    <Execute Statement="Scale:= cScaleMicro"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cNano">
-                    <Execute Statement="Scale:= cScaleNano"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cPico">
-                    <Execute Statement="Scale:= cScalePico"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cFemto">
-                    <Execute Statement="Scale:= cScaleFemto"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cOhm">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cWatt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cFarad">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHenry">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cVolt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                    <stm:SetState Name="AfterPrefixFracSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cAmp">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cPerc">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHz">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                    <stm:SetState Name="AfterFirstUnitChar"/>
-                    <Execute Statement="ValidEndState:= False"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="AfterDecimalChar">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="c0">
-                    <Execute Statement="Frac:= 0"/>
-                    <Execute Statement="FracScale:= - NumNumScale"/>
-                    <Execute Statement="FracNumScale:= 1"/>
-                    <stm:SetState Name="InDecimalFrac"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="c1..c9">
-                    <Execute Statement="Frac:= ChrI - CharOrd(c0)"/>
-                    <Execute Statement="FracScale:= -1 - NumNumScale"/>
-                    <Execute Statement="FracNumScale:= 0"/>
-                    <stm:SetState Name="InDecimalFrac"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="InDecimalFrac">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="cSpace">
-                    <stm:SetState Name="AfterNumSep"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cTab">
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="c0">
-                    <Execute Statement="FracNumScale:= FracNumScale + 1"/>
-                  </On>
-                  <On Select="c1..c9">
-                    <ForLoop Indexer="I" From="0" To="FracNumScale - 1">
-                      <Execute Statement="Frac:= Frac * 10"/>
-                      <Execute Statement="FracScale:= FracScale - 1"/>
-                    </ForLoop>
-                    <Execute Statement="FracScale:= FracScale - 1"/>
-                    <Execute Statement="FracNumScale:= 0"/>
-                    <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd(c0)"/>
-                  </On>
-                  <On Select="cTera">
-                    <Execute Statement="Scale:= cScaleTera"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cGiga">
-                    <Execute Statement="Scale:= cScaleGiga"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMega">
-                    <Execute Statement="Scale:= cScaleMega"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cKilo">
-                    <Execute Statement="Scale:= cScaleKilo"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cK">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <Execute Statement="Scale:= cScaleKilo"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cR, cE">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMilliOrMeter">
-                    <Execute Statement="Scale:= cScaleMilli"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                    <Execute Statement="Scale:= cScaleMicro"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cNano">
-                    <Execute Statement="Scale:= cScaleNano"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cPico">
-                    <Execute Statement="Scale:= cScalePico"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cFemto">
-                    <Execute Statement="Scale:= cScaleFemto"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cOhm">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cWatt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cFarad">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHenry">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cVolt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cAmp">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cPerc">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHz">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                    <stm:SetState Name="AfterFirstUnitChar"/>
-                    <Execute Statement="ValidEndState:= False"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="AfterNumSep">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="cSpace, cTab">
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cTera">
-                    <Execute Statement="Scale:= cScaleTera"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cGiga">
-                    <Execute Statement="Scale:= cScaleGiga"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMega">
-                    <Execute Statement="Scale:= cScaleMega"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cKilo">
-                    <Execute Statement="Scale:= cScaleKilo"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cK">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <Execute Statement="Scale:= cScaleKilo"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMilliOrMeter">
-                    <Execute Statement="Scale:= cScaleMilli"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMicro, cMicroAlt, cMicroAlt2">
-                    <Execute Statement="Scale:= cScaleMicro"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cNano">
-                    <Execute Statement="Scale:= cScaleNano"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cPico">
-                    <Execute Statement="Scale:= cScalePico"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cFemto">
-                    <Execute Statement="Scale:= cScaleFemto"/>
-                    <stm:SetState Name="AfterPrefix"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cOhm">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cWatt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cFarad">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHenry">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cVolt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cAmp">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cPerc">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHz">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                    <stm:SetState Name="AfterFirstUnitChar"/>
-                    <Execute Statement="ValidEndState:= False"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="AfterPrefix">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="cSpace, cTab">
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMeter">
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cOhm">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cWatt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cFarad">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHenry">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cVolt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cAmp">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cPerc">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHz">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                    <stm:SetState Name="AfterFirstUnitChar"/>
-                    <Execute Statement="ValidEndState:= False"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="AfterMilliOrMeter">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="cSpace, cTab">
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMeter">
-                    <Execute Statement="Scale:= cScaleMilli"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="AfterPrefixFracSep">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="cSpace, cTab">
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="c0">
-                    <Execute Statement="Frac:= 0"/>
-                    <Execute Statement="FracScale:= - NumNumScale"/>
-                    <Execute Statement="FracNumScale:= 1"/>
-                    <stm:SetState Name="InPrefixFrac"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="c1..c9">
-                    <Execute Statement="Frac:= ChrI - CharOrd(c0)"/>
-                    <Execute Statement="FracScale:= -1 - NumNumScale"/>
-                    <Execute Statement="FracNumScale:= 0"/>
-                    <stm:SetState Name="InPrefixFrac"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cMeter">
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cOhm">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cWatt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cFarad">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHenry">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cVolt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cAmp">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cPerc">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHz">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                    <stm:SetState Name="AfterFirstUnitChar"/>
-                    <Execute Statement="ValidEndState:= False"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="InPrefixFrac">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="cSpace, cTab">
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="c0">
-                    <Execute Statement="FracNumScale:= FracNumScale + 1"/>
-                  </On>
-                  <On Select="c1..c9">
-                    <ForLoop Indexer="I" From="0" To="FracNumScale - 1">
-                      <Execute Statement="Frac:= Frac * 10"/>
-                      <Execute Statement="FracScale:= FracScale - 1"/>
-                    </ForLoop>
-                    <Execute Statement="FracScale:= FracScale - 1"/>
-                    <Execute Statement="FracNumScale:= 0"/>
-                    <Execute Statement="Frac:= Frac * 10 + ChrI - CharOrd(c0)"/>
-                  </On>
-                  <On Select="cMeter">
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cOhm">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Ohm"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cWatt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Watt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cFarad">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Farad"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHenry">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Henry"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cVolt">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Volt"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cAmp">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Amp"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cPerc">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Perc"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <On Select="cHz">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                    <stm:SetState Name="AfterFirstUnitChar"/>
-                    <Execute Statement="ValidEndState:= False"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="AfterFirstUnitChar">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="cHz2">
-                    <Exit Condition="SiUnit &lt;&gt; TSiUnit.Hz"/>
-                    <stm:SetState Name="Final"/>
-                    <Execute Statement="ValidEndState:= True"/>
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <stm:State Name="Final">
-                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
-                  <On Select="cSpace, cTab">
-                  </On>
-                  <Otherwise>
-                    <Exit/>
-                  </Otherwise>
-                </Case>
-              </stm:State>
-              <!-->->-->
-            </stm:HandleStates>
-          </StringLoop>
-        </stm:StateHandler>
-        <Exit Condition="not ValidEndState"/>
-        <!--<rep:Reporter.Information Text="Format('Num: %d', Num)" Condition="IsDebugging"/>
-            <rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>
-            <rep:Reporter.Information Text="Format('NumNumScale: %d', NumNumScale)" Condition="IsDebugging"/>
-            <rep:Reporter.Information Text="Format('BaseScale: %d', BaseScale)" Condition="IsDebugging"/>-->
-        <Execute Statement="Scale:= Scale + NumNumScale - BaseScale"/>
-        <!--<rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>-->
-        <Case Expression="Scale" Optimalisation="integermapping">
-          <!--<-<TUnitConvertor.StrToIntValue.NumScaling-->
-          <On Select="-19">
-            <Exit Condition="(Num mod cScaleFactor19) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor19"/>
-          </On>
-          <On Select="-18">
-            <Exit Condition="(Num mod cScaleFactor18) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor18"/>
-          </On>
-          <On Select="-17">
-            <Exit Condition="(Num mod cScaleFactor17) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor17"/>
-          </On>
-          <On Select="-16">
-            <Exit Condition="(Num mod cScaleFactor16) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor16"/>
-          </On>
-          <On Select="-15">
-            <Exit Condition="(Num mod cScaleFactor15) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor15"/>
-          </On>
-          <On Select="-14">
-            <Exit Condition="(Num mod cScaleFactor14) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor14"/>
-          </On>
-          <On Select="-13">
-            <Exit Condition="(Num mod cScaleFactor13) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor13"/>
-          </On>
-          <On Select="-12">
-            <Exit Condition="(Num mod cScaleFactor12) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor12"/>
-          </On>
-          <On Select="-11">
-            <Exit Condition="(Num mod cScaleFactor11) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor11"/>
-          </On>
-          <On Select="-10">
-            <Exit Condition="(Num mod cScaleFactor10) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor10"/>
-          </On>
-          <On Select="-9">
-            <Exit Condition="(Num mod cScaleFactor09) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor09"/>
-          </On>
-          <On Select="-8">
-            <Exit Condition="(Num mod cScaleFactor08) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor08"/>
-          </On>
-          <On Select="-7">
-            <Exit Condition="(Num mod cScaleFactor07) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor07"/>
-          </On>
-          <On Select="-6">
-            <Exit Condition="(Num mod cScaleFactor06) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor06"/>
-          </On>
-          <On Select="-5">
-            <Exit Condition="(Num mod cScaleFactor05) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor05"/>
-          </On>
-          <On Select="-4">
-            <Exit Condition="(Num mod cScaleFactor04) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor04"/>
-          </On>
-          <On Select="-3">
-            <Exit Condition="(Num mod cScaleFactor03) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor03"/>
-          </On>
-          <On Select="-2">
-            <Exit Condition="(Num mod cScaleFactor02) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor02"/>
-          </On>
-          <On Select="-1">
-            <Exit Condition="(Num mod cScaleFactor01) &gt; 0"/>
-            <Execute Statement="CheckIntValue:= Num div cScaleFactor01"/>
-          </On>
-          <On Select="1">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor01"/>
-          </On>
-          <On Select="2">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor02"/>
-          </On>
-          <On Select="3">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor03"/>
-          </On>
-          <On Select="4">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor04"/>
-          </On>
-          <On Select="5">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor05"/>
-          </On>
-          <On Select="6">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor06"/>
-          </On>
-          <On Select="7">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor07"/>
-          </On>
-          <On Select="8">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor08"/>
-          </On>
-          <On Select="9">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor09"/>
-          </On>
-          <On Select="10">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor10"/>
-          </On>
-          <On Select="11">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor11"/>
-          </On>
-          <On Select="12">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor12"/>
-          </On>
-          <On Select="13">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor13"/>
-          </On>
-          <On Select="14">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor14"/>
-          </On>
-          <On Select="15">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor15"/>
-          </On>
-          <On Select="16">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor16"/>
-          </On>
-          <On Select="17">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor17"/>
-          </On>
-          <On Select="18">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor18"/>
-          </On>
-          <On Select="19">
-            <Execute Statement="CheckIntValue:= Num * cScaleFactor19"/>
-          </On>
-          <!-->->-->
-          <On Select="0">
-            <Execute Statement="CheckIntValue:= Num"/>
-          </On>
-          <Otherwise>
-            <Exit/>
-          </Otherwise>
-        </Case>
-        <rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>
-        <Block Condition="FracScale &lt; 0">
-          <!--<rep:Reporter.Information Text="'*****************'" Condition="IsDebugging"/>
-              <rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>
-              <rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>
-              <rep:Reporter.Information Text="Format('FracNumScale: %d', FracNumScale)" Condition="IsDebugging"/>-->
-          <Execute Statement="FracScale:= Scale + FracScale"/>
-          <!--<rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>-->
-          <Case Expression="FracScale" Optimalisation="integermapping">
-            <!--<-<TUnitConvertor.StrToIntValue.FracScaling-->
-            <On Select="-19">
-              <Exit Condition="(Frac mod cScaleFactor19) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor19"/>
-            </On>
-            <On Select="-18">
-              <Exit Condition="(Frac mod cScaleFactor18) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor18"/>
-            </On>
-            <On Select="-17">
-              <Exit Condition="(Frac mod cScaleFactor17) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor17"/>
-            </On>
-            <On Select="-16">
-              <Exit Condition="(Frac mod cScaleFactor16) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor16"/>
-            </On>
-            <On Select="-15">
-              <Exit Condition="(Frac mod cScaleFactor15) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor15"/>
-            </On>
-            <On Select="-14">
-              <Exit Condition="(Frac mod cScaleFactor14) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor14"/>
-            </On>
-            <On Select="-13">
-              <Exit Condition="(Frac mod cScaleFactor13) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor13"/>
-            </On>
-            <On Select="-12">
-              <Exit Condition="(Frac mod cScaleFactor12) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor12"/>
-            </On>
-            <On Select="-11">
-              <Exit Condition="(Frac mod cScaleFactor11) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor11"/>
-            </On>
-            <On Select="-10">
-              <Exit Condition="(Frac mod cScaleFactor10) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor10"/>
-            </On>
-            <On Select="-9">
-              <Exit Condition="(Frac mod cScaleFactor09) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor09"/>
-            </On>
-            <On Select="-8">
-              <Exit Condition="(Frac mod cScaleFactor08) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor08"/>
-            </On>
-            <On Select="-7">
-              <Exit Condition="(Frac mod cScaleFactor07) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor07"/>
-            </On>
-            <On Select="-6">
-              <Exit Condition="(Frac mod cScaleFactor06) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor06"/>
-            </On>
-            <On Select="-5">
-              <Exit Condition="(Frac mod cScaleFactor05) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor05"/>
-            </On>
-            <On Select="-4">
-              <Exit Condition="(Frac mod cScaleFactor04) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor04"/>
-            </On>
-            <On Select="-3">
-              <Exit Condition="(Frac mod cScaleFactor03) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor03"/>
-            </On>
-            <On Select="-2">
-              <Exit Condition="(Frac mod cScaleFactor02) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor02"/>
-            </On>
-            <On Select="-1">
-              <Exit Condition="(Frac mod cScaleFactor01) &gt; 0"/>
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac div cScaleFactor01"/>
-            </On>
-            <On Select="1">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor01"/>
-            </On>
-            <On Select="2">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor02"/>
-            </On>
-            <On Select="3">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor03"/>
-            </On>
-            <On Select="4">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor04"/>
-            </On>
-            <On Select="5">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor05"/>
-            </On>
-            <On Select="6">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor06"/>
-            </On>
-            <On Select="7">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor07"/>
-            </On>
-            <On Select="8">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor08"/>
-            </On>
-            <On Select="9">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor09"/>
-            </On>
-            <On Select="10">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor10"/>
-            </On>
-            <On Select="11">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor11"/>
-            </On>
-            <On Select="12">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor12"/>
-            </On>
-            <On Select="13">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor13"/>
-            </On>
-            <On Select="14">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor14"/>
-            </On>
-            <On Select="15">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor15"/>
-            </On>
-            <On Select="16">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor16"/>
-            </On>
-            <On Select="17">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor17"/>
-            </On>
-            <On Select="18">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor18"/>
-            </On>
-            <On Select="19">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac * cScaleFactor19"/>
-            </On>
-            <!-->->-->
-            <On Select="0">
-              <Execute Statement="CheckIntValue:= CheckIntValue + Frac"/>
-            </On>
-            <Otherwise>
-              <Exit/>
-            </Otherwise>
-          </Case>
-        </Block>
-        <Execute Statement="CheckIntValue:= -CheckIntValue" Condition="IsNegative"/>
-        <Exit Condition="IsError(CheckIntValue)"/>
-        <Execute Statement="IntValue:= CheckIntValue"/>
-        <Exit Result="True"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TUnitConvertor.GetScale" Type="Integer">
-      <Parameters>
-        <Parameter Identifier="Value" Type="Int64"/>
-        <Parameter Identifier="Prefix" Type="TPrefix" Direction="Output"/>
-      </Parameters>
-      <Variables>
-        <Variable Identifier="Factor" Type="Int64"/>
-        <!--<Variable Identifier="Prefix" Type="TPrefix"/>-->
-        <Variable Identifier="NumValue" Type="Int64" Init="0"/>
-        <Variable Identifier="IntScale" Type="Integer"/>
-        <Variable Identifier="Scale" Type="Integer"/>
-        <Variable Identifier="PrefixScale" Type="Integer"/>
-      </Variables>
-      <Block>
-        <Execute Statement="Value:= -Value" Condition="Value &lt; 0"/>
-        <Case Expression="Value">
-          <On Select="0">
-            <Execute Statement="IntScale  := 0"/>
-            <Execute Statement="Prefix:= TPrefix.None"/>
-            <Exit Result="0"/>
-          </On>
-          <!--<-<TUnitConvertor.GetScale.DetermineScale-->
-          <On Select="cScaleFactor00..cScaleFactor01 - 1">
-            <Execute Statement="IntScale  := 0"/>
-          </On>
-          <On Select="cScaleFactor01..cScaleFactor02 - 1">
-            <Execute Statement="IntScale  := 1"/>
-          </On>
-          <On Select="cScaleFactor02..cScaleFactor03 - 1">
-            <Execute Statement="IntScale  := 2"/>
-          </On>
-          <On Select="cScaleFactor03..cScaleFactor04 - 1">
-            <Execute Statement="IntScale  := 3"/>
-          </On>
-          <On Select="cScaleFactor04..cScaleFactor05 - 1">
-            <Execute Statement="IntScale  := 4"/>
-          </On>
-          <On Select="cScaleFactor05..cScaleFactor06 - 1">
-            <Execute Statement="IntScale  := 5"/>
-          </On>
-          <On Select="cScaleFactor06..cScaleFactor07 - 1">
-            <Execute Statement="IntScale  := 6"/>
-          </On>
-          <On Select="cScaleFactor07..cScaleFactor08 - 1">
-            <Execute Statement="IntScale  := 7"/>
-          </On>
-          <On Select="cScaleFactor08..cScaleFactor09 - 1">
-            <Execute Statement="IntScale  := 8"/>
-          </On>
-          <On Select="cScaleFactor09..cScaleFactor10 - 1">
-            <Execute Statement="IntScale  := 9"/>
-          </On>
-          <On Select="cScaleFactor10..cScaleFactor11 - 1">
-            <Execute Statement="IntScale  := 10"/>
-          </On>
-          <On Select="cScaleFactor11..cScaleFactor12 - 1">
-            <Execute Statement="IntScale  := 11"/>
-          </On>
-          <On Select="cScaleFactor12..cScaleFactor13 - 1">
-            <Execute Statement="IntScale  := 12"/>
-          </On>
-          <On Select="cScaleFactor13..cScaleFactor14 - 1">
-            <Execute Statement="IntScale  := 13"/>
-          </On>
-          <On Select="cScaleFactor14..cScaleFactor15 - 1">
-            <Execute Statement="IntScale  := 14"/>
-          </On>
-          <On Select="cScaleFactor15..cScaleFactor16 - 1">
-            <Execute Statement="IntScale  := 15"/>
-          </On>
-          <On Select="cScaleFactor16..cScaleFactor17 - 1">
-            <Execute Statement="IntScale  := 16"/>
-          </On>
-          <On Select="cScaleFactor17..cScaleFactor18 - 1">
-            <Execute Statement="IntScale  := 17"/>
-          </On>
-          <On Select="cScaleFactor18..cScaleFactor19 - 1">
-            <Execute Statement="IntScale  := 18"/>
-          </On>
-          <!-->->-->
-          <Otherwise>
-            <Execute Statement="IntScale:= 19"/>
-          </Otherwise>
-        </Case>
-        <Execute Statement="Scale:= IntScale + BaseScale"/>
-        <RepeatUntilLoop Expression="True" >
-          <!--<-<TUnitConvertor.GetScale.DeterminePrefix-->
-          <Block Condition="AllowPrefixTera">
-            <Block Condition="(Scale &gt;= cScaleTera)">
-              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleTera) &lt;= (PrefixScale-Scale+1))">
-                <Execute Statement="Prefix:= TPrefix.Tera"/>
-                <Execute Statement="PrefixScale:= cScaleTera"/>
-              </Block>
-              <Break/>
-            </Block>
-            <Execute Statement="Prefix:= TPrefix.Tera"/>
-            <Execute Statement="PrefixScale:= cScaleTera"/>
-          </Block>
-          <Block Condition="AllowPrefixGiga">
-            <Block Condition="(Scale &gt;= cScaleGiga)">
-              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleGiga) &lt;= (PrefixScale-Scale+1))">
-                <Execute Statement="Prefix:= TPrefix.Giga"/>
-                <Execute Statement="PrefixScale:= cScaleGiga"/>
-              </Block>
-              <Break/>
-            </Block>
-            <Execute Statement="Prefix:= TPrefix.Giga"/>
-            <Execute Statement="PrefixScale:= cScaleGiga"/>
-          </Block>
-          <Block Condition="AllowPrefixMega">
-            <Block Condition="(Scale &gt;= cScaleMega)">
-              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMega) &lt;= (PrefixScale-Scale+1))">
-                <Execute Statement="Prefix:= TPrefix.Mega"/>
-                <Execute Statement="PrefixScale:= cScaleMega"/>
-              </Block>
-              <Break/>
-            </Block>
-            <Execute Statement="Prefix:= TPrefix.Mega"/>
-            <Execute Statement="PrefixScale:= cScaleMega"/>
-          </Block>
-          <Block Condition="AllowPrefixKilo">
-            <Block Condition="(Scale &gt;= cScaleKilo)">
-              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleKilo) &lt;= (PrefixScale-Scale+1))">
-                <Execute Statement="Prefix:= TPrefix.Kilo"/>
-                <Execute Statement="PrefixScale:= cScaleKilo"/>
-              </Block>
-              <Break/>
-            </Block>
-            <Execute Statement="Prefix:= TPrefix.Kilo"/>
-            <Execute Statement="PrefixScale:= cScaleKilo"/>
-          </Block>
-          <Block Condition="(Scale &gt;= 0)">
-            <Execute Statement="Prefix:= TPrefix.None"/>
-            <Execute Statement="PrefixScale:= 0"/>
-            <Break/>
-          </Block>
-          <Execute Statement="Prefix:= TPrefix.None"/>
-          <Execute Statement="PrefixScale:= 0"/>
-          <Block Condition="AllowPrefixMilli">
-            <Block Condition="(Scale &gt;= cScaleMilli)">
-              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMilli) &lt;= (PrefixScale-Scale+1))">
-                <Execute Statement="Prefix:= TPrefix.Milli"/>
-                <Execute Statement="PrefixScale:= cScaleMilli"/>
-              </Block>
-              <Break/>
-            </Block>
-            <Execute Statement="Prefix:= TPrefix.Milli"/>
-            <Execute Statement="PrefixScale:= cScaleMilli"/>
-          </Block>
-          <Block Condition="AllowPrefixMicro">
-            <Block Condition="(Scale &gt;= cScaleMicro)">
-              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleMicro) &lt;= (PrefixScale-Scale+1))">
-                <Execute Statement="Prefix:= TPrefix.Micro"/>
-                <Execute Statement="PrefixScale:= cScaleMicro"/>
-              </Block>
-              <Break/>
-            </Block>
-            <Execute Statement="Prefix:= TPrefix.Micro"/>
-            <Execute Statement="PrefixScale:= cScaleMicro"/>
-          </Block>
-          <Block Condition="AllowPrefixNano">
-            <Block Condition="(Scale &gt;= cScaleNano)">
-              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleNano) &lt;= (PrefixScale-Scale+1))">
-                <Execute Statement="Prefix:= TPrefix.Nano"/>
-                <Execute Statement="PrefixScale:= cScaleNano"/>
-              </Block>
-              <Break/>
-            </Block>
-            <Execute Statement="Prefix:= TPrefix.Nano"/>
-            <Execute Statement="PrefixScale:= cScaleNano"/>
-          </Block>
-          <Block Condition="AllowPrefixPico">
-            <Block Condition="(Scale &gt;= cScalePico)">
-              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScalePico) &lt;= (PrefixScale-Scale+1))">
-                <Execute Statement="Prefix:= TPrefix.Pico"/>
-                <Execute Statement="PrefixScale:= cScalePico"/>
-              </Block>
-              <Break/>
-            </Block>
-            <Execute Statement="Prefix:= TPrefix.Pico"/>
-            <Execute Statement="PrefixScale:= cScalePico"/>
-          </Block>
-          <Block Condition="AllowPrefixFemto">
-            <Block Condition="(Scale &gt;= cScaleFemto)">
-              <Block Condition="IsEmpty(PrefixScale) or ((Scale - cScaleFemto) &lt;= (PrefixScale-Scale+1))">
-                <Execute Statement="Prefix:= TPrefix.Femto"/>
-                <Execute Statement="PrefixScale:= cScaleFemto"/>
-              </Block>
-              <Break/>
-            </Block>
-            <Execute Statement="Prefix:= TPrefix.Femto"/>
-            <Execute Statement="PrefixScale:= cScaleFemto"/>
-          </Block>
-          <!-->->-->
-        </RepeatUntilLoop>
-        <Execute Statement="Scale:= BaseScale - PrefixScale"/>
-        <Execute Statement="Result:= Scale"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TUnitConvertor.IntValueToStr" Type="string">
-      <Parameters>
-        <Parameter Identifier="Value" Type="Int64"/>
-        <Parameter Identifier="Compact" Type="Boolean"/>
-      </Parameters>
-      <Variables>
-        <Variable Identifier="Prefix" Type="TPrefix"/>
-        <Variable Identifier="Scale" Type="Integer"/>
-        <Variable Identifier="ModVal" Type="UInt32"/>
-        <Variable Identifier="MandatoryDecimal" Type="Boolean"/>
-        <Variable Identifier="IsNegative" Type="Boolean" Init="False"/>
-      </Variables>
-      <Block>
-        <Block Condition="Value &lt; 0">
-          <Execute Statement="IsNegative:= True"/>
-          <Execute Statement="Value:= -Value"/>
-        </Block>
-        <Execute Statement="Scale:= GetScale(Value, Prefix)"/>
-        <Case Expression="Prefix" Optimalisation="integermapping">
-          <!--<-<TUnitConvertor.IntValueToStr.PrefixLookup-->
-          <On Select="TPrefix.Tera">
-            <Execute Statement="Result:= cTera"/>
-          </On>
-          <On Select="TPrefix.Giga">
-            <Execute Statement="Result:= cGiga"/>
-          </On>
-          <On Select="TPrefix.Mega">
-            <Execute Statement="Result:= cMega"/>
-          </On>
-          <On Select="TPrefix.Kilo">
-            <Execute Statement="Result:= cKilo"/>
-          </On>
-          <On Select="TPrefix.None">
-            <Execute Statement="Result:= ''"/>
-          </On>
-          <On Select="TPrefix.Milli">
-            <Execute Statement="Result:= cMilli"/>
-          </On>
-          <On Select="TPrefix.Micro">
-            <Execute Statement="Result:= cMicro"/>
-          </On>
-          <On Select="TPrefix.Nano">
-            <Execute Statement="Result:= cNano"/>
-          </On>
-          <On Select="TPrefix.Pico">
-            <Execute Statement="Result:= cPico"/>
-          </On>
-          <On Select="TPrefix.Femto">
-            <Execute Statement="Result:= cFemto"/>
-          </On>
-          <!-->->-->
-        </Case>
-        <Execute Statement="Result:= Result + UnitS"/>
-        <Execute Statement="Result:= NumberUnitSeperator + Result" Condition="not Compact"/>
-        <Choose>
-          <When Expression="Scale = 0">
-            <Execute Statement="Result:= IntToStr(Value) + Result"/>
-          </When>
-          <When Expression="Scale &lt; 0">
-            <Execute Statement="MandatoryDecimal:= False"/>
-            <ForLoop Indexer="I" From="Scale" To="-1">
-              <Execute Statement="ModVal:= Value mod 10"/>
-              <Execute Statement="MandatoryDecimal:= True" Condition="ModVal &gt; 0"/>
-              <Execute Statement="Value:= Value div 10"/>
-              <Execute Statement="Result:= ToChar(ModVal + cOrd0) + Result" Condition="MandatoryDecimal"/>
-            </ForLoop>
-            <Execute Statement="Result:= DecimalSeparator+ Result" Condition="MandatoryDecimal"/>
-            <RepeatUntilLoop Expression="Value = 0">
-              <Execute Statement="ModVal:= Value mod 10"/>
-              <Execute Statement="Value:= Value div 10"/>
-              <Execute Statement="Result:= ToChar(ModVal + cOrd0) + Result"/>
-            </RepeatUntilLoop>
-          </When>
-          <Otherwise>
-            <ForLoop Indexer="I" From="0" To="Scale-1">
-              <Execute Statement="Value:= Value * 10"/>
-            </ForLoop>
-            <Execute Statement="Result:= IntToStr(Value) + Result"/>
-          </Otherwise>
-        </Choose>
-        <Execute Statement="Result:= '-' + Result" Condition="IsNegative"/>
-      </Block>
-    </Function>
-
-    <Constructor Identifier="TUnitConvertor.Create">
-      <Parameters>
-        <Parameter Identifier="ConvertorKind" Type="TConvertorKind"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Self.ConvertorKind:= ConvertorKind"/>
-        <Execute Statement="NumberUnitSeperator:= ' '"/>
-        <Case Expression="ConvertorKind" Optimalisation="integermapping">
-          <On Select="TConvertorKind.PicoVolt">
-            <Execute Statement="SiUnit:= TSiUnit.Volt"/>
-            <Execute Statement="UnitS:= cVolt"/>
-            <Execute Statement="Granularity:= TGranularity.Pico"/>
-          </On>
-          <On Select="TConvertorKind.PicoAmp">
-            <Execute Statement="SiUnit:= TSiUnit.Amp"/>
-            <Execute Statement="UnitS:= cAmp"/>
-            <Execute Statement="Granularity:= TGranularity.Pico"/>
-          </On>
-          <On Select="TConvertorKind.MicroOhm">
-            <Execute Statement="SiUnit:= TSiUnit.Ohm"/>
-            <Execute Statement="UnitS:= cOhm"/>
-            <Execute Statement="Granularity:= TGranularity.Micro"/>
-          </On>
-          <On Select="TConvertorKind.FemtoFarad">
-            <Execute Statement="SiUnit:= TSiUnit.Farad"/>
-            <Execute Statement="UnitS:= cFarad"/>
-            <Execute Statement="Granularity:= TGranularity.Femto"/>
-          </On>
-          <On Select="TConvertorKind.FemtoHenry">
-            <Execute Statement="SiUnit:= TSiUnit.Henry"/>
-            <Execute Statement="UnitS:= cHenry"/>
-            <Execute Statement="Granularity:= TGranularity.Femto"/>
-          </On>
-          <On Select="TConvertorKind.MicroPerc">
-            <Execute Statement="SiUnit:= TSiUnit.Perc"/>
-            <Execute Statement="UnitS:= cPerc"/>
-            <Execute Statement="NumberUnitSeperator:= ''"/>
-            <Execute Statement="Granularity:= TGranularity.Micro"/>
-          </On>
-          <On Select="TConvertorKind.PicoWatt">
-            <Execute Statement="SiUnit:= TSiUnit.Watt"/>
-            <Execute Statement="UnitS:= cWatt"/>
-            <Execute Statement="Granularity:= TGranularity.Pico"/>
-          </On>
-          <On Select="TConvertorKind.PicoMeter">
-            <Execute Statement="SiUnit:= TSiUnit.Meter"/>
-            <Execute Statement="UnitS:= cMeter"/>
-            <Execute Statement="Granularity:= TGranularity.Pico"/>
-          </On>
-          <On Select="TConvertorKind.MicroHz">
-            <Execute Statement="SiUnit:= TSiUnit.Hz"/>
-            <Execute Statement="UnitS:= sHz"/>
-            <Execute Statement="Granularity:= TGranularity.Micro"/>
-          </On>
-          <Otherwise>
-            <Raise Expression="Exception.Create(Format('TUnitConvertor.Create - unsupported ConvertorKind: %d', ConvertorKind))"/>
-          </Otherwise>
-        </Case>
-        <Case Expression="SiUnit" Optimalisation="integermapping">
-          <On Select="TSiUnit.Farad">
-            <Execute Statement="AllowPrefixMicro:= True"/>
-            <Execute Statement="AllowPrefixNano:= True"/>
-            <Execute Statement="AllowPrefixPico:= True"/>
-          </On>
-          <On Select="TSiUnit.Perc">
-          </On>
-          <Otherwise>
-            <Execute Statement="AllowPrefixTera:= False"/>
-            <Execute Statement="AllowPrefixGiga:= True"/>
-            <Execute Statement="AllowPrefixMega:= True"/>
-            <Execute Statement="AllowPrefixKilo:= True"/>
-            <Execute Statement="AllowPrefixMilli:= True"/>
-            <Execute Statement="AllowPrefixMicro:= True"/>
-            <Execute Statement="AllowPrefixNano:= True"/>
-            <Execute Statement="AllowPrefixPico:= True"/>
-            <Execute Statement="AllowPrefixFemto:= True"/>
-          </Otherwise>
-        </Case>
-        <Case Expression="Granularity">
-          <On Select="TGranularity.Micro">
-            <Execute Statement="BaseScale:= cScaleMicro"/>
-          </On>
-          <On Select="TGranularity.Femto">
-            <Execute Statement="BaseScale:= cScaleFemto"/>
-          </On>
-          <On Select="TGranularity.Pico">
-            <Execute Statement="BaseScale:= cScalePico"/>
-          </On>
-          <Otherwise>
-            <Raise Expression="Exception.Create(Format('TUnitConvertor.Create - unsupported granularity: %d', Granularity))"/>
-          </Otherwise>
-        </Case>
-        <Execute Statement="ToExtendedFactor:= Power(10, BaseScale)"/>
-        <Execute Statement="FromExtendedFactor:= Power(10, -BaseScale)"/>
-      </Block>
-    </Constructor>
-
-    <Function Identifier="GetUnitConvertor" Type="TUnitConvertor">
-      <Parameters>
-        <Parameter Identifier="ConvertorKind" Type="TConvertorKind"/>
-      </Parameters>
-      <Block>
-        <Case Expression="ConvertorKind" Optimalisation="integermapping">
-          <!--<-<GetConverter.Case-->
-          <On Select="TConvertorKind.PicoVolt">
-            <Choose>
-              <When Expression="IsEmpty(_PicoVoltConverter)">
-                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                <Execute Statement="_PicoVoltConverter:= Result"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= _PicoVoltConverter"/>
-              </Otherwise>
-            </Choose>
-          </On>
-          <On Select="TConvertorKind.PicoAmp">
-            <Choose>
-              <When Expression="IsEmpty(_PicoAmpConverter)">
-                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                <Execute Statement="_PicoAmpConverter:= Result"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= _PicoAmpConverter"/>
-              </Otherwise>
-            </Choose>
-          </On>
-          <On Select="TConvertorKind.MicroOhm">
-            <Choose>
-              <When Expression="IsEmpty(_MicroOhmConverter)">
-                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                <Execute Statement="_MicroOhmConverter:= Result"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= _MicroOhmConverter"/>
-              </Otherwise>
-            </Choose>
-          </On>
-          <On Select="TConvertorKind.FemtoFarad">
-            <Choose>
-              <When Expression="IsEmpty(_FemtoFaradConverter)">
-                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                <Execute Statement="_FemtoFaradConverter:= Result"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= _FemtoFaradConverter"/>
-              </Otherwise>
-            </Choose>
-          </On>
-          <On Select="TConvertorKind.FemtoHenry">
-            <Choose>
-              <When Expression="IsEmpty(_FemtoHenryConverter)">
-                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                <Execute Statement="_FemtoHenryConverter:= Result"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= _FemtoHenryConverter"/>
-              </Otherwise>
-            </Choose>
-          </On>
-          <On Select="TConvertorKind.MicroPerc">
-            <Choose>
-              <When Expression="IsEmpty(_MicroPercConverter)">
-                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                <Execute Statement="_MicroPercConverter:= Result"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= _MicroPercConverter"/>
-              </Otherwise>
-            </Choose>
-          </On>
-          <On Select="TConvertorKind.PicoWatt">
-            <Choose>
-              <When Expression="IsEmpty(_PicoWattConverter)">
-                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                <Execute Statement="_PicoWattConverter:= Result"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= _PicoWattConverter"/>
-              </Otherwise>
-            </Choose>
-          </On>
-          <On Select="TConvertorKind.PicoMeter">
-            <Choose>
-              <When Expression="IsEmpty(_PicoMeterConverter)">
-                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                <Execute Statement="_PicoMeterConverter:= Result"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= _PicoMeterConverter"/>
-              </Otherwise>
-            </Choose>
-          </On>
-          <On Select="TConvertorKind.MicroHz">
-            <Choose>
-              <When Expression="IsEmpty(_MicroHzConverter)">
-                <Execute Statement="Result:= TUnitConvertor.Create(ConvertorKind)"/>
-                <Execute Statement="_MicroHzConverter:= Result"/>
-              </When>
-              <Otherwise>
-                <Execute Statement="Result:= _MicroHzConverter"/>
-              </Otherwise>
-            </Choose>
-          </On>
-          <!-->->-->
-          <Otherwise>
-            <Raise Expression="Exception.Create(Format('Invalid ConvertorKind: %d', ConvertorKind))"/>
-          </Otherwise>
-        </Case>
-      </Block>
-    </Function>
-
-
   </Procedures>
-  <sys:Initialization>
-    <Execute Statement="DecimalSeparator:= GetLocaleChar(GetThreadLocale, LOCALE_SDECIMAL, cDecimalSep1)" Condition="IsEmpty(DecimalSeparator)"/>
-  </sys:Initialization>
 </pkg:Library>

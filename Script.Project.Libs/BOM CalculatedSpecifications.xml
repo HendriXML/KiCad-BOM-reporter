@@ -86,7 +86,6 @@
         <Variable Identifier="Count" Type="Integer" Init="0"/>
       </Variables>
       <Block>
-        <rep:Reporter.Information Text="Format(sFilename, Filename)"/>
         <msx:Document.Create Identifier="Document"/>
         <msx:Document.LoadFromFile Document="Document" Filename="Filename"/>
         <msx:Node.IterateChilds Node="Document">
@@ -96,6 +95,11 @@
                 <msx:OnElement baseName="'Resistors'">
                   <msx:Block>
                     <Execute Statement="ProcessComponentCategoryElement(Resistors, Node)"/>
+                  </msx:Block>
+                </msx:OnElement>
+                <msx:OnElement baseName="'Capacitors'">
+                  <msx:Block>
+                    <Execute Statement="ProcessComponentCategoryElement(Capacitors, Node)"/>
                   </msx:Block>
                 </msx:OnElement>
                 <msx:OnElement baseName="'ZenerDiodes'">
@@ -115,12 +119,12 @@
 
     <Procedure Identifier="TCalculatedSpecifications.Report">
       <Parameters>
-        <Parameter Identifier="Count" Type="Integer"/>
+        <Parameter Identifier="BomCount" Type="Integer"/>
       </Parameters>
       <Block>
         <rep:Reporter.Information Text="sBOMHeader" Markup="Header1"/>
-        <rep:Reporter.Information Text="Format(sTitleField, Title)"/>
-        <rep:Reporter.Information Text="Format(sCountField, Count)"/>
+        <rep:Reporter.LabelValue Label="sTitleField" Value="Title"/>
+        <rep:Reporter.LabelValue Label="sCountField" Value="IntToStr(BomCount)"/>
 
         <Object.Use Identifier="SchemaContext" Type="TSchemaReportContext" Expression="TSchemaReportContext.Create">
           <Object.Use Identifier="StockContext" Type="TStockReportContext" Expression="TStockReportContext.Create">
@@ -134,14 +138,14 @@
                 <Execute Statement="SpecReportContext.Measure:= True"/>
                 <Execute Statement="SchemaContext.Measure:= True"/>
                 <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
-                  <Execute Statement="RunningCategory.ReportSchema(Count, SchemaContext, StockContext)"/>
+                  <Execute Statement="RunningCategory.ReportSchema(BomCount, SchemaContext, StockContext)"/>
                 </lil:LinkedList.Iterate>
                 <rep:Reporter.Information Text="''"/>
                 <Execute Statement="StockContext.Measure:= False"/>
                 <Execute Statement="SpecReportContext.Measure:= False"/>
                 <Execute Statement="SchemaContext.Measure:= False"/>
                 <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
-                  <Execute Statement="RunningCategory.ReportSchema(Count, SchemaContext, StockContext)"/>
+                  <Execute Statement="RunningCategory.ReportSchema(BomCount, SchemaContext, StockContext)"/>
                 </lil:LinkedList.Iterate>
                 <rep:Reporter.Information Text="''"/>
               </Object.Use>

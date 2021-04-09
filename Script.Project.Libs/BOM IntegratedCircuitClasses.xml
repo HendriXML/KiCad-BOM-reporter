@@ -17,6 +17,7 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement">
   <Uses>
+    <Use Identifier="SiUnits"/>
     <Use Identifier="ElectronicUtils"/>
     <Use Identifier="BomClasses"/>
     <Use Identifier="BomStrings"/>
@@ -32,7 +33,7 @@
       <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
       <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
       <!--<-<TComponentSpec.Fields-->
-<!-->->-->
+      <!-->->-->
     </DataClass>
 
     <DataClass Identifier="TIntegratedCircuitCategory" Inherit="TMultiFunctionComponentCategory" DefaultConstructor="createonly">
@@ -59,7 +60,7 @@
           <On Select="TComponentKind.OpAmp, TComponentKind.Comparator, TComponentKind.Timer, TComponentKind.SchmittTrigger, TComponentKind.Optocoupler, TComponentKind.ReferenceVoltageIC, TComponentKind.IntegratedCircuit">
             <Execute Statement="Result:= True"/>
           </On>
-<!-->->-->
+          <!-->->-->
         </Case>
       </Block>
     </Function>
@@ -73,7 +74,7 @@
         <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
         <Variable Identifier="IsRanged" Type="Boolean"/>
         <!--<-<TComponentSpec.DoesMatchSpecification-->
-<!-->->-->
+        <!-->->-->
         <Execute Statement="Result:= True"/>
       </Block>
     </Function>
@@ -168,12 +169,12 @@
         <Variable Identifier="LocPinColsLow" Type="Integer"/>
         <Variable Identifier="LocPinRowsHigh" Type="Integer"/>
         <Variable Identifier="LocPinColsHigh" Type="Integer"/>
-        <Variable Identifier="LocValue" Type="Int64"/>
+        <Variable Identifier="LocValue" Type="DecimalQuantity"/>
       </Variables>
       <Block>
         <Case Expression="CustomField" Optimalisation="integermapping">
           <!--<-<TComponentSpec.HandleField-->
-<!-->->-->
+          <!-->->-->
           <Otherwise>
             <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
           </Otherwise>
@@ -194,7 +195,7 @@
       <Block>
         <Variable Identifier="Range" Type="string"/>
         <!--<-<TComponentSpec.GetSpecificationValues-->
-<!-->->-->
+        <!-->->-->
         <Execute Statement="inherited GetSpecificationValues(FormatType, Name, Functions, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
@@ -248,7 +249,7 @@
                 <Execute Statement="ComponentKind:= ''" Condition="Assigned(FunctionHead)"/>
               </On>
             </Case>
-            <Execute Statement="Result:= ConcatExt(' ', True, Name, Functions, FootPrint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+            <Execute Statement="Result:= ConcatExt(' ', True, Name, Functions, PartNumberModel, InternalPartNumber, ComponentKind)"/>
           </On>
           <On Select="TSpecFormatType.Name">
             <Execute Statement="Result:= Name"/>
@@ -266,7 +267,7 @@
         <Block Condition="Template is TIntegratedCircuitSpec">
           <Execute Statement="locTemplate:= TIntegratedCircuitSpec(Template)"/>
           <!--<-<TComponentSpec.ApplyTemplate-->
-<!-->->-->
+          <!-->->-->
         </Block>
         <Execute Statement="inherited ApplyTemplate"/>
       </Block>
@@ -310,7 +311,7 @@
           <On Select="TComponentKind.OpAmp, TComponentKind.Comparator, TComponentKind.Timer, TComponentKind.SchmittTrigger, TComponentKind.Optocoupler, TComponentKind.ReferenceVoltageIC, TComponentKind.IntegratedCircuit">
             <Execute Statement="Result:= True"/>
           </On>
-<!-->->-->
+          <!-->->-->
           <Otherwise>
             <Exit Result="False"/>
           </Otherwise>
@@ -337,7 +338,7 @@
         <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
         <Exit Condition="Result &lt;&gt; 0"/>
         <!--<-<TComponentSpec.CompareSpecifications-->
-<!-->->-->
+        <!-->->-->
         <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
       </Block>
     </Function>

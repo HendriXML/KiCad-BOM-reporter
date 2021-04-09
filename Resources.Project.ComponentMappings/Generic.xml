@@ -1,6 +1,8 @@
 <Devices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../XmlSchemas.Common.KiCadBOMReporter/ComponentMapping.xsd">
   <Library Name="Amplifier_Operational" Component="OpAmp">
   </Library>
+  <Library Name="Amplifier_Audio" Component="AudioAmplifier">
+  </Library>
   <Library Name="Comparator" Component="Comparator">
   </Library>
   <Library Name="Connector_Generic" Component="Connector">
@@ -45,5 +47,7 @@
   </Library>
   <Library Name="LM335">
     <Part Part="LM335" Component="IntegratedCircuit"/>
+  </Library>
+  <Library Name="Timer" Component="Timer">
   </Library>
 </Devices>

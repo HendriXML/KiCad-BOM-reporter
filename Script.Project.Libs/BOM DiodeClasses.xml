@@ -17,6 +17,7 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   >
   <Uses>
+    <Use Identifier="SiUnits"/>
     <Use Identifier="ElectronicUtils"/>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
@@ -32,33 +33,33 @@
       <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
       <!--<-<TComponentSpec.Fields-->
       <Field Identifier="ReverseVoltageRatingVT" Type="TValueType"/>
-      <Field Identifier="ReverseVoltageRating" Type="Int64"/>
+      <Field Identifier="ReverseVoltageRating" Type="Voltage"/>
       <Field Identifier="ErrorReverseVoltageRating" Type="string"/>
       <Field Identifier="ReverseVoltageRatingMinVT" Type="TValueType"/>
-      <Field Identifier="ReverseVoltageRatingMin" Type="Int64"/>
+      <Field Identifier="ReverseVoltageRatingMin" Type="Voltage"/>
       <Field Identifier="ErrorReverseVoltageRatingMin" Type="string"/>
       <Field Identifier="ReverseVoltageRatingMaxVT" Type="TValueType"/>
-      <Field Identifier="ReverseVoltageRatingMax" Type="Int64"/>
+      <Field Identifier="ReverseVoltageRatingMax" Type="Voltage"/>
       <Field Identifier="ErrorReverseVoltageRatingMax" Type="string"/>
       <Field Identifier="AmperageRatingVT" Type="TValueType"/>
-      <Field Identifier="AmperageRating" Type="Int64"/>
+      <Field Identifier="AmperageRating" Type="Current"/>
       <Field Identifier="ErrorAmperageRating" Type="string"/>
       <Field Identifier="AmperageRatingMinVT" Type="TValueType"/>
-      <Field Identifier="AmperageRatingMin" Type="Int64"/>
+      <Field Identifier="AmperageRatingMin" Type="Current"/>
       <Field Identifier="ErrorAmperageRatingMin" Type="string"/>
       <Field Identifier="AmperageRatingMaxVT" Type="TValueType"/>
-      <Field Identifier="AmperageRatingMax" Type="Int64"/>
+      <Field Identifier="AmperageRatingMax" Type="Current"/>
       <Field Identifier="ErrorAmperageRatingMax" Type="string"/>
       <Field Identifier="ForwardVoltageVT" Type="TValueType"/>
-      <Field Identifier="ForwardVoltage" Type="Int64"/>
+      <Field Identifier="ForwardVoltage" Type="Voltage"/>
       <Field Identifier="ErrorForwardVoltage" Type="string"/>
       <Field Identifier="ForwardVoltageMinVT" Type="TValueType"/>
-      <Field Identifier="ForwardVoltageMin" Type="Int64"/>
+      <Field Identifier="ForwardVoltageMin" Type="Voltage"/>
       <Field Identifier="ErrorForwardVoltageMin" Type="string"/>
       <Field Identifier="ForwardVoltageMaxVT" Type="TValueType"/>
-      <Field Identifier="ForwardVoltageMax" Type="Int64"/>
+      <Field Identifier="ForwardVoltageMax" Type="Voltage"/>
       <Field Identifier="ErrorForwardVoltageMax" Type="string"/>
-<!-->->-->
+      <!-->->-->
     </DataClass>
 
     <DataClass Identifier="TDiodeCategory" Inherit="TNamedComponentCategory">
@@ -72,11 +73,11 @@
       <Field Identifier="TemplateTHT" Type="TDiodeSpec"/>
     </DataClass>
   </Type>
-  
+
   <Variables>
-    <Variable Identifier="DiodeForwardVoltageConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoVolt)"/>
-    <Variable Identifier="DiodeAmperageRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoAmp)"/>
-    <Variable Identifier="DiodeReverseVoltageRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TConvertorKind.PicoVolt)"/>
+    <Variable Identifier="DiodeForwardVoltageConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Volt)"/>
+    <Variable Identifier="DiodeAmperageRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Amp)"/>
+    <Variable Identifier="DiodeReverseVoltageRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Volt)"/>
   </Variables>
 
   <Procedures>
@@ -113,9 +114,9 @@
                 <Exit Condition="ReverseVoltageRatingMin &gt; TDiodeSpec(ComponentSpec).ReverseVoltageRating"/>
                 <Execute Statement="IsRanged:= True"/>
               </On>
-               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                 <Exit/>
-               </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -130,9 +131,9 @@
                 <Exit Condition="ReverseVoltageRatingMax &lt; TDiodeSpec(ComponentSpec).ReverseVoltageRating"/>
                 <Execute Statement="IsRanged:= True"/>
               </On>
-               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                 <Exit/>
-               </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -147,9 +148,9 @@
                 <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                   <Exit Condition="ReverseVoltageRating &lt;&gt; TDiodeSpec(ComponentSpec).ReverseVoltageRating"/>
                 </On>
-                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                   <Exit/>
-                 </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Exit/>
+                </On>
               </Case>
             </On>
             <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -166,9 +167,9 @@
                 <Exit Condition="AmperageRatingMin &gt; TDiodeSpec(ComponentSpec).AmperageRating"/>
                 <Execute Statement="IsRanged:= True"/>
               </On>
-               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                 <Exit/>
-               </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -183,9 +184,9 @@
                 <Exit Condition="AmperageRatingMax &lt; TDiodeSpec(ComponentSpec).AmperageRating"/>
                 <Execute Statement="IsRanged:= True"/>
               </On>
-               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                 <Exit/>
-               </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -200,9 +201,9 @@
                 <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                   <Exit Condition="AmperageRating &lt;&gt; TDiodeSpec(ComponentSpec).AmperageRating"/>
                 </On>
-                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                   <Exit/>
-                 </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Exit/>
+                </On>
               </Case>
             </On>
             <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -219,9 +220,9 @@
                 <Exit Condition="ForwardVoltageMin &gt; TDiodeSpec(ComponentSpec).ForwardVoltage"/>
                 <Execute Statement="IsRanged:= True"/>
               </On>
-               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                 <Exit/>
-               </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -236,9 +237,9 @@
                 <Exit Condition="ForwardVoltageMax &lt; TDiodeSpec(ComponentSpec).ForwardVoltage"/>
                 <Execute Statement="IsRanged:= True"/>
               </On>
-               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                 <Exit/>
-               </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -253,9 +254,9 @@
                 <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
                   <Exit Condition="ForwardVoltage &lt;&gt; TDiodeSpec(ComponentSpec).ForwardVoltage"/>
                 </On>
-                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                   <Exit/>
-                 </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Exit/>
+                </On>
               </Case>
             </On>
             <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -263,7 +264,7 @@
             </On>
           </Case>
         </Block>
-<!-->->-->
+        <!-->->-->
         <Execute Statement="Result:= True"/>
       </Block>
     </Function>
@@ -416,7 +417,7 @@
         <Parameter Identifier="Clear" Type="Boolean"/>
       </Parameters>
       <Variables>
-        <Variable Identifier="LocValue" Type="Int64"/>
+        <Variable Identifier="LocValue" Type="DecimalQuantity"/>
       </Variables>
       <Block>
         <Case Expression="CustomField" Optimalisation="integermapping">
@@ -425,9 +426,8 @@
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="ReverseVoltageRatingVT:= TValueType.Cleared"/>
-                <Execute Statement="ReverseVoltageRating:= -1"/>
               </When>
-              <When Expression="DiodeReverseVoltageRatingConv.StrToIntValue(Value, LocValue)">
+              <When Expression="DiodeReverseVoltageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
                 <Execute Statement="ReverseVoltageRatingVT:= TValueType.Specified"/>
                 <Execute Statement="ReverseVoltageRating:= LocValue"/>
               </When>
@@ -441,9 +441,8 @@
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="ReverseVoltageRatingMinVT:= TValueType.Cleared"/>
-                <Execute Statement="ReverseVoltageRatingMin:= -1"/>
               </When>
-              <When Expression="DiodeReverseVoltageRatingConv.StrToIntValue(Value, LocValue)">
+              <When Expression="DiodeReverseVoltageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
                 <Execute Statement="ReverseVoltageRatingMinVT:= TValueType.Specified"/>
                 <Execute Statement="ReverseVoltageRatingMin:= LocValue"/>
               </When>
@@ -457,9 +456,8 @@
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="ReverseVoltageRatingMaxVT:= TValueType.Cleared"/>
-                <Execute Statement="ReverseVoltageRatingMax:= -1"/>
               </When>
-              <When Expression="DiodeReverseVoltageRatingConv.StrToIntValue(Value, LocValue)">
+              <When Expression="DiodeReverseVoltageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
                 <Execute Statement="ReverseVoltageRatingMaxVT:= TValueType.Specified"/>
                 <Execute Statement="ReverseVoltageRatingMax:= LocValue"/>
               </When>
@@ -473,9 +471,8 @@
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="AmperageRatingVT:= TValueType.Cleared"/>
-                <Execute Statement="AmperageRating:= -1"/>
               </When>
-              <When Expression="DiodeAmperageRatingConv.StrToIntValue(Value, LocValue)">
+              <When Expression="DiodeAmperageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
                 <Execute Statement="AmperageRatingVT:= TValueType.Specified"/>
                 <Execute Statement="AmperageRating:= LocValue"/>
               </When>
@@ -489,9 +486,8 @@
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="AmperageRatingMinVT:= TValueType.Cleared"/>
-                <Execute Statement="AmperageRatingMin:= -1"/>
               </When>
-              <When Expression="DiodeAmperageRatingConv.StrToIntValue(Value, LocValue)">
+              <When Expression="DiodeAmperageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
                 <Execute Statement="AmperageRatingMinVT:= TValueType.Specified"/>
                 <Execute Statement="AmperageRatingMin:= LocValue"/>
               </When>
@@ -505,9 +501,8 @@
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="AmperageRatingMaxVT:= TValueType.Cleared"/>
-                <Execute Statement="AmperageRatingMax:= -1"/>
               </When>
-              <When Expression="DiodeAmperageRatingConv.StrToIntValue(Value, LocValue)">
+              <When Expression="DiodeAmperageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
                 <Execute Statement="AmperageRatingMaxVT:= TValueType.Specified"/>
                 <Execute Statement="AmperageRatingMax:= LocValue"/>
               </When>
@@ -521,9 +516,8 @@
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="ForwardVoltageVT:= TValueType.Cleared"/>
-                <Execute Statement="ForwardVoltage:= -1"/>
               </When>
-              <When Expression="DiodeForwardVoltageConv.StrToIntValue(Value, LocValue)">
+              <When Expression="DiodeForwardVoltageConv.EStrToDecimalQuantity(Value, LocValue)">
                 <Execute Statement="ForwardVoltageVT:= TValueType.Specified"/>
                 <Execute Statement="ForwardVoltage:= LocValue"/>
               </When>
@@ -537,9 +531,8 @@
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="ForwardVoltageMinVT:= TValueType.Cleared"/>
-                <Execute Statement="ForwardVoltageMin:= -1"/>
               </When>
-              <When Expression="DiodeForwardVoltageConv.StrToIntValue(Value, LocValue)">
+              <When Expression="DiodeForwardVoltageConv.EStrToDecimalQuantity(Value, LocValue)">
                 <Execute Statement="ForwardVoltageMinVT:= TValueType.Specified"/>
                 <Execute Statement="ForwardVoltageMin:= LocValue"/>
               </When>
@@ -553,9 +546,8 @@
             <Choose>
               <When Expression="Clear">
                 <Execute Statement="ForwardVoltageMaxVT:= TValueType.Cleared"/>
-                <Execute Statement="ForwardVoltageMax:= -1"/>
               </When>
-              <When Expression="DiodeForwardVoltageConv.StrToIntValue(Value, LocValue)">
+              <When Expression="DiodeForwardVoltageConv.EStrToDecimalQuantity(Value, LocValue)">
                 <Execute Statement="ForwardVoltageMaxVT:= TValueType.Specified"/>
                 <Execute Statement="ForwardVoltageMax:= LocValue"/>
               </When>
@@ -565,7 +557,7 @@
               </Otherwise>
             </Choose>
           </On>
-<!-->->-->
+          <!-->->-->
           <Otherwise>
             <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
           </Otherwise>
@@ -587,7 +579,8 @@
         <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
       </Parameters>
       <Block>
-        <Variable Identifier="Compact" Type="Boolean" Init="FormatType &lt;&gt; TSpecFormatType.Name"/>
+        <Variable Identifier="UnitPostFix" Type="TUnitPostFix" Init="TUnitPostFix.Compact"/>
+        <Execute Statement="UnitPostFix:= TUnitPostFix.Separated" Condition="FormatType = TSpecFormatType.Name"/>
         <Variable Identifier="Range" Type="string"/>
         <!--<-<TComponentSpec.GetSpecificationValues-->
         <Case Expression="ReverseVoltageRatingMinVT">
@@ -595,29 +588,29 @@
             <Execute Statement="Range:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= DiodeReverseVoltageRatingConv.IntValueToStr(Self.ReverseVoltageRatingMin, Compact) + '..'"/>
+            <Execute Statement="Range:= EDecimalQuantityToStr(ReverseVoltageRatingMin, UnitPostFix) + #$2026"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '!' + ErrorReverseVoltageRatingMin + '!' + '..'"/>
+            <Execute Statement="Range:= '!' + ErrorReverseVoltageRatingMin + '!' + #$2026"/>
           </On>
         </Case>
         <Case Expression="ReverseVoltageRatingMaxVT">
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= '..'" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + DiodeReverseVoltageRatingConv.IntValueToStr(Self.ReverseVoltageRatingMax, Compact)"/>
+            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
+            <Execute Statement="Range:= Range + EDecimalQuantityToStr(ReverseVoltageRatingMax, UnitPostFix)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '..'" Condition="IsEmptyString(Range)"/>
+            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
             <Execute Statement="Range:= Range + '!' + ErrorReverseVoltageRatingMax + '!' "/>
           </On>
         </Case>
-        <Execute Statement="Range:= '{' + Range + '}'" Condition="IsNonEmptyString(Range)"/>
+        <Execute Statement="Range:=  Range " Condition="IsNonEmptyString(Range)"/>
         <Case Expression="ReverseVoltageRatingVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="ReverseVoltageRating:= Range"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="ReverseVoltageRating:= DiodeReverseVoltageRatingConv.IntValueToStr(Self.ReverseVoltageRating, Compact) + Range"/>
+            <Execute Statement="ReverseVoltageRating:= EDecimalQuantityToStr(Self.ReverseVoltageRating, UnitPostFix) + Range"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="ReverseVoltageRating:= '!' + ErrorReverseVoltageRating + '!' + Range"/>
@@ -628,29 +621,29 @@
             <Execute Statement="Range:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= DiodeAmperageRatingConv.IntValueToStr(Self.AmperageRatingMin, Compact) + '..'"/>
+            <Execute Statement="Range:= EDecimalQuantityToStr(AmperageRatingMin, UnitPostFix) + #$2026"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '!' + ErrorAmperageRatingMin + '!' + '..'"/>
+            <Execute Statement="Range:= '!' + ErrorAmperageRatingMin + '!' + #$2026"/>
           </On>
         </Case>
         <Case Expression="AmperageRatingMaxVT">
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= '..'" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + DiodeAmperageRatingConv.IntValueToStr(Self.AmperageRatingMax, Compact)"/>
+            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
+            <Execute Statement="Range:= Range + EDecimalQuantityToStr(AmperageRatingMax, UnitPostFix)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '..'" Condition="IsEmptyString(Range)"/>
+            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
             <Execute Statement="Range:= Range + '!' + ErrorAmperageRatingMax + '!' "/>
           </On>
         </Case>
-        <Execute Statement="Range:= '{' + Range + '}'" Condition="IsNonEmptyString(Range)"/>
+        <Execute Statement="Range:=  Range " Condition="IsNonEmptyString(Range)"/>
         <Case Expression="AmperageRatingVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="AmperageRating:= Range"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="AmperageRating:= DiodeAmperageRatingConv.IntValueToStr(Self.AmperageRating, Compact) + Range"/>
+            <Execute Statement="AmperageRating:= EDecimalQuantityToStr(Self.AmperageRating, UnitPostFix) + Range"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!' + Range"/>
@@ -661,35 +654,35 @@
             <Execute Statement="Range:= ''"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= DiodeForwardVoltageConv.IntValueToStr(Self.ForwardVoltageMin, Compact) + '..'"/>
+            <Execute Statement="Range:= EDecimalQuantityToStr(ForwardVoltageMin, UnitPostFix) + #$2026"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '!' + ErrorForwardVoltageMin + '!' + '..'"/>
+            <Execute Statement="Range:= '!' + ErrorForwardVoltageMin + '!' + #$2026"/>
           </On>
         </Case>
         <Case Expression="ForwardVoltageMaxVT">
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= '..'" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + DiodeForwardVoltageConv.IntValueToStr(Self.ForwardVoltageMax, Compact)"/>
+            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
+            <Execute Statement="Range:= Range + EDecimalQuantityToStr(ForwardVoltageMax, UnitPostFix)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '..'" Condition="IsEmptyString(Range)"/>
+            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
             <Execute Statement="Range:= Range + '!' + ErrorForwardVoltageMax + '!' "/>
           </On>
         </Case>
-        <Execute Statement="Range:= '{' + Range + '}'" Condition="IsNonEmptyString(Range)"/>
+        <Execute Statement="Range:=  Range " Condition="IsNonEmptyString(Range)"/>
         <Case Expression="ForwardVoltageVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="ForwardVoltage:= Range"/>
           </On>
           <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="ForwardVoltage:= DiodeForwardVoltageConv.IntValueToStr(Self.ForwardVoltage, Compact) + Range"/>
+            <Execute Statement="ForwardVoltage:= EDecimalQuantityToStr(Self.ForwardVoltage, UnitPostFix) + Range"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="ForwardVoltage:= '!' + ErrorForwardVoltage + '!' + Range"/>
           </On>
         </Case>
-<!-->->-->
+        <!-->->-->
         <Execute Statement="inherited GetSpecificationValues(FormatType, Value, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
@@ -748,7 +741,7 @@
             </Choose>
           </On>
           <On Select="TSpecFormatType.Description">
-            <Execute Statement="Result:= ConcatExt(' ', True, Value, ReverseVoltageRating, AmperageRating, ForwardVoltage, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, ReverseVoltageRating, AmperageRating, ForwardVoltage, PartNumberModel, InternalPartNumber, ComponentKind)"/>
           </On>
           <On Select="TSpecFormatType.Name">
             <Execute Statement="Result:= Value"/>
@@ -892,7 +885,7 @@
               </Case>
             </On>
           </Case>
-<!-->->-->
+          <!-->->-->
         </ConditionalBlock>
         <Execute Statement="inherited ApplyTemplate"/>
       </Block>
@@ -984,7 +977,7 @@
         <Exit Condition="Result &lt;&gt; 0"/>
         <Execute Statement="Result:= CompareStateValueRange(A.ID, A.ForwardVoltage, A.ForwardVoltageVT, A.ForwardVoltageMin, A.ForwardVoltageMinVT, A.ForwardVoltageMax, A.ForwardVoltageMaxVT, B.ID, B.ForwardVoltage, B.ForwardVoltageVT, B.ForwardVoltageMin, B.ForwardVoltageMinVT, B.ForwardVoltageMax, B.ForwardVoltageMaxVT)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-<!-->->-->
+        <!-->->-->
         <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
       </Block>
     </Function>

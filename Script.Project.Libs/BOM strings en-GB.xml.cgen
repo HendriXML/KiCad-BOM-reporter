@@ -75,7 +75,7 @@
 
         <Block>
           <msx:Document.Create Identifier="XmlDoc"/>
-          <msx:Document.LoadFromFile Document="XmlDoc" Filename="GetFilenameFromBase(ExtractFilePath(ScriptFilename), 'ComponentKinds.xml')"/>
+          <msx:Document.LoadFromFile Document="XmlDoc" Filename="GetFilenameFromBase(ExtractFilePath(ScriptFilename), '..\Resources.Project.CodeGen\ComponentKinds.xml')"/>
 
           <rep:Reporter.DefaultTarget Identifier="Constants.ComponentKind.Strings"/>
           <rep:Reporter.Information Text="''"/>

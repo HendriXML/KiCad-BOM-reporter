@@ -20,6 +20,7 @@
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-dividers" schemaLocation="XMLScripting.Dividers.xsd"/>
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-scope" schemaLocation="XMLScripting.Scope.xsd"/>
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-statemanagement" schemaLocation="XMLScripting.StateManagment.xsd"/>
+  <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting-quantityutils" schemaLocation="XMLScripting.QuantityUtils.xsd"/>
   <xs:complexType name="T_ReportTargets">
     <xs:sequence>
       <xs:element name="Target" minOccurs="1" maxOccurs="unbounded">

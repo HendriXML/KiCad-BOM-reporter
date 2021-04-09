@@ -1,13 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-showstatus" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:proc="urn:schemas-www-wisware.nl-xmlscripting" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-showstatus" elementFormDefault="qualified">
+<xs:schema xmlns="urn:schemas-www-wisware.nl-xmlscripting-showstatus" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" targetNamespace="urn:schemas-www-wisware.nl-xmlscripting-showstatus" elementFormDefault="qualified">
   <xs:import namespace="urn:schemas-www-wisware.nl-xmlscripting" schemaLocation="XMLScripting.xsd"/>
-  <xs:complexType name="T_ShowText">
+  <xs:complexType name="T_Status">
     <xs:complexContent>
-      <xs:extension base="proc:T_AbstractConditionalProcessItem">
-        <xs:attribute name="Text" type="proc:expression" use="required"/>
-        <xs:attribute name="Index" type="proc:expression" use="optional"/>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Text" type="sys:expression" use="optional"/>
+        <xs:attribute name="Depth" type="xs:positiveInteger" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="ShowStatus.Information" type="T_ShowText" substitutionGroup="proc:AbstractProcessItem"/>
+
+  <xs:complexType name="T_ShowStatus.Information">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Text" type="sys:expression" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="T_StatusBlock">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalBlockProcessItem">
+        <xs:attribute name="Text" type="sys:expression" use="optional"/>
+        <xs:attribute name="LeaveText" type="sys:expression" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="ShowStatus.Information" type="T_ShowStatus.Information" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Status.Block" type="T_StatusBlock" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Status" type="T_Status" substitutionGroup="sys:AbstractProcessItem"/>
 </xs:schema>

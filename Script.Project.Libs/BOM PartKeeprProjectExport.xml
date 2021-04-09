@@ -17,6 +17,8 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   >
   <Uses>
+    <Use Identifier="SiUnits"/>
+    <Use Identifier="ReportStrings"/>
     <Use Identifier="ElectronicUtils"/>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
@@ -33,12 +35,11 @@
     <Use Identifier="StockManager"/>
   </Uses>
   <Type>
-    <Enumeration Identifier="TPartKeeprTask" Elements="None=0, ReportStorageLocations=1, ReportPartKeeprProjects=2, CreateUnmatchedParts=3, ChangeProjectParts=4, ChangePartNames=5, ChangePartDescriptions=6"/>
-
     <Enumeration Identifier="TComponentProperty" Elements="Name, Description"/>
 
     <DataClass Identifier="TPartKeeprPart">
       <Field Identifier="SchemaSpec" Type="TComponentSpec"/>
+      <Field Identifier="UnmatchedComponentsStorageID" Type="Integer"/>
       <!--Initialized in task-->
       <Field Identifier="Name" Type="string"/>
       <Field Identifier="StockCategory" Type="TStockCategory"/>
@@ -136,8 +137,6 @@
   </Constants>
 
   <Variables>
-    <Variable Identifier="UnmatchedComponentsStorageID" Type="Integer" Init="-1"/>
-
     <Variable Identifier="cmdInsertNumericParameter" Type="Command"/>
     <Variable Identifier="cmdInsertNumericParameter_part_id" Type="Parameter"/>
     <Variable Identifier="cmdInsertNumericParameter_unit_id" Type="Parameter"/>
@@ -204,18 +203,15 @@
         <Variable Identifier="Name"/>
       </Variables>
       <Block>
-        <rep:Reporter.Information Text="''"/>
-        <rep:Reporter.Information Text="sPartKeeprStorageLocationsHeader" Markup="Header2"/>
         <ado:Command.CreateBlock  CommandText="sqlStorageLocation" CommandType="adCmdText" Connection="DBConnection" Command="Command">
           <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
             <ado:Recordset.Iterate>
               <ado:Field.GetValue Name="id" Identifier="ID"/>
               <ado:Field.GetValue Name="name" Identifier="Name"/>
-              <rep:Reporter.Information Text="Format('%d: %s', ID, Name)"/>
+              <rep:Reporter.LabelValue Label="Name" Value="IntToStr(ID)"/>
             </ado:Recordset.Iterate>
           </ado:Recordset.OpenBlock>
         </ado:Command.CreateBlock>
-        <rep:Reporter.Information Text="''"/>
       </Block>
     </Procedure>
 
@@ -230,8 +226,6 @@
         <Variable Identifier="DescriptionDisplayValue" Type="string"/>
       </Variables>
       <Block>
-        <rep:Reporter.Information Text="''"/>
-        <rep:Reporter.Information Text="sPartKeeprProjectsHeader" Markup="Header2"/>
         <ado:Command.CreateBlock  CommandText="sqlSelectProjects" CommandType="adCmdText" Connection="DBConnection" Command="Command">
           <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
             <ado:Recordset.Iterate>
@@ -239,11 +233,10 @@
               <ado:Field.GetValue Name="name" Identifier="Name"/>
               <ado:Field.GetValue Name="description" Identifier="Description"/>
               <Execute Statement="DescriptionDisplayValue:= IfElse(IsNull(Description), '', Description)"/>
-              <rep:Reporter.Information Text="Format('%d: %s - %s', ID, Name, Description)"/>
+              <rep:Reporter.LabelValue Label="Name" Value="IntToStr(ID)"/>
             </ado:Recordset.Iterate>
           </ado:Recordset.OpenBlock>
         </ado:Command.CreateBlock>
-        <rep:Reporter.Information Text="''"/>
       </Block>
     </Procedure>
 
@@ -252,7 +245,7 @@
         <Parameter Identifier="DBConnection" Type="Connection"/>
         <Parameter Identifier="BillOfMaterials" Type="TBillOfMaterials"/>
         <Parameter Identifier="ProjectID" Type="Integer"/>
-        <Parameter Identifier="Amount" Type="Integer"/>
+        <Parameter Identifier="UnmatchedComponentsStorageID" Type="Integer"/>
       </Parameters>
       <Type>
         <DataClass Identifier="TTaskObject">
@@ -299,8 +292,10 @@
         <Variable Identifier="ComponentKindGroup" Type="TGroupObject"/>
         <Variable Identifier="AddRootGroup" Type="TGroupObject"/>
         <Variable Identifier="DeleteRootGroup" Type="TGroupObject"/>
+        <Variable Identifier="Amount" Type="Integer" Init="BillOfMaterials.BomCount"/>
       </Variables>
       <Procedures>
+
         <Procedure Identifier="ExportComponentCategory">
           <Parameters>
             <Parameter Identifier="Category" Type="TComponentCategory"/>
@@ -364,7 +359,7 @@
                 <Block Condition="IsEmpty(AddPartHead)">
                   <Execute Statement="AddPart:= TCreateAndAddPartObject.Create()"/>
                   <Execute Statement="AddPartHead:= AddPart"/>
-                  <Execute Statement="AddPart.Part := TPartKeeprPart.Create(Spec)"/>
+                  <Execute Statement="AddPart.Part := TPartKeeprPart.Create(Spec, UnmatchedComponentsStorageID)"/>
                   <Execute Statement="AddPart.Description := Format(sUnmatched, TotCount)"/>
                   <Execute Statement="AddPart.Quantity := TotCount"/>
                   <Execute Statement="AddPart.Remarks := ComponentDesignators"/>
@@ -507,6 +502,7 @@
             <ado:Command.Execute Command="cmdDeleteProjectPart" Condition="not IsSimulate"/>
           </Block>
         </Task>
+
       </Procedures>
       <Block>
         <Execute Statement="ProcessExistingProjectComponents"/>
@@ -543,24 +539,22 @@
                 <Execute Statement="cmdInsertPart:= Command"/>
                 <Execute Statement="cmdInsertPart.Prepared:= True"/>
 
-                <sts:ShowStatus.Information Text="sProjectPartsTaskMsg"/>
-                <ExecuteTasks ExecutableTasksInSelectionOnly="False">
-                  <Task Identifier="GroupTask" InstanceObject="DeleteRootGroup"/>
-                  <Task Identifier="GroupTask" InstanceObject="AddRootGroup"/>
-                  <SelectionSuspend>
-                    <Resume.ResumeRequest/>
-                    <Resume.BreakRequest IssueExit="True">
-                      <sts:ShowStatus.Information Text="''"/>
-                    </Resume.BreakRequest>
-                  </SelectionSuspend>
-                  <BeforeExecuteTask Identifier="Task">
-                    <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
-                      <sts:ShowStatus.Information Text="Format(sTaskExecuting, Task.Description)"/>
-                      <rep:Reporter.Information Text="Task.Description" Target="TaskOutput"/>
-                    </Block>
-                  </BeforeExecuteTask>
-                </ExecuteTasks>
-                <sts:ShowStatus.Information Text="sDoneMsg"/>
+                <sts:Status.Block Text="sProjectPartsTaskMsg" LeaveText="sDoneMsg">
+                  <ExecuteTasks ExecutableTasksInSelectionOnly="False">
+                    <Task Identifier="GroupTask" InstanceObject="DeleteRootGroup"/>
+                    <Task Identifier="GroupTask" InstanceObject="AddRootGroup"/>
+                    <SelectionSuspend>
+                      <Resume.ResumeRequest/>
+                      <Resume.BreakRequest IssueExit="True"/>
+                    </SelectionSuspend>
+                    <BeforeExecuteTask Identifier="Task">
+                      <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
+                        <sts:Status Text="Format(sExecutingTask, Task.Description)" Depth="1"/>
+                        <rep:Reporter.Information Text="Task.Description"/>
+                      </Block>
+                    </BeforeExecuteTask>
+                  </ExecuteTasks>
+                </sts:Status.Block>
 
               </ado:Command.CreateBlock>
             </ado:Command.CreateBlock>
@@ -575,6 +569,7 @@
         <Parameter Identifier="BillOfMaterials" Type="TBillOfMaterials"/>
         <Parameter Identifier="StockManager" Type="TStockManager"/>
         <Parameter Identifier="ExecuteTasks" Type="Boolean"/>
+        <Parameter Identifier="UnmatchedComponentsStorageID" Type="Integer"/>
       </Parameters>
       <Type>
         <DataClass Identifier="TExportCategory">
@@ -665,7 +660,7 @@
             <Task.Kind Expression="TTaskKind.tkCategory"/>
             <Task.Description Expression="ExportCategory.StockCategory.Name + ': ' + ExportCategory.StockSpec.SpecificationAsString(TSpecFormatType.Description, ObjNil)"/>
             <lil:LinkedList.Iterate Head="ExportCategory.SchemaSpecHead" ItemType="TExportSpecLink" RunningItem="ExportSpecLink" Next="ExportSpecLink.Next" >
-              <Task.AddDependency Task="ExportSpecificationTask" InstanceObject="TPartKeeprPart.Create(ExportSpecLink.SchemaSpec)" IgnoreFailure="True"/>
+              <Task.AddDependency Task="ExportSpecificationTask" InstanceObject="TPartKeeprPart.Create(ExportSpecLink.SchemaSpec, UnmatchedComponentsStorageID)" IgnoreFailure="True"/>
             </lil:LinkedList.Iterate>
           </Init>
         </Task>
@@ -698,116 +693,111 @@
               <Execute Statement="cmdInsertPart.Prepared:= True"/>
               <Block Condition="ExecuteTasks">
                 <sts:ShowStatus.Information Text="sCheckTaskMsg"/>
-                <ExecuteTasks ExecutableTasksInSelectionOnly="False">
-                  <Task Identifier="Root" InstanceObject="ExportCategoryHead"/>
-                  <SelectionSuspend>
-                    <Resume.ResumeRequest/>
-                    <Resume.BreakRequest IssueExit="True">
-                      <sts:ShowStatus.Information Text="''"/>
-                    </Resume.BreakRequest>
-                  </SelectionSuspend>
-                  <BeforeExecuteTask Identifier="Task">
-                    <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
-                      <sts:ShowStatus.Information Text="Format(sTaskExecuting, Task.Description)"/>
-                      <rep:Reporter.Information Text="Task.Description" Target="TaskOutput"/>
-                    </Block>
-                  </BeforeExecuteTask>
-                </ExecuteTasks>
+                <sts:Status.Block Text="sCheckTaskMsg" LeaveText="sDoneMsg">
+                  <ExecuteTasks ExecutableTasksInSelectionOnly="False">
+                    <Task Identifier="Root" InstanceObject="ExportCategoryHead"/>
+                    <SelectionSuspend>
+                      <Resume.ResumeRequest/>
+                      <Resume.BreakRequest IssueExit="True"/>
+                    </SelectionSuspend>
+                    <BeforeExecuteTask Identifier="Task">
+                      <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
+                        <sts:Status Text="Format(sExecutingTask, Task.Description)" Depth="1"/>
+                        <rep:Reporter.Information Text="Task.Description"/>
+                      </Block>
+                    </BeforeExecuteTask>
+                  </ExecuteTasks>
+                </sts:Status.Block>
               </Block>
             </ado:Command.CreateBlock>
           </ado:Command.CreateBlock>
         </ado:Command.CreateBlock>
-        <sts:ShowStatus.Information Text="sDoneMsg"/>
       </Block>
     </Procedure>
 
     <Function Identifier="NumericValue" Type="Extended">
       <Parameters>
-        <Parameter Identifier="Value" Type="Int64"/>
-        <Parameter Identifier="Convertor" Type="TUnitConvertor"/>
-        <Parameter Identifier="ScaledValue" Type="Extended" Direction="Output"/>
+        <Parameter Identifier="Value" Type="Quantity"/>
+        <Parameter Identifier="ReturnScaledValue" Type="Extended" Direction="Output"/>
         <Parameter Identifier="ScaledValuePrefix" Type="TPartKeeprPrefix" Direction="Output"/>
         <Parameter Identifier="ScaledUnitInfo" Type="TUnitInfo" Direction="Output"/>
       </Parameters>
+      <Procedures>
+        <Procedure Identifier="SetInfo">
+          <Parameters>
+            <Parameter Identifier="Prefix" Type="TPartKeeprPrefix"/>
+            <Parameter Identifier="UnitInfo" Type="TUnitInfo"/>
+          </Parameters>
+          <Block>
+            <Execute Statement="ScaledValuePrefix:= Prefix"/>
+            <Execute Statement="ScaledUnitInfo:= UnitInfo"/>
+          </Block>
+        </Procedure>
+      </Procedures>
       <Variables>
         <Variable Identifier="IsNegative" Type="Boolean" Init="False"/>
         <Variable Identifier="Scale" Type="Integer"/>
-        <Variable Identifier="Prefix" Type="TPrefix"/>
         <Variable Identifier="NumValue" Type="Int64" Init="0"/>
-        <Variable Identifier="StartPrefix" Type="TPrefix"/>
-        <Variable Identifier="EndPrefix" Type="TPrefix"/>
       </Variables>
       <Block>
-        <Execute Statement="Scale:= Convertor.GetScale(Value, Prefix)"/>
-        <Execute Statement="ScaledValue:= Value * Power(10, Scale)"/>
-        <Execute Statement="Result:= Value * Convertor.ToExtendedFactor"/>
-        <Case Expression="Convertor.SiUnit" Optimalisation="integermapping">
-          <On Select="TSiUnit.Ohm">
-            <Execute Statement="ScaledUnitInfo:= UnitOhm"/>
-          </On>
-          <On Select="TSiUnit.Watt">
-            <Execute Statement="ScaledUnitInfo:= UnitWatt"/>
-          </On>
-          <On Select="TSiUnit.Farad">
-            <Execute Statement="ScaledUnitInfo:= UnitFarad"/>
-          </On>
-          <On Select="TSiUnit.Henry">
-            <Execute Statement="ScaledUnitInfo:= UnitHenry"/>
-          </On>
-          <On Select="TSiUnit.Volt">
-            <Execute Statement="ScaledUnitInfo:= UnitVolt"/>
-          </On>
-          <On Select="TSiUnit.Amp">
-            <Execute Statement="ScaledUnitInfo:= UnitAmp"/>
-          </On>
-          <On Select="TSiUnit.Perc">
-            <Execute Statement="ScaledUnitInfo:= UnitPercentage"/>
-          </On>
-        </Case>
-        <Case Expression="Prefix" Optimalisation="integermapping">
-          <On Select="TPrefix.Tera">
-            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Tera"/>
-          </On>
-          <On Select="TPrefix.Giga">
-            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Giga"/>
-          </On>
-          <On Select="TPrefix.Mega">
-            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Mega"/>
-          </On>
-          <On Select="TPrefix.Kilo">
-            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Kilo"/>
-          </On>
-          <On Select="TPrefix.None">
-            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.None"/>
-          </On>
-          <On Select="TPrefix.Milli">
-            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Milli"/>
-          </On>
-          <On Select="TPrefix.Micro">
-            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Micro"/>
-          </On>
-          <On Select="TPrefix.Nano">
-            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Nano"/>
-          </On>
-          <On Select="TPrefix.Pico">
-            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Pico"/>
-          </On>
-          <On Select="TPrefix.Femto">
-            <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.Femto"/>
-          </On>
+        <DecimalQuantity.Format Expression="Value">
+          <Group MatchedUnit="UnitS" ScaledValue="ScaledValue" ScaledUncertaintyValue="ScaledUncertaintyValue">
+            <Match Unit="GΩ" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Giga, UnitOhm)"/>
+            <Match Unit="MΩ" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Mega, UnitOhm)"/>
+            <Match Unit="kΩ" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Kilo, UnitOhm)"/>
+            <Match Unit="Ω" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.None, UnitOhm)"/>
+            <Match Unit="Ω" ScaledValue.Min="0" Statement="SetInfo(TPartKeeprPrefix.None, UnitOhm)"/>
+            <Match Unit="mΩ" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Milli, UnitOhm)"/>
+            <Match Unit="μΩ" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Micro, UnitOhm)"/>
+            <Match Unit="nΩ" Statement="SetInfo(TPartKeeprPrefix.Nano, UnitOhm)"/>
+            <Match Unit="MV" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Mega, UnitVolt)"/>
+            <Match Unit="kV" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Kilo, UnitVolt)"/>
+            <Match Unit="V" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.None, UnitVolt)"/>
+            <Match Unit="mV" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Milli, UnitVolt)"/>
+            <Match Unit="μV" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Micro, UnitVolt)"/>
+            <Match Unit="nV" Statement="SetInfo(TPartKeeprPrefix.Nano, UnitVolt)"/>
+            <Match Unit="kA" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Mega, UnitAmp)"/>
+            <Match Unit="A" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Kilo, UnitAmp)"/>
+            <Match Unit="mA" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.None, UnitAmp)"/>
+            <Match Unit="μA" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Milli, UnitAmp)"/>
+            <Match Unit="nA" Statement="SetInfo(TPartKeeprPrefix.Micro, UnitAmp)"/>
+            <Match Unit="MW" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Mega, UnitWatt)"/>
+            <Match Unit="kW" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Kilo, UnitWatt)"/>
+            <Match Unit="W" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.None, UnitWatt)"/>
+            <Match Unit="mW" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Milli, UnitWatt)"/>
+            <Match Unit="μW" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Micro, UnitWatt)"/>
+            <Match Unit="nW" Statement="SetInfo(TPartKeeprPrefix.Mega, UnitWatt)"/>
+            <Match Unit="kF" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Kilo, UnitFarad)"/>
+            <Match Unit="F" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.None, UnitFarad)"/>
+            <!--<Match Unit="mF" ScaledValue.Min="1"/>-->
+            <Match Unit="μF" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Micro, UnitFarad)"/>
+            <Match Unit="nF" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Nano, UnitFarad)"/>
+            <Match Unit="pF" Statement="SetInfo(TPartKeeprPrefix.Pico, UnitFarad)"/>
+
+            <Match Unit="kH" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Kilo, UnitHenry)"/>
+            <Match Unit="H" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.None, UnitHenry)"/>
+            <Match Unit="mH" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Milli, UnitHenry)"/>
+            <Match Unit="μH" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Micro, UnitHenry)"/>
+            <Match Unit="nH" ScaledValue.Min="1" Statement="SetInfo(TPartKeeprPrefix.Nano, UnitHenry)"/>
+            <Match Unit="pH" Statement="SetInfo(TPartKeeprPrefix.Pico, UnitHenry)"/>
+            <Match Unit="%" Statement="SetInfo(TPartKeeprPrefix.None, UnitPercentage)"/>
+            <Block>
+              <Execute Statement="ReturnScaledValue:= ScaledValue"/>
+            </Block>
+          </Group>
           <Otherwise>
+            <Execute Statement="ReturnScaledValue:= Value"/>
             <Execute Statement="ScaledValuePrefix:= TPartKeeprPrefix.None"/>
-            <Execute Statement="ScaledValue:= Result"/>
           </Otherwise>
-        </Case>
+        </DecimalQuantity.Format>
       </Block>
     </Function>
 
     <Function Identifier="NumericParameterNeeded" Type="Boolean">
       <Parameters>
-        <Parameter Identifier="PartValue" Type="Int64" />
+        <Parameter Identifier="PartValue" Type="DecimalQuantity" />
         <Parameter Identifier="PartVT" Type="TValueType" />
-        <Parameter Identifier="CatValue" Type="Int64" />
+        <Parameter Identifier="CatValue" Type="DecimalQuantity" />
         <Parameter Identifier="CatVT" Type="TValueType" />
       </Parameters>
       <Block>
@@ -867,7 +857,7 @@
           <ado:Field.SetValue Name="category_id" Value="PartKeeprPart.StockCategory.ID"/>
           <ado:Field.SetValue Name="name" Value="PartKeeprPart.Name"/>
           <!--<ado:Field.SetValue Name="footprint_id" Value="PartKeeprPart.FootprintInfo.ID" Condition="Assigned(PartKeeprPart.FootprintInfo)"/>-->
-          <ado:Field.SetValue Name="storageLocation_id" Value="UnmatchedComponentsStorageID"/>
+          <ado:Field.SetValue Name="storageLocation_id" Value="PartKeeprPart.UnmatchedComponentsStorageID"/>
           <Choose>
             <When Expression="IsNonEmptyString(PartKeeprPart.InternalPartNumber)" >
               <ado:Field.SetValue Name="internalPartNumber" Value="PartKeeprPart.InternalPartNumber"/>
@@ -897,7 +887,6 @@
     <Task Identifier="CreateNumericParameterTask">
       <Variables>
         <Variable Identifier="PartParameter" Type="TNumericPartParameter" Init="Task.InstanceObject"/>
-        <Variable Identifier="Convertor" Type="TUnitConvertor" Init="PartParameter.Convertor"/>
         <Variable Identifier="FieldName" Type="string" Init="GetCustomFieldName(PartParameter.Field)"/>
         <Variable Identifier="Value" Type="Extended"/>
         <Variable Identifier="ScaledValue" Type="Extended"/>
@@ -906,8 +895,8 @@
       </Variables>
       <Init>
         <Task.AddDependency Task="CreatePartKeeprPart" InstanceObject="PartParameter.Part"/>
-        <Execute Statement="Value:= NumericValue(PartParameter.Value, Convertor, ScaledValue, ScaledValuePrefix, ScaledUnitInfo)"/>
-        <Task.Description Expression="Format(sCreateNumericParameter, FieldName, Convertor.IntValueToStr(PartParameter.Value, False))"/>
+        <Execute Statement="Value:= NumericValue(PartParameter.Value, ScaledValue, ScaledValuePrefix, ScaledUnitInfo)"/>
+        <Task.Description Expression="Format(sCreateNumericParameter, FieldName, EDecimalQuantityToStr(PartParameter.Value, TUnitPostFix.Separated))"/>
         <Block Condition="not Assigned(ScaledUnitInfo)">
           <Task.MarkFailed/>
           <Exit/>
@@ -1015,7 +1004,7 @@
           <When Expression="SchemaSpec is TResistorSpec">
             <Case Expression="TResistorSpec(SchemaSpec).ResistanceVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= ResistorResistanceConv.IntValueToStr(TResistorSpec(SchemaSpec).Resistance, False)"/>
+                <Execute Statement="Part.Name:= EDecimalQuantityToStr(TResistorSpec(SchemaSpec).Resistance, TUnitPostFix.Separated)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Part.Name:= TResistorSpec(SchemaSpec).ErrorResistance"/>
@@ -1062,7 +1051,7 @@
           <When Expression="SchemaSpec is TCapacitorSpec">
             <Case Expression="TCapacitorSpec(SchemaSpec).CapacitanceVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= CapacitorCapacitanceConv.IntValueToStr(TCapacitorSpec(SchemaSpec).Capacitance, False)"/>
+                <Execute Statement="Part.Name:= EDecimalQuantityToStr(TCapacitorSpec(SchemaSpec).Capacitance, TUnitPostFix.Separated)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Part.Name:= TCapacitorSpec(SchemaSpec).ErrorCapacitance"/>
@@ -1109,7 +1098,7 @@
           <When Expression="SchemaSpec is TZenerDiodeSpec">
             <Case Expression="TZenerDiodeSpec(SchemaSpec).ZenerVoltageVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= ZenerDiodeZenerVoltageConv.IntValueToStr(TZenerDiodeSpec(SchemaSpec).ZenerVoltage, False)"/>
+                <Execute Statement="Part.Name:= EDecimalQuantityToStr(TZenerDiodeSpec(SchemaSpec).ZenerVoltage, TUnitPostFix.Separated)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Part.Name:= TZenerDiodeSpec(SchemaSpec).ErrorZenerVoltage"/>
@@ -1189,7 +1178,7 @@
           <When Expression="SchemaSpec is TInductorSpec">
             <Case Expression="TInductorSpec(SchemaSpec).InductanceVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= InductorInductanceConv.IntValueToStr(TInductorSpec(SchemaSpec).Inductance, False)"/>
+                <Execute Statement="Part.Name:= EDecimalQuantityToStr(TInductorSpec(SchemaSpec).Inductance, TUnitPostFix.Separated)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Part.Name:= TInductorSpec(SchemaSpec).ErrorInductance"/>
@@ -1253,7 +1242,7 @@
           <When Expression="SchemaSpec is TFuseSpec">
             <Case Expression="TFuseSpec(SchemaSpec).AmperageVT">
               <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= FuseAmperageConv.IntValueToStr(TFuseSpec(SchemaSpec).Amperage, False)"/>
+                <Execute Statement="Part.Name:= EDecimalQuantityToStr(TFuseSpec(SchemaSpec).Amperage, TUnitPostFix.Separated)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Part.Name:= TFuseSpec(SchemaSpec).ErrorAmperage"/>
@@ -1456,22 +1445,21 @@
             <Execute Statement="cmdPartUpdateDescription.Parameters.Append(cmdPartUpdateDescription_id)"/>
           </ado:Command.CreateBlock>
           <sts:ShowStatus.Information Text="sCheckTaskMsg"/>
-          <ExecuteTasks ExecutableTasksInSelectionOnly="False">
-            <Task Identifier="RootTask" InstanceObject="StockManager"/>
-            <SelectionSuspend>
-              <Resume.ResumeRequest/>
-              <Resume.BreakRequest IssueExit="True">
-                <sts:ShowStatus.Information Text="''"/>
-              </Resume.BreakRequest>
-            </SelectionSuspend>
-            <BeforeExecuteTask Identifier="Task">
-              <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
-                <sts:ShowStatus.Information Text="Format(sTaskExecuting, Task.Description)"/>
-                <rep:Reporter.Information Text="Task.Description" Target="TaskOutput"/>
-              </Block>
-            </BeforeExecuteTask>
-          </ExecuteTasks>
-          <sts:ShowStatus.Information Text="sDoneMsg"/>
+          <sts:Status.Block Text="sCheckTaskMsg" LeaveText="sDoneMsg">
+            <ExecuteTasks ExecutableTasksInSelectionOnly="False">
+              <Task Identifier="RootTask" InstanceObject="StockManager"/>
+              <SelectionSuspend>
+                <Resume.ResumeRequest/>
+                <Resume.BreakRequest IssueExit="True"/>
+              </SelectionSuspend>
+              <BeforeExecuteTask Identifier="Task">
+                <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
+                  <sts:Status Text="Format(sExecutingTask, Task.Description)" Depth="1"/>
+                  <rep:Reporter.Information Text="Task.Description"/>
+                </Block>
+              </BeforeExecuteTask>
+            </ExecuteTasks>
+          </sts:Status.Block>
         </ado:Command.CreateBlock>
       </Block>
     </Procedure>

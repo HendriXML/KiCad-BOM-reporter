@@ -12,17 +12,16 @@
             xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
             xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
             xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+            xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement"
             xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd">
   <pkg:ReportTargets Cached="true">
     <pkg:Target Identifier="Report" Description="BOM report"/>
     <pkg:Target Identifier="DesignatorReport" Description="Designator report"/>
     <pkg:Target Identifier="StorageLocationReport" Description="Storage location report"/>
     <pkg:Target Identifier="StockReport" Description="Partkeepr components"/>
-    <pkg:Target Identifier="TaskOutput" Description="Task output"/>
-    <pkg:Target Identifier="Info" Description="Info"/>
-    <pkg:Target Identifier="Warnings" Description="Warnings"/>
-    <pkg:Target Identifier="Errors" Description="Errors"/>
     <pkg:Target Identifier="ReportEEVBlog" Description="BOM report - EEVBlog"/>
+    <pkg:Target Identifier="ReportDokuWiki" Description="BOM report - DokuWiki"/>
+    <pkg:Target Identifier="Info" Description="Process info"/>
   </pkg:ReportTargets>
   <pkg:Config xml:space="preserve">[Settings]
 BomFilename=..\Resources.Project\ESeriesBOM.xml
@@ -31,8 +30,6 @@ ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=Part
 SymbolMappingDirectory=..\Resources.Project.ComponentMappings
 
 [Tasks]
-;None=0, ReportStorageLocations=1, ReportPartKeeprProjects=2, CreateUnmatchedParts=3, ChangeProjectParts=4, ChangePartNames = 5, ChangePartDescriptions=6
-TaskKind=0
 ExportProjectID=1
 ExportUnmatchedComponentsStorageID=1
 
@@ -48,14 +45,10 @@ MaxShowResistorVoltage=230V
 [Matching]
 SkipFootprint=0
 
-
 [Template.Resistor]
-PowerRating = 250mW
+PowerRating.Min = 250mW
 Tolerance = 2%
 Technology = metal film
-
-[Template.Resistor.Variable.THT.rem]
-;PowerRating = 250mW
 
 [Template.PolarisedCapacitor]
 ;Tolerance = 10%
@@ -76,8 +69,12 @@ VoltageRating = 250V
 
   </pkg:Config>
   <Imports>
+    <Import Identifier="SiUnits" Filename="..\Script.Common.Science\SiUnits.xml"/>
     <Import Identifier="ElectronicUtils" Filename="..\Script.Common.Electronics\ElectronicUtils.xml"/>
+    <Import Identifier="ReportStrings" Filename="..\Script.Common.Electronics\Report strings en-GB.xml"/>
     <Import Identifier="ElectronicReportUtils" Filename="..\Script.Common.Electronics\ElectronicReportUtils.xml"/>
+    <Import Identifier="DokuWikiUtils" Filename="..\Script.Common.Generic\DokuWiki utils.xml"/>
+    <Import Identifier="SimpleMachinesUtils" Filename="..\Script.Common.Generic\Simple machines utils.xml"/>
     <Import Identifier="BomStrings" Filename="..\Script.Project.Libs\BOM strings en-GB.xml"/>
     <Import Identifier="BomClasses" Filename="..\Script.Project.Libs\BOM classes.xml"/>
     <Import Identifier="NamedComponentClasses" Filename="..\Script.Project.Libs\BOM NamedComponentClasses.xml"/>
@@ -98,9 +95,14 @@ VoltageRating = 250V
     <Import Identifier="BillOfMaterialClass" Filename="..\Script.Project.Libs\BOM BillOfMaterialClass.xml"/>
     <Import Identifier="PartKeeprProjectExport" Filename="..\Script.Project.Libs\BOM PartKeeprProjectExport.xml"/>
   </Imports>
+
   <Uses>
+    <Use Identifier="SiUnits"/>
     <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="ReportStrings"/>
     <Use Identifier="ElectronicReportUtils"/>
+    <Use Identifier="DokuWikiUtils"/>
+    <Use Identifier="SimpleMachinesUtils"/>
     <Use Identifier="BomStrings"/>
     <Use Identifier="BomClasses"/>
     <Use Identifier="ResistorClasses"/>
@@ -110,6 +112,46 @@ VoltageRating = 250V
     <Use Identifier="PartKeeprProjectExport"/>
     <Use Identifier="CalculatedSpecificationsClasses"/>
   </Uses>
+
+  <Type>
+    <Enumeration Identifier="TUnattendedTask" Elements="Bom, BomEEVBlog, BomDokuWiki, BomDesignators, BomOrderPicking, Stock, StorageLocations, PartKeeprProjects"/>
+
+    <Enumeration Identifier="TUnattendedTaskFlags" Elements="
+                 Bom = 1 shl TUnattendedTask.Bom, 
+                 BomEEVBlog = 1 shl TUnattendedTask.BomEEVBlog, 
+                 BomDokuWiki = 1 shl TUnattendedTask.BomDokuWiki, 
+                 BomDesignators = 1 shl TUnattendedTask.BomDesignators, 
+                 BomOrderPicking = 1 shl TUnattendedTask.BomOrderPicking, 
+                 Stock = 1 shl TUnattendedTask.Stock, 
+                 StorageLocations = 1 shl TUnattendedTask.StorageLocations, 
+                 PartKeeprProjects = 1 shl TUnattendedTask.PartKeeprProjects"/>
+
+    <Enumeration Identifier="THideSpec" Elements="ESerieOfValue, ResistorMaxAmpVolt, ZenerDiodeMaxAmp, Footprint"/>
+
+    <Enumeration Identifier="THideSpecFlags" Elements="
+                 ESerieOfValue = 1 shl THideSpec.ESerieOfValue, 
+                 ResistorMaxAmpVolt = 1 shl THideSpec.ResistorMaxAmpVolt, 
+                 ZenerDiodeMaxAmp = 1 shl THideSpec.ZenerDiodeMaxAmp, 
+                 Footprint = 1 shl THideSpec.Footprint"/>
+
+    <DataClass Identifier="TDatabase">
+      <Field Identifier="DBConnection" Type="Connection"/>
+    </DataClass>
+
+    <DataClass Identifier="TPathInfo">
+      <Field Identifier="Path" Type="string"/>
+    </DataClass>
+
+    <DataClass Identifier="TFileInfo">
+      <Field Identifier="Filename" Type="string"/>
+    </DataClass>
+
+    <DataClass Identifier="TIdInfo">
+      <Field Identifier="ID" Type="Integer"/>
+    </DataClass>
+
+  </Type>
+
   <Constants>
     <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
     <Constant Identifier="secSettings" Type="string" Expression="'Settings'"/>
@@ -131,145 +173,582 @@ VoltageRating = 250V
     <Constant Identifier="keySymbolMappingDirectory" Type="string" Expression="'SymbolMappingDirectory'"/>
     <Constant Identifier="keySkipFootprint" Type="string" Expression="'SkipFootprint'"/>
   </Constants>
-  <Variables>
-    <Variable Identifier="ConnectionString" Type="string" Init="connsPartKeepr"/>
-    <Variable Identifier="BomFilename" Type="string" Init="''"/>
-    <Variable Identifier="ScriptPath" Type="string" Init="''"/>
-    <Variable Identifier="SymbolMappingDirectory" Type="string" Init="'..\Resources.Project.ComponentMappings'"/>
-    <Variable Identifier="BomCountS" Type="string" Init="''"/>
-    <Variable Identifier="BomCount" Type="Integer" Init="1"/>
-    <Variable Identifier="BillOfMaterials" Type="TBillOfMaterials" Init="TBillOfMaterials.Create"/>
-    <Variable Identifier="CalculatedSpecifications" Type="TCalculatedSpecifications" Init="ObjNil"/>
-    <Variable Identifier="globStockManager" Type="TStockManager" Init="TStockManager.Create"/>
-    <Variable Identifier="DBConnection" Type="Connection"/>
-    <Variable Identifier="TaskKind" Type="TPartKeeprTask" Init="TPartKeeprTask.None"/>
-  </Variables>
-  <Block>
-    <Variable Identifier="StartTime" Type="Int64" Init="QueryPerformanceCounter" />
 
-    <rep:Reporter.DefaultTarget Identifier="Info"/>
-    <rep:Reporter.Information Text="Format('Number of component kinds: %d', TComponentKind.High + 1)" Condition="IsVerbose"/>
-    <Execute Statement="DecimalSeparator:= ConfigInifile.ReadString(secDisplay, keyDecimalSeparator, DecimalSeparator)"/>
-    <Execute Statement="HideESerieOfValue:= ConfigInifile.ReadBool(secDisplay, keyHideESerieOfValue, HideESerieOfValue)"/>
-    <Execute Statement="HideResistorMaxAmpVolt:= ConfigInifile.ReadBool(secDisplay, keyHideResistorMaxAmpVolt, HideESerieOfValue)"/>
-    <Execute Statement="HideZenerDiodeMaxAmp:= ConfigInifile.ReadBool(secDisplay, keyHideZenerDiodeMaxAmp, HideESerieOfValue)"/>
-    <Execute Statement="HideFootprint:= ConfigInifile.ReadBool(secDisplay, keyHideFootprint, HideFootprint)"/>
+  <Procedures>
 
-    <Execute Statement="SkipFootprintMatching:= ConfigInifile.ReadBool(secMatching, keySkipFootprint, SkipFootprintMatching)"/>
-
-    <Variable Identifier="MaxShowResistorVoltageS" Type="string" Init="ConfigInifile.ReadString(secDisplay, keyMaxShowResistorVoltage, ResistorMaxVoltConv.IntValueToStr(MaxShowResistorVoltage, True))"/>
-    <Raise Expression="Exception.Create('Invalid voltage: ' + MaxShowResistorVoltageS)" Condition="not ResistorMaxVoltConv.StrToIntValue(MaxShowResistorVoltageS, MaxShowResistorVoltage)"/>
-    <Execute Statement="ConnectionString:= ConfigInifile.ReadString(secSettings, keyConnectionString, ConnectionString)"/>
-    <Execute Statement="TaskKind:= ConfigInifile.ReadInteger(secTasks, keyTaskKind, TaskKind)"/>
-    <ConditionalBlock Expression="not CommandlineVariables.GetValue(keyBomFilename, BomFilename)">
-      <Execute Statement="BomFilename:= ConfigInifile.ReadString(secSettings, keyBomFilename, BomFilename)"/>
-    </ConditionalBlock>
-    <Choose>
-      <When Expression="CommandlineVariables.GetValue(keyBomCount, BomCountS)" >
-        <Execute Statement="BillOfMaterials.BomCount:= StrToInt(BomCountS)"/>
-      </When>
-      <Otherwise>
-        <Execute Statement="BillOfMaterials.BomCount:= ConfigInifile.ReadInteger(secSettings, keyBomCount, BomCount)"/>
-      </Otherwise>
-    </Choose>
-    <Execute Statement="ScriptPath:= ExtractFilePath(ScriptFilename)"/>
-    <Execute Statement="SymbolMappingDirectory:= GetFilenameFromBase(ScriptPath, ConfigInifile.ReadString(secSettings, keySymbolMappingDirectory, SymbolMappingDirectory))"/>
-    <Execute Statement="LoadSymbolMappings(SymbolMappingDirectory)"/>
-
-    <Execute Statement="BomFilename:= GetFilenameFromBase(ScriptPath, BomFilename)"/>
-    <sts:ShowStatus.Information Text="sTemplatesFromIniFile"/>
-    <Execute Statement="BillOfMaterials.LoadTemplatesFromIniFile(ConfigInifile)"/>
-
-    <sts:ShowStatus.Information Text="sProcessingBOMFile"/>
-    <Execute Statement="BillOfMaterials.LoadFromFile(BomFilename)"/>
-
-
-    <sts:ShowStatus.Information Text="sConsolidatingSchema"/>
-    <Execute Statement="BillOfMaterials.ConsolidateSpecifications"/>
-    <Execute Statement="BillOfMaterials.FinalizeSchemaComponents"/>
-
-    <ado:Connection.OpenBlock ConnectionString="ConnectionString" Connection="DBConnection">
-      <sts:ShowStatus.Information Text="sReadingKnownUnits"/>
-      <Execute Statement="ReadKnownUnits(DBConnection)"/>
-
-      <!--<sts:ShowStatus.Information Text="sReadingKnownFootPrints"/>
-      <Execute Statement="ReadKnownFootPrints(DBConnection)"/>-->
-      
-      <sts:ShowStatus.Information Text="sReadingStock"/>
-      <Execute Statement="globStockManager.LoadFromDB(DBConnection)"/>
-      
-      <sts:ShowStatus.Information Text="sConsolidatingStock"/>
-      <Execute Statement="globStockManager.ConsolidateSpecifications"/>
-
-      <sts:ShowStatus.Information Text="sMatchComponents"/>
-      <Execute Statement="BillOfMaterials.AssignStockComponents(globStockManager)"/>
-
-      <sts:ShowStatus.Information Text="sReportBOM"/>
-      <rep:Reporter.DefaultTarget Identifier="Report"/>
-      <Execute Statement="BillOfMaterials.Report"/>
-
-      <rep:Reporter.DefaultTarget Identifier="StockReport"/>
-      <sts:ShowStatus.Information Text="sReportStock"/>
-      <Execute Statement="globStockManager.Report"/>
-      <rep:Reporter.DefaultTarget Identifier="Info"/>
-      <Variable Identifier="CalculatedSpecificationsFilename" Type="string" Init="ChangeFileExt(BomFilename, '-Calculated.xml')"/>
-      <Block Condition="FileExists(CalculatedSpecificationsFilename)">
-        <Execute Statement="CalculatedSpecifications:= TCalculatedSpecifications.Create"/>
-        <Execute Statement="CalculatedSpecifications.LoadFromFile(CalculatedSpecificationsFilename)"/>
+    <Task Identifier="ScriptPath" SelfType="TPathInfo" SelfConstruction="TPathInfo.Create">
+      <Init>
+        <Task.Description Expression="sScriptPathTD"/>
+      </Init>
+      <Block>
+        <Execute Statement="Path:= ExtractFilePath(ScriptFilename)"/>
+        <rep:Reporter.LabelValue Label="sPath" Value="Path" Target="Info"/>
       </Block>
-      <rep:Reporter.DefaultTarget Identifier="DesignatorReport"/>
-      <sts:ShowStatus.Information Text="sReportDesignators"/>
-      <Execute Statement="BillOfMaterials.ReportDesignators(CalculatedSpecifications)"/>
+    </Task>
 
-      <rep:Reporter.DefaultTarget Identifier="StorageLocationReport"/>
-      <sts:ShowStatus.Information Text="sReportStorageLocations"/>
-      <Execute Statement="BillOfMaterials.ReportOrderPicking(globStockManager)"/>
+    <Task Identifier="SymbolMappingPath" SelfType="TPathInfo" SelfConstruction="TPathInfo.Create">
+      <Init>
+        <Task.Description Expression="sSymbolMappingPathTD"/>
+        <Task.AddDependency Task="ScriptPath" Result="ScriptPath" ResultType="TPathInfo"/>
+      </Init>
+      <Block>
+        <Execute Statement="Path:= GetFilenameFromBase(ScriptPath.Path, ConfigInifile.ReadString(secSettings, keySymbolMappingDirectory, '..\Resources.Project.ComponentMappings'))"/>
+        <rep:Reporter.LabelValue Label="sPath" Value="Path" Target="Info"/>
+      </Block>
+    </Task>
 
+    <Task Identifier="BomFilename" SelfType="TFileInfo" SelfConstruction="TFileInfo.Create">
+      <Init>
+        <Task.Description Expression="sBomFilenameTD"/>
+        <Task.AddDependency Task="ScriptPath" Result="ScriptPath" ResultType="TPathInfo"/>
+      </Init>
+      <Block>
+        <Variable Identifier="BomFilename" Type="string" Init="''"/>
+        <Block Condition="not CommandlineVariables.GetValue(keyBomFilename, BomFilename)">
+          <Execute Statement="BomFilename:= ConfigInifile.ReadString(secSettings, keyBomFilename, BomFilename)"/>
+        </Block>
+        <Execute Statement="Filename:= GetFilenameFromBase(ScriptPath.Path, BomFilename)"/>
+        <rep:Reporter.LabelValue Label="sFilename" Value="Filename" Target="Info"/>
+      </Block>
+    </Task>
 
-      <Variable Identifier="EndTime" Type="Int64" Init="QueryPerformanceCounter" />
-      <rep:Reporter.Information Text="Format(sTimeMeasure, (EndTime-StartTime)/QueryPerformanceFrequency)" Target="Info"/>
+    <Task Identifier="CalculatedSpecificationsFilename" SelfType="TFileInfo" SelfConstruction="TFileInfo.Create">
+      <Init>
+        <Task.Description Expression="sCalculatedSpecificationsFilenameTD"/>
+        <Task.AddDependency Task="BomFilename" Result="BomFilename" ResultType="TFileInfo"/>
+      </Init>
+      <Block>
+        <Execute Statement="Filename:= ChangeFileExt(BomFilename.Filename, '-Calculated.xml')"/>
+        <rep:Reporter.LabelValue Label="sFilename" Value="Filename" Target="Info"/>
+      </Block>
+    </Task>
 
-      <rep:Reporter.DefaultTarget Identifier="Info"/>
-      <Case Expression="TaskKind">
-        <On Select="TPartKeeprTask.ReportStorageLocations">
-          <sts:ShowStatus.Information Text="sReportingStorageLocations"/>
-          <Execute Statement="ReportStorageLocations(DBConnection)"/>
-        </On>
-        <On Select="TPartKeeprTask.ReportPartKeeprProjects">
-          <sts:ShowStatus.Information Text="sReportingProjects"/>
-          <Execute Statement="ReportPartKeeprProjects(DBConnection)"/>
-        </On>
-        <On Select="TPartKeeprTask.ChangeProjectParts, TPartKeeprTask.CreateUnmatchedParts">
-          <Execute Statement="UnmatchedComponentsStorageID:= ConfigInifile.ReadInteger(secTasks, keyExportUnmatchedComponentsStorageID, -1)"/>
-          <sts:ShowStatus.Information Text="sProcessingUnmatchedComponents"/>
-          <Execute Statement="MatchUnmatchedSchemaComponentsToCategories(DBConnection, BillOfMaterials, globStockManager, TaskKind=TPartKeeprTask.CreateUnmatchedParts)" Condition="UnmatchedComponentsStorageID &lt;&gt; -1"/>
-          <ExitOnAbortRequest/>
-        </On>
-        <On Select="TPartKeeprTask.ChangePartNames">
-          <sts:ShowStatus.Information Text="sChangePartNames"/>
-          <Execute Statement="ChangePartDescriptions(DBConnection, globStockManager, TComponentProperty.Name)"/>
-        </On>
-        <On Select="TPartKeeprTask.ChangePartDescriptions">
-          <sts:ShowStatus.Information Text="sChangePartDescriptions"/>
-          <Execute Statement="ChangePartDescriptions(DBConnection, globStockManager, TComponentProperty.Description)"/>
-        </On>
-      </Case>
+    <Task Identifier="GlobalConfig">
+      <Init>
+        <Task.Description Expression="sGlobalConfigTD"/>
+      </Init>
+      <Block>
+        <Execute Statement="DecimalSeparator:= ConfigInifile.ReadString(secDisplay, keyDecimalSeparator, DecimalSeparator)"/>
+        <Variable Identifier="HideSpecs" Type="THideSpecFlags" Init="0"/>
+        <Variable Identifier="HideSpec" Type="THideSpecFlags"/>
+        <Variable Identifier="HideSpecsS" Type="string"/>
+        <Choose>
+          <When Expression="CommandlineVariables.GetValue('HideSpecs', HideSpecsS)">
+            <Object.Use Identifier="TaskRegister" Type="TCharacterTreeInt64Register" Expression="TCharacterTreeInt64Register.Create">
+              <Execute Statement="TaskRegister.Add('ESerieOfValue', THideSpecFlags.ESerieOfValue)"/>
+              <Execute Statement="TaskRegister.Add('ResistorMaxAmpVolt', THideSpecFlags.ResistorMaxAmpVolt)"/>
+              <Execute Statement="TaskRegister.Add('ZenerDiodeMaxAmp', THideSpecFlags.ZenerDiodeMaxAmp)"/>
+              <Execute Statement="TaskRegister.Add('Footprint', THideSpecFlags.Footprint)"/>
+              <Execute Statement="TaskRegister.Optimize"/>
+              <Execute Statement="TaskRegister.SearchStart"/>
+              <Variable Identifier="PendingSpec" Type="Boolean" Init="False"/>
+              <stm:StateHandler InitialState="StartID">
+                <StringLoop StringValue="HideSpecsS" OrdinalIdentifier="ChrI" CharacterIdentifier="Chr">
+                  <stm:HandleStates>
+                    <stm:State Name="StartID">
+                      <Raise Expression="Exception.Create(sUnsupportedHideSpecs)" Condition="not TaskRegister.SearchAdvance(Chr)"/>
+                      <stm:SetState Name="InSpecID"/>
+                      <Execute Statement="PendingSpec:= True"/>
+                    </stm:State>
+                    <stm:State Name="InSpecID">
+                      <Choose>
+                        <When Expression="TaskRegister.SearchAdvance(Chr)">
+                        </When>
+                        <When Expression="Chr = ','">
+                          <Raise Expression="sUnsupportedHideSpecs" Condition="not TaskRegister.SearchItem(HideSpec)"/>
+                          <Execute Statement="HideSpecs:= HideSpecs or HideSpec"/>
+                          <Execute Statement="TaskRegister.SearchStart"/>
+                          <stm:SetState Name="StartID"/>
+                        </When>
+                        <Otherwise>
+                          <Raise Expression="Exception.Create(sUnsupportedHideSpecs)"/>
+                        </Otherwise>
+                      </Choose>
+                    </stm:State>
+                  </stm:HandleStates>
+                </StringLoop>
+                <Block Condition="PendingSpec">
+                  <Raise Expression="sUnsupportedHideSpecs" Condition="not TaskRegister.SearchItem(HideSpec)"/>
+                  <Execute Statement="HideSpecs:= HideSpecs or HideSpec"/>
+                </Block>
+              </stm:StateHandler>
+            </Object.Use>
+            <Execute Statement="HideESerieOfValue:= (HideSpecs and THideSpecFlags.ESerieOfValue) = THideSpecFlags.ESerieOfValue"/>
+            <Execute Statement="HideResistorMaxAmpVolt:= (HideSpecs and THideSpecFlags.ResistorMaxAmpVolt) = THideSpecFlags.ResistorMaxAmpVolt"/>
+            <Execute Statement="HideZenerDiodeMaxAmp:= (HideSpecs and THideSpecFlags.ZenerDiodeMaxAmp) = THideSpecFlags.ZenerDiodeMaxAmp"/>
+            <Execute Statement="HideFootprint:= (HideSpecs and THideSpecFlags.Footprint) = THideSpecFlags.Footprint"/>
+          </When>
+          <Otherwise>
+            <Execute Statement="HideESerieOfValue:= ConfigInifile.ReadBool(secDisplay, keyHideESerieOfValue, HideESerieOfValue)"/>
+            <Execute Statement="HideResistorMaxAmpVolt:= ConfigInifile.ReadBool(secDisplay, keyHideResistorMaxAmpVolt, HideESerieOfValue)"/>
+            <Execute Statement="HideZenerDiodeMaxAmp:= ConfigInifile.ReadBool(secDisplay, keyHideZenerDiodeMaxAmp, HideESerieOfValue)"/>
+            <Execute Statement="HideFootprint:= ConfigInifile.ReadBool(secDisplay, keyHideFootprint, HideFootprint)"/>
+          </Otherwise>
+        </Choose>
+        <Execute Statement="SkipFootprintMatching:= ConfigInifile.ReadBool(secMatching, keySkipFootprint, SkipFootprintMatching)"/>
 
-      <Case Expression="TaskKind">
-        <On Select="TPartKeeprTask.ChangeProjectParts">
-          <Variable Identifier="ExportProjectID" Type="Integer" Init="ConfigInifile.ReadInteger(secTasks, keyExportProjectID, -1)"/>
-          <sts:ShowStatus.Information Text="sProcessingProjectComponents"/>
-          <Execute Statement="ExportToPartKeeprProject(DBConnection, BillOfMaterials, ExportProjectID, BomCount)" Condition="ExportProjectID &lt;&gt; -1"/>
-          <ExitOnAbortRequest/>
-        </On>
-      </Case>
+        <Variable Identifier="MaxShowResistorVoltageS" Type="string" Init="ConfigInifile.ReadString(secDisplay, keyMaxShowResistorVoltage, EDecimalQuantityToStr(MaxShowResistorVoltage, TUnitPostFix.Compact))"/>
+        <Task.Assert Expression="ResistorMaxVoltConv.EStrToDecimalQuantity(MaxShowResistorVoltageS, MaxShowResistorVoltage)" FailMessage="'Invalid voltage: ' + MaxShowResistorVoltageS"/>
+      </Block>
+    </Task>
 
-    </ado:Connection.OpenBlock>
-    <sts:ShowStatus.Information Text="''"/>
+    <Task Identifier="Database" SelfType="TDatabase" SelfConstruction="TDatabase.Create">
+      <Init>
+        <Task.Description Expression="sPartkeeprDatabaseTD"/>
+      </Init>
+      <Block>
+        <TryExcept>
+          <Try>
+            <Variable Identifier="LocDBConnection" Type="Connection"/>
+            <Variable Identifier="ConnectionString" Type="string" Init="ConfigInifile.ReadString(secSettings, keyConnectionString, 'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr')"/>
+            <rep:Reporter.LabelValue Label="'ConnectionString'" Value="ConnectionString" Target="Info"/>
+            <ado:Connection.Create Connection="LocDBConnection"/>
+            <ado:Connection.Open ConnectionString="ConnectionString" Connection="LocDBConnection"/>
+            <Execute Statement="DBConnection:= LocDBConnection"/>
+            <Task.MarkHandled/>
+          </Try>
+          <Except>
+            <On Identifier="E" ClassType="Exception">
+              <rep:Reporter.Information Text="E.Message" Markup="Error" Target="Info"/>
+              <Task.MarkFailed/>
+            </On>
+            <Otherwise>
+              <Task.MarkFailed/>
+            </Otherwise>
+          </Except>
+        </TryExcept>
+      </Block>
+      <Finalization>
+        <ado:Connection.Close Connection="DBConnection" Condition="Assigned(DBConnection)"/>
+      </Finalization>
+    </Task>
 
-    <Variable Identifier="ReportIterator"/>
-    <rep:Reporter.GetIterator Target="Report" Iterator="ReportIterator"/>
-    <rep:Reporter.DefaultTarget Identifier="ReportEEVBlog"/>
-    <Execute Statement="ReportAsEEVBlog(ReportIterator)"/>
+    <Task Identifier="Database.ExportProjectID" SelfType="TIdInfo" SelfConstruction="TIdInfo.Create">
+      <Init>
+        <Task.Description Expression="sDatabaseExportProjectIdTD"/>
+      </Init>
+      <Block>
+        <Variable Identifier="ExportProjectID" Type="Integer" Init="ConfigInifile.ReadInteger(secTasks, keyExportProjectID, -1)"/>
+        <rep:Reporter.LabelValue Label="'ExportProjectID'" Value="IntToStr(ExportProjectID)" Target="Info"/>
+        <Task.Mark Success="ExportProjectID &lt;&gt; -1"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="Database.UnmatchedComponentsStorageID" SelfType="TIdInfo" SelfConstruction="TIdInfo.Create">
+      <Init>
+        <Task.Description Expression="sDatabaseUnmatchedComponentsStorageIdTD"/>
+      </Init>
+      <Block>
+        <Variable Identifier="UnmatchedComponentsStorageID" Type="Integer" Init="ConfigInifile.ReadInteger(secTasks, keyExportUnmatchedComponentsStorageID, -1)"/>
+        <rep:Reporter.LabelValue Label="'UnmatchedComponentsStorageID'" Value="IntToStr(UnmatchedComponentsStorageID)" Target="Info"/>
+        <Task.Mark Success="UnmatchedComponentsStorageID &lt;&gt; -1"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="BillOfMaterials" SelfType="TBillOfMaterials" SelfConstruction="TBillOfMaterials.Create">
+      <Init>
+        <Task.Description Expression="sBillOfMaterialsTD"/>
+      </Init>
+      <Block>
+      </Block>
+    </Task>
+
+    <Task Identifier="BillOfMaterials.LoadTemplatesFromIniFile" SelfType="TBillOfMaterials" SelfConstruction="TBillOfMaterials.Create">
+      <Init>
+        <Task.Description Expression="sBillOfMaterialsLoadTemplatesFromIniFileTD"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+      </Init>
+      <Block>
+        <Execute Statement="BillOfMaterials.LoadTemplatesFromIniFile(ConfigInifile)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="BillOfMaterials.LoadBomFile" SelfType="TBillOfMaterials" SelfConstruction="TBillOfMaterials.Create">
+      <Init>
+        <Task.Description Expression="sBillOfMaterialsLoadBomFileTD"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="BomFilename" Result="BomFilename" ResultType="TFileInfo"/>
+        <Task.AddDependency Task="LoadSymbolMappings"/>
+        <Task.AddDependency Task="BillOfMaterials.LoadTemplatesFromIniFile"/>
+      </Init>
+      <Block>
+        <Execute Statement="BillOfMaterials.LoadFromFile(BomFilename.Filename)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="CalculatedSpecifications" SelfType="TCalculatedSpecifications" SelfConstruction="TCalculatedSpecifications.Create">
+      <Init>
+        <Task.Description Expression="sCalculatedSpecificationsTD"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="CalculatedSpecificationsFilename" Result="CalculatedSpecificationsFilename" ResultType="TFileInfo"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="Info"/>
+        <Block Condition="FileExists(CalculatedSpecificationsFilename.Filename)">
+          <Execute Statement="LoadFromFile(CalculatedSpecificationsFilename.Filename)"/>
+        </Block>
+      </Block>
+    </Task>
+
+    <Task Identifier="Report.BomOrderPicking">
+      <Init>
+        <Task.Description Expression="sReportReportOrderPickingTD"/>
+        <Task.AddDependency Task="GlobalConfig"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+        <Task.AddDependency Task="BillOfMaterials.AssignStockComponents"/>
+        <Task.AddDependency Task="BillOfMaterials.DetermineBomCount"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="StorageLocationReport"/>
+        <Execute Statement="BillOfMaterials.ReportOrderPicking(StockManager)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="StockManager" SelfType="TStockManager" SelfConstruction="TStockManager.Create">
+      <Init>
+        <Task.Description Expression="sStockManagerTD"/>
+      </Init>
+      <Block>
+      </Block>
+    </Task>
+
+    <Task Identifier="StockManager.ReadingStock">
+      <Init>
+        <Task.Description Expression="sReadingStockTD"/>
+        <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
+        <Task.AddDependency Task="LoadKnownUnits"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+      </Init>
+      <Block>
+        <Execute Statement="StockManager.LoadFromDB(Database.DBConnection)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="StockManager.ConsolidateSpecifications">
+      <Init>
+        <Task.Description Expression="sStockManagerConsolidateSpecificationsTD"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+        <Task.AddDependency Task="StockManager.ReadingStock"/>
+      </Init>
+      <Block>
+        <Execute Statement="StockManager.ConsolidateSpecifications"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="BillOfMaterials.ConsolidateSpecifications">
+      <Init>
+        <Task.Description Expression="sBillOfMaterialsConsolidateSpecificationsTD"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="BillOfMaterials.LoadBomFile"/>
+      </Init>
+      <Block>
+        <Execute Statement="BillOfMaterials.ConsolidateSpecifications"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="BillOfMaterials.DetermineBomCount">
+      <Init>
+        <Task.Description Expression="sBillOfMaterialsDetermineBomCountTD"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+      </Init>
+      <Block>
+        <Variable Identifier="BomCountS" Type="string" Init="''"/>
+        <Variable Identifier="BomCount" Type="Integer" Init="1"/>
+        <Choose>
+          <When Expression="CommandlineVariables.GetValue(keyBomCount, BomCountS)" >
+            <Execute Statement="BomCount:= StrToInt(BomCountS)"/>
+          </When>
+          <Otherwise>
+            <Execute Statement="BomCount:= ConfigInifile.ReadInteger(secSettings, keyBomCount, BomCount)"/>
+          </Otherwise>
+        </Choose>
+        <rep:Reporter.LabelValue Label="sCountField" Value="IntToStr(BomCount)" Target="Info"/>
+        <Execute Statement="BillOfMaterials.BomCount:= BomCount"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="BillOfMaterials.ProcessDesignators">
+      <Init>
+        <Task.Description Expression="sBillOfMaterialsProcessDesignatorsTD"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="BillOfMaterials.ConsolidateSpecifications"/>
+        <Task.AddDependency Task="BillOfMaterials.DetermineBomCount"/>
+      </Init>
+      <Block>
+        <Execute Statement="BillOfMaterials.ProcessDesignators"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="BillOfMaterials.AssignStockComponents">
+      <Init>
+        <Task.Description Expression="sBillOfMaterialsAssignStockComponentsTD"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="BillOfMaterials.ProcessDesignators"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+        <Task.AddDependency Task="StockManager.ConsolidateSpecifications"/>
+      </Init>
+      <Block>
+        <Execute Statement="BillOfMaterials.AssignStockComponents(StockManager)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="LoadSymbolMappings" SelfType="TDatabase" SelfConstruction="TDatabase.Create">
+      <Init>
+        <Task.Description Expression="sLoadSymbolMappingsTD"/>
+        <Task.AddDependency Task="SymbolMappingPath" Result="SymbolMappingPath" ResultType="TPathInfo"/>
+      </Init>
+      <Block>
+        <Execute Statement="LoadSymbolMappings(SymbolMappingPath.Path)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="LoadKnownUnits" SelfType="TDatabase" SelfConstruction="TDatabase.Create">
+      <Init>
+        <Task.Description Expression="sLoadKnownUnitsTD"/>
+        <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
+      </Init>
+      <Block>
+        <Execute Statement="ReadKnownUnits(Database.DBConnection)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="Report.StorageLocations">
+      <Init>
+        <Task.Description Expression="sReportStorageLocationsTD"/>
+        <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="Info"/>
+        <Execute Statement="ReportStorageLocations(Database.DBConnection)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="Report.PartKeeprProjects">
+      <Init>
+        <Task.Description Expression="sReportPartKeeprProjectsTD"/>
+        <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
+      </Init>
+      <Block>
+        <Execute Statement="ReportPartKeeprProjects(Database.DBConnection)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="Report.Stock">
+      <Init>
+        <Task.Description Expression="sReportStockTD"/>
+        <Task.AddDependency Task="GlobalConfig"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+        <Task.AddDependency Task="StockManager.ConsolidateSpecifications"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="StockReport"/>
+        <Execute Statement="StockManager.Report"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="UpdateDB.MatchUnmatchedSchemaComponentsToCategories">
+      <Init>
+        <Task.Description Expression="sMatchUnmatchedSchemaComponentsToCategoriesTD"/>
+        <Task.AddDependency Task="GlobalConfig"/>
+        <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="BillOfMaterials.AssignStockComponents" IgnoreFailure="True"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+        <Task.AddDependency Task="Database.UnmatchedComponentsStorageID" Result="DatabaseUnmatchedComponentsStorageID" ResultType="TIdInfo"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="Info"/>
+        <Execute Statement="MatchUnmatchedSchemaComponentsToCategories(Database.DBConnection, BillOfMaterials, StockManager, True, DatabaseUnmatchedComponentsStorageID.ID)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="UpdateDB.ChangeProjectParts">
+      <Init>
+        <Task.Description Expression="sUpdateDBChangeProjectPartsTD"/>
+        <Task.AddDependency Task="GlobalConfig"/>
+        <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="BillOfMaterials.DetermineBomCount"/>
+        <Task.AddDependency Task="BillOfMaterials.AssignStockComponents" IgnoreFailure="True"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+        <Task.AddDependency Task="UpdateDB.MatchUnmatchedSchemaComponentsToCategories"/>
+        <Task.AddDependency Task="Database.ExportProjectID" Result="DatabaseExportProjectID" ResultType="TIdInfo"/>
+        <Task.AddDependency Task="Database.UnmatchedComponentsStorageID" Result="DatabaseUnmatchedComponentsStorageID" ResultType="TIdInfo"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="Info"/>
+        <Execute Statement="ExportToPartKeeprProject(Database.DBConnection, BillOfMaterials, DatabaseExportProjectID.ID, DatabaseUnmatchedComponentsStorageID.ID)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="UpdateDB.ChangePartNames">
+      <Init>
+        <Task.Description Expression="sUpdateDBChangePartNamesTD"/>
+        <Task.AddDependency Task="GlobalConfig"/>
+        <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="Info"/>
+        <Execute Statement="ChangePartDescriptions(Database.DBConnection, StockManager, TComponentProperty.Name)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="UpdateDB.ChangePartDescriptions">
+      <Init>
+        <Task.Description Expression="sUpdateDBChangePartDescriptionsTD"/>
+        <Task.AddDependency Task="GlobalConfig"/>
+        <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="Info"/>
+        <Execute Statement="ChangePartDescriptions(Database.DBConnection, StockManager, TComponentProperty.Description)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="Report.BOM">
+      <Init>
+        <Task.Description Expression="sReportBomTD"/>
+        <Task.AddDependency Task="GlobalConfig"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+        <Task.AddDependency Task="BillOfMaterials.AssignStockComponents" IgnoreFailure="True"/>
+        <Task.AddDependency Task="BillOfMaterials.ProcessDesignators"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="Report"/>
+        <Execute Statement="BillOfMaterials.Report"/>
+        <rep:Reporter.DefaultTarget Identifier="Info"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="Report.Bom.EEVBlog">
+      <Init>
+        <Task.Description Expression="sReportBomEEVBlogTD"/>
+        <Task.AddDependency Task="Report.BOM"/>
+      </Init>
+      <Block>
+        <Variable Identifier="ReportIterator"/>
+        <rep:Reporter.GetIterator Target="Report" Iterator="ReportIterator"/>
+        <rep:Reporter.DefaultTarget Identifier="ReportEEVBlog"/>
+        <Execute Statement="ReportAsSimpleMachines(ReportIterator)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="Report.Bom.DokuWiki">
+      <Init>
+        <Task.Description Expression="sReportBomDokuWikiTD"/>
+        <Task.AddDependency Task="Report.BOM"/>
+      </Init>
+      <Block>
+        <Variable Identifier="ReportIterator"/>
+        <rep:Reporter.GetIterator Target="Report" Iterator="ReportIterator"/>
+        <rep:Reporter.DefaultTarget Identifier="ReportDokuWiki"/>
+        <Execute Statement="ReportAsDokuWiki(ReportIterator)"/>
+      </Block>
+    </Task>
+
+    <Task Identifier="Report.BomDesignators">
+      <Init>
+        <Task.Description Expression="sReportDesignatorsTD"/>
+        <Task.AddDependency Task="GlobalConfig"/>
+        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="CalculatedSpecifications" Result="CalculatedSpecifications" ResultType="TCalculatedSpecifications"/>
+        <Task.AddDependency Task="BillOfMaterials.LoadBomFile"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="DesignatorReport"/>
+        <Execute Statement="BillOfMaterials.ReportDesignators(CalculatedSpecifications)"/>
+      </Block>
+    </Task>
+
+  </Procedures>
+
+  <Block>
+    <sts:Status.Block Text="sSelectingTasks" LeaveText="sExecutedTasks">
+      <Variable Identifier="UseSelection" Type="Boolean" Init="True"/>
+      <Variable Identifier="UnattendedTasks" Type="TUnattendedTaskFlags" Init="0"/>
+      <Variable Identifier="UnattendedTask" Type="TUnattendedTaskFlags"/>
+      <Variable Identifier="UnattendedS" Type="string"/>
+      <Block Condition="CommandlineVariables.GetValue('Unattended', UnattendedS)">
+        <Execute Statement="UseSelection:= False"/>
+        <Object.Use Identifier="TaskRegister" Type="TCharacterTreeInt64Register" Expression="TCharacterTreeInt64Register.Create">
+          <Execute Statement="TaskRegister.Add('Bom', TUnattendedTaskFlags.Bom)"/>
+          <Execute Statement="TaskRegister.Add('BomEEVBlog', TUnattendedTaskFlags.BomEEVBlog)"/>
+          <Execute Statement="TaskRegister.Add('BomDokuWiki', TUnattendedTaskFlags.BomDokuWiki)"/>
+          <Execute Statement="TaskRegister.Add('BomDesignators', TUnattendedTaskFlags.BomDesignators)"/>
+          <Execute Statement="TaskRegister.Add('BomOrderPicking', TUnattendedTaskFlags.BomOrderPicking)"/>
+          <Execute Statement="TaskRegister.Add('Stock', TUnattendedTaskFlags.Stock)"/>
+          <Execute Statement="TaskRegister.Add('StorageLocations', TUnattendedTaskFlags.StorageLocations)"/>
+          <Execute Statement="TaskRegister.Add('PartKeeprProjects', TUnattendedTaskFlags.PartKeeprProjects)"/>
+          <Execute Statement="TaskRegister.Optimize"/>
+          <Execute Statement="TaskRegister.SearchStart"/>
+          <stm:StateHandler InitialState="StartID">
+            <StringLoop StringValue="UnattendedS" OrdinalIdentifier="ChrI" CharacterIdentifier="Chr">
+              <stm:HandleStates>
+                <stm:State Name="StartID">
+                  <Raise Expression="Exception.Create(sUnsupportedUnattendedTask)" Condition="not TaskRegister.SearchAdvance(Chr)"/>
+                  <stm:SetState Name="InTaskID"/>
+                </stm:State>
+                <stm:State Name="InTaskID">
+                  <Choose>
+                    <When Expression="TaskRegister.SearchAdvance(Chr)">
+                    </When>
+                    <When Expression="Chr = ','">
+                      <Raise Expression="Exception.Create(sUnsupportedUnattendedTask)" Condition="not TaskRegister.SearchItem(UnattendedTask)"/>
+                      <Execute Statement="UnattendedTasks:= UnattendedTasks or UnattendedTask"/>
+                      <Execute Statement="TaskRegister.SearchStart"/>
+                      <stm:SetState Name="StartID"/>
+                    </When>
+                    <Otherwise>
+                      <Raise Expression="sUnsupportedUnattendedTask"/>
+                    </Otherwise>
+                  </Choose>
+                </stm:State>
+              </stm:HandleStates>
+            </StringLoop>
+            <Raise Expression="sUnsupportedUnattendedTask" Condition="not TaskRegister.SearchItem(UnattendedTask)"/>
+            <Execute Statement="UnattendedTasks:= UnattendedTasks or UnattendedTask"/>
+          </stm:StateHandler>
+        </Object.Use>
+      </Block>
+      <ExecuteTasks Unattended="not UseSelection">
+        <Task Identifier="Report.BOM" Condition="((UnattendedTasks and TUnattendedTaskFlags.Bom) = TUnattendedTaskFlags.Bom) xor UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="Report.Bom.EEVBlog" Condition="((UnattendedTasks and TUnattendedTaskFlags.BomEEVBlog) = TUnattendedTaskFlags.BomEEVBlog) xor UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="Report.Bom.DokuWiki" Condition="((UnattendedTasks and TUnattendedTaskFlags.BomDokuWiki) = TUnattendedTaskFlags.BomDokuWiki) xor UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="Report.BomDesignators" Condition="((UnattendedTasks and TUnattendedTaskFlags.BomDesignators) = TUnattendedTaskFlags.BomDesignators) xor UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="Report.BomOrderPicking" Condition="((UnattendedTasks and TUnattendedTaskFlags.BomOrderPicking) = TUnattendedTaskFlags.BomOrderPicking) xor UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="Report.Stock" Condition="((UnattendedTasks and TUnattendedTaskFlags.Stock) = TUnattendedTaskFlags.Stock) xor UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="Report.StorageLocations" Condition="((UnattendedTasks and TUnattendedTaskFlags.StorageLocations) = TUnattendedTaskFlags.StorageLocations) xor UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="Report.PartKeeprProjects" Condition="((UnattendedTasks and TUnattendedTaskFlags.PartKeeprProjects) = TUnattendedTaskFlags.PartKeeprProjects) xor UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="UpdateDB.MatchUnmatchedSchemaComponentsToCategories" Condition="UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="UpdateDB.ChangeProjectParts" Condition="UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="UpdateDB.ChangePartNames" Condition="UseSelection" IgnoreFailure="True"/>
+        <Task Identifier="UpdateDB.ChangePartDescriptions" Condition="UseSelection" IgnoreFailure="True"/>
+        <SelectionSuspend>
+          <Resume.ResumeRequest/>
+          <Resume.BreakRequest/>
+        </SelectionSuspend>
+        <BeforeExecuteTask Identifier="Task">
+          <rep:Reporter.Information Text="Task.Description" Markup="Header2" Target="Info"/>
+          <rep:Reporter.Information Text="Task.Hint" Condition="IsNonEmptyString(Task.Hint)" Markup="Comment" Target="Info"/>
+          <sts:Status Text="Format(sExecutingTask, Task.Description)" Depth="1"/>
+        </BeforeExecuteTask>
+        <AfterExecuteTask Identifier="Task">
+          <Case Expression="Task.Status">
+            <On Select="TTaskStatus.tsFailed">
+              <rep:Reporter.Error Text="Format(sTaskFailed, Task.Description)" Target="Info"/>
+              <sts:Status Text="Format(sTaskFailed, Task.Description)" Depth="1"/>
+            </On>
+            <Otherwise>
+              <sts:Status Text="Format(sExecutedTask, Task.Description)" Depth="1"/>
+            </Otherwise>
+          </Case>
+          <rep:Reporter.Information Text="''" Target="Info"/>
+        </AfterExecuteTask>
+      </ExecuteTasks>
+    </sts:Status.Block>
   </Block>
 </pkg:Program>

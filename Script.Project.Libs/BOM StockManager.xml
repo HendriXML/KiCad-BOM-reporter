@@ -255,8 +255,12 @@
       </Parameters>
       <Variables>
         <Variable Identifier="Found" Type="Boolean"/>
-        --><!--<Variable Identifier="FootPrint" Type="TFootPrint"/>--><!--
-        --><!--<Variable Identifier="FootPrintInfo" Type="TFootprintInfo"/>--><!--
+        -->
+    <!--<Variable Identifier="FootPrint" Type="TFootPrint"/>-->
+    <!--
+        -->
+    <!--<Variable Identifier="FootPrintInfo" Type="TFootprintInfo"/>-->
+    <!--
         <Variable Identifier="ID" Type="Integer"/>
         <Variable Identifier="Name" Type="string"/>
       </Variables>
@@ -382,7 +386,7 @@
               <When Expression="IntegratedCircuits.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
               <When Expression="NamedComponents.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
               <Otherwise>
-                <rep:Reporter.Error Text="Format('Component %d werd niet herkend', StockComponent.ID)" Target="Errors"/>
+                <rep:Reporter.Error Text="Format('Component %d werd niet herkend', StockComponent.ID)" Target="Info"/>
               </Otherwise>
             </Choose>
             <lil:LinkedList.Iterate Head="ValueHead" ItemType="TComponentValue" RunningItem="RunningComponentValue" Next="RunningComponentValue.Next">

@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado" 
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report" 
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus" 
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index" 
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry" 
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils" 
+  xmlns:sim="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput" 
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement" 
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall" 
+  xmlns:cod="urn:schemas-www-wisware.nl-xmlscripting-codeparser" 
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist" 
+  xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers" 
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement" 
+  >
+  <Constants>
+    <Constant Identifier="sLabelValue" Type="string" Expression="'  %-*s: %s'"/>
+    <Constant Identifier="cLabelLength" Type="Integer" Expression="40"/>
+  </Constants>
+  
+	<Procedures>
+    <Procedure Identifier="ReportAsDokuWiki">
+      <Parameters>
+        <Parameter Identifier="Iterator"/>
+      </Parameters>
+      <Block>
+        <rep:Reporter.IterateTarget Iterator="Iterator">
+          <rep:Information Text="Text" Markup="Markup">
+            <Case Expression="Markup">
+              <On Select="TMarkupKind.mkNormal">
+                <Choose>
+                  <When Expression="IsEmptyString(Text)">
+                    <rep:Reporter.Information Text="'\\'"/>
+                  </When>
+                  <Otherwise>
+                    <rep:Reporter.Information Text="Text"/>
+                    <!--<rep:Reporter.Information Text="'''''%%' + StringReplace(Text, ' ', #160, True, True) + '%%''''\\'"/>-->
+                  </Otherwise>
+                </Choose>
+              </On>
+              <On Select="TMarkupKind.mkHeader1">
+                <rep:Reporter.Information Text="'====== ' + Text + ' ======'" Markup="Header1"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader2">
+                <rep:Reporter.Information Text="'===== ' + Text + ' ====='" Markup="Header2"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader3">
+                <rep:Reporter.Information Text="'==== ' + Text + ' ===='" Markup="Header3"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader4">
+                <rep:Reporter.Information Text="'=== ' + Text + ' ==='" Markup="Header4"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader5">
+                <rep:Reporter.Information Text="'== ' + Text + ' =='" Markup="Header5"/>
+              </On>
+              <On Select="TMarkupKind.mkHeader6">
+                <rep:Reporter.Information Text="'== ' + Text + ' =='" Markup="Header6"/>
+              </On>
+              <On Select="TMarkupKind.mkComment">
+                <rep:Reporter.Information Text="'//' + Text + '//'" Markup="Comment"/>
+              </On>
+              <On Select="TMarkupKind.mkError">
+                <rep:Reporter.Information Text="Text" Markup="Error"/>
+              </On>
+              <On Select="TMarkupKind.mkBulletList">
+                <rep:Reporter.Information Text="'  * ' + Text"/>
+              </On>
+              <Otherwise>
+                <rep:Reporter.Information Text="Text"/>
+              </Otherwise>
+            </Case>
+          </rep:Information>
+          <rep:LabelValue Label="LabelS" Value="Value">
+            <rep:Reporter.Information Text="'  ' + LabelS + StringOfChar('.', cLabelLength - Length(LabelS)) + ' ' + Value"/>
+          </rep:LabelValue>
+        </rep:Reporter.IterateTarget>
+      </Block>
+    </Procedure>
+	</Procedures>
+</pkg:Library>

@@ -298,7 +298,7 @@
   </xs:complexType>
   <xs:complexType name="T_BaseConnectionProcessItem">
     <xs:complexContent>
-      <xs:extension base="sys:T_AbstractProcessItem">
+      <xs:extension base="sys:T_AbstractConditionalBlockProcessItem">
         <xs:attribute name="Connection" type="xs:string" use="required"/>
       </xs:extension>
     </xs:complexContent>
@@ -306,8 +306,8 @@
   <xs:complexType name="T_ConnectionOpenProcessItem">
     <xs:complexContent>
       <xs:extension base="sys:T_AbstractProcessItem">
-        <xs:attribute name="Connection" type="xs:string" use="required"/>
-        <xs:attribute name="ConnectionStringExpression" type="xs:string" use="optional"/>
+        <xs:attribute name="Connection" type="sys:identifier" use="required"/>
+        <xs:attribute name="ConnectionString" type="sys:expression" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -367,6 +367,14 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="T_Connection.Create">
+    <xs:complexContent>
+      <xs:extension base="sys:T_AbstractConditionalProcessItem">
+        <xs:attribute name="Connection" type="sys:identifier" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
   <xs:complexType name="T_Command.Create">
     <xs:complexContent>
       <xs:extension base="sys:T_AbstractConditionalProcessItem">
@@ -410,6 +418,7 @@
   <xs:element name="Recordset.MoveNext" type="T_BaseRecordsetProcessItem" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Recordset.MovePrevious" type="T_BaseRecordsetProcessItem" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Recordset.AddNew" type="T_BaseRecordsetProcessItem" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Connection.Create" type="T_Connection.Create" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Command.Create" type="T_Command.Create" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Command.CreateBlock" type="T_Command.CreateBlock" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Connection.OpenBlock" type="T_ConnectionOpenBlockProcessItem" substitutionGroup="sys:AbstractProcessItem"/>

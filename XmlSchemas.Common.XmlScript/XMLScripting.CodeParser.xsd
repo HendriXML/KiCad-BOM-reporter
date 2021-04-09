@@ -101,6 +101,8 @@
       <xs:enumeration value="Property"/>
       <xs:enumeration value="DefaultProperty"/>
       <xs:enumeration value="Method"/>
+      <xs:enumeration value="EnumTypeElementList"/>
+      <xs:enumeration value="EnumTypeElement"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="TCodeElementTypes">

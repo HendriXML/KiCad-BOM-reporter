@@ -186,6 +186,7 @@
     <xs:complexContent>
       <xs:extension base="sys:T_AbstractProcessItem">
         <xs:attribute name="Handle" type="sys:expression" use="required"/>
+        <xs:attribute name="Time" type="sys:expression" use="optional"/>
         <xs:attribute name="ReturnValueIdentifier" type="sys:identifier" use="optional"/>
       </xs:extension>
     </xs:complexContent>
@@ -290,7 +291,7 @@
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="T_ServicesBlock">
+  <xs:complexType name="T_ServiceManager.ConnectBlock">
     <xs:complexContent>
       <xs:extension base="sys:T_AbstractConditionalBlockProcessItem">
         <xs:attribute name="Handle" type="sys:identifier" use="required"/>
@@ -315,7 +316,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="T_ServiceBlock">
+  <xs:complexType name="T_Service.ConnectBlock">
     <xs:complexContent>
       <xs:extension base="sys:T_AbstractConditionalBlockProcessItem">
         <xs:attribute name="ServiceManagerHandle" type="sys:expression" use="required"/>
@@ -336,6 +337,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="IsInstalled" type="sys:identifier" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -379,8 +381,8 @@
   <xs:element name="MaskMatch" type="T_MaskMatch" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="AnsiMaskMatch" type="T_MaskMatch" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="CopyFile" type="T_CopyFile" substitutionGroup="sys:AbstractProcessItem"/>
-  <xs:element name="ServiceManager.ConnectBlock" type="T_ServicesBlock" substitutionGroup="sys:AbstractProcessItem"/>
-  <xs:element name="Service.ConnectBlock" type="T_ServiceBlock" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="ServiceManager.ConnectBlock" type="T_ServiceManager.ConnectBlock" substitutionGroup="sys:AbstractProcessItem"/>
+  <xs:element name="Service.ConnectBlock" type="T_Service.ConnectBlock" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Service.Control" type="T_Service.Control" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Service.Start" type="T_Service.Start" substitutionGroup="sys:AbstractProcessItem"/>
   <xs:element name="Service.QueryInfo" type="T_Service.QueryInfo" substitutionGroup="sys:AbstractProcessItem"/>

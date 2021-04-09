@@ -12,6 +12,7 @@
     <Part Part="Buzzer" Component="Buzzer"/>
     <Part Part="C" Component="Capacitor"/>
     <Part Part="CP" Component="PolarisedCapacitor"/>
+    <Part Part="C_Polarized" Component="PolarisedCapacitor"/>
     <Part Part="CP1" Component="PolarisedCapacitor"/>
     <Part Part="CP1_Small" Component="PolarisedCapacitor"/>
     <Part Part="CP_Small" Component="PolarisedCapacitor"/>
@@ -277,6 +278,7 @@
     <Part Part="RF_Shield_One_Piece" Component="RFShield"/>
     <Part Part="RF_Shield_Two_Pieces" Component="RFShield"/>
     <Part Part="RTRIM" Component="VariableResistor"/>
+    <Part Part="R_Potentiometer_Trim" Component="VariableResistor"/>
     <Part Part="R_Network03" Component="ResistorNetwork"/>
     <Part Part="R_Network03_US" Component="ResistorNetwork"/>
     <Part Part="R_Network04" Component="ResistorNetwork"/>

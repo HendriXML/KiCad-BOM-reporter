@@ -72,6 +72,8 @@
     <Constant Identifier="sNUJTHeader" Expression="'N-UJT''s'"/>
     <Constant Identifier="sOpAmpDescription" Expression="'opamp'"/>
     <Constant Identifier="sOpAmpHeader" Expression="'Opamps'"/>
+    <Constant Identifier="sAudioAmplifierDescription" Expression="'Audioversterker'"/>
+    <Constant Identifier="sAudioAmplifierHeader" Expression="'Audioversterkers'"/>
     <Constant Identifier="sComparatorDescription" Expression="'comparator'"/>
     <Constant Identifier="sComparatorHeader" Expression="'Comparators'"/>
     <Constant Identifier="sDiacDescription" Expression="'diac'"/>
@@ -177,6 +179,43 @@
     <Constant Identifier="sNonComponentDescription" Expression="'niet component'"/>
     <Constant Identifier="sNonComponentHeader" Expression="'Niet componenten'"/>
     <!-->->-->
+    <Constant Identifier="sScriptPathTD" Type="string" Expression="'Script map bepalen'"/>
+    <Constant Identifier="sBomFilenameTD" Type="string" Expression="'Benodigde lijst van materialen invoerbestandnaam bepalen'"/>
+    <Constant Identifier="sCalculatedSpecificationsFilenameTD" Type="string" Expression="'Berekende specificaties invoerbestandnaam bepalen'"/>
+    <Constant Identifier="sGlobalConfigTD" Type="string" Expression="'Globale configuratie lezen'"/>
+    <Constant Identifier="sPartkeeprDatabaseTD" Type="string" Expression="'Met Partkeepr database verbinden'"/>
+    <Constant Identifier="sBillOfMaterialsTD" Type="string" Expression="'Benodigde lijst van materialen object leveren'"/>
+    <Constant Identifier="sStockManagerTD" Type="string" Expression="'Geregistreerde materialen object leveren'"/>
+    <Constant Identifier="sBillOfMaterialsLoadTemplatesFromIniFileTD" Type="string" Expression="'Lijst van materialen templates lezen'"/>
+    <Constant Identifier="sBillOfMaterialsLoadBomFileTD" Type="string" Expression="'Benodigde lijst van materialen laden'"/>
+    <Constant Identifier="sCalculatedSpecificationsTD" Type="string" Expression="'Berekende specificaties laden'"/>
+    <Constant Identifier="sReportReportOrderPickingTD" Type="string" Expression="'Rapporteer lijst voor order picking'"/>
+    <Constant Identifier="sReadingStockTD" Type="string" Expression="'Geregistreerde materialen laden'"/>
+    <Constant Identifier="sStockManagerConsolidateSpecificationsTD" Type="string" Expression="'Geregistreerde materiaal specificaties consolideren'"/>
+    <Constant Identifier="sBillOfMaterialsConsolidateSpecificationsTD" Type="string" Expression="'Benodigde materiaal specificaties consolideren'"/>
+    <Constant Identifier="sBillOfMaterialsDetermineBomCountTD" Type="string" Expression="'Benodigde lijst aantal bepalen'"/>
+    <Constant Identifier="sBillOfMaterialsProcessDesignatorsTD" Type="string" Expression="'Designators op geregistreerde materiaal specificaties verwerken'"/>
+    <Constant Identifier="sBillOfMaterialsAssignStockComponentsTD" Type="string" Expression="'Geregistreerde materiaal specificaties koppelen aan benodigde specificaties'"/>
+    <Constant Identifier="sSymbolMappingPathTD" Type="string" Expression="'Symbool koppeling directory'"/>
+    <Constant Identifier="sLoadSymbolMappingsTD" Type="string" Expression="'Symbool component type koppelingen uit directory inlezen'"/>
+    <Constant Identifier="sLoadKnownUnitsTD" Type="string" Expression="'Bekende eenheden van PartKeepr inlezen'"/>
+    <Constant Identifier="sReportStorageLocationsTD" Type="string" Expression="'Opslaglocaties van PartKeepr rapporteren'"/>
+    <Constant Identifier="sReportPartKeeprProjectsTD" Type="string" Expression="'Projecten van PartKeepr rapporteren'"/>
+    <Constant Identifier="sReportStockTD" Type="string" Expression="'Geregistreerde lijst van materialen rapporteren'"/>
+    <Constant Identifier="sUpdateDBChangeProjectPartsTD" Type="string" Expression="'Benodigde materialen aan een PartKeepr project toevoegen'"/>
+    <Constant Identifier="sUpdateDBChangePartNamesTD" Type="string" Expression="'Geregistreerde materialen namen in PartKeepr automatisch aanpassen'"/>
+    <Constant Identifier="sUpdateDBChangePartDescriptionsTD" Type="string" Expression="'Geregistreerde materialen omschrijvingen in PartKeepr automatisch aanpassen'"/>
+    <Constant Identifier="sReportBomTD" Type="string" Expression="'Benodigde lijst van materialen rapporteren'"/>
+    <Constant Identifier="sReportBomEEVBlogTD" Type="string" Expression="'Benodigde lijst van materialen voor EEVBlog forum rapporteren'"/>
+    <Constant Identifier="sReportBomDokuWikiTD" Type="string" Expression="'Benodigde lijst van materialen voor DokuWiki rapporteren'"/>
+    <Constant Identifier="sReportDesignatorsTD" Type="string" Expression="'Benodigde lijst van materialen designators rapporteren'"/>
+    <Constant Identifier="sDatabaseExportProjectIdTD" Type="string" Expression="'ID van PartKeepr project bepalen'"/>
+    <Constant Identifier="sDatabaseUnmatchedComponentsStorageIdTD" Type="string" Expression="'ID van PartKeepr opslaglocatie voor ongematchte materialen bepalen'"/>
+    <Constant Identifier="sMatchUnmatchedSchemaComponentsToCategoriesTD" Type="string" Expression="'Niet gematchte componenten aan categorien toevoegen'"/>
+
+    <Constant Identifier="sUnsupportedUnattendedTask" Type="string" Expression="'Niet ondersteunde unattended task'"/>
+    <Constant Identifier="sUnsupportedHideSpecs" Type="string" Expression="'Niet ondersteunde hide specs'"/>
+
     <Constant Identifier="sBOMHeader" Type="string" Expression="'Lijst van materialen'"/>
     <Constant Identifier="sStockHeader" Type="string" Expression="'Lijst van beschikbare materialen'"/>
     <Constant Identifier="sDesignatorReport" Type="string" Expression="'Designator specificaties'"/>
@@ -196,7 +235,8 @@
     <Constant Identifier="sFootprintSMD" Type="string" Expression="'SMD'"/>
 
     <Constant Identifier="sTimeMeasure" Type="string" Expression="'Verstreken tijd: %.4f sec'"/>
-    <Constant Identifier="sFilename" Type="string" Expression="'Bestandsnaam: %s'"/>
+    <Constant Identifier="sFilename" Type="string" Expression="'Bestandsnaam'"/>
+    <Constant Identifier="sPath" Type="string" Expression="'Map'"/>
     <Constant Identifier="sUnknownComponentKind" Type="string" Expression="'TComponentKind(%d)'"/>
     <Constant Identifier="sMissingComponentKindMapping" Type="string" Expression="'%s - %s: Missende component kind mapping: %d'"/>
     <Constant Identifier="sRemoveGroupHeader" Type="string" Expression="'Verwijderen'"/>
@@ -259,15 +299,15 @@
     <Constant Identifier="sMsgMissingLibrarysymbolMapping" Type="string" Expression="'Onderdeel &quot;%s&quot; heeft geen component soort mapping, en krijgt dus component als soort'"/>
 
     <Constant Identifier="sMsgUnmatchedCalculatedDesignator" Type="string" Expression="'Berekende designator %s niet gevonden in schema'"/>
-    <Constant Identifier="sTitleField" Type="string"     Expression="'Titel   : %s'"/>
-    <Constant Identifier="sCompanyField" Type="string"   Expression="'Bedrijf : %s'"/>
-    <Constant Identifier="sRevisionField" Type="string"  Expression="'Revisie : %s'"/>
-    <Constant Identifier="sDateField" Type="string"      Expression="'Datum   : %s'"/>
-    <Constant Identifier="sSourceField" Type="string"    Expression="'Bron    : %s'"/>
-    <Constant Identifier="sComment1Field" Type="string"  Expression="'Aantekening1: %s'"/>
-    <Constant Identifier="sComment2Field" Type="string"  Expression="'Aantekening2: %s'"/>
-    <Constant Identifier="sComment3Field" Type="string"  Expression="'Aantekening3: %s'"/>
-    <Constant Identifier="sComment4Field" Type="string"  Expression="'Aantekening4: %s'"/>
-    <Constant Identifier="sCountField" Type="string"     Expression="'Aantal  : %dx'"/>
+    <Constant Identifier="sTitleField" Type="string"     Expression="'Titel'"/>
+    <Constant Identifier="sCompanyField" Type="string"   Expression="'Bedrijf'"/>
+    <Constant Identifier="sRevisionField" Type="string"  Expression="'Revisie'"/>
+    <Constant Identifier="sDateField" Type="string"      Expression="'Datum'"/>
+    <Constant Identifier="sSourceField" Type="string"    Expression="'Bron'"/>
+    <Constant Identifier="sComment1Field" Type="string"  Expression="'Aantekening1'"/>
+    <Constant Identifier="sComment2Field" Type="string"  Expression="'Aantekening2'"/>
+    <Constant Identifier="sComment3Field" Type="string"  Expression="'Aantekening3'"/>
+    <Constant Identifier="sComment4Field" Type="string"  Expression="'Aantekening4'"/>
+    <Constant Identifier="sCountField" Type="string"     Expression="'Aantal'"/>
   </Constants>
 </pkg:Library>
