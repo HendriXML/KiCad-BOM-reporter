@@ -78,25 +78,25 @@ VoltageRating = 250V
   <Imports>
     <Import Identifier="ElectronicUtils" Filename="..\Script.Common.Electronics\ElectronicUtils.xml"/>
     <Import Identifier="ElectronicReportUtils" Filename="..\Script.Common.Electronics\ElectronicReportUtils.xml"/>
-    <Import Identifier="BomStrings" Filename="..\Script.Common.Electronics\BOM strings en-GB.xml"/>
-    <Import Identifier="BomClasses" Filename="..\Script.Common.Electronics\BOM classes.xml"/>
-    <Import Identifier="NamedComponentClasses" Filename="..\Script.Common.Electronics\BOM NamedComponentClasses.xml"/>
-    <Import Identifier="DeviceFunctions" Filename="..\Script.Common.Electronics\BOM DeviceFunctions.xml"/>
-    <Import Identifier="DeviceFunctionDescription" Filename="..\Script.Common.Electronics\BOM DeviceFunctionDescription en-GB.xml"/>
-    <Import Identifier="MultiFunctionComponentClasses" Filename="..\Script.Common.Electronics\BOM MultiFunctionComponentClasses.xml"/>
-    <Import Identifier="IntegratedCircuitClasses" Filename="..\Script.Common.Electronics\BOM IntegratedCircuitClasses.xml"/>
-    <Import Identifier="ResistorClasses" Filename="..\Script.Common.Electronics\BOM ResistorClasses.xml"/>
-    <Import Identifier="CapacitorClasses" Filename="..\Script.Common.Electronics\BOM CapacitorClasses.xml"/>
-    <Import Identifier="InductorClasses" Filename="..\Script.Common.Electronics\BOM InductorClasses.xml"/>
-    <Import Identifier="ZenerDiodeClasses" Filename="..\Script.Common.Electronics\BOM ZenerDiodeClasses.xml"/>
-    <Import Identifier="ConnectorClasses" Filename="..\Script.Common.Electronics\BOM ConnectorClasses.xml"/>
-    <Import Identifier="DiodeClasses" Filename="..\Script.Common.Electronics\BOM DiodeClasses.xml"/>
-    <Import Identifier="FuseClasses" Filename="..\Script.Common.Electronics\BOM FuseClasses.xml"/>
-    <Import Identifier="CategoryContainer" Filename="..\Script.Common.Electronics\BOM CategoryContainer.xml"/>
-    <Import Identifier="StockManager" Filename="..\Script.Common.Electronics\BOM StockManager.xml"/>
-    <Import Identifier="CalculatedSpecificationsClasses" Filename="..\Script.Common.Electronics\BOM CalculatedSpecifications.xml"/>
-    <Import Identifier="BillOfMaterialClass" Filename="..\Script.Common.Electronics\BOM BillOfMaterialClass.xml"/>
-    <Import Identifier="PartKeeprProjectExport" Filename="..\Script.Common.Electronics\BOM PartKeeprProjectExport.xml"/>
+    <Import Identifier="BomStrings" Filename="..\Script.Project.Libs\BOM strings en-GB.xml"/>
+    <Import Identifier="BomClasses" Filename="..\Script.Project.Libs\BOM classes.xml"/>
+    <Import Identifier="NamedComponentClasses" Filename="..\Script.Project.Libs\BOM NamedComponentClasses.xml"/>
+    <Import Identifier="DeviceFunctions" Filename="..\Script.Project.Libs\BOM DeviceFunctions.xml"/>
+    <Import Identifier="DeviceFunctionDescription" Filename="..\Script.Project.Libs\BOM DeviceFunctionDescription en-GB.xml"/>
+    <Import Identifier="MultiFunctionComponentClasses" Filename="..\Script.Project.Libs\BOM MultiFunctionComponentClasses.xml"/>
+    <Import Identifier="IntegratedCircuitClasses" Filename="..\Script.Project.Libs\BOM IntegratedCircuitClasses.xml"/>
+    <Import Identifier="ResistorClasses" Filename="..\Script.Project.Libs\BOM ResistorClasses.xml"/>
+    <Import Identifier="CapacitorClasses" Filename="..\Script.Project.Libs\BOM CapacitorClasses.xml"/>
+    <Import Identifier="InductorClasses" Filename="..\Script.Project.Libs\BOM InductorClasses.xml"/>
+    <Import Identifier="ZenerDiodeClasses" Filename="..\Script.Project.Libs\BOM ZenerDiodeClasses.xml"/>
+    <Import Identifier="ConnectorClasses" Filename="..\Script.Project.Libs\BOM ConnectorClasses.xml"/>
+    <Import Identifier="DiodeClasses" Filename="..\Script.Project.Libs\BOM DiodeClasses.xml"/>
+    <Import Identifier="FuseClasses" Filename="..\Script.Project.Libs\BOM FuseClasses.xml"/>
+    <Import Identifier="CategoryContainer" Filename="..\Script.Project.Libs\BOM CategoryContainer.xml"/>
+    <Import Identifier="StockManager" Filename="..\Script.Project.Libs\BOM StockManager.xml"/>
+    <Import Identifier="CalculatedSpecificationsClasses" Filename="..\Script.Project.Libs\BOM CalculatedSpecifications.xml"/>
+    <Import Identifier="BillOfMaterialClass" Filename="..\Script.Project.Libs\BOM BillOfMaterialClass.xml"/>
+    <Import Identifier="PartKeeprProjectExport" Filename="..\Script.Project.Libs\BOM PartKeeprProjectExport.xml"/>
   </Imports>
   <Uses>
     <Use Identifier="ElectronicUtils"/>
