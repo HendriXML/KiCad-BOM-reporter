@@ -109,7 +109,7 @@ VoltageRating = 250V
 
     <Import Identifier="ScienceIniHelper" Filename="..\Script.Common.Generic\Science ini helper.xml"/>
     <Import Identifier="TaskReportStrings" Filename="..\Script.Common.Generic\Task report strings |languageCode|.xml"/>
-    <Import Identifier="TaskUtils" Filename="..\Script.Common.Generic\TaskUtils.xml"/>
+    <Import Identifier="TaskUtils" Filename="..\Script.Common.Generic\Task utils.xml"/>
     <Import Identifier="DokuWikiUtils" Filename="..\Script.Common.Generic\DokuWiki utils.xml"/>
     <Import Identifier="SimpleMachinesUtils" Filename="..\Script.Common.Generic\Simple machines utils.xml"/>
 
