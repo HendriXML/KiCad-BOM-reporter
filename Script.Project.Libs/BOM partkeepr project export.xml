@@ -17,10 +17,13 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   >
   <Uses>
-    <Use Identifier="SiUnits"/>
-    <Use Identifier="ReportStrings"/>
-    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="TaskReportStrings"/>
+    <Use Identifier="TaskUtils"/>
+    <Use Identifier="ElectronicsStrings"/>
+    <Use Identifier="ElectronicsUtils"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
     <Use Identifier="BomClasses"/>
     <Use Identifier="ResistorClasses"/>
     <Use Identifier="CapacitorClasses"/>
@@ -549,13 +552,12 @@
                     </SelectionSuspend>
                     <BeforeExecuteTask Identifier="Task">
                       <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
-                        <sts:Status Text="Format(sExecutingTask, Task.Description)" Depth="1"/>
+                        <sts:Status Text="Format(sTaskIsExecuted, Task.Description)" Depth="1"/>
                         <rep:Reporter.Information Text="Task.Description"/>
                       </Block>
                     </BeforeExecuteTask>
                   </ExecuteTasks>
                 </sts:Status.Block>
-
               </ado:Command.CreateBlock>
             </ado:Command.CreateBlock>
           </ado:Command.CreateBlock>
@@ -618,7 +620,6 @@
                   <rep:Reporter.Information Text="RunningSpec.SpecificationAsString(TSpecFormatType.Description, ObjNil)"/>
                   <lil:LinkedList.Iterate Head="ExportCategoryHead" ItemType="TExportCategory" RunningItem="ExportCategory" Next="ExportCategory.Next" >
                     <Execute Statement="CurrentScore:= ExportCategory.StockSpec.CategoryMatchScore(RunningSpec)"/>
-                    <rep:Reporter.Information Text="Format('  %d - ', CurrentScore) + ExportCategory.StockCategory.Name + ': ' + ExportCategory.StockSpec.SpecificationAsString(TSpecFormatType.Description, ObjNil)" Condition="IsVerbose"/>
                     <Choose>
                       <When Expression="CurrentScore = 0"/>
                       <When Expression="IsEmpty(BestCategory)">
@@ -702,7 +703,7 @@
                     </SelectionSuspend>
                     <BeforeExecuteTask Identifier="Task">
                       <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
-                        <sts:Status Text="Format(sExecutingTask, Task.Description)" Depth="1"/>
+                        <sts:Status Text="Format(sTaskIsExecuted, Task.Description)" Depth="1"/>
                         <rep:Reporter.Information Text="Task.Description"/>
                       </Block>
                     </BeforeExecuteTask>
@@ -803,9 +804,9 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Case Expression="PartVT" Optimalisation="integermapping">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="CatVT" Optimalisation="integermapping">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= True" Condition="PartValue &lt;&gt; CatValue"/>
               </On>
               <Otherwise>
@@ -827,9 +828,9 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Case Expression="PartVT" Optimalisation="integermapping">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="CatVT" Optimalisation="integermapping">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= True" Condition="not SameText(PartValue,  CatValue)"/>
               </On>
               <Otherwise>
@@ -903,12 +904,12 @@
         </Block>
       </Init>
       <Block>
-        <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_part_id.Value:= %d', PartParameter.Part.ID)" Condition="IsDebugging"/>
+        <!--<rep:Reporter.Information Text="Format('cmdInsertNumericParameter_part_id.Value:= %d', PartParameter.Part.ID)" Condition="IsDebugging"/>
         <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_unit_id.Value:= %d', ScaledUnitInfo.ID)" Condition="IsDebugging"/>
         <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_name.Value:= %s', FieldName)" Condition="IsDebugging"/>
         <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_value.Value:= %g', ScaledValue)" Condition="IsDebugging"/>
         <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_normalizedValue.Value:= %g', Value)" Condition="IsDebugging"/>
-        <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_siPrefix_id.Value:= %d', ScaledValuePrefix)" Condition="IsDebugging"/>
+        <rep:Reporter.Information Text="Format('cmdInsertNumericParameter_siPrefix_id.Value:= %d', ScaledValuePrefix)" Condition="IsDebugging"/>-->
         <Execute Statement="cmdInsertNumericParameter_part_id.Value:= PartParameter.Part.ID"/>
         <Execute Statement="cmdInsertNumericParameter_unit_id.Value:= ScaledUnitInfo.ID"/>
         <Execute Statement="cmdInsertNumericParameter_name.Value:= FieldName"/>
@@ -956,7 +957,7 @@
         <Execute Statement="StockSpec:= SchemaSpec.MatchedStockCategory.ComponentSpec"/>
         <Execute Statement="Part.StockCategory:= SchemaSpec.MatchedStockCategory"/>
         <Case Expression="SchemaSpec.InternalPartNumberVT" Optimalisation="integermapping">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="Part.InternalPartNumber:= SchemaSpec.InternalPartNumber"/>
           </On>
         </Case>
@@ -965,28 +966,28 @@
           <Execute Statement="Part.FootprintInfo:= FootprintInfo" Condition="Found"/>
         </Block>-->
         <Case Expression="SchemaSpec.FootprintVT">
-          <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="StockSpec.FootprintVT">
-              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Block Condition="StockSpec.Footprint = SchemaSpec.Footprint">
                   <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Footprint, SchemaSpec.Footprint)"/>
                   <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
                 </Block>
               </On>
-              <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+              <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
                 <Block Condition="StockSpec.FootprintMask.Matches(SchemaSpec.Footprint)">
                   <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Footprint, SchemaSpec.Footprint)"/>
                   <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
                 </Block>
               </On>
-              <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+              <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
               </On>
               <Otherwise>
                 <Exit/>
               </Otherwise>
             </Case>
           </On>
-          <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
@@ -1003,7 +1004,7 @@
         <Choose>
           <When Expression="SchemaSpec is TResistorSpec">
             <Case Expression="TResistorSpec(SchemaSpec).ResistanceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Part.Name:= EDecimalQuantityToStr(TResistorSpec(SchemaSpec).Resistance, TUnitPostFix.Separated)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -1028,19 +1029,19 @@
               </When>
               <Otherwise>
                 <Case Expression="TResistorSpec(SchemaSpec).PowerRatingVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.PowerRating, TResistorSpec(SchemaSpec).PowerRating, ResistorPowerRatingConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>
                 <Case Expression="TResistorSpec(SchemaSpec).ToleranceVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TResistorSpec(SchemaSpec).Tolerance, ResistorToleranceConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>
                 <Case Expression="TResistorSpec(SchemaSpec).TechnologyVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Technology, ResistorTechnologyName(TResistorSpec(SchemaSpec).Technology))"/>
                     <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
                   </On>
@@ -1050,7 +1051,7 @@
           </When>
           <When Expression="SchemaSpec is TCapacitorSpec">
             <Case Expression="TCapacitorSpec(SchemaSpec).CapacitanceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Part.Name:= EDecimalQuantityToStr(TCapacitorSpec(SchemaSpec).Capacitance, TUnitPostFix.Separated)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -1075,19 +1076,19 @@
               </When>
               <Otherwise>
                 <Case Expression="TCapacitorSpec(SchemaSpec).VoltageRatingVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.VoltageRating, TCapacitorSpec(SchemaSpec).VoltageRating, CapacitorVoltageRatingConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>
                 <Case Expression="TCapacitorSpec(SchemaSpec).ToleranceVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TCapacitorSpec(SchemaSpec).Tolerance, CapacitorToleranceConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>
                 <Case Expression="TCapacitorSpec(SchemaSpec).TechnologyVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Technology, CapacitorTechnologyName(TCapacitorSpec(SchemaSpec).Technology))"/>
                     <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
                   </On>
@@ -1097,7 +1098,7 @@
           </When>
           <When Expression="SchemaSpec is TZenerDiodeSpec">
             <Case Expression="TZenerDiodeSpec(SchemaSpec).ZenerVoltageVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Part.Name:= EDecimalQuantityToStr(TZenerDiodeSpec(SchemaSpec).ZenerVoltage, TUnitPostFix.Separated)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -1118,13 +1119,13 @@
               </When>
               <Otherwise>
                 <Case Expression="TZenerDiodeSpec(SchemaSpec).PowerRatingVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.PowerRating, TZenerDiodeSpec(SchemaSpec).PowerRating, ZenerDiodePowerRatingConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>
                 <Case Expression="TZenerDiodeSpec(SchemaSpec).ToleranceVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TZenerDiodeSpec(SchemaSpec).Tolerance, ZenerDiodeToleranceConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
@@ -1134,7 +1135,7 @@
           </When>
           <When Expression="SchemaSpec is TDiodeSpec">
             <Case Expression="TDiodeSpec(SchemaSpec).NameVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Part.Name:= TDiodeSpec(SchemaSpec).Name"/>
               </On>
             </Case>
@@ -1144,8 +1145,8 @@
                   <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ReverseVoltageRating, TDiodeSpec(SchemaSpec).ReverseVoltageRating, DiodeReverseVoltageRatingConv)"/>
                   <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                 </Block>
-                <Block Condition="NumericParameterNeeded(TDiodeSpec(SchemaSpec).AmperageRating, TDiodeSpec(SchemaSpec).AmperageRatingVT, TDiodeSpec(StockSpec).AmperageRating, TDiodeSpec(StockSpec).AmperageRatingVT)">
-                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TDiodeSpec(SchemaSpec).AmperageRating, DiodeAmperageRatingConv)"/>
+                <Block Condition="NumericParameterNeeded(TDiodeSpec(SchemaSpec).CurrentRating, TDiodeSpec(SchemaSpec).CurrentRatingVT, TDiodeSpec(StockSpec).CurrentRating, TDiodeSpec(StockSpec).CurrentRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.CurrentRating, TDiodeSpec(SchemaSpec).CurrentRating, DiodeCurrentRatingConv)"/>
                   <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                 </Block>
                 <Block Condition="NumericParameterNeeded(TDiodeSpec(SchemaSpec).ForwardVoltage, TDiodeSpec(SchemaSpec).ForwardVoltageVT, TDiodeSpec(StockSpec).ForwardVoltage, TDiodeSpec(StockSpec).ForwardVoltageVT)">
@@ -1155,19 +1156,19 @@
               </When>
               <Otherwise>
                 <Case Expression="TDiodeSpec(SchemaSpec).ReverseVoltageRatingVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ReverseVoltageRating, TDiodeSpec(SchemaSpec).ReverseVoltageRating, DiodeReverseVoltageRatingConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>
-                <Case Expression="TDiodeSpec(SchemaSpec).AmperageRatingVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TDiodeSpec(SchemaSpec).AmperageRating, DiodeAmperageRatingConv)"/>
+                <Case Expression="TDiodeSpec(SchemaSpec).CurrentRatingVT">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.CurrentRating, TDiodeSpec(SchemaSpec).CurrentRating, DiodeCurrentRatingConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>
                 <Case Expression="TDiodeSpec(SchemaSpec).ForwardVoltageVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.ForwardVoltage, TDiodeSpec(SchemaSpec).ForwardVoltage, DiodeForwardVoltageConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
@@ -1177,7 +1178,7 @@
           </When>
           <When Expression="SchemaSpec is TInductorSpec">
             <Case Expression="TInductorSpec(SchemaSpec).InductanceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Part.Name:= EDecimalQuantityToStr(TInductorSpec(SchemaSpec).Inductance, TUnitPostFix.Separated)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -1187,8 +1188,8 @@
             </Case>
             <Choose>
               <When Expression="StockSpec is TInductorSpec">
-                <Block Condition="NumericParameterNeeded(TInductorSpec(SchemaSpec).AmperageRating, TInductorSpec(SchemaSpec).AmperageRatingVT, TInductorSpec(StockSpec).AmperageRating, TInductorSpec(StockSpec).AmperageRatingVT)">
-                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TInductorSpec(SchemaSpec).AmperageRating, InductorAmperageRatingConv)"/>
+                <Block Condition="NumericParameterNeeded(TInductorSpec(SchemaSpec).CurrentRating, TInductorSpec(SchemaSpec).CurrentRatingVT, TInductorSpec(StockSpec).CurrentRating, TInductorSpec(StockSpec).CurrentRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.CurrentRating, TInductorSpec(SchemaSpec).CurrentRating, InductorCurrentRatingConv)"/>
                   <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                 </Block>
                 <Block Condition="NumericParameterNeeded(TInductorSpec(SchemaSpec).Tolerance, TInductorSpec(SchemaSpec).ToleranceVT, TInductorSpec(StockSpec).Tolerance, TInductorSpec(StockSpec).ToleranceVT)">
@@ -1197,14 +1198,14 @@
                 </Block>
               </When>
               <Otherwise>
-                <Case Expression="TInductorSpec(SchemaSpec).AmperageRatingVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TInductorSpec(SchemaSpec).AmperageRating, InductorAmperageRatingConv)"/>
+                <Case Expression="TInductorSpec(SchemaSpec).CurrentRatingVT">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.CurrentRating, TInductorSpec(SchemaSpec).CurrentRating, InductorCurrentRatingConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>
                 <Case Expression="TInductorSpec(SchemaSpec).ToleranceVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.Tolerance, TInductorSpec(SchemaSpec).Tolerance, InductorToleranceConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
@@ -1214,7 +1215,7 @@
           </When>
           <When Expression="SchemaSpec is TConnectorSpec">
             <Case Expression="TConnectorSpec(SchemaSpec).PinsVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Part.Name:= PinsToString(TConnectorSpec(SchemaSpec).PinRowsLow, TConnectorSpec(SchemaSpec).PinColsLow, TConnectorSpec(SchemaSpec).PinRowsHigh, TConnectorSpec(SchemaSpec).PinColsHigh)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -1224,15 +1225,15 @@
             </Case>
             <Choose>
               <When Expression="StockSpec is TConnectorSpec">
-                <Block Condition="NumericParameterNeeded(TConnectorSpec(SchemaSpec).AmperageRating, TConnectorSpec(SchemaSpec).AmperageRatingVT, TConnectorSpec(StockSpec).AmperageRating, TConnectorSpec(StockSpec).AmperageRatingVT)">
-                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TConnectorSpec(SchemaSpec).AmperageRating, ConnectorAmperageRatingConv)"/>
+                <Block Condition="NumericParameterNeeded(TConnectorSpec(SchemaSpec).CurrentRating, TConnectorSpec(SchemaSpec).CurrentRatingVT, TConnectorSpec(StockSpec).CurrentRating, TConnectorSpec(StockSpec).CurrentRatingVT)">
+                  <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.CurrentRating, TConnectorSpec(SchemaSpec).CurrentRating, ConnectorCurrentRatingConv)"/>
                   <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                 </Block>
               </When>
               <Otherwise>
-                <Case Expression="TConnectorSpec(SchemaSpec).AmperageRatingVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.AmperageRating, TConnectorSpec(SchemaSpec).AmperageRating, ConnectorAmperageRatingConv)"/>
+                <Case Expression="TConnectorSpec(SchemaSpec).CurrentRatingVT">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                    <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.CurrentRating, TConnectorSpec(SchemaSpec).CurrentRating, ConnectorCurrentRatingConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>
@@ -1240,12 +1241,12 @@
             </Choose>
           </When>
           <When Expression="SchemaSpec is TFuseSpec">
-            <Case Expression="TFuseSpec(SchemaSpec).AmperageVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Execute Statement="Part.Name:= EDecimalQuantityToStr(TFuseSpec(SchemaSpec).Amperage, TUnitPostFix.Separated)"/>
+            <Case Expression="TFuseSpec(SchemaSpec).CurrentRatingVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Execute Statement="Part.Name:= EDecimalQuantityToStr(TFuseSpec(SchemaSpec).CurrentRating, TUnitPostFix.Separated)"/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                <Execute Statement="Part.Name:= TFuseSpec(SchemaSpec).ErrorAmperage"/>
+                <Execute Statement="Part.Name:= TFuseSpec(SchemaSpec).ErrorCurrentRating"/>
                 <Execute Statement="Part.Error:= True"/>
               </On>
             </Case>
@@ -1256,7 +1257,7 @@
                   <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                 </Block>
                 <Block Condition="NumericParameterNeeded(TFuseSpec(SchemaSpec).BreakSpeed, TFuseSpec(SchemaSpec).BreakSpeedVT, TFuseSpec(StockSpec).BreakSpeed, TFuseSpec(StockSpec).BreakSpeedVT)">
-                  <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.BreakSpeed, FuseBreakSpeedName(TFuseSpec(SchemaSpec).BreakSpeed))"/>
+                  <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.BreakSpeed, BreakSpeedNameRegister.Keys[TFuseSpec(SchemaSpec).BreakSpeed])"/>
                   <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
                 </Block>
                 <Block Condition="StringParameterNeeded(TFuseSpec(SchemaSpec).Dimensions, TFuseSpec(SchemaSpec).DimensionsVT, TFuseSpec(StockSpec).Dimensions, TFuseSpec(StockSpec).DimensionsVT)">
@@ -1266,19 +1267,19 @@
               </When>
               <Otherwise>
                 <Case Expression="TFuseSpec(SchemaSpec).VoltageRatingVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="NumericPartParameter:= TNumericPartParameter.Create(Part, TCustomField.VoltageRating, TFuseSpec(SchemaSpec).VoltageRating, FuseVoltageRatingConv)"/>
                     <Task.AddDependency Task="CreateNumericParameterTask" InstanceObject="NumericPartParameter"/>
                   </On>
                 </Case>
                 <Case Expression="TFuseSpec(SchemaSpec).BreakSpeedVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                    <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.BreakSpeed, FuseBreakSpeedName(TFuseSpec(SchemaSpec).BreakSpeed))"/>
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                    <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.BreakSpeed, BreakSpeedNameRegister.Keys[TFuseSpec(SchemaSpec).BreakSpeed])"/>
                     <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
                   </On>
                 </Case>
                 <Case Expression="TFuseSpec(SchemaSpec).DimensionsVT">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="StringPartParameter:= TStringPartParameter.Create(Part, TCustomField.Dimensions, TFuseSpec(SchemaSpec).Dimensions)"/>
                     <Task.AddDependency Task="CreateStringParameterTask" InstanceObject="StringPartParameter"/>
                   </On>
@@ -1288,7 +1289,7 @@
           </When>
           <When Expression="SchemaSpec is TNamedComponentSpec">
             <Case Expression="TNamedComponentSpec(SchemaSpec).NameVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Part.Name:= TNamedComponentSpec(SchemaSpec).Name"/>
               </On>
             </Case>
@@ -1454,7 +1455,7 @@
               </SelectionSuspend>
               <BeforeExecuteTask Identifier="Task">
                 <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
-                  <sts:Status Text="Format(sExecutingTask, Task.Description)" Depth="1"/>
+                  <sts:Status Text="Format(sTaskIsExecuted, Task.Description)" Depth="1"/>
                   <rep:Reporter.Information Text="Task.Description"/>
                 </Block>
               </BeforeExecuteTask>

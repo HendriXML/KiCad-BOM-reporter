@@ -17,9 +17,11 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   >
   <Uses>
-    <Use Identifier="ElectronicUtils"/>
-    <Use Identifier="BomClasses"/>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="ElectronicsUtils"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
   </Uses>
   <Type>
     <DataClass Identifier="TNamedComponentSpec" Inherit="TComponentSpec" DefaultConstructor="createonly">
@@ -55,10 +57,10 @@
         <Execute Statement="Result:= False"/>
         <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
         <Case Expression="NameVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Exit Condition="not (ComponentSpec is TNamedComponentSpec)"/>
             <Case Expression="TNamedComponentSpec(ComponentSpec).NameVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="not SameText(Name, TNamedComponentSpec(ComponentSpec).Name)"/>
               </On>
               <Otherwise>
@@ -81,9 +83,9 @@
       <Block>
         <Execute Statement="Result:= 0"/>
         <Case Expression="ComponentKindVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ComponentKindVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -98,9 +100,9 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="PartNumberVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.PartNumberVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="SameText(PartNumber, ComponentSpec.PartNumber)"/>
               </On>
               <Otherwise>
@@ -114,9 +116,9 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="ManufacturerVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ManufacturerVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="SameText(Manufacturer, ComponentSpec.Manufacturer)"/>
               </On>
               <Otherwise>
@@ -130,9 +132,9 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="FootprintVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.FootprintVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
               </On>
               <Otherwise>
@@ -189,7 +191,7 @@
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Name:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="Name:= Self.Name"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -241,7 +243,7 @@
           </On>
           <On Select="TSpecFormatType.Description">
             <Case Expression="ComponentKindVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="ComponentKind:= ''" Condition="(Self.ComponentKind = TComponentKind.Component) or (Self.ComponentKind = TComponentKind.Module) or (SameText(ComponentKind, Name))"/>
               </On>
             </Case>
@@ -262,7 +264,7 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Case Expression="ComponentSpec.NameVT" Optimalisation="integermapping">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="Result:= True"/>
             <Execute Statement="Key:= ComponentSpec.Name"/>
           </On>
@@ -313,17 +315,17 @@
 
     <Function Identifier="TNamedComponentCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
         <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
       </Parameters>
       <Constants>
         <Constant Identifier="cComponent" Type="string" Expression="'Component'"/>
       </Constants>
       <Block>
-        <Execute Statement="Result:= IniFile.SectionExists(cComponent)"/>
+        <Execute Statement="Result:= Ini.Inifile.SectionExists(cComponent)"/>
         <Block Condition="Result">
           <Execute Statement="ComponentSpec:= TNamedComponentSpec.Create"/>
-          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cComponent)"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(Ini, cComponent)"/>
         </Block>
       </Block>
     </Function>

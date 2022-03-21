@@ -17,10 +17,12 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   >
   <Uses>
-    <Use Identifier="SiUnits"/>
-    <Use Identifier="ElectronicUtils"/>
-    <Use Identifier="BomClasses"/>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="ElectronicsUtils"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
   </Uses>
   <Type>
     <DataClass Identifier="TZenerDiodeSpec" Inherit="TComponentSpec" DefaultConstructor="createonly">
@@ -34,30 +36,18 @@
       <Field Identifier="ZenerVoltageVT" Type="TValueType"/>
       <Field Identifier="ZenerVoltage" Type="VoltageDQ"/>
       <Field Identifier="ErrorZenerVoltage" Type="string"/>
-      <Field Identifier="ZenerVoltageMinVT" Type="TValueType"/>
-      <Field Identifier="ZenerVoltageMin" Type="VoltageDQ"/>
-      <Field Identifier="ErrorZenerVoltageMin" Type="string"/>
-      <Field Identifier="ZenerVoltageMaxVT" Type="TValueType"/>
-      <Field Identifier="ZenerVoltageMax" Type="VoltageDQ"/>
-      <Field Identifier="ErrorZenerVoltageMax" Type="string"/>
+      <Field Identifier="ZenerVoltageBounds" Type="TBoundType"/>
+      <Field Identifier="ZenerVoltageUpperBound" Type="VoltageDQ"/>
       <Field Identifier="PowerRatingVT" Type="TValueType"/>
       <Field Identifier="PowerRating" Type="PowerDQ"/>
       <Field Identifier="ErrorPowerRating" Type="string"/>
-      <Field Identifier="PowerRatingMinVT" Type="TValueType"/>
-      <Field Identifier="PowerRatingMin" Type="PowerDQ"/>
-      <Field Identifier="ErrorPowerRatingMin" Type="string"/>
-      <Field Identifier="PowerRatingMaxVT" Type="TValueType"/>
-      <Field Identifier="PowerRatingMax" Type="PowerDQ"/>
-      <Field Identifier="ErrorPowerRatingMax" Type="string"/>
+      <Field Identifier="PowerRatingBounds" Type="TBoundType"/>
+      <Field Identifier="PowerRatingUpperBound" Type="PowerDQ"/>
       <Field Identifier="ToleranceVT" Type="TValueType"/>
       <Field Identifier="Tolerance" Type="ToleranceDQ"/>
       <Field Identifier="ErrorTolerance" Type="string"/>
-      <Field Identifier="ToleranceMinVT" Type="TValueType"/>
-      <Field Identifier="ToleranceMin" Type="ToleranceDQ"/>
-      <Field Identifier="ErrorToleranceMin" Type="string"/>
-      <Field Identifier="ToleranceMaxVT" Type="TValueType"/>
-      <Field Identifier="ToleranceMax" Type="ToleranceDQ"/>
-      <Field Identifier="ErrorToleranceMax" Type="string"/>
+      <Field Identifier="ToleranceBounds" Type="TBoundType"/>
+      <Field Identifier="ToleranceUpperBound" Type="ToleranceDQ"/>
       <!-->->-->
     </DataClass>
 
@@ -107,33 +97,41 @@
       </Parameters>
       <Block>
         <Execute Statement="Result:= False"/>
-        <Variable Identifier="IsRanged" Type="Boolean"/>
+        <Variable Identifier="IsMultiple" Type="Boolean"/>
         <!--<-<TComponentSpec.DoesMatchSpecification-->
-        <Execute Statement="IsRanged:= False"/>
-        <Case Expression="ZenerVoltageMinVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+        <Case Expression="ZenerVoltageVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
             <Case Expression="TZenerDiodeSpec(ComponentSpec).ZenerVoltageVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="ZenerVoltageMin &gt; TZenerDiodeSpec(ComponentSpec).ZenerVoltage"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="ZenerVoltage &lt;&gt; TZenerDiodeSpec(ComponentSpec).ZenerVoltage"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
               </On>
             </Case>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Exit/>
-          </On>
-        </Case>
-        <Case Expression="ZenerVoltageMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
             <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
             <Case Expression="TZenerDiodeSpec(ComponentSpec).ZenerVoltageVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="ZenerVoltageMax &lt; TZenerDiodeSpec(ComponentSpec).ZenerVoltage"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Case Expression="ZenerVoltageBounds">
+                  <On Select="TBoundType.Lower">
+                    <Exit Condition="TZenerDiodeSpec(ComponentSpec).ZenerVoltage &lt; ZenerVoltage"/>
+                  </On>
+                  <On Select="TBoundType.Upper">
+                    <Exit Condition="TZenerDiodeSpec(ComponentSpec).ZenerVoltage &gt; ZenerVoltageUpperBound"/>
+                  </On>
+                  <On Select="TBoundType.Range">
+                    <Exit Condition="(TZenerDiodeSpec(ComponentSpec).ZenerVoltage &lt; ZenerVoltage) or (TZenerDiodeSpec(ComponentSpec).ZenerVoltage &gt; ZenerVoltageUpperBound)"/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
@@ -144,49 +142,39 @@
             <Exit/>
           </On>
         </Case>
-        <Block Condition="not IsRanged">
-          <Case Expression="ZenerVoltageVT">
-            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-              <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
-              <Case Expression="TZenerDiodeSpec(ComponentSpec).ZenerVoltageVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                  <Exit Condition="ZenerVoltage &lt;&gt; TZenerDiodeSpec(ComponentSpec).ZenerVoltage"/>
-                </On>
-                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                  <Exit/>
-                </On>
-              </Case>
-            </On>
-            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-              <Exit/>
-            </On>
-          </Case>
-        </Block>
-        <Execute Statement="IsRanged:= False"/>
-        <Case Expression="PowerRatingMinVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+        <Case Expression="PowerRatingVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
             <Case Expression="TZenerDiodeSpec(ComponentSpec).PowerRatingVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="PowerRatingMin &gt; TZenerDiodeSpec(ComponentSpec).PowerRating"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="PowerRating &lt;&gt; TZenerDiodeSpec(ComponentSpec).PowerRating"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
               </On>
             </Case>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Exit/>
-          </On>
-        </Case>
-        <Case Expression="PowerRatingMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
             <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
             <Case Expression="TZenerDiodeSpec(ComponentSpec).PowerRatingVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="PowerRatingMax &lt; TZenerDiodeSpec(ComponentSpec).PowerRating"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Case Expression="PowerRatingBounds">
+                  <On Select="TBoundType.Lower">
+                    <Exit Condition="TZenerDiodeSpec(ComponentSpec).PowerRating &lt; PowerRating"/>
+                  </On>
+                  <On Select="TBoundType.Upper">
+                    <Exit Condition="TZenerDiodeSpec(ComponentSpec).PowerRating &gt; PowerRatingUpperBound"/>
+                  </On>
+                  <On Select="TBoundType.Range">
+                    <Exit Condition="(TZenerDiodeSpec(ComponentSpec).PowerRating &lt; PowerRating) or (TZenerDiodeSpec(ComponentSpec).PowerRating &gt; PowerRatingUpperBound)"/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
@@ -197,49 +185,39 @@
             <Exit/>
           </On>
         </Case>
-        <Block Condition="not IsRanged">
-          <Case Expression="PowerRatingVT">
-            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-              <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
-              <Case Expression="TZenerDiodeSpec(ComponentSpec).PowerRatingVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                  <Exit Condition="PowerRating &lt;&gt; TZenerDiodeSpec(ComponentSpec).PowerRating"/>
-                </On>
-                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                  <Exit/>
-                </On>
-              </Case>
-            </On>
-            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-              <Exit/>
-            </On>
-          </Case>
-        </Block>
-        <Execute Statement="IsRanged:= False"/>
-        <Case Expression="ToleranceMinVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+        <Case Expression="ToleranceVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
             <Case Expression="TZenerDiodeSpec(ComponentSpec).ToleranceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="ToleranceMin &gt; TZenerDiodeSpec(ComponentSpec).Tolerance"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="Tolerance &lt;&gt; TZenerDiodeSpec(ComponentSpec).Tolerance"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
               </On>
             </Case>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Exit/>
-          </On>
-        </Case>
-        <Case Expression="ToleranceMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
             <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
             <Case Expression="TZenerDiodeSpec(ComponentSpec).ToleranceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="ToleranceMax &lt; TZenerDiodeSpec(ComponentSpec).Tolerance"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Case Expression="ToleranceBounds">
+                  <On Select="TBoundType.Lower">
+                    <Exit Condition="TZenerDiodeSpec(ComponentSpec).Tolerance &lt; Tolerance"/>
+                  </On>
+                  <On Select="TBoundType.Upper">
+                    <Exit Condition="TZenerDiodeSpec(ComponentSpec).Tolerance &gt; ToleranceUpperBound"/>
+                  </On>
+                  <On Select="TBoundType.Range">
+                    <Exit Condition="(TZenerDiodeSpec(ComponentSpec).Tolerance &lt; Tolerance) or (TZenerDiodeSpec(ComponentSpec).Tolerance &gt; ToleranceUpperBound)"/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
@@ -250,24 +228,6 @@
             <Exit/>
           </On>
         </Case>
-        <Block Condition="not IsRanged">
-          <Case Expression="ToleranceVT">
-            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-              <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
-              <Case Expression="TZenerDiodeSpec(ComponentSpec).ToleranceVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                  <Exit Condition="Tolerance &lt;&gt; TZenerDiodeSpec(ComponentSpec).Tolerance"/>
-                </On>
-                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                  <Exit/>
-                </On>
-              </Case>
-            </On>
-            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-              <Exit/>
-            </On>
-          </Case>
-        </Block>
         <!-->->-->
         <Execute Statement="Result:= True"/>
       </Block>
@@ -283,9 +243,9 @@
         <Exit Condition="not (ComponentSpec is TZenerDiodeSpec)"/>
 
         <Case Expression="ComponentKindVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ComponentKindVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -301,9 +261,9 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="ZenerVoltageVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="TZenerDiodeSpec(ComponentSpec).ZenerVoltageVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="ZenerVoltage &lt;&gt; TZenerDiodeSpec(ComponentSpec).ZenerVoltage" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -319,9 +279,9 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="PowerRatingVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="TZenerDiodeSpec(ComponentSpec).PowerRatingVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="PowerRating &lt;&gt; TZenerDiodeSpec(ComponentSpec).PowerRating" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -337,31 +297,31 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="FootprintVT">
-          <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.FootprintVT">
-              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
               </On>
-              <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+              <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
                 <Execute Statement="Result:= Result + 1" Condition="ComponentSpec.FootprintMask.Matches(Footprint)"/>
               </On>
-              <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+              <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
               </On>
               <Otherwise>
                 <Exit/>
               </Otherwise>
             </Case>
           </On>
-          <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="ToleranceVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="TZenerDiodeSpec(ComponentSpec).ToleranceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="Tolerance &lt;&gt; TZenerDiodeSpec(ComponentSpec).Tolerance" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -377,9 +337,9 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="PartNumberVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.PartNumberVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="not SameText(PartNumber, ComponentSpec.PartNumber)" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -395,9 +355,9 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="ManufacturerVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ManufacturerVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="not SameText(Manufacturer, ComponentSpec.Manufacturer)" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -444,30 +404,46 @@
           <On Select="TCustomField.ValueMin">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="ZenerVoltageMinVT:= TValueType.Cleared"/>
+                <Execute Statement="ZenerVoltageVT:= TValueType.Cleared"/>
               </When>
               <When Expression="ZenerDiodeZenerVoltageConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="ZenerVoltageMinVT:= TValueType.Specified"/>
-                <Execute Statement="ZenerVoltageMin:= LocValue"/>
+                <Choose>
+                  <When Expression="(ZenerVoltageVT = TValueType.SpecifiedEx) and (ZenerVoltageBounds = TBoundType.Upper)">
+                    <Execute Statement="ZenerVoltageBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ZenerVoltageVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="ZenerVoltageBounds:= TBoundType.Lower"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="ZenerVoltage:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="ZenerVoltageMinVT:= TValueType.Error"/>
-                <Execute Statement="ErrorZenerVoltageMin:= Value"/>
+                <Execute Statement="ZenerVoltageVT:= TValueType.Error"/>
+                <Execute Statement="ErrorZenerVoltage:= Value"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TCustomField.ValueMax">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="ZenerVoltageMaxVT:= TValueType.Cleared"/>
+                <Execute Statement="ZenerVoltageVT:= TValueType.Cleared"/>
               </When>
               <When Expression="ZenerDiodeZenerVoltageConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="ZenerVoltageMaxVT:= TValueType.Specified"/>
-                <Execute Statement="ZenerVoltageMax:= LocValue"/>
+                <Choose>
+                  <When Expression="(ZenerVoltageVT = TValueType.SpecifiedEx) and (ZenerVoltageBounds = TBoundType.Lower)">
+                    <Execute Statement="ZenerVoltageBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ZenerVoltageVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="ZenerVoltageBounds:= TBoundType.Upper"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="ZenerVoltageUpperBound:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="ZenerVoltageMaxVT:= TValueType.Error"/>
-                <Execute Statement="ErrorZenerVoltageMax:= Value"/>
+                <Execute Statement="ZenerVoltageVT:= TValueType.Error"/>
+                <Execute Statement="ErrorZenerVoltage:= Value"/>
               </Otherwise>
             </Choose>
           </On>
@@ -489,30 +465,46 @@
           <On Select="TCustomField.PowerRatingMin">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="PowerRatingMinVT:= TValueType.Cleared"/>
+                <Execute Statement="PowerRatingVT:= TValueType.Cleared"/>
               </When>
               <When Expression="ZenerDiodePowerRatingConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="PowerRatingMinVT:= TValueType.Specified"/>
-                <Execute Statement="PowerRatingMin:= LocValue"/>
+                <Choose>
+                  <When Expression="(PowerRatingVT = TValueType.SpecifiedEx) and (PowerRatingBounds = TBoundType.Upper)">
+                    <Execute Statement="PowerRatingBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="PowerRatingVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="PowerRatingBounds:= TBoundType.Lower"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="PowerRating:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="PowerRatingMinVT:= TValueType.Error"/>
-                <Execute Statement="ErrorPowerRatingMin:= Value"/>
+                <Execute Statement="PowerRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorPowerRating:= Value"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TCustomField.PowerRatingMax">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="PowerRatingMaxVT:= TValueType.Cleared"/>
+                <Execute Statement="PowerRatingVT:= TValueType.Cleared"/>
               </When>
               <When Expression="ZenerDiodePowerRatingConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="PowerRatingMaxVT:= TValueType.Specified"/>
-                <Execute Statement="PowerRatingMax:= LocValue"/>
+                <Choose>
+                  <When Expression="(PowerRatingVT = TValueType.SpecifiedEx) and (PowerRatingBounds = TBoundType.Lower)">
+                    <Execute Statement="PowerRatingBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="PowerRatingVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="PowerRatingBounds:= TBoundType.Upper"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="PowerRatingUpperBound:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="PowerRatingMaxVT:= TValueType.Error"/>
-                <Execute Statement="ErrorPowerRatingMax:= Value"/>
+                <Execute Statement="PowerRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorPowerRating:= Value"/>
               </Otherwise>
             </Choose>
           </On>
@@ -534,30 +526,46 @@
           <On Select="TCustomField.ToleranceMin">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="ToleranceMinVT:= TValueType.Cleared"/>
+                <Execute Statement="ToleranceVT:= TValueType.Cleared"/>
               </When>
               <When Expression="ZenerDiodeToleranceConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="ToleranceMinVT:= TValueType.Specified"/>
-                <Execute Statement="ToleranceMin:= LocValue"/>
+                <Choose>
+                  <When Expression="(ToleranceVT = TValueType.SpecifiedEx) and (ToleranceBounds = TBoundType.Upper)">
+                    <Execute Statement="ToleranceBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ToleranceVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="ToleranceBounds:= TBoundType.Lower"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="Tolerance:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="ToleranceMinVT:= TValueType.Error"/>
-                <Execute Statement="ErrorToleranceMin:= Value"/>
+                <Execute Statement="ToleranceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorTolerance:= Value"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TCustomField.ToleranceMax">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="ToleranceMaxVT:= TValueType.Cleared"/>
+                <Execute Statement="ToleranceVT:= TValueType.Cleared"/>
               </When>
               <When Expression="ZenerDiodeToleranceConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="ToleranceMaxVT:= TValueType.Specified"/>
-                <Execute Statement="ToleranceMax:= LocValue"/>
+                <Choose>
+                  <When Expression="(ToleranceVT = TValueType.SpecifiedEx) and (ToleranceBounds = TBoundType.Lower)">
+                    <Execute Statement="ToleranceBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ToleranceVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="ToleranceBounds:= TBoundType.Upper"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="ToleranceUpperBound:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="ToleranceMaxVT:= TValueType.Error"/>
-                <Execute Statement="ErrorToleranceMax:= Value"/>
+                <Execute Statement="ToleranceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorTolerance:= Value"/>
               </Otherwise>
             </Choose>
           </On>
@@ -588,103 +596,76 @@
         <Execute Statement="UnitPostFix:= TUnitPostFix.Separated" Condition="FormatType = TSpecFormatType.Name"/>
         <Variable Identifier="Range" Type="string"/>
         <!--<-<TComponentSpec.GetSpecificationValues-->
-        <Case Expression="ZenerVoltageMinVT">
-          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Range:= ''"/>
-          </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= EDecimalQuantityToStr(ZenerVoltageMin, UnitPostFix) + #$2026"/>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '!' + ErrorZenerVoltageMin + '!' + #$2026"/>
-          </On>
-        </Case>
-        <Case Expression="ZenerVoltageMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + EDecimalQuantityToStr(ZenerVoltageMax, UnitPostFix)"/>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + '!' + ErrorZenerVoltageMax + '!' "/>
-          </On>
-        </Case>
-        <Execute Statement="Range:=  Range " Condition="IsNonEmptyString(Range)"/>
         <Case Expression="ZenerVoltageVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="ZenerVoltage:= Range"/>
+            <Execute Statement="ZenerVoltage:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="ZenerVoltage:= EDecimalQuantityToStr(Self.ZenerVoltage, UnitPostFix) + Range"/>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="ZenerVoltage:= EDecimalQuantityToStr(Self.ZenerVoltage, UnitPostFix)"/>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="ZenerVoltage:= '!' + ErrorZenerVoltage + '!' + Range"/>
-          </On>
-        </Case>
-        <Case Expression="PowerRatingMinVT">
-          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Range:= ''"/>
-          </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= EDecimalQuantityToStr(PowerRatingMin, UnitPostFix) + #$2026"/>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '!' + ErrorPowerRatingMin + '!' + #$2026"/>
-          </On>
-        </Case>
-        <Case Expression="PowerRatingMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + EDecimalQuantityToStr(PowerRatingMax, UnitPostFix)"/>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="ZenerVoltageBounds">
+              <On Select="TBoundType.Lower">
+                <Execute Statement="ZenerVoltage:= EDecimalQuantityToStr(Self.ZenerVoltage, UnitPostFix) + #$2026"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="ZenerVoltage:= #$2026 + EDecimalQuantityToStr(Self.ZenerVoltageUpperBound, UnitPostFix)"/>
+              </On>
+              <On Select="TBoundType.Range">
+                <Execute Statement="ZenerVoltage:= EDecimalQuantityToStr(Self.ZenerVoltage, UnitPostFix) + #$2026 + EDecimalQuantityToStr(Self.ZenerVoltageUpperBound, UnitPostFix)"/>
+              </On>
+            </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + '!' + ErrorPowerRatingMax + '!' "/>
+            <Execute Statement="ZenerVoltage:= '!' + ErrorZenerVoltage + '!'"/>
           </On>
         </Case>
-        <Execute Statement="Range:=  Range " Condition="IsNonEmptyString(Range)"/>
         <Case Expression="PowerRatingVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="PowerRating:= Range"/>
+            <Execute Statement="PowerRating:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="PowerRating:= EDecimalQuantityToStr(Self.PowerRating, UnitPostFix) + Range"/>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="PowerRating:= EDecimalQuantityToStr(Self.PowerRating, UnitPostFix)"/>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="PowerRating:= '!' + ErrorPowerRating + '!' + Range"/>
-          </On>
-        </Case>
-        <Case Expression="ToleranceMinVT">
-          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Range:= ''"/>
-          </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= EDecimalQuantityToStr(ToleranceMin, UnitPostFix) + #$2026"/>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '!' + ErrorToleranceMin + '!' + #$2026"/>
-          </On>
-        </Case>
-        <Case Expression="ToleranceMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + EDecimalQuantityToStr(ToleranceMax, UnitPostFix)"/>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="PowerRatingBounds">
+              <On Select="TBoundType.Lower">
+                <Execute Statement="PowerRating:= EDecimalQuantityToStr(Self.PowerRating, UnitPostFix) + #$2026"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="PowerRating:= #$2026 + EDecimalQuantityToStr(Self.PowerRatingUpperBound, UnitPostFix)"/>
+              </On>
+              <On Select="TBoundType.Range">
+                <Execute Statement="PowerRating:= EDecimalQuantityToStr(Self.PowerRating, UnitPostFix) + #$2026 + EDecimalQuantityToStr(Self.PowerRatingUpperBound, UnitPostFix)"/>
+              </On>
+            </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + '!' + ErrorToleranceMax + '!' "/>
+            <Execute Statement="PowerRating:= '!' + ErrorPowerRating + '!'"/>
           </On>
         </Case>
-        <Execute Statement="Range:=  Range " Condition="IsNonEmptyString(Range)"/>
         <Case Expression="ToleranceVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Tolerance:= Range"/>
+            <Execute Statement="Tolerance:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix) + Range"/>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix)"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="ToleranceBounds">
+              <On Select="TBoundType.Lower">
+                <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix) + #$2026"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="Tolerance:= #$2026 + EDecimalQuantityToStr(Self.ToleranceUpperBound, UnitPostFix)"/>
+              </On>
+              <On Select="TBoundType.Range">
+                <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix) + #$2026 + EDecimalQuantityToStr(Self.ToleranceUpperBound, UnitPostFix)"/>
+              </On>
+            </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!' + Range"/>
+            <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
           </On>
         </Case>
         <!-->->-->
@@ -693,11 +674,11 @@
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="ESerie:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="ESerie:= ESerieOfValue(Self.ZenerVoltage)"/>
             <Block Condition="not HideZenerDiodeMaxAmp">
               <Case Expression="PowerRatingVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                   <Variable Identifier="CalcMaxAmp" Type="Current" Init="CatchFloatE(Self.PowerRating / Self.ZenerVoltage) ~ ⌠A⌡" DisabledChecks="error"/>
                   <Choose>
                     <When Expression="IsError(CalcMaxAmp)">
@@ -793,126 +774,60 @@
           <!--<-<TComponentSpec.ApplyTemplate-->
           <Case Expression="ZenerVoltageVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="ZenerVoltageMinVT">
-                <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                  <Case Expression="ZenerVoltageMaxVT">
-                    <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                      <Case Expression="locTemplate.ZenerVoltageVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="ZenerVoltage:= locTemplate.ZenerVoltage"/>
-                          <Execute Statement="ZenerVoltageVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="ZenerVoltage:= locTemplate.ErrorZenerVoltage"/>
-                          <Execute Statement="ZenerVoltageVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.ZenerVoltageMinVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="ZenerVoltageMin:= locTemplate.ZenerVoltageMin"/>
-                          <Execute Statement="ZenerVoltageMinVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="ZenerVoltageMin:= locTemplate.ErrorZenerVoltageMin"/>
-                          <Execute Statement="ZenerVoltageMinVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.ZenerVoltageMaxVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="ZenerVoltageMax:= locTemplate.ZenerVoltageMax"/>
-                          <Execute Statement="ZenerVoltageMaxVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="ZenerVoltageMax:= locTemplate.ErrorZenerVoltageMax"/>
-                          <Execute Statement="ZenerVoltageMaxVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                    </On>
-                  </Case>
+              <Case Expression="locTemplate.ZenerVoltageVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="ZenerVoltage:= locTemplate.ZenerVoltage"/>
+                  <Execute Statement="ZenerVoltageVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                  <Execute Statement="ZenerVoltage:= locTemplate.ZenerVoltage" Condition="InFlags(locTemplate.ZenerVoltageBounds, cValidLowerFlags)"/>
+                  <Execute Statement="ZenerVoltageUpperBound:= locTemplate.ZenerVoltageUpperBound" Condition="InFlags(locTemplate.ZenerVoltageBounds, cValidUpperFlags)"/>
+                  <Execute Statement="ZenerVoltageBounds:= locTemplate.ZenerVoltageBounds"/>
+                  <Execute Statement="ZenerVoltageVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorZenerVoltage:= locTemplate.ErrorZenerVoltage"/>
+                  <Execute Statement="ZenerVoltageVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
           </Case>
           <Case Expression="PowerRatingVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="PowerRatingMinVT">
-                <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                  <Case Expression="PowerRatingMaxVT">
-                    <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                      <Case Expression="locTemplate.PowerRatingVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="PowerRating:= locTemplate.PowerRating"/>
-                          <Execute Statement="PowerRatingVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="PowerRating:= locTemplate.ErrorPowerRating"/>
-                          <Execute Statement="PowerRatingVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.PowerRatingMinVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="PowerRatingMin:= locTemplate.PowerRatingMin"/>
-                          <Execute Statement="PowerRatingMinVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="PowerRatingMin:= locTemplate.ErrorPowerRatingMin"/>
-                          <Execute Statement="PowerRatingMinVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.PowerRatingMaxVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="PowerRatingMax:= locTemplate.PowerRatingMax"/>
-                          <Execute Statement="PowerRatingMaxVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="PowerRatingMax:= locTemplate.ErrorPowerRatingMax"/>
-                          <Execute Statement="PowerRatingMaxVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                    </On>
-                  </Case>
+              <Case Expression="locTemplate.PowerRatingVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="PowerRating:= locTemplate.PowerRating"/>
+                  <Execute Statement="PowerRatingVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                  <Execute Statement="PowerRating:= locTemplate.PowerRating" Condition="InFlags(locTemplate.PowerRatingBounds, cValidLowerFlags)"/>
+                  <Execute Statement="PowerRatingUpperBound:= locTemplate.PowerRatingUpperBound" Condition="InFlags(locTemplate.PowerRatingBounds, cValidUpperFlags)"/>
+                  <Execute Statement="PowerRatingBounds:= locTemplate.PowerRatingBounds"/>
+                  <Execute Statement="PowerRatingVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorPowerRating:= locTemplate.ErrorPowerRating"/>
+                  <Execute Statement="PowerRatingVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
           </Case>
           <Case Expression="ToleranceVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="ToleranceMinVT">
-                <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                  <Case Expression="ToleranceMaxVT">
-                    <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                      <Case Expression="locTemplate.ToleranceVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="Tolerance:= locTemplate.Tolerance"/>
-                          <Execute Statement="ToleranceVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="Tolerance:= locTemplate.ErrorTolerance"/>
-                          <Execute Statement="ToleranceVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.ToleranceMinVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="ToleranceMin:= locTemplate.ToleranceMin"/>
-                          <Execute Statement="ToleranceMinVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="ToleranceMin:= locTemplate.ErrorToleranceMin"/>
-                          <Execute Statement="ToleranceMinVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.ToleranceMaxVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="ToleranceMax:= locTemplate.ToleranceMax"/>
-                          <Execute Statement="ToleranceMaxVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="ToleranceMax:= locTemplate.ErrorToleranceMax"/>
-                          <Execute Statement="ToleranceMaxVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                    </On>
-                  </Case>
+              <Case Expression="locTemplate.ToleranceVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="Tolerance:= locTemplate.Tolerance"/>
+                  <Execute Statement="ToleranceVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                  <Execute Statement="Tolerance:= locTemplate.Tolerance" Condition="InFlags(locTemplate.ToleranceBounds, cValidLowerFlags)"/>
+                  <Execute Statement="ToleranceUpperBound:= locTemplate.ToleranceUpperBound" Condition="InFlags(locTemplate.ToleranceBounds, cValidUpperFlags)"/>
+                  <Execute Statement="ToleranceBounds:= locTemplate.ToleranceBounds"/>
+                  <Execute Statement="ToleranceVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorTolerance:= locTemplate.ErrorTolerance"/>
+                  <Execute Statement="ToleranceVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
@@ -931,7 +846,7 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Case Expression="ComponentSpec.ZenerVoltageVT" Optimalisation="integermapping">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="Result:= True"/>
             <Execute Statement="Key:= ComponentSpec.ZenerVoltage"/>
           </On>
@@ -962,15 +877,15 @@
 
     <Procedure Identifier="TZenerDiodeCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
       </Parameters>
       <Constants>
-        <Constant Identifier="sSectionZenderDiodeTHT" Type="string" Expression="'Template.ZenderDiode.THT'"/>
+        <Constant Identifier="sSectionZenderDiode" Type="string" Expression="'Template.ZenderDiode'"/>
       </Constants>
       <Block>
-        <ConditionalBlock Expression="IniFile.SectionExists(sSectionZenderDiodeTHT)">
+        <ConditionalBlock Expression="Ini.Inifile.SectionExists(sSectionZenderDiode)">
           <Execute Statement="TemplateTHT:= TZenerDiodeSpec.Create"/>
-          <Execute Statement="TemplateTHT.LoadFromIniFileSection(IniFile, sSectionZenderDiodeTHT)"/>
+          <Execute Statement="TemplateTHT.LoadFromIniFileSection(Ini, sSectionZenderDiode)"/>
         </ConditionalBlock>
       </Block>
     </Procedure>
@@ -1025,11 +940,11 @@
         <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
         <Exit Condition="Result &lt;&gt; 0"/>
         <!--<-<TComponentSpec.CompareSpecifications-->
-        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.ZenerVoltage, A.ZenerVoltageVT, A.ZenerVoltageMin, A.ZenerVoltageMinVT, A.ZenerVoltageMax, A.ZenerVoltageMaxVT, B.ID, B.ZenerVoltage, B.ZenerVoltageVT, B.ZenerVoltageMin, B.ZenerVoltageMinVT, B.ZenerVoltageMax, B.ZenerVoltageMaxVT)"/>
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.ZenerVoltageVT, A.ZenerVoltage, A.ZenerVoltageUpperBound, A.ZenerVoltageBounds, B.ID, B.ZenerVoltageVT, B.ZenerVoltage, B.ZenerVoltageUpperBound, B.ZenerVoltageBounds)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.PowerRating, A.PowerRatingVT, A.PowerRatingMin, A.PowerRatingMinVT, A.PowerRatingMax, A.PowerRatingMaxVT, B.ID, B.PowerRating, B.PowerRatingVT, B.PowerRatingMin, B.PowerRatingMinVT, B.PowerRatingMax, B.PowerRatingMaxVT)"/>
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.PowerRatingVT, A.PowerRating, A.PowerRatingUpperBound, A.PowerRatingBounds, B.ID, B.PowerRatingVT, B.PowerRating, B.PowerRatingUpperBound, B.PowerRatingBounds)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.Tolerance, A.ToleranceVT, A.ToleranceMin, A.ToleranceMinVT, A.ToleranceMax, A.ToleranceMaxVT, B.ID, B.Tolerance, B.ToleranceVT, B.ToleranceMin, B.ToleranceMinVT, B.ToleranceMax, B.ToleranceMaxVT)"/>
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.ToleranceVT, A.Tolerance, A.ToleranceUpperBound, A.ToleranceBounds, B.ID, B.ToleranceVT, B.Tolerance, B.ToleranceUpperBound, B.ToleranceBounds)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
         <!-->->-->
         <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
@@ -1038,17 +953,17 @@
 
     <Function Identifier="TZenerDiodeCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
         <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
       </Parameters>
       <Constants>
         <Constant Identifier="cZenerDiode" Type="string" Expression="'ZenerDiode'"/>
       </Constants>
       <Block>
-        <Execute Statement="Result:= IniFile.SectionExists(cZenerDiode)"/>
+        <Execute Statement="Result:= Ini.Inifile.SectionExists(cZenerDiode)"/>
         <Block Condition="Result">
           <Execute Statement="ComponentSpec:= TZenerDiodeSpec.Create"/>
-          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cZenerDiode)"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(Ini, cZenerDiode)"/>
         </Block>
       </Block>
     </Function>

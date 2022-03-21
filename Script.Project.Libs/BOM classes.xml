@@ -17,52 +17,18 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement">
   <Uses>
-    <Use Identifier="SiUnits"/>
-    <Use Identifier="ElectronicUtils"/>
-    <Use Identifier="ElectronicReportUtils"/>
+    <Use Identifier="EnumerationUtils"/>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="ElectronicsUtils"/>
+    <Use Identifier="ElectronicsReportUtils"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
   </Uses>
   <Type>
     <DataClass.Forwarded Identifier="TComponentSpec"/>
     <DataClass.Forwarded Identifier="TStorageLocation"/>
     <DataClass.Forwarded Identifier="TPickRequest"/>
-
-    <Enumeration Identifier="TSiUnit" Elements="None, Ohm, Watt, Farad, Henry, Volt, Amp, Perc, Hz, Meter, Second" LowAlias="Low" HighAlias="High"/>
-
-    <Enumeration Identifier="TUnitPostFix" Elements="None, Compact, Separated"/>
-
-    <Enumeration Identifier="TComponentSpecConsolidateKind" Elements="Schema, Stock"/>
-
-    <Enumeration Identifier="TCustomField" Elements="Unknown, ComponentKind, Value, ValueMin, ValueMax, Footprint, FootprintMask, InternalPartNumber, PartNumber, Manufacturer, PowerRating, PowerRatingMin, PowerRatingMax, 
-                 VoltageRating, VoltageRatingMin, VoltageRatingMax, AmperageRating, AmperageRatingMin, AmperageRatingMax, Tolerance, ToleranceMin, ToleranceMax, Technology, Pins, 
-                 ForwardVoltage, ForwardVoltageMin, ForwardVoltageMax, ReverseVoltageRating, ReverseVoltageRatingMin, ReverseVoltageRatingMax, BreakSpeed, Dimensions, Functions" LowAlias="Low" HighAlias="High"/>
-
-    <Enumeration Identifier="TValueType" Elements="Unspecified, Cleared, ClearedByTemplate, Specified, SpecifiedByTemplate, Error, ErrorByTemplate"/>
-
-    <Enumeration Identifier="TFootPrintValueType" Elements="Unspecified, Cleared, ClearedByTemplate, Specified, MaskSpecified, SpecifiedByTemplate, MaskSpecifiedByTemplate, Error, ErrorByTemplate"/>
-
-    <!--<-<Type.TComponentKind-->
-    <Enumeration Identifier="TComponentKind" Elements="None, Resistor, VariableResistor, Capacitor, PolarisedCapacitor, VariableCapacitor, Inductor, BridgeRectifier, ZenerDiode, Diode, SchottkyDiode, Laserdiode, 
-        Photodiode, SpecialDiode, DualDiode, NPNTransistor, PNPTransistor, NFET, PFET, NIGBT, NJFET, PJFET, NMOSFET, PMOSFET, PUJT, NUJT, OpAmp, Comparator, AudioAmplifier, Diac, SCR, TRIAC, LED, Fuse, Polyfuse, Antenna, 
-        Crystal, DelayLine, EmiFilter, FerriteBead, FrequencyCounter, PhotoTransistor, HallGenerator, Thermistor, PhotoResistor, Varistor, Microphone, Memristor, ResistorNetwork, ResistorPack, Resonator, 
-        RFShield, RotaryEncoder, Thermocouple, VoltageDivider, Jumper, Connector, SolarCell, Battery, Adapter, Transformer, Peltier, Speaker, Buzzer, Earphone, Lamp, Heater, ElectromagneticActor, MeasuringDevice, 
-        Timer, SchmittTrigger, Optocoupler, ReferenceVoltageIC, Switch, Heatsink, Relay, IntegratedCircuit, Module, Component, NonComponent" LowAlias="Low" HighAlias="High"/>
-    <!-->->-->
-    <!--<Enumeration Identifier="TFootprint" Elements="Unspecified, THT, SMD" LowAlias="Low" HighAlias="High"/>-->
-
-    <Enumeration Identifier="TDeepSearchstate" Elements="None, Running, Done"/>
-
-    <Enumeration Identifier="TSpecFormatType" Elements="Description, Name, Fixed"/>
-
-    <Enumeration Identifier="TResistorSpecColumns"           Elements="Value, ESerie, PowerRating,         MaxAmpVolt, Tolerance,      Technology,     FootPrint, PartNumberModel, InternalPartNumber"/>
-    <Enumeration Identifier="TCapacitorSpecColumns"          Elements="Value, ESerie, VoltageRating,       SpanA1,     Tolerance,      Technology,     FootPrint, PartNumberModel, InternalPartNumber"/>
-    <Enumeration Identifier="TZenerDiodeSpecColumns"         Elements="Value, ESerie, PowerRating,         MaxAmp,     Tolerance,      None1,          FootPrint, PartNumberModel, InternalPartNumber"/>
-    <Enumeration Identifier="TInductorSpecColumns"           Elements="Value, ESerie, AmpRating,           SpanA1,     Tolerance,      None1,          FootPrint, PartNumberModel, InternalPartNumber"/>
-    <Enumeration Identifier="TConnectorSpecColumns"          Elements="Value, SpanA2, SpanA3,              SpanA4,     AmpRating,      SpanB2,         FootPrint, PartNumberModel, InternalPartNumber"/>
-    <Enumeration Identifier="TDiodeSpecColumns"              Elements="Value, SpanA2, ReverseVoltageRating,SpanB2,     AmperageRating, ForwardVoltage, FootPrint, PartNumberModel, InternalPartNumber"/>
-    <Enumeration Identifier="TFuseSpecColumns"               Elements="Value, SpanA2, VoltageRating,       NoneA1,     NoneA2,         BreakSpeed,     FootPrint, PartNumberModel, InternalPartNumber"/>
-    <Enumeration Identifier="TNamedComponentSpecColumns"     Elements="Value, SpanA2, SpanA3,              SpanA4,     SpanA5,         SpanA6,         FootPrint, PartNumberModel, InternalPartNumber" LowAlias="Min" HighAlias="Max"/>
-    <Enumeration Identifier="TIntegratedCircuitSpecColumns"  Elements="Value, SpanA2, Functions,           SpanB2,     SpanB3,         SpanB4,         FootPrint, PartNumberModel, InternalPartNumber"/>
 
     <DataClass Identifier="TStorageLocationCategory">
       <Field Identifier="Name" Type="string"/>
@@ -188,7 +154,7 @@
       <Field Identifier="ErrorComponentKind" Type="string"/>
       <Field Identifier="Footprint" Type="string"/>
       <Field Identifier="FootprintMask" Type="TAnsiMaskObject"/>
-      <Field Identifier="FootprintVT" Type="TFootPrintValueType"/>
+      <Field Identifier="FootprintVT" Type="TValueType"/>
       <Field Identifier="ErrorFootprint" Type="string"/>
       <Field Identifier="ID" Type="Integer"/>
       <Field Identifier="SchemaComponentHead" Type="TSchemaComponent"/>
@@ -208,6 +174,11 @@
       <Field Identifier="ComponentDesignators" Type="string"/>
       <Field Identifier="PickedCount" Type="UInt32"/>
       <Field Identifier="Next" Type="TComponentSpec"/>
+    </DataClass>
+
+    <DataClass Identifier="TPassiveSpec" Inherit="TComponentSpec">
+      <VirtualMethod Identifier="vmGetValue"/>
+      <VirtualMethod Identifier="vmSetValue"/>
     </DataClass>
 
     <DataClass Identifier="TComponentCategory" DefaultConstructor="createonly">
@@ -242,22 +213,17 @@
 
   </Type>
 
-  <Constants>
-    <Constant Identifier="sUnitName" Type="string" Expression="'BOM classes.xml'"/>
-  </Constants>
-
   <Variables>
     <Variable Identifier="MaskManager" Type="TAnsiMaskManager"/>
     <Variable Identifier="SymbolComponentKindIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
-    <Variable Identifier="CustomFieldsIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
-    <Variable Identifier="ComponentKindIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
-    <Variable Identifier="FootprintIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
     <Variable Identifier="E192Serie" Type="TSerie" Init="GetESerie(TESerie.E192)"/>
     <Variable Identifier="E24Serie" Type="TSerie" Init="GetESerie(TESerie.E24)"/>
     <Variable Identifier="HideESerieOfValue" Type="Boolean" Init="False"/>
     <Variable Identifier="HideResistorMaxAmpVolt" Type="Boolean" Init="False"/>
     <Variable Identifier="HideZenerDiodeMaxAmp" Type="Boolean" Init="False"/>
     <Variable Identifier="HideFootPrint" Type="Boolean" Init="False"/>
+    <Variable Identifier="SheetInfo" Type="TSheetInfo" Init="TSheetInfo.All"/>
+    <Variable Identifier="SeperateComponents" Type="Boolean" Init="True"/>
     <Variable Identifier="SkipFootprintMatching" Type="Boolean" Init="False"/>
     <Variable Identifier="MaxShowResistorVoltage" Type="Voltage" Init="1⌠kV⌡"/>
     <!--<-<Variables.Converters-->
@@ -432,17 +398,17 @@
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit Result="-1"/>
               </On>
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= 1"/>
               </On>
             </Case>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ValueTypeB">
               <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate, TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Result:= -1"/>
               </On>
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= CompareText(ValueA, ValueB)"/>
               </On>
             </Case>
@@ -495,7 +461,7 @@
         <Execute Statement="SerieNode:= E192Serie.FindNode(Value)" Condition="not Assigned(SerieNode)"/>
         <Exit  Condition="not Assigned(SerieNode)"/>
         <Case Expression="SerieNode.LowSerie" Optimalisation="integermapping">
-          <On Select="TESerie.E3">
+          <On Select="TESerie.E1, TESerie.E3">
             <Execute Statement="Result:= 'E3'"/>
           </On>
           <On Select="TESerie.E6">
@@ -520,773 +486,6 @@
       </Block>
     </Function>
 
-    <Function Identifier="ComponentKindName" Type="string" IsDeterministic="true">
-      <Parameters>
-        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
-      </Parameters>
-      <Block>
-        <Case Expression="ComponentKind" Optimalisation="integermapping">
-          <!--<-<Procedures.ComponentKindName.Case-->
-          <On Select="TComponentKind.None">
-            <Execute Statement="Result:= 'None'"/>
-          </On>
-          <On Select="TComponentKind.Resistor">
-            <Execute Statement="Result:= 'Resistor'"/>
-          </On>
-          <On Select="TComponentKind.VariableResistor">
-            <Execute Statement="Result:= 'VariableResistor'"/>
-          </On>
-          <On Select="TComponentKind.Capacitor">
-            <Execute Statement="Result:= 'Capacitor'"/>
-          </On>
-          <On Select="TComponentKind.PolarisedCapacitor">
-            <Execute Statement="Result:= 'PolarisedCapacitor'"/>
-          </On>
-          <On Select="TComponentKind.VariableCapacitor">
-            <Execute Statement="Result:= 'VariableCapacitor'"/>
-          </On>
-          <On Select="TComponentKind.Inductor">
-            <Execute Statement="Result:= 'Inductor'"/>
-          </On>
-          <On Select="TComponentKind.BridgeRectifier">
-            <Execute Statement="Result:= 'BridgeRectifier'"/>
-          </On>
-          <On Select="TComponentKind.ZenerDiode">
-            <Execute Statement="Result:= 'ZenerDiode'"/>
-          </On>
-          <On Select="TComponentKind.Diode">
-            <Execute Statement="Result:= 'Diode'"/>
-          </On>
-          <On Select="TComponentKind.SchottkyDiode">
-            <Execute Statement="Result:= 'SchottkyDiode'"/>
-          </On>
-          <On Select="TComponentKind.Laserdiode">
-            <Execute Statement="Result:= 'Laserdiode'"/>
-          </On>
-          <On Select="TComponentKind.Photodiode">
-            <Execute Statement="Result:= 'Photodiode'"/>
-          </On>
-          <On Select="TComponentKind.SpecialDiode">
-            <Execute Statement="Result:= 'SpecialDiode'"/>
-          </On>
-          <On Select="TComponentKind.DualDiode">
-            <Execute Statement="Result:= 'DualDiode'"/>
-          </On>
-          <On Select="TComponentKind.NPNTransistor">
-            <Execute Statement="Result:= 'NPNTransistor'"/>
-          </On>
-          <On Select="TComponentKind.PNPTransistor">
-            <Execute Statement="Result:= 'PNPTransistor'"/>
-          </On>
-          <On Select="TComponentKind.NFET">
-            <Execute Statement="Result:= 'NFET'"/>
-          </On>
-          <On Select="TComponentKind.PFET">
-            <Execute Statement="Result:= 'PFET'"/>
-          </On>
-          <On Select="TComponentKind.NIGBT">
-            <Execute Statement="Result:= 'NIGBT'"/>
-          </On>
-          <On Select="TComponentKind.NJFET">
-            <Execute Statement="Result:= 'NJFET'"/>
-          </On>
-          <On Select="TComponentKind.PJFET">
-            <Execute Statement="Result:= 'PJFET'"/>
-          </On>
-          <On Select="TComponentKind.NMOSFET">
-            <Execute Statement="Result:= 'NMOSFET'"/>
-          </On>
-          <On Select="TComponentKind.PMOSFET">
-            <Execute Statement="Result:= 'PMOSFET'"/>
-          </On>
-          <On Select="TComponentKind.PUJT">
-            <Execute Statement="Result:= 'PUJT'"/>
-          </On>
-          <On Select="TComponentKind.NUJT">
-            <Execute Statement="Result:= 'NUJT'"/>
-          </On>
-          <On Select="TComponentKind.OpAmp">
-            <Execute Statement="Result:= 'OpAmp'"/>
-          </On>
-          <On Select="TComponentKind.Comparator">
-            <Execute Statement="Result:= 'Comparator'"/>
-          </On>
-          <On Select="TComponentKind.AudioAmplifier">
-            <Execute Statement="Result:= 'AudioAmplifier'"/>
-          </On>
-          <On Select="TComponentKind.Diac">
-            <Execute Statement="Result:= 'Diac'"/>
-          </On>
-          <On Select="TComponentKind.SCR">
-            <Execute Statement="Result:= 'SCR'"/>
-          </On>
-          <On Select="TComponentKind.TRIAC">
-            <Execute Statement="Result:= 'TRIAC'"/>
-          </On>
-          <On Select="TComponentKind.LED">
-            <Execute Statement="Result:= 'LED'"/>
-          </On>
-          <On Select="TComponentKind.Fuse">
-            <Execute Statement="Result:= 'Fuse'"/>
-          </On>
-          <On Select="TComponentKind.Polyfuse">
-            <Execute Statement="Result:= 'Polyfuse'"/>
-          </On>
-          <On Select="TComponentKind.Antenna">
-            <Execute Statement="Result:= 'Antenna'"/>
-          </On>
-          <On Select="TComponentKind.Crystal">
-            <Execute Statement="Result:= 'Crystal'"/>
-          </On>
-          <On Select="TComponentKind.DelayLine">
-            <Execute Statement="Result:= 'DelayLine'"/>
-          </On>
-          <On Select="TComponentKind.EmiFilter">
-            <Execute Statement="Result:= 'EmiFilter'"/>
-          </On>
-          <On Select="TComponentKind.FerriteBead">
-            <Execute Statement="Result:= 'FerriteBead'"/>
-          </On>
-          <On Select="TComponentKind.FrequencyCounter">
-            <Execute Statement="Result:= 'FrequencyCounter'"/>
-          </On>
-          <On Select="TComponentKind.PhotoTransistor">
-            <Execute Statement="Result:= 'PhotoTransistor'"/>
-          </On>
-          <On Select="TComponentKind.HallGenerator">
-            <Execute Statement="Result:= 'HallGenerator'"/>
-          </On>
-          <On Select="TComponentKind.Thermistor">
-            <Execute Statement="Result:= 'Thermistor'"/>
-          </On>
-          <On Select="TComponentKind.PhotoResistor">
-            <Execute Statement="Result:= 'PhotoResistor'"/>
-          </On>
-          <On Select="TComponentKind.Varistor">
-            <Execute Statement="Result:= 'Varistor'"/>
-          </On>
-          <On Select="TComponentKind.Microphone">
-            <Execute Statement="Result:= 'Microphone'"/>
-          </On>
-          <On Select="TComponentKind.Memristor">
-            <Execute Statement="Result:= 'Memristor'"/>
-          </On>
-          <On Select="TComponentKind.ResistorNetwork">
-            <Execute Statement="Result:= 'ResistorNetwork'"/>
-          </On>
-          <On Select="TComponentKind.ResistorPack">
-            <Execute Statement="Result:= 'ResistorPack'"/>
-          </On>
-          <On Select="TComponentKind.Resonator">
-            <Execute Statement="Result:= 'Resonator'"/>
-          </On>
-          <On Select="TComponentKind.RFShield">
-            <Execute Statement="Result:= 'RFShield'"/>
-          </On>
-          <On Select="TComponentKind.RotaryEncoder">
-            <Execute Statement="Result:= 'RotaryEncoder'"/>
-          </On>
-          <On Select="TComponentKind.Thermocouple">
-            <Execute Statement="Result:= 'Thermocouple'"/>
-          </On>
-          <On Select="TComponentKind.VoltageDivider">
-            <Execute Statement="Result:= 'VoltageDivider'"/>
-          </On>
-          <On Select="TComponentKind.Jumper">
-            <Execute Statement="Result:= 'Jumper'"/>
-          </On>
-          <On Select="TComponentKind.Connector">
-            <Execute Statement="Result:= 'Connector'"/>
-          </On>
-          <On Select="TComponentKind.SolarCell">
-            <Execute Statement="Result:= 'SolarCell'"/>
-          </On>
-          <On Select="TComponentKind.Battery">
-            <Execute Statement="Result:= 'Battery'"/>
-          </On>
-          <On Select="TComponentKind.Adapter">
-            <Execute Statement="Result:= 'Adapter'"/>
-          </On>
-          <On Select="TComponentKind.Transformer">
-            <Execute Statement="Result:= 'Transformer'"/>
-          </On>
-          <On Select="TComponentKind.Peltier">
-            <Execute Statement="Result:= 'Peltier'"/>
-          </On>
-          <On Select="TComponentKind.Speaker">
-            <Execute Statement="Result:= 'Speaker'"/>
-          </On>
-          <On Select="TComponentKind.Buzzer">
-            <Execute Statement="Result:= 'Buzzer'"/>
-          </On>
-          <On Select="TComponentKind.Earphone">
-            <Execute Statement="Result:= 'Earphone'"/>
-          </On>
-          <On Select="TComponentKind.Lamp">
-            <Execute Statement="Result:= 'Lamp'"/>
-          </On>
-          <On Select="TComponentKind.Heater">
-            <Execute Statement="Result:= 'Heater'"/>
-          </On>
-          <On Select="TComponentKind.ElectromagneticActor">
-            <Execute Statement="Result:= 'ElectromagneticActor'"/>
-          </On>
-          <On Select="TComponentKind.MeasuringDevice">
-            <Execute Statement="Result:= 'MeasuringDevice'"/>
-          </On>
-          <On Select="TComponentKind.Timer">
-            <Execute Statement="Result:= 'Timer'"/>
-          </On>
-          <On Select="TComponentKind.SchmittTrigger">
-            <Execute Statement="Result:= 'SchmittTrigger'"/>
-          </On>
-          <On Select="TComponentKind.Optocoupler">
-            <Execute Statement="Result:= 'Optocoupler'"/>
-          </On>
-          <On Select="TComponentKind.ReferenceVoltageIC">
-            <Execute Statement="Result:= 'ReferenceVoltageIC'"/>
-          </On>
-          <On Select="TComponentKind.Switch">
-            <Execute Statement="Result:= 'Switch'"/>
-          </On>
-          <On Select="TComponentKind.Heatsink">
-            <Execute Statement="Result:= 'Heatsink'"/>
-          </On>
-          <On Select="TComponentKind.Relay">
-            <Execute Statement="Result:= 'Relay'"/>
-          </On>
-          <On Select="TComponentKind.IntegratedCircuit">
-            <Execute Statement="Result:= 'IntegratedCircuit'"/>
-          </On>
-          <On Select="TComponentKind.Module">
-            <Execute Statement="Result:= 'Module'"/>
-          </On>
-          <On Select="TComponentKind.Component">
-            <Execute Statement="Result:= 'Component'"/>
-          </On>
-          <On Select="TComponentKind.NonComponent">
-            <Execute Statement="Result:= 'NonComponent'"/>
-          </On>
-          <!-->->-->
-          <Otherwise>
-            <Raise Expression="Exception.Create('Unmapped component kind')"/>
-          </Otherwise>
-        </Case>
-      </Block>
-    </Function>
-
-    <Function Identifier="ComponentKindDescription" Type="string" IsDeterministic="true">
-      <Parameters>
-        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
-      </Parameters>
-      <Block>
-        <Case Expression="ComponentKind" Optimalisation="integermapping">
-          <!--<-<Procedures.ComponentKindDescription.Case-->
-          <On Select="TComponentKind.None">
-            <Execute Statement="Result:= sNoneDescription"/>
-          </On>
-          <On Select="TComponentKind.Resistor">
-            <Execute Statement="Result:= sResistorDescription"/>
-          </On>
-          <On Select="TComponentKind.VariableResistor">
-            <Execute Statement="Result:= sVariableResistorDescription"/>
-          </On>
-          <On Select="TComponentKind.Capacitor">
-            <Execute Statement="Result:= sCapacitorDescription"/>
-          </On>
-          <On Select="TComponentKind.PolarisedCapacitor">
-            <Execute Statement="Result:= sPolarisedCapacitorDescription"/>
-          </On>
-          <On Select="TComponentKind.VariableCapacitor">
-            <Execute Statement="Result:= sVariableCapacitorDescription"/>
-          </On>
-          <On Select="TComponentKind.Inductor">
-            <Execute Statement="Result:= sInductorDescription"/>
-          </On>
-          <On Select="TComponentKind.BridgeRectifier">
-            <Execute Statement="Result:= sBridgeRectifierDescription"/>
-          </On>
-          <On Select="TComponentKind.ZenerDiode">
-            <Execute Statement="Result:= sZenerDiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.Diode">
-            <Execute Statement="Result:= sDiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.SchottkyDiode">
-            <Execute Statement="Result:= sSchottkyDiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.Laserdiode">
-            <Execute Statement="Result:= sLaserdiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.Photodiode">
-            <Execute Statement="Result:= sPhotodiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.SpecialDiode">
-            <Execute Statement="Result:= sSpecialDiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.DualDiode">
-            <Execute Statement="Result:= sDualDiodeDescription"/>
-          </On>
-          <On Select="TComponentKind.NPNTransistor">
-            <Execute Statement="Result:= sNPNTransistorDescription"/>
-          </On>
-          <On Select="TComponentKind.PNPTransistor">
-            <Execute Statement="Result:= sPNPTransistorDescription"/>
-          </On>
-          <On Select="TComponentKind.NFET">
-            <Execute Statement="Result:= sNFETDescription"/>
-          </On>
-          <On Select="TComponentKind.PFET">
-            <Execute Statement="Result:= sPFETDescription"/>
-          </On>
-          <On Select="TComponentKind.NIGBT">
-            <Execute Statement="Result:= sNIGBTDescription"/>
-          </On>
-          <On Select="TComponentKind.NJFET">
-            <Execute Statement="Result:= sNJFETDescription"/>
-          </On>
-          <On Select="TComponentKind.PJFET">
-            <Execute Statement="Result:= sPJFETDescription"/>
-          </On>
-          <On Select="TComponentKind.NMOSFET">
-            <Execute Statement="Result:= sNMOSFETDescription"/>
-          </On>
-          <On Select="TComponentKind.PMOSFET">
-            <Execute Statement="Result:= sPMOSFETDescription"/>
-          </On>
-          <On Select="TComponentKind.PUJT">
-            <Execute Statement="Result:= sPUJTDescription"/>
-          </On>
-          <On Select="TComponentKind.NUJT">
-            <Execute Statement="Result:= sNUJTDescription"/>
-          </On>
-          <On Select="TComponentKind.OpAmp">
-            <Execute Statement="Result:= sOpAmpDescription"/>
-          </On>
-          <On Select="TComponentKind.Comparator">
-            <Execute Statement="Result:= sComparatorDescription"/>
-          </On>
-          <On Select="TComponentKind.AudioAmplifier">
-            <Execute Statement="Result:= sAudioAmplifierDescription"/>
-          </On>
-          <On Select="TComponentKind.Diac">
-            <Execute Statement="Result:= sDiacDescription"/>
-          </On>
-          <On Select="TComponentKind.SCR">
-            <Execute Statement="Result:= sSCRDescription"/>
-          </On>
-          <On Select="TComponentKind.TRIAC">
-            <Execute Statement="Result:= sTRIACDescription"/>
-          </On>
-          <On Select="TComponentKind.LED">
-            <Execute Statement="Result:= sLEDDescription"/>
-          </On>
-          <On Select="TComponentKind.Fuse">
-            <Execute Statement="Result:= sFuseDescription"/>
-          </On>
-          <On Select="TComponentKind.Polyfuse">
-            <Execute Statement="Result:= sPolyfuseDescription"/>
-          </On>
-          <On Select="TComponentKind.Antenna">
-            <Execute Statement="Result:= sAntennaDescription"/>
-          </On>
-          <On Select="TComponentKind.Crystal">
-            <Execute Statement="Result:= sCrystalDescription"/>
-          </On>
-          <On Select="TComponentKind.DelayLine">
-            <Execute Statement="Result:= sDelayLineDescription"/>
-          </On>
-          <On Select="TComponentKind.EmiFilter">
-            <Execute Statement="Result:= sEmiFilterDescription"/>
-          </On>
-          <On Select="TComponentKind.FerriteBead">
-            <Execute Statement="Result:= sFerriteBeadDescription"/>
-          </On>
-          <On Select="TComponentKind.FrequencyCounter">
-            <Execute Statement="Result:= sFrequencyCounterDescription"/>
-          </On>
-          <On Select="TComponentKind.PhotoTransistor">
-            <Execute Statement="Result:= sPhotoTransistorDescription"/>
-          </On>
-          <On Select="TComponentKind.HallGenerator">
-            <Execute Statement="Result:= sHallGeneratorDescription"/>
-          </On>
-          <On Select="TComponentKind.Thermistor">
-            <Execute Statement="Result:= sThermistorDescription"/>
-          </On>
-          <On Select="TComponentKind.PhotoResistor">
-            <Execute Statement="Result:= sPhotoResistorDescription"/>
-          </On>
-          <On Select="TComponentKind.Varistor">
-            <Execute Statement="Result:= sVaristorDescription"/>
-          </On>
-          <On Select="TComponentKind.Microphone">
-            <Execute Statement="Result:= sMicrophoneDescription"/>
-          </On>
-          <On Select="TComponentKind.Memristor">
-            <Execute Statement="Result:= sMemristorDescription"/>
-          </On>
-          <On Select="TComponentKind.ResistorNetwork">
-            <Execute Statement="Result:= sResistorNetworkDescription"/>
-          </On>
-          <On Select="TComponentKind.ResistorPack">
-            <Execute Statement="Result:= sResistorPackDescription"/>
-          </On>
-          <On Select="TComponentKind.Resonator">
-            <Execute Statement="Result:= sResonatorDescription"/>
-          </On>
-          <On Select="TComponentKind.RFShield">
-            <Execute Statement="Result:= sRFShieldDescription"/>
-          </On>
-          <On Select="TComponentKind.RotaryEncoder">
-            <Execute Statement="Result:= sRotaryEncoderDescription"/>
-          </On>
-          <On Select="TComponentKind.Thermocouple">
-            <Execute Statement="Result:= sThermocoupleDescription"/>
-          </On>
-          <On Select="TComponentKind.VoltageDivider">
-            <Execute Statement="Result:= sVoltageDividerDescription"/>
-          </On>
-          <On Select="TComponentKind.Jumper">
-            <Execute Statement="Result:= sJumperDescription"/>
-          </On>
-          <On Select="TComponentKind.Connector">
-            <Execute Statement="Result:= sConnectorDescription"/>
-          </On>
-          <On Select="TComponentKind.SolarCell">
-            <Execute Statement="Result:= sSolarCellDescription"/>
-          </On>
-          <On Select="TComponentKind.Battery">
-            <Execute Statement="Result:= sBatteryDescription"/>
-          </On>
-          <On Select="TComponentKind.Adapter">
-            <Execute Statement="Result:= sAdapterDescription"/>
-          </On>
-          <On Select="TComponentKind.Transformer">
-            <Execute Statement="Result:= sTransformerDescription"/>
-          </On>
-          <On Select="TComponentKind.Peltier">
-            <Execute Statement="Result:= sPeltierDescription"/>
-          </On>
-          <On Select="TComponentKind.Speaker">
-            <Execute Statement="Result:= sSpeakerDescription"/>
-          </On>
-          <On Select="TComponentKind.Buzzer">
-            <Execute Statement="Result:= sBuzzerDescription"/>
-          </On>
-          <On Select="TComponentKind.Earphone">
-            <Execute Statement="Result:= sEarphoneDescription"/>
-          </On>
-          <On Select="TComponentKind.Lamp">
-            <Execute Statement="Result:= sLampDescription"/>
-          </On>
-          <On Select="TComponentKind.Heater">
-            <Execute Statement="Result:= sHeaterDescription"/>
-          </On>
-          <On Select="TComponentKind.ElectromagneticActor">
-            <Execute Statement="Result:= sElectromagneticActorDescription"/>
-          </On>
-          <On Select="TComponentKind.MeasuringDevice">
-            <Execute Statement="Result:= sMeasuringDeviceDescription"/>
-          </On>
-          <On Select="TComponentKind.Timer">
-            <Execute Statement="Result:= sTimerDescription"/>
-          </On>
-          <On Select="TComponentKind.SchmittTrigger">
-            <Execute Statement="Result:= sSchmittTriggerDescription"/>
-          </On>
-          <On Select="TComponentKind.Optocoupler">
-            <Execute Statement="Result:= sOptocouplerDescription"/>
-          </On>
-          <On Select="TComponentKind.ReferenceVoltageIC">
-            <Execute Statement="Result:= sReferenceVoltageICDescription"/>
-          </On>
-          <On Select="TComponentKind.Switch">
-            <Execute Statement="Result:= sSwitchDescription"/>
-          </On>
-          <On Select="TComponentKind.Heatsink">
-            <Execute Statement="Result:= sHeatsinkDescription"/>
-          </On>
-          <On Select="TComponentKind.Relay">
-            <Execute Statement="Result:= sRelayDescription"/>
-          </On>
-          <On Select="TComponentKind.IntegratedCircuit">
-            <Execute Statement="Result:= sIntegratedCircuitDescription"/>
-          </On>
-          <On Select="TComponentKind.Module">
-            <Execute Statement="Result:= sModuleDescription"/>
-          </On>
-          <On Select="TComponentKind.Component">
-            <Execute Statement="Result:= sComponentDescription"/>
-          </On>
-          <On Select="TComponentKind.NonComponent">
-            <Execute Statement="Result:= sNonComponentDescription"/>
-          </On>
-          <!-->->-->
-          <Otherwise>
-            <Execute Statement="Result:= Format(sUnknownComponentKind, ComponentKind)"/>
-            <rep:Reporter.Error Text="Format(sMissingComponentKindMapping, sUnitName, 'ComponentKindDescription', ComponentKind)"/>
-          </Otherwise>
-        </Case>
-      </Block>
-    </Function>
-
-    <Function Identifier="ComponentKindHeader" Type="string" IsDeterministic="true">
-      <Parameters>
-        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
-      </Parameters>
-      <Block>
-        <Case Expression="ComponentKind" Optimalisation="integermapping">
-          <!--<-<Procedures.ComponentKindHeader.Case-->
-          <On Select="TComponentKind.None">
-            <Execute Statement="Result:= sNoneHeader"/>
-          </On>
-          <On Select="TComponentKind.Resistor">
-            <Execute Statement="Result:= sResistorHeader"/>
-          </On>
-          <On Select="TComponentKind.VariableResistor">
-            <Execute Statement="Result:= sVariableResistorHeader"/>
-          </On>
-          <On Select="TComponentKind.Capacitor">
-            <Execute Statement="Result:= sCapacitorHeader"/>
-          </On>
-          <On Select="TComponentKind.PolarisedCapacitor">
-            <Execute Statement="Result:= sPolarisedCapacitorHeader"/>
-          </On>
-          <On Select="TComponentKind.VariableCapacitor">
-            <Execute Statement="Result:= sVariableCapacitorHeader"/>
-          </On>
-          <On Select="TComponentKind.Inductor">
-            <Execute Statement="Result:= sInductorHeader"/>
-          </On>
-          <On Select="TComponentKind.BridgeRectifier">
-            <Execute Statement="Result:= sBridgeRectifierHeader"/>
-          </On>
-          <On Select="TComponentKind.ZenerDiode">
-            <Execute Statement="Result:= sZenerDiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.Diode">
-            <Execute Statement="Result:= sDiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.SchottkyDiode">
-            <Execute Statement="Result:= sSchottkyDiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.Laserdiode">
-            <Execute Statement="Result:= sLaserdiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.Photodiode">
-            <Execute Statement="Result:= sPhotodiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.SpecialDiode">
-            <Execute Statement="Result:= sSpecialDiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.DualDiode">
-            <Execute Statement="Result:= sDualDiodeHeader"/>
-          </On>
-          <On Select="TComponentKind.NPNTransistor">
-            <Execute Statement="Result:= sNPNTransistorHeader"/>
-          </On>
-          <On Select="TComponentKind.PNPTransistor">
-            <Execute Statement="Result:= sPNPTransistorHeader"/>
-          </On>
-          <On Select="TComponentKind.NFET">
-            <Execute Statement="Result:= sNFETHeader"/>
-          </On>
-          <On Select="TComponentKind.PFET">
-            <Execute Statement="Result:= sPFETHeader"/>
-          </On>
-          <On Select="TComponentKind.NIGBT">
-            <Execute Statement="Result:= sNIGBTHeader"/>
-          </On>
-          <On Select="TComponentKind.NJFET">
-            <Execute Statement="Result:= sNJFETHeader"/>
-          </On>
-          <On Select="TComponentKind.PJFET">
-            <Execute Statement="Result:= sPJFETHeader"/>
-          </On>
-          <On Select="TComponentKind.NMOSFET">
-            <Execute Statement="Result:= sNMOSFETHeader"/>
-          </On>
-          <On Select="TComponentKind.PMOSFET">
-            <Execute Statement="Result:= sPMOSFETHeader"/>
-          </On>
-          <On Select="TComponentKind.PUJT">
-            <Execute Statement="Result:= sPUJTHeader"/>
-          </On>
-          <On Select="TComponentKind.NUJT">
-            <Execute Statement="Result:= sNUJTHeader"/>
-          </On>
-          <On Select="TComponentKind.OpAmp">
-            <Execute Statement="Result:= sOpAmpHeader"/>
-          </On>
-          <On Select="TComponentKind.Comparator">
-            <Execute Statement="Result:= sComparatorHeader"/>
-          </On>
-          <On Select="TComponentKind.AudioAmplifier">
-            <Execute Statement="Result:= sAudioAmplifierHeader"/>
-          </On>
-          <On Select="TComponentKind.Diac">
-            <Execute Statement="Result:= sDiacHeader"/>
-          </On>
-          <On Select="TComponentKind.SCR">
-            <Execute Statement="Result:= sSCRHeader"/>
-          </On>
-          <On Select="TComponentKind.TRIAC">
-            <Execute Statement="Result:= sTRIACHeader"/>
-          </On>
-          <On Select="TComponentKind.LED">
-            <Execute Statement="Result:= sLEDHeader"/>
-          </On>
-          <On Select="TComponentKind.Fuse">
-            <Execute Statement="Result:= sFuseHeader"/>
-          </On>
-          <On Select="TComponentKind.Polyfuse">
-            <Execute Statement="Result:= sPolyfuseHeader"/>
-          </On>
-          <On Select="TComponentKind.Antenna">
-            <Execute Statement="Result:= sAntennaHeader"/>
-          </On>
-          <On Select="TComponentKind.Crystal">
-            <Execute Statement="Result:= sCrystalHeader"/>
-          </On>
-          <On Select="TComponentKind.DelayLine">
-            <Execute Statement="Result:= sDelayLineHeader"/>
-          </On>
-          <On Select="TComponentKind.EmiFilter">
-            <Execute Statement="Result:= sEmiFilterHeader"/>
-          </On>
-          <On Select="TComponentKind.FerriteBead">
-            <Execute Statement="Result:= sFerriteBeadHeader"/>
-          </On>
-          <On Select="TComponentKind.FrequencyCounter">
-            <Execute Statement="Result:= sFrequencyCounterHeader"/>
-          </On>
-          <On Select="TComponentKind.PhotoTransistor">
-            <Execute Statement="Result:= sPhotoTransistorHeader"/>
-          </On>
-          <On Select="TComponentKind.HallGenerator">
-            <Execute Statement="Result:= sHallGeneratorHeader"/>
-          </On>
-          <On Select="TComponentKind.Thermistor">
-            <Execute Statement="Result:= sThermistorHeader"/>
-          </On>
-          <On Select="TComponentKind.PhotoResistor">
-            <Execute Statement="Result:= sPhotoResistorHeader"/>
-          </On>
-          <On Select="TComponentKind.Varistor">
-            <Execute Statement="Result:= sVaristorHeader"/>
-          </On>
-          <On Select="TComponentKind.Microphone">
-            <Execute Statement="Result:= sMicrophoneHeader"/>
-          </On>
-          <On Select="TComponentKind.Memristor">
-            <Execute Statement="Result:= sMemristorHeader"/>
-          </On>
-          <On Select="TComponentKind.ResistorNetwork">
-            <Execute Statement="Result:= sResistorNetworkHeader"/>
-          </On>
-          <On Select="TComponentKind.ResistorPack">
-            <Execute Statement="Result:= sResistorPackHeader"/>
-          </On>
-          <On Select="TComponentKind.Resonator">
-            <Execute Statement="Result:= sResonatorHeader"/>
-          </On>
-          <On Select="TComponentKind.RFShield">
-            <Execute Statement="Result:= sRFShieldHeader"/>
-          </On>
-          <On Select="TComponentKind.RotaryEncoder">
-            <Execute Statement="Result:= sRotaryEncoderHeader"/>
-          </On>
-          <On Select="TComponentKind.Thermocouple">
-            <Execute Statement="Result:= sThermocoupleHeader"/>
-          </On>
-          <On Select="TComponentKind.VoltageDivider">
-            <Execute Statement="Result:= sVoltageDividerHeader"/>
-          </On>
-          <On Select="TComponentKind.Jumper">
-            <Execute Statement="Result:= sJumperHeader"/>
-          </On>
-          <On Select="TComponentKind.Connector">
-            <Execute Statement="Result:= sConnectorHeader"/>
-          </On>
-          <On Select="TComponentKind.SolarCell">
-            <Execute Statement="Result:= sSolarCellHeader"/>
-          </On>
-          <On Select="TComponentKind.Battery">
-            <Execute Statement="Result:= sBatteryHeader"/>
-          </On>
-          <On Select="TComponentKind.Adapter">
-            <Execute Statement="Result:= sAdapterHeader"/>
-          </On>
-          <On Select="TComponentKind.Transformer">
-            <Execute Statement="Result:= sTransformerHeader"/>
-          </On>
-          <On Select="TComponentKind.Peltier">
-            <Execute Statement="Result:= sPeltierHeader"/>
-          </On>
-          <On Select="TComponentKind.Speaker">
-            <Execute Statement="Result:= sSpeakerHeader"/>
-          </On>
-          <On Select="TComponentKind.Buzzer">
-            <Execute Statement="Result:= sBuzzerHeader"/>
-          </On>
-          <On Select="TComponentKind.Earphone">
-            <Execute Statement="Result:= sEarphoneHeader"/>
-          </On>
-          <On Select="TComponentKind.Lamp">
-            <Execute Statement="Result:= sLampHeader"/>
-          </On>
-          <On Select="TComponentKind.Heater">
-            <Execute Statement="Result:= sHeaterHeader"/>
-          </On>
-          <On Select="TComponentKind.ElectromagneticActor">
-            <Execute Statement="Result:= sElectromagneticActorHeader"/>
-          </On>
-          <On Select="TComponentKind.MeasuringDevice">
-            <Execute Statement="Result:= sMeasuringDeviceHeader"/>
-          </On>
-          <On Select="TComponentKind.Timer">
-            <Execute Statement="Result:= sTimerHeader"/>
-          </On>
-          <On Select="TComponentKind.SchmittTrigger">
-            <Execute Statement="Result:= sSchmittTriggerHeader"/>
-          </On>
-          <On Select="TComponentKind.Optocoupler">
-            <Execute Statement="Result:= sOptocouplerHeader"/>
-          </On>
-          <On Select="TComponentKind.ReferenceVoltageIC">
-            <Execute Statement="Result:= sReferenceVoltageICHeader"/>
-          </On>
-          <On Select="TComponentKind.Switch">
-            <Execute Statement="Result:= sSwitchHeader"/>
-          </On>
-          <On Select="TComponentKind.Heatsink">
-            <Execute Statement="Result:= sHeatsinkHeader"/>
-          </On>
-          <On Select="TComponentKind.Relay">
-            <Execute Statement="Result:= sRelayHeader"/>
-          </On>
-          <On Select="TComponentKind.IntegratedCircuit">
-            <Execute Statement="Result:= sIntegratedCircuitHeader"/>
-          </On>
-          <On Select="TComponentKind.Module">
-            <Execute Statement="Result:= sModuleHeader"/>
-          </On>
-          <On Select="TComponentKind.Component">
-            <Execute Statement="Result:= sComponentHeader"/>
-          </On>
-          <On Select="TComponentKind.NonComponent">
-            <Execute Statement="Result:= sNonComponentHeader"/>
-          </On>
-          <!-->->-->
-          <Otherwise>
-            <Execute Statement="Result:= Format(sUnknownComponentKind, ComponentKind)"/>
-            <rep:Reporter.Error Text="Format(sMissingComponentKindMapping, sUnitName, 'ComponentKindHeader', ComponentKind)"/>
-          </Otherwise>
-        </Case>
-      </Block>
-    </Function>
-
     <Function Identifier="CompareStateValue" Type="Integer">
       <Parameters>
         <Parameter Identifier="ItemIDA" Type="Integer"/>
@@ -1304,12 +503,12 @@
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit Result="-1"/>
               </On>
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= 1"/>
               </On>
             </Case>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ValueTypeB">
               <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
                 <Execute Statement="Result:= -1"/>
@@ -1317,7 +516,7 @@
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit Result="-1"/>
               </On>
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Choose>
                   <When Expression="ValueA &lt; ValueB">
                     <Execute Statement="Result:= -1"/>
@@ -1341,6 +540,193 @@
             </Case>
           </On>
         </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="CompareStateValueRange" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="ItemIDA" Type="Integer"/>
+        <Parameter Identifier="ValueTypeA" Type="TValueType"/>
+        <Parameter Identifier="ValueA" Type="DecimalQuantity"/>
+        <Parameter Identifier="UpperBoundA" Type="DecimalQuantity"/>
+        <Parameter Identifier="BoundTypeA" Type="TBoundType"/>
+        <Parameter Identifier="ItemIDB" Type="Integer"/>
+        <Parameter Identifier="ValueTypeB" Type="TValueType"/>
+        <Parameter Identifier="ValueB" Type="DecimalQuantity"/>
+        <Parameter Identifier="UpperBoundB" Type="DecimalQuantity"/>
+        <Parameter Identifier="BoundTypeB" Type="TBoundType"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TValueState" Elements="Valid, Invalid"/>
+        <Enumeration Identifier="TValuePriority" Elements="UpperBound, Exact, LowerBound"/>
+      </Type>
+      <Variables>
+        <Variable Identifier="CheckValueStateA" Type="TValueState" Init="TValueState.Invalid"/>
+        <Variable Identifier="CheckValueA" Type="DecimalQuantity"/>
+        <Variable Identifier="CheckValuePriorityA" Type="TValuePriority"/>
+
+        <Variable Identifier="CheckValueStateB" Type="TValueState" Init="TValueState.Invalid"/>
+        <Variable Identifier="CheckValueB" Type="DecimalQuantity"/>
+        <Variable Identifier="CheckValuePriorityB" Type="TValuePriority"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Case Expression="ValueTypeA" Optimalisation="integermapping">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="CheckValueStateA:= TValueState.Valid"/>
+            <Execute Statement="CheckValueA:= ValueA"/>
+            <Execute Statement="CheckValuePriorityA:= TValuePriority.Exact"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Execute Statement="CheckValueStateA:= TValueState.Valid"/>
+            <Case Expression="BoundTypeA">
+              <On Select="TBoundType.Lower, TBoundType.Range">
+                <Execute Statement="CheckValueA:= ValueA"/>
+                <Execute Statement="CheckValuePriorityA:= TValuePriority.LowerBound"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="CheckValueA:= UpperBoundA"/>
+                <Execute Statement="CheckValuePriorityA:= TValuePriority.UpperBound"/>
+              </On>
+            </Case>
+          </On>
+        </Case>
+
+        <Case Expression="ValueTypeB" Optimalisation="integermapping">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="CheckValueStateB:= TValueState.Valid"/>
+            <Execute Statement="CheckValueB:= ValueB"/>
+            <Execute Statement="CheckValuePriorityB:= TValuePriority.Exact"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Execute Statement="CheckValueStateB:= TValueState.Valid"/>
+            <Case Expression="BoundTypeB">
+              <On Select="TBoundType.Lower, TBoundType.Range">
+                <Execute Statement="CheckValueB:= ValueB"/>
+                <Execute Statement="CheckValuePriorityB:= TValuePriority.LowerBound"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="CheckValueB:= UpperBoundB"/>
+                <Execute Statement="CheckValuePriorityB:= TValuePriority.UpperBound"/>
+              </On>
+            </Case>
+          </On>
+        </Case>
+        <Execute Statement="Result:= CheckValueStateA - CheckValueStateB"/>
+        <Exit Condition="(Result &lt;&gt; 0) or (CheckValueStateA = TValueState.Invalid)"/>
+        <Choose>
+          <When Expression="CheckValueA &lt; CheckValueB">
+            <Exit Result="-1"/>
+          </When>
+          <When Expression="CheckValueA &gt; CheckValueB">
+            <Exit Result="1"/>
+          </When>
+        </Choose>
+        <Execute Statement="Result:= CheckValuePriorityA - CheckValuePriorityB"/>
+        <Exit Condition="(Result &lt;&gt; 0)"/>
+
+        <Execute Statement="CheckValueStateA:= TValueState.Invalid"/>
+        <Case Expression="ValueTypeA" Optimalisation="integermapping">
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="BoundTypeA">
+              <On Select="TBoundType.Range">
+                <Execute Statement="CheckValueA:= UpperBoundA"/>
+                <Execute Statement="CheckValueStateA:= TValueState.Valid"/>
+              </On>
+            </Case>
+          </On>
+        </Case>
+
+        <Execute Statement="CheckValueStateB:= TValueState.Invalid"/>
+        <Case Expression="ValueTypeB" Optimalisation="integermapping">
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="BoundTypeB">
+              <On Select="TBoundType.Range">
+                <Execute Statement="CheckValueB:= UpperBoundB"/>
+                <Execute Statement="CheckValueStateB:= TValueState.Valid"/>
+              </On>
+            </Case>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= CheckValueStateA - CheckValueStateB"/>
+        <Exit Condition="(Result &lt;&gt; 0) or (CheckValueStateA = TValueState.Invalid)"/>
+        <Choose>
+          <When Expression="CheckValueA &lt; CheckValueB">
+            <Exit Result="-1"/>
+          </When>
+          <When Expression="CheckValueA &gt; CheckValueB">
+            <Exit Result="-1"/>
+          </When>
+        </Choose>
+      </Block>
+    </Function>
+
+    <Function Identifier="CompareStateEnumValue" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="ItemIDA" Type="Integer"/>
+        <Parameter Identifier="ValueTypeA" Type="TValueType"/>
+        <Parameter Identifier="ValueA" Type="TEnumBase"/>
+        <Parameter Identifier="SetA" Type="TFlags"/>
+        <Parameter Identifier="ItemIDB" Type="Integer"/>
+        <Parameter Identifier="ValueTypeB" Type="TValueType"/>
+        <Parameter Identifier="ValueB" Type="TEnumBase"/>
+        <Parameter Identifier="SetB" Type="TFlags"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TValueState" Elements="Valid, Invalid"/>
+      </Type>
+      <Variables>
+        <Variable Identifier="CheckValueStateA" Type="TValueState" Init="TValueState.Invalid"/>
+        <Variable Identifier="CheckSetA" Type="TFlags"/>
+
+        <Variable Identifier="CheckValueStateB" Type="TValueState" Init="TValueState.Invalid"/>
+        <Variable Identifier="CheckSetB" Type="TFlags"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Case Expression="ValueTypeA" Optimalisation="integermapping">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="CheckValueStateA:= TValueState.Valid"/>
+            <Execute Statement="CheckSetA:= Flags(ValueA)"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Execute Statement="CheckValueStateA:= TValueState.Valid"/>
+            <Execute Statement="CheckSetA:= SetA"/>
+          </On>
+        </Case>
+
+        <Case Expression="ValueTypeB" Optimalisation="integermapping">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="CheckValueStateB:= TValueState.Valid"/>
+            <Execute Statement="CheckSetB:= Flags(ValueB)"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Execute Statement="CheckValueStateB:= TValueState.Valid"/>
+            <Execute Statement="CheckSetB:= SetB"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= CheckValueStateA - CheckValueStateB"/>
+        <Exit Condition="(Result &lt;&gt; 0) or (CheckValueStateA = TValueState.Invalid)"/>
+        <Exit Condition="SetA = SetB"/>
+        <Flags.Loop Flags="SetA xor SetB" OrdinalIdentifier="I">
+          <Choose>
+            <When Expression="InFlags(I, SetA) and InFlags(I, SetB)">
+              <Raise Expression="Exception.Create('Should not happen')"/>
+            </When>
+            <When Expression="InFlags(I, SetA)">
+              <Execute Statement="Result:= 1"/>
+            </When>
+            <When Expression="InFlags(I, SetB)">
+              <Execute Statement="Result:= -1"/>
+            </When>
+            <Otherwise>
+              <Raise Expression="Exception.Create('Should not happen')"/>
+            </Otherwise>
+          </Choose>
+          <Break/>
+        </Flags.Loop>
       </Block>
     </Function>
 
@@ -1382,7 +768,7 @@
               <On Select="TSource.Min">
                 <Execute Statement="CheckTypeA:= ValueMinTypeA"/>
                 <Case Expression="ValueMinTypeA">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="CheckValueA:= ValueMinA"/>
                     <Break/>
                   </On>
@@ -1394,7 +780,7 @@
               <On Select="TSource.Value">
                 <Execute Statement="CheckTypeA:= ValueTypeA"/>
                 <Case Expression="ValueTypeA">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="CheckValueA:= ValueA"/>
                     <Break/>
                   </On>
@@ -1406,7 +792,7 @@
               <On Select="TSource.Max">
                 <Execute Statement="CheckTypeA:= ValueMaxTypeA"/>
                 <Case Expression="ValueMaxTypeA">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="CheckValueA:= ValueMaxA"/>
                     <Break/>
                   </On>
@@ -1423,7 +809,7 @@
               <On Select="TSource.Min">
                 <Execute Statement="CheckTypeB:= ValueMinTypeB"/>
                 <Case Expression="ValueMinTypeB">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="CheckValueB:= ValueMinB"/>
                     <Break/>
                   </On>
@@ -1435,7 +821,7 @@
               <On Select="TSource.Value">
                 <Execute Statement="CheckTypeB:= ValueTypeB"/>
                 <Case Expression="ValueTypeB">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="CheckValueB:= ValueB"/>
                     <Break/>
                   </On>
@@ -1447,7 +833,7 @@
               <On Select="TSource.Max">
                 <Execute Statement="CheckTypeB:= ValueMaxTypeB"/>
                 <Case Expression="ValueMaxTypeB">
-                  <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                  <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                     <Execute Statement="CheckValueB:= ValueMaxB"/>
                     <Break/>
                   </On>
@@ -1464,12 +850,12 @@
                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                   <Exit Result="-1"/>
                 </On>
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                   <Execute Statement="Result:= 1"/>
                 </On>
               </Case>
             </On>
-            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
               <Case Expression="CheckTypeB">
                 <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
                   <Exit Result="-1"/>
@@ -1477,7 +863,7 @@
                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                   <Exit Result="-1"/>
                 </On>
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                   <Choose>
                     <When Expression="CheckValueA &lt; CheckValueB">
                       <Exit Result="-1"/>
@@ -1699,9 +1085,9 @@
       <Block>
         <Execute Statement="Result:= 0"/>
         <Case Expression="ComponentKindVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ComponentKindVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -1716,9 +1102,9 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="PartNumberVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.PartNumberVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="SameText(PartNumber, ComponentSpec.PartNumber)"/>
               </On>
               <Otherwise>
@@ -1732,9 +1118,9 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="ManufacturerVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ManufacturerVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="SameText(Manufacturer, ComponentSpec.Manufacturer)"/>
               </On>
               <Otherwise>
@@ -1748,30 +1134,30 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="FootprintVT">
-          <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.FootprintVT">
-              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
               </On>
-              <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+              <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
                 <Execute Statement="Result:= Result + 1" Condition="ComponentSpec.FootprintMask.Matches(Footprint)"/>
               </On>
-              <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+              <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
               </On>
               <Otherwise>
                 <Exit/>
               </Otherwise>
             </Case>
           </On>
-          <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="InternalPartNumberVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.InternalPartNumberVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="SameText(InternalPartNumber, ComponentSpec.InternalPartNumber)"/>
               </On>
               <Otherwise>
@@ -1793,9 +1179,9 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Case Expression="ComponentKindVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ComponentKindVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
               </On>
               <Otherwise>
@@ -1808,9 +1194,9 @@
           </On>
         </Case>
         <Case Expression="PartNumberVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.PartNumberVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="not SameText(PartNumber, ComponentSpec.PartNumber)"/>
               </On>
               <Otherwise>
@@ -1823,9 +1209,9 @@
           </On>
         </Case>
         <Case Expression="ManufacturerVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ManufacturerVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="not SameText(Manufacturer, ComponentSpec.Manufacturer)"/>
               </On>
               <Otherwise>
@@ -1839,22 +1225,22 @@
         </Case>
         <Block Condition="not SkipFootprintMatching">
           <Case Expression="FootprintVT">
-            <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+            <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
               <Case Expression="ComponentSpec.FootprintVT">
-                <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                   <Exit Condition="Footprint &lt;&gt; ComponentSpec.Footprint"/>
                 </On>
-                <On Select="TFootPrintValueType.MaskSpecified, TFootPrintValueType.MaskSpecifiedByTemplate">
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
                   <Exit Condition="not ComponentSpec.FootprintMask.Matches(Footprint)"/>
                 </On>
-                <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+                <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
                 </On>
                 <Otherwise>
                   <Exit/>
                 </Otherwise>
               </Case>
             </On>
-            <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
               <Exit/>
             </On>
           </Case>
@@ -1876,12 +1262,12 @@
       </Variables>
       <Block>
         <Case Expression="ManufacturerVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="locPartNumberModel:= Self.Manufacturer"/>
           </On>
         </Case>
         <Case Expression="PartNumberVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="locPartNumberModel:= ConcatExt(' ', True, locPartNumberModel, Self.PartNumber)"/>
           </On>
         </Case>
@@ -1889,15 +1275,15 @@
         <Execute Statement="Footprint:= ''"/>
         <Block Condition="not HideFootprint">
           <Case Expression="FootPrintVT">
-            <!--<On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+            <!--<On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             </On>-->
-            <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+            <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
               <Execute Statement="Footprint:= Self.Footprint"/>
             </On>
-            <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+            <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
               <Execute Statement="Footprint:= Self.FootprintMask.Mask"/>
             </On>
-            <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
               <Execute Statement="Footprint:= '!' + ErrorFootprint + '!'"/>
             </On>
           </Case>
@@ -1906,7 +1292,7 @@
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="InternalPartNumber:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="InternalPartNumber:= '&quot;' + Self.InternalPartNumber + '&quot;'"/>
           </On>
         </Case>
@@ -1914,7 +1300,7 @@
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="ComponentKind:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="ComponentKind:= ComponentKindDescription(Self.ComponentKind)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
@@ -2005,17 +1391,14 @@
       </Parameters>
       <Variables>
         <Variable Identifier="locComponentKind" Type="TComponentKind"/>
-        <!--<Variable Identifier="locFootprint" Type="TFootprint"/>-->
         <Variable Identifier="Found" Type="Boolean"/>
       </Variables>
       <Block>
         <Case Expression="CustomField" Optimalisation="integermapping">
           <On Select="TCustomField.ComponentKind">
-            <rep:Reporter.Information Text="Format('ComponentKind: %s', Value)" Condition="IsVerbose"/>
-            <inx:Index.FindValue Index="ComponentKindIndex" Key="Value" Value="locComponentKind" Found="Found" Flags="NoErrorOnNotFound" />
+            <Execute Statement="Found:= ComponentKindNameRegister.GetItem(Value, locComponentKind)"/>
             <Choose>
               <When Expression="Found">
-                <rep:Reporter.Information Text="Format('ComponentKind: %d', locComponentKind)" Condition="IsVerbose"/>
                 <Execute Statement="ComponentKindVT:= TValueType.Specified"/>
                 <Execute Statement="ComponentKind:= locComponentKind"/>
               </When>
@@ -2029,23 +1412,23 @@
           <On Select="TCustomField.Footprint">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="FootprintVT:= TFootPrintValueType.Cleared"/>
+                <Execute Statement="FootprintVT:= TValueType.Cleared"/>
                 <Execute Statement="Self.Footprint:= ''"/>
               </When>
               <Otherwise>
                 <Execute Statement="Self.Footprint:= Value"/>
-                <Execute Statement="FootprintVT:= TFootPrintValueType.Specified"/>
+                <Execute Statement="FootprintVT:= TValueType.Specified"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TCustomField.FootprintMask">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="FootprintVT:= TFootPrintValueType.Cleared"/>
+                <Execute Statement="FootprintVT:= TValueType.Cleared"/>
               </When>
               <Otherwise>
                 <Execute Statement="FootprintMask:= MaskManager.NewObject(Value)"/>
-                <Execute Statement="FootprintVT:= TFootPrintValueType.MaskSpecified"/>
+                <Execute Statement="FootprintVT:= TValueType.SpecifiedEx"/>
               </Otherwise>
             </Choose>
           </On>
@@ -2101,7 +1484,7 @@
         <Case Expression="ComponentKindVT" Optimalisation="integermapping">
           <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
             <Case Expression="locTemplate.ComponentKindVT" Optimalisation="integermapping">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="ComponentKind:= locTemplate.ComponentKind"/>
                 <Execute Statement="ComponentKindVT:= TValueType.SpecifiedByTemplate"/>
               </On>
@@ -2114,7 +1497,7 @@
         <Case Expression="PartNumberVT" Optimalisation="integermapping">
           <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
             <Case Expression="locTemplate.PartNumberVT" Optimalisation="integermapping">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="PartNumber:= locTemplate.PartNumber"/>
                 <Execute Statement="PartNumberVT:= TValueType.SpecifiedByTemplate"/>
               </On>
@@ -2127,7 +1510,7 @@
         <Case Expression="ManufacturerVT" Optimalisation="integermapping">
           <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
             <Case Expression="locTemplate.ManufacturerVT" Optimalisation="integermapping">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Manufacturer:= locTemplate.Manufacturer"/>
                 <Execute Statement="ManufacturerVT:= TValueType.SpecifiedByTemplate"/>
               </On>
@@ -2138,18 +1521,18 @@
           </On>
         </Case>
         <Case Expression="FootprintVT" Optimalisation="integermapping">
-          <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.ClearedByTemplate, TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.ErrorByTemplate">
+          <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
             <Case Expression="locTemplate.FootprintVT" Optimalisation="integermapping">
-              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Footprint:= locTemplate.Footprint"/>
-                <Execute Statement="FootprintVT:= TFootPrintValueType.SpecifiedByTemplate"/>
+                <Execute Statement="FootprintVT:= TValueType.SpecifiedByTemplate"/>
               </On>
-              <On Select="TFootPrintValueType.MaskSpecified, TFootPrintValueType.MaskSpecifiedByTemplate">
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
                 <Execute Statement="FootprintMask:= locTemplate.FootprintMask"/>
-                <Execute Statement="FootprintVT:= TFootPrintValueType.MaskSpecifiedByTemplate"/>
+                <Execute Statement="FootprintVT:= TValueType.SpecifiedExByTemplate"/>
               </On>
-              <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
-                <Execute Statement="FootprintVT:= TFootPrintValueType.ErrorByTemplate"/>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Execute Statement="FootprintVT:= TValueType.ErrorByTemplate"/>
               </On>
             </Case>
           </On>
@@ -2160,7 +1543,7 @@
 
     <Procedure Identifier="TComponentSpec.LoadFromIniFileSection">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
         <Parameter Identifier="Section" Type="string"/>
       </Parameters>
       <Variables>
@@ -2171,13 +1554,12 @@
       </Variables>
       <Block>
         <Object.Use Identifier="KeyValueList" Type="TStringList" Expression="TStringList.Create">
-          <Execute Statement="IniFile.ReadSectionValues(Section, KeyValueList)"/>
+          <Execute Statement="Ini.Section(Section)"/>
+          <Execute Statement="Ini.Inifile.ReadSectionValues(Section, KeyValueList)"/>
           <ForLoop Indexer="I" From="0" To="KeyValueList.Count - 1">
             <Execute Statement="NameS:= KeyValueList.Names[I]"/>
-            <Execute Statement="ValueS:= KeyValueList.ValueFromIndex[I]"/>
-            <Execute Statement="CustomField:= TCustomField.Unknown"/>
-            <rep:Reporter.Information Text="Format('LoadFromIniFileSection - CustomField: %s=%s', NameS, ValueS)" Condition="IsVerbose"/>
-            <inx:Index.FindValue Index="CustomFieldsIndex" Key="NameS" Value="CustomField" Found="Found" Flags="NoErrorOnNotFound" />
+            <Execute Statement="ValueS:= Ini.ReadString(NameS, '')"/>
+            <Execute Statement="CustomField:= TCustomField.Unknown" Condition="not CustomFieldNameRegister.GetItem(NameS, CustomField)"/>
             <Execute Statement="HandleField(CustomField, NameS, ValueS, ValueS='-')" />
           </ForLoop>
         </Object.Use>
@@ -2201,13 +1583,11 @@
         <msx:Node.IterateChilds Node="Element">
           <msx:OnElement baseName="'value'">
             <msx:Block>
-              <rep:Reporter.Information Text="Format('Value=%s', Node.Text)" Condition="IsVerbose"/>
               <Execute Statement="HandleField(TCustomField.Value, 'Value', Node.Text, Node.Text='-')"/>
             </msx:Block>
           </msx:OnElement>
           <msx:OnElement baseName="'footprint'">
             <msx:Block>
-              <rep:Reporter.Information Text="Format('Footprint=%s', Node.Text)" Condition="IsVerbose"/>
               <Execute Statement="HandleField(TCustomField.Footprint, 'Footprint', Node.Text, Node.Text='')"/>
             </msx:Block>
           </msx:OnElement>
@@ -2219,9 +1599,7 @@
                   <msx:Block>
                     <Execute Statement="NameS:= Name.Text"/>
                     <Execute Statement="ValueS:= Node.Text"/>
-                    <Execute Statement="CustomField:= TCustomField.Unknown"/>
-                    <rep:Reporter.Information Text="Format('CustomField: %s=%s', NameS, ValueS)" Condition="IsVerbose"/>
-                    <inx:Index.FindValue Index="CustomFieldsIndex" Key="NameS" Value="CustomField" Found="Found" Flags="NoErrorOnNotFound" />
+                    <Execute Statement="CustomField:= TCustomField.Unknown" Condition="not CustomFieldNameRegister.GetItem(NameS, CustomField)"/>
                     <Execute Statement="HandleField(CustomField, NameS, ValueS, ValueS='-')" />
                   </msx:Block>
                 </msx:OnElement>
@@ -2233,13 +1611,29 @@
             <msx:Attribute baseName="'part'"/>
             <msx:Attribute baseName="'description'"/>
             <msx:Block>
-              <rep:Reporter.Information Text="Format('Lib: %s, Part: %s, Description: %s', lib.Text, part.Text, description.Text)" Condition="IsVerbose"/>
               <Execute Statement="HandleLibSource(lib, part, description)"/>
             </msx:Block>
           </msx:OnElement>
           <msx:OnOtherElement>
           </msx:OnOtherElement>
         </msx:Node.IterateChilds>
+      </Block>
+    </Procedure>
+    
+    <Function Identifier="TPassiveSpec.GetValue" VirtualMethod="vmGetValue" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TPassiveSpec.SetValue" VirtualMethod="vmSetValue">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity"/>
+      </Parameters>
+      <Block>
       </Block>
     </Procedure>
 
@@ -2293,42 +1687,42 @@
         <Exit Condition="Result &lt;&gt; 0"/>
         <Block Condition="not (HideFootprint and SkipFootprintMatching)">
           <Case Expression="A.FootprintVT">
-            <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+            <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
               <Case Expression="B.FootprintVT">
-                <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                   <Exit Result="-1"/>
                 </On>
-                <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified, TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate, TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
                   <Execute Statement="Result:= 1"/>
                 </On>
               </Case>
             </On>
-            <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+            <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
               <Case Expression="B.FootprintVT">
-                <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate, TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate, TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+                <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate, TValueType.Error, TValueType.ErrorByTemplate, TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
                   <Execute Statement="Result:= -1"/>
                 </On>
-                <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                   <Execute Statement="Result:= AnsiCompareStr(A.Footprint, B.Footprint)"/>
                 </On>
               </Case>
             </On>
-            <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+            <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
               <Case Expression="B.FootprintVT">
-                <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate, TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+                <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate, TValueType.Error, TValueType.ErrorByTemplate">
                   <Execute Statement="Result:= -1"/>
                 </On>
-                <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                   <Execute Statement="Result:= 1"/>
                 </On>
-                <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+                <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
                   <Execute Statement="Result:= AnsiCompareStr(A.FootprintMask.Mask, B.FootprintMask.Mask)"/>
                 </On>
               </Case>
             </On>
-            <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
               <Case Expression="B.FootprintVT">
-                <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                   <Exit Result="-1" Condition="A.ID &lt; B.ID"/>
                 </On>
                 <Otherwise>
@@ -2389,7 +1783,7 @@
 
     <Procedure Identifier="TComponentCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
       </Parameters>
       <Block>
       </Block>
@@ -2397,7 +1791,7 @@
 
     <Function Identifier="TComponentCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
         <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
       </Parameters>
       <Block>
@@ -2541,18 +1935,22 @@
       </Variables>
       <Block>
         <lil:LinkedList.Iterate Head="ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
-          <Block Condition="not SchemaContext.Measure">
-            <Block Condition="RunningSpec.ComponentKind &lt;&gt; ComponentKind">
+          <Choose>
+            <When Expression="SchemaContext.Measure">
+            </When>
+            <When Expression="RunningSpec.ComponentKind &lt;&gt; ComponentKind">
               <rep:Reporter.Information Text="''"/>
               <Execute Statement="ComponentKind:= RunningSpec.ComponentKind"/>
               <Execute Statement="ReportComponentHeader(ComponentKind)"/>
-            </Block>
-          </Block>
+            </When>
+            <Otherwise>
+              <rep:Reporter.Information Text="''" Condition="SeperateComponents"/>
+            </Otherwise>
+          </Choose>
           <Execute Statement="ReportSchemaComponents(RunningSpec, BomCount, SchemaContext)"/>
           <lil:LinkedList.Iterate Head="RunningSpec.MatchedSpecLinkHead" ItemType="TSpecificationLink" RunningItem="RunningSpecLink" Next="RunningSpecLink.Next">
             <Execute Statement="ReportStockComponents(RunningSpecLink.StockComponentSpec, StockContext)"/>
           </lil:LinkedList.Iterate>
-          <rep:Reporter.Information Text="''" Condition="not SchemaContext.Measure"/>
         </lil:LinkedList.Iterate>
       </Block>
     </Procedure>
@@ -2638,7 +2036,7 @@
       <Block>
         <WhileLoop Expression="Assigned(RunningSpec)">
           <Case Expression="RunningSpec.InternalPartNumberVT">
-            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
               <inx:Index.FindValue Index="InternalPartNumberIndex" Key="RunningSpec.InternalPartNumber" Flags="NoErrorOnNotFound" Found="Found" Value="SearchSpecifications" />
               <Execute Statement="RunningSpec.MatchedSpecLinkHead := SearchSpecifications.Head" Condition="Found"/>
             </On>
@@ -2670,7 +2068,7 @@
       <Block>
         <WhileLoop Expression="Assigned(RunningSpec)">
           <Case Expression="RunningSpec.InternalPartNumberVT">
-            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+            <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
               <inx:Index.FindValue Index="InternalPartNumberIndex" Key="RunningSpec.InternalPartNumber" Flags="NoErrorOnNotFound" Found="Found" Value="SearchSpecifications" />
               <Execute Statement="RunningSpec.MatchedSpecLinkHead := SearchSpecifications.Head" Condition="Found"/>
             </On>
@@ -2737,7 +2135,6 @@
         <Variable Identifier="Component" Type="TSchemaComponent"/>
       </Variables>
       <Block>
-        <rep:Reporter.Information Text="'ProcessSchemaXml'" Condition="IsVerbose"/>
         <Execute Statement="Result:= False"/>
         <TryFinally>
           <Try>
@@ -2781,14 +2178,13 @@
             <Execute Statement="Specification.HandleField(TCustomField.InternalPartNumber, '', StockComponent.InternalPartNumber, StockComponent.InternalPartNumber='-')" Condition="IsNonEmptyString(StockComponent.InternalPartNumber)"/>
             <!--<Execute Statement="Specification.HandleField(TCustomField.Footprint, '', StockComponent.FootprintInfo.Name, False)" Condition="Assigned(StockComponent.FootprintInfo)"/>-->
             <lil:LinkedList.Iterate Head="ValueHead" ItemType="TComponentValue" RunningItem="RunningComponentValue" Next="RunningComponentValue.Next">
-              <Execute Statement="CustomField:= TCustomField.Unknown"/>
-              <inx:Index.FindValue Index="CustomFieldsIndex" Key="RunningComponentValue.Name" Value="CustomField" Flags="NoErrorOnNotFound" />
+              <Execute Statement="CustomField:= TCustomField.Unknown" Condition="not CustomFieldNameRegister.GetItem(RunningComponentValue.Name, CustomField)"/>
+              <!--<Execute Statement="CustomFieldNameRegister.GetItem(RunningComponentValue.Name, CustomField)"/>-->
               <Execute Statement="Specification.HandleField(CustomField, RunningComponentValue.Name, RunningComponentValue.Value, RunningComponentValue.Value='-')" />
             </lil:LinkedList.Iterate>
 
             <Execute Statement="Specification.ApplyTemplate"/>
             <ConditionalBlock Expression="IsValidSpecification(Specification)">
-              <rep:Reporter.Information Text="Format('Valid #%d: %s', StockComponent.ID, Specification.SpecificationAsString(TSpecFormatType.Description, ObjNil))" Condition="IsVerbose"/>
               <Execute Statement="Result:= True"/>
               <Execute Statement="Specification.ID:= ID"/>
               <Execute Statement="Specification.StockComponentHead:= StockComponent"/>
@@ -2811,178 +2207,11 @@
       </Block>
     </Function>
 
-    <Function Identifier="GetCustomFieldName" Type="string" IsDeterministic="true">
-      <Parameters>
-        <Parameter Identifier="Field" Type="TCustomField"/>
-      </Parameters>
-      <Block>
-        <Case Expression="Field" Optimalisation="integermapping">
-          <On Select="TCustomField.Unknown">
-            <Execute Statement="Result:= ''"/>
-          </On>
-          <On Select="TCustomField.ComponentKind">
-            <Execute Statement="Result:= 'ComponentKind'"/>
-          </On>
-          <On Select="TCustomField.Value">
-            <Execute Statement="Result:= 'Value'"/>
-          </On>
-          <On Select="TCustomField.ValueMin">
-            <Execute Statement="Result:= 'Value.Min'"/>
-          </On>
-          <On Select="TCustomField.ValueMax">
-            <Execute Statement="Result:= 'Value.Max'"/>
-          </On>
-          <On Select="TCustomField.Footprint">
-            <Execute Statement="Result:= 'Footprint'"/>
-          </On>
-          <On Select="TCustomField.FootprintMask">
-            <Execute Statement="Result:= 'Footprint.Mask'"/>
-          </On>
-          <On Select="TCustomField.InternalPartNumber">
-            <Execute Statement="Result:= 'InternalPartNumber'"/>
-          </On>
-          <On Select="TCustomField.PartNumber">
-            <Execute Statement="Result:= 'PartNumber'"/>
-          </On>
-          <On Select="TCustomField.Manufacturer">
-            <Execute Statement="Result:= 'Manufacturer'"/>
-          </On>
-          <On Select="TCustomField.PowerRating">
-            <Execute Statement="Result:= 'PowerRating'"/>
-          </On>
-          <On Select="TCustomField.PowerRatingMin">
-            <Execute Statement="Result:= 'PowerRating.Min'"/>
-          </On>
-          <On Select="TCustomField.PowerRatingMax">
-            <Execute Statement="Result:= 'PowerRating.Max'"/>
-          </On>
-          <On Select="TCustomField.VoltageRating">
-            <Execute Statement="Result:= 'VoltageRating'"/>
-          </On>
-          <On Select="TCustomField.VoltageRatingMin">
-            <Execute Statement="Result:= 'VoltageRating.Min'"/>
-          </On>
-          <On Select="TCustomField.VoltageRatingMax">
-            <Execute Statement="Result:= 'VoltageRating.Max'"/>
-          </On>
-          <On Select="TCustomField.AmperageRating">
-            <Execute Statement="Result:= 'AmperageRating'"/>
-          </On>
-          <On Select="TCustomField.AmperageRatingMin">
-            <Execute Statement="Result:= 'AmperageRating.Min'"/>
-          </On>
-          <On Select="TCustomField.AmperageRatingMax">
-            <Execute Statement="Result:= 'AmperageRating.Max'"/>
-          </On>
-          <On Select="TCustomField.Tolerance">
-            <Execute Statement="Result:= 'Tolerance'"/>
-          </On>
-          <On Select="TCustomField.ToleranceMin">
-            <Execute Statement="Result:= 'Tolerance.Min'"/>
-          </On>
-          <On Select="TCustomField.ToleranceMax">
-            <Execute Statement="Result:= 'Tolerance.Max'"/>
-          </On>
-          <On Select="TCustomField.Technology">
-            <Execute Statement="Result:= 'Technology'"/>
-          </On>
-          <On Select="TCustomField.Pins">
-            <Execute Statement="Result:= 'Pins'"/>
-          </On>
-          <On Select="TCustomField.ForwardVoltage">
-            <Execute Statement="Result:= 'ForwardVoltage'"/>
-          </On>
-          <On Select="TCustomField.ForwardVoltageMin">
-            <Execute Statement="Result:= 'ForwardVoltage.Min'"/>
-          </On>
-          <On Select="TCustomField.ForwardVoltageMax">
-            <Execute Statement="Result:= 'ForwardVoltage.Max'"/>
-          </On>
-          <On Select="TCustomField.ReverseVoltageRating">
-            <Execute Statement="Result:= 'ReverseVoltageRating'"/>
-          </On>
-          <On Select="TCustomField.ReverseVoltageRatingMin">
-            <Execute Statement="Result:= 'ReverseVoltageRating.Min'"/>
-          </On>
-          <On Select="TCustomField.ReverseVoltageRatingMax">
-            <Execute Statement="Result:= 'ReverseVoltageRating.Max'"/>
-          </On>
-          <On Select="TCustomField.BreakSpeed">
-            <Execute Statement="Result:= 'BreakSpeed'"/>
-          </On>
-          <On Select="TCustomField.Dimensions">
-            <Execute Statement="Result:= 'Dimensions'"/>
-          </On>
-          <On Select="TCustomField.Functions">
-            <Execute Statement="Result:= 'Functions'"/>
-          </On>
-          <Otherwise>
-            <Raise Expression="Exception.Create('Unmapped CustomField')"/>
-          </Otherwise>
-        </Case>
-      </Block>
-    </Function>
-
-    <Procedure Identifier="InitCustomFieldIndex">
-      <Parameters>
-        <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
-      </Parameters>
-      <Block>
-        <ForLoop Indexer="I" From="TCustomField.Low" To="TCustomField.High">
-          <inx:Index.MapValue Index="Index" Key="GetCustomFieldName(I)" Value="I"/>
-        </ForLoop>
-      </Block>
-    </Procedure>
-
-    <!--<Function Identifier="FootprintName" Type="string">
-      <Parameters>
-        <Parameter Identifier="Footprint" Type="TFootprint"/>
-      </Parameters>
-      <Block>
-        <Case Expression="Footprint" Optimalisation="integermapping">
-          <On Select="TFootprint.Unspecified">
-            <Execute Statement="Result:= ''"/>
-          </On>
-          <On Select="TFootprint.THT">
-            <Execute Statement="Result:= 'THT'"/>
-          </On>
-          <On Select="TFootprint.SMD">
-            <Execute Statement="Result:= 'SMD'"/>
-          </On>
-          <Otherwise>
-            <Raise Expression="Exception.Create('Unmapped footprint')"/>
-          </Otherwise>
-        </Case>
-      </Block>
-    </Function>-->
-
-    <!--<Procedure Identifier="InitFootprintIndex">
-      <Parameters>
-        <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
-      </Parameters>
-      <Block>
-        <ForLoop Indexer="I" From="TFootprint.Low" To="TFootprint.High">
-          <inx:Index.MapValue Index="Index" Key="FootprintName(I)" Value="I"/>
-        </ForLoop>
-      </Block>
-    </Procedure>-->
-
     <Procedure Identifier="InitSymbolComponentKindIndex">
       <Parameters>
         <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
       </Parameters>
       <Block>
-      </Block>
-    </Procedure>
-
-    <Procedure Identifier="InitComponentKindIndex">
-      <Parameters>
-        <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
-      </Parameters>
-      <Block>
-        <ForLoop Indexer="I" From="TComponentKind.Low" To="TComponentKind.High">
-          <inx:Index.MapValue Index="Index" Key="ComponentKindName(I)" Value="I"/>
-        </ForLoop>
       </Block>
     </Procedure>
 
@@ -3014,7 +2243,8 @@
                   <Execute Statement="LibName:= Name.Text"/>
                   <Execute Statement="LibPrefix:= LibName + ':'"/>
                   <Block Condition="Assigned(Component)">
-                    <inx:Index.FindValue Index="ComponentKindIndex" Key="Component.Text" Found="Found" Value="ComponentKind" Flags="NoErrorOnNotFound"/>
+                    <Execute Statement="Found:= ComponentKindNameRegister.GetItem(Component.Text, ComponentKind)"/>
+                    <!--<inx:Index.FindValue Index="ComponentKindIndex" Key="Component.Text" Found="Found" Value="ComponentKind" Flags="NoErrorOnNotFound"/>-->
                     <Choose>
                       <When Expression="Found">
                         <inx:Index.MapValue Index="SymbolComponentKindIndex" Key="LibPrefix" Value="ComponentKind" Flags="NoErrorOnExist DiscardOnExist" Found="Found" PreviousValue="PrevComponentKind"/>
@@ -3033,7 +2263,8 @@
                       <msx:Attribute baseName="'Component'" Required="true"/>
                       <msx:Block>
                         <Execute Statement="QualifiedSymbolName:= LibPrefix + Part.Text"/>
-                        <inx:Index.FindValue Index="ComponentKindIndex" Key="Component.Text" Found="Found" Value="ComponentKind" Flags="NoErrorOnNotFound"/>
+                        <Execute Statement="Found:= ComponentKindNameRegister.GetItem(Component.Text, ComponentKind)"/>
+                        <!--<inx:Index.FindValue Index="ComponentKindIndex" Key="Component.Text" Found="Found" Value="ComponentKind" Flags="NoErrorOnNotFound"/>-->
                         <Choose>
                           <When Expression="Found">
                             <inx:Index.MapValue Index="SymbolComponentKindIndex" Key="QualifiedSymbolName" Value="ComponentKind" Flags="NoErrorOnExist DiscardOnExist" Found="Found" PreviousValue="PrevComponentKind"/>
@@ -3856,8 +3087,8 @@
             </StringLoop>
           </stm:StateHandler>
           <Exit Condition="not ValidEndState"/>
-          <rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>
-          <rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>
+          <!--<rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>
+          <rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>-->
           <Execute Statement="IntValue:= Digits.GetDecimal(Scale + FracScale, IsNegative) ~ UnitStr"/>
         </Object.Use>
         <Exit Result="True"/>
@@ -4082,9 +3313,6 @@
     <Execute Statement="MaskManager.Groups:= True"/>
     <Execute Statement="MaskManager.CaseSensitive:= True"/>
     <Execute Statement="MaskManager.RepeatingGroup:= True"/>
-    <Execute Statement="InitCustomFieldIndex(CustomFieldsIndex)"/>
-    <Execute Statement="InitComponentKindIndex(ComponentKindIndex)"/>
-    <!--<Execute Statement="InitFootprintIndex(FootprintIndex)"/>-->
     <Execute Statement="InitSymbolComponentKindIndex(SymbolComponentKindIndex)"/>
     <ForLoop Indexer="I" From="TSiUnit.Low" To="TSiUnit.High">
       <Execute Statement="GetUnitConvertor(I)"/>
@@ -4092,9 +3320,6 @@
   </Initialization>
 
   <Finalization>
-    <Free Identifier="CustomFieldsIndex"/>
-    <!--<Free Identifier="FootprintIndex"/>-->
-    <Free Identifier="ComponentKindIndex"/>
     <Free Identifier="SymbolComponentKindIndex"/>
     <Free Identifier="MaskManager"/>
   </Finalization>

@@ -17,10 +17,12 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement">
   <Uses>
-    <Use Identifier="SiUnits"/>
-    <Use Identifier="ElectronicUtils"/>
-    <Use Identifier="BomClasses"/>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="ElectronicsUtils"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
     <Use Identifier="NamedComponentClasses"/>
     <Use Identifier="MultiFunctionComponentClasses"/>
   </Uses>
@@ -57,7 +59,8 @@
         <Execute Statement="Result:= False"/>
         <Case Expression="ComponentKind" Optimalisation="integermapping">
           <!--<-<TIntegratedCircuitSpec.CheckComponentKind-->
-          <On Select="TComponentKind.OpAmp, TComponentKind.Comparator, TComponentKind.Timer, TComponentKind.SchmittTrigger, TComponentKind.Optocoupler, TComponentKind.ReferenceVoltageIC, TComponentKind.IntegratedCircuit">
+          <On Select="TComponentKind.OpAmp, TComponentKind.AudioAmplifier, TComponentKind.Comparator, TComponentKind.Timer, TComponentKind.SchmittTrigger, TComponentKind.Optocoupler, TComponentKind.ReferenceVoltageIC, TComponentKind.VoltageRegulator,
+                      TComponentKind.IntegratedCircuit">
             <Execute Statement="Result:= True"/>
           </On>
           <!-->->-->
@@ -72,7 +75,7 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
-        <Variable Identifier="IsRanged" Type="Boolean"/>
+        <Variable Identifier="IsMultiple" Type="Boolean"/>
         <!--<-<TComponentSpec.DoesMatchSpecification-->
         <!-->->-->
         <Execute Statement="Result:= True"/>
@@ -86,9 +89,9 @@
       <Block>
         <Execute Statement="Result:= 0"/>
         <Case Expression="ComponentKindVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ComponentKindVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -103,9 +106,9 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="PartNumberVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.PartNumberVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="SameText(PartNumber, ComponentSpec.PartNumber)"/>
               </On>
               <Otherwise>
@@ -119,9 +122,9 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="ManufacturerVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ManufacturerVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="SameText(Manufacturer, ComponentSpec.Manufacturer)"/>
               </On>
               <Otherwise>
@@ -135,22 +138,22 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="FootprintVT">
-          <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.FootprintVT">
-              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
               </On>
-              <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+              <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
                 <Execute Statement="Result:= Result + 1" Condition="ComponentSpec.FootprintMask.Matches(Footprint)"/>
               </On>
-              <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+              <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
               </On>
               <Otherwise>
                 <Exit/>
               </Otherwise>
             </Case>
           </On>
-          <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
@@ -245,7 +248,7 @@
           </On>
           <On Select="TSpecFormatType.Description">
             <Case Expression="FunctionsVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="ComponentKind:= ''" Condition="Assigned(FunctionHead)"/>
               </On>
             </Case>
@@ -276,15 +279,15 @@
 
     <Procedure Identifier="TIntegratedCircuitCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
       </Parameters>
       <Constants>
         <Constant Identifier="sSectionIntegratedCircuits" Type="string" Expression="'Template.IntegratedCircuits'"/>
       </Constants>
       <Block>
-        <ConditionalBlock Expression="IniFile.SectionExists(sSectionIntegratedCircuits)">
+        <ConditionalBlock Expression="Ini.Inifile.SectionExists(sSectionIntegratedCircuits)">
           <Execute Statement="TemplateConnector:= TIntegratedCircuitSpec.Create"/>
-          <Execute Statement="TemplateConnector.LoadFromIniFileSection(IniFile, sSectionIntegratedCircuits)"/>
+          <Execute Statement="TemplateConnector.LoadFromIniFileSection(Ini, sSectionIntegratedCircuits)"/>
         </ConditionalBlock>
       </Block>
     </Procedure>
@@ -308,7 +311,8 @@
         </Case>
         <Case Expression="Specification.ComponentKind">
           <!--<-<TIntegratedCircuitCategory.IsValidSpecification-->
-          <On Select="TComponentKind.OpAmp, TComponentKind.Comparator, TComponentKind.Timer, TComponentKind.SchmittTrigger, TComponentKind.Optocoupler, TComponentKind.ReferenceVoltageIC, TComponentKind.IntegratedCircuit">
+          <On Select="TComponentKind.OpAmp, TComponentKind.AudioAmplifier, TComponentKind.Comparator, TComponentKind.Timer, TComponentKind.SchmittTrigger, TComponentKind.Optocoupler, TComponentKind.ReferenceVoltageIC, TComponentKind.VoltageRegulator,
+                      TComponentKind.IntegratedCircuit">
             <Execute Statement="Result:= True"/>
           </On>
           <!-->->-->
@@ -345,17 +349,17 @@
 
     <Function Identifier="TIntegratedCircuitCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
         <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
       </Parameters>
       <Constants>
         <Constant Identifier="cIntegratedCircuit" Type="string" Expression="'IntegratedCircuit'"/>
       </Constants>
       <Block>
-        <Execute Statement="Result:= IniFile.SectionExists(cIntegratedCircuit)"/>
+        <Execute Statement="Result:= Ini.Inifile.SectionExists(cIntegratedCircuit)"/>
         <Block Condition="Result">
           <Execute Statement="ComponentSpec:= TIntegratedCircuitSpec.Create"/>
-          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cIntegratedCircuit)"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(Ini, cIntegratedCircuit)"/>
         </Block>
       </Block>
     </Function>

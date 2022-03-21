@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement"
+ >
+
+  <Type>
+    <Alias Identifier="TEnumNameRegister" RefersTo="TMappingRegister"/>
+
+    <Alias Identifier="TEnumBase" RefersTo="UInt32"/>
+
+    <DataClass Identifier="TEnumInfo" ClassOfIdentifier="TTEnumInfo" DefaultConstructor="none">
+      <VirtualMethod Identifier="vmGetInfo"/>
+      <VirtualMethod Identifier="vmGetEnumBounds"/>
+      <VirtualMethod Identifier="vmRegisterEnums"/>
+      <Field Identifier="Enum" Type="TEnumBase"/>
+      <Field Identifier="Name" Type="string"/>
+    </DataClass>
+
+    <DataClass Identifier="TEnumDescriptionInfo" DefaultConstructor="none" Inherit="TEnumInfo">
+      <Field Identifier="Description" Type="string"/>
+    </DataClass>
+
+    <DataClass Identifier="TEnumManager" DefaultConstructor="none">
+      <VirtualMethod Identifier="vmFinalize" IsFinalizer="true"/>
+      <Field Identifier="EnumInfo" Type="TTEnumInfo"/>
+      <Field Identifier="_NameRegister" Type="TEnumNameRegister"/>
+    </DataClass>
+  </Type>
+
+  <Procedures>
+
+    <Function Identifier="TTEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="TEnumBase"/>
+      </Parameters>
+      <Block>
+        <Raise Expression="Exception.Create('Invalid call to abstract method TTEnumInfo.GetInfo')"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Raise Expression="Exception.Create('Invalid call to abstract method TTEnumInfo.GetEnumBounds')"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TTEnumInfo.RegisterEnums" VirtualMethod="vmRegisterEnums">
+      <Parameters>
+        <Parameter Identifier="NameRegister" Type="TEnumNameRegister"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="LowValue" Type="UInt32"/>
+        <Variable Identifier="HighValue" Type="UInt32"/>
+        <Execute Statement="GetEnumBounds(LowValue, HighValue)"/>
+        <ForLoop Indexer="I" From="LowValue" To="HighValue">
+          <Variable Identifier="Info" Type="TEnumInfo" Init="GetInfo(I)"/>
+          <Execute Statement="NameRegister.Add(Info.Name, I, Info)"/>
+        </ForLoop>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TTEnumInfo.NewNameRegister" Type="TEnumNameRegister" >
+      <Block>
+        <Execute Statement="Result:= TEnumNameRegister.Create(False, False)"/>
+        <Execute Statement="RegisterEnums(Result)"/>
+        <Execute Statement="Result.Optimize"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TEnumManager.NameRegister" Type="TEnumNameRegister" >
+      <Block>
+        <Execute Statement="_NameRegister:= EnumInfo.NewNameRegister" Condition="not Assigned(_NameRegister)"/>
+        <Execute Statement="Result:= _NameRegister"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TEnumManager.ByName" Type="TEnumInfo" >
+      <Parameters>
+        <Parameter Identifier="Name" Type="string"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="_NameRegister:= EnumInfo.NewNameRegister" Condition="not Assigned(_NameRegister)"/>
+        <Raise Expression="Exception.Create('Invalid name: ' + Name)" Condition="not _NameRegister.GetObject(Name, Result)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TEnumManager.ByEnum" Type="TEnumInfo" >
+      <Parameters>
+        <Parameter Identifier="Enum" Type="TEnumBase"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= EnumInfo.GetInfo(Enum)"/>
+      </Block>
+    </Function>
+
+    <Constructor Identifier="TEnumManager.Create">
+      <Parameters>
+        <Parameter Identifier="EnumInfo" Type="TTEnumInfo"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Self.EnumInfo:= EnumInfo"/>
+      </Block>
+    </Constructor>
+
+    <Procedure Identifier="TEnumManager.Finalize" VirtualMethod="vmFinalize">
+      <Block>
+        <Free Expression="_NameRegister"/>
+      </Block>
+    </Procedure>
+  </Procedures>
+
+</pkg:Library>

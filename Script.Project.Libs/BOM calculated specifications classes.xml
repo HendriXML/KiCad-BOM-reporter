@@ -17,8 +17,9 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   >
   <Uses>
-    <Use Identifier="BomClasses"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
     <Use Identifier="ResistorClasses"/>
     <Use Identifier="CapacitorClasses"/>
     <Use Identifier="InductorClasses"/>
@@ -37,45 +38,54 @@
   </Type>
   <Procedures>
 
-    <Procedure Identifier="TCalculatedSpecifications.ProcessComponentCategoryElement">
+    <Function Identifier="TCalculatedSpecifications.ProcessComponentCategoryElement" Type="Boolean">
       <Parameters>
         <Parameter Identifier="Category" Type="TComponentCategory" />
         <Parameter Identifier="Element" Type="IXMLDomElement" />
+        <Parameter Identifier="Designator" Type="IXMLDomAttribute" />
+        <Parameter Identifier="CheckValidity" Type="Boolean" />
       </Parameters>
       <Block>
-        <msx:Node.IterateChilds Node="Element">
-          <msx:OnElement baseName="'Component'">
-            <msx:Attribute baseName="'Designator'" Required="true"/>
-            <msx:Block>
-              <!--<rep:Reporter.Information Text="'Component: ' + Designator.Text"/>-->
-              <Variable Identifier="Specification" Type="TComponentSpec" Init="Category.CreateSpecification"/>
-              <Variable Identifier="Component" Type="TSchemaComponent" Init="TSchemaComponent.Create(Designator.Text)"/>
+        <Variable Identifier="Component" Type="TSchemaComponent"/>
+        <Execute Statement="Result:= not CheckValidity"/>
+          <!--<rep:Reporter.Information Text="'Component: ' + Designator.Text"/>-->
+          <Variable Identifier="Specification" Type="TComponentSpec" Init="Category.CreateSpecification"/>
+          <msx:Node.IterateChilds Node="Element">
+            <msx:OnElement baseName="'Field'">
+              <msx:Attribute baseName="'Kind'" Required="true"/>
+              <msx:Attribute baseName="'Value'" Required="true"/>
+              <msx:Block>
+                <Variable Identifier="CustomField" Type="TCustomField" Init="TCustomField.Unknown"/>
+                <Execute Statement="CustomFieldNameRegister.GetItem(Kind.Text, CustomField)"/>
+                <Execute Statement="Specification.HandleField(CustomField, Kind.Text, Value.Text, Value.Text='-')" />
+                <!--<rep:Reporter.Information Text="Format('  Field %s (%d): %s', Kind.Text, CustomField, Value.Text)"/>-->
+              </msx:Block>
+            </msx:OnElement>
+            <msx:OnOtherElement>
+            </msx:OnOtherElement>
+          </msx:Node.IterateChilds>
+          <!--<rep:Reporter.Information Text="Specification.SpecificationAsString(TSpecFormatType.Description, ObjNil)"/>-->
+          <Choose>
+            <When Expression="Result">
+              <Execute Statement="Category.Add(Specification)"/>
+              <Execute Statement="Component:= TSchemaComponent.Create(Designator.Text)"/>
               <Execute Statement="Specification.SchemaComponentHead:= Component"/>
               <Execute Statement="Specification.SchemaComponentTail:= Component"/>
-              <msx:Node.IterateChilds Node="Node">
-                <msx:OnElement baseName="'Field'">
-                  <msx:Attribute baseName="'Kind'" Required="true"/>
-                  <msx:Attribute baseName="'Value'" Required="true"/>
-                  <msx:Block>
-                    <Variable Identifier="CustomField" Type="TCustomField" Init="TCustomField.Unknown"/>
-                    <inx:Index.FindValue Index="CustomFieldsIndex" Key="Kind.Text" Value="CustomField" Flags="NoErrorOnNotFound" />
-                    <Execute Statement="Specification.HandleField(CustomField, Kind.Text, Value.Text, Value.Text='-')" />
-                    <!--<rep:Reporter.Information Text="Format('  Field %s (%d): %s', Kind.Text, CustomField, Value.Text)"/>-->
-                  </msx:Block>
-                </msx:OnElement>
-                <msx:OnOtherElement>
-                </msx:OnOtherElement>
-              </msx:Node.IterateChilds>
-              <!--<rep:Reporter.Information Text="Specification.SpecificationAsString(TSpecFormatType.Description, ObjNil)"/>-->
+            </When>
+            <When Expression="Category.IsValidSpecification(Specification)">
+              <Execute Statement="Result:= True"/>
               <Execute Statement="Category.Add(Specification)"/>
-            </msx:Block>
-          </msx:OnElement>
-          <msx:OnOtherElement>
-          </msx:OnOtherElement>
-        </msx:Node.IterateChilds>
+              <Execute Statement="Component:= TSchemaComponent.Create(Designator.Text)"/>
+              <Execute Statement="Specification.SchemaComponentHead:= Component"/>
+              <Execute Statement="Specification.SchemaComponentTail:= Component"/>
+            </When>
+            <Otherwise>
+              <Free Expression="Specification"/>
+            </Otherwise>
+          </Choose>
         <ExitOnAbortRequest/>
       </Block>
-    </Procedure>
+    </Function>
 
     <Procedure Identifier="TCalculatedSpecifications.LoadFromFile">
       <Parameters>
@@ -84,6 +94,7 @@
       <Variables>
         <Variable Identifier="Document" Type="IXMLDOMDocument"/>
         <Variable Identifier="Count" Type="Integer" Init="0"/>
+        <Variable Identifier="IsProcessed" Type="Boolean"/>
       </Variables>
       <Block>
         <msx:Document.Create Identifier="Document"/>
@@ -94,17 +105,67 @@
               <msx:Node.IterateChilds Node="Node">
                 <msx:OnElement baseName="'Resistors'">
                   <msx:Block>
-                    <Execute Statement="ProcessComponentCategoryElement(Resistors, Node)"/>
+                    <msx:Node.IterateChilds Node="Node">
+                      <msx:OnElement baseName="'Component'">
+                        <msx:Attribute baseName="'Designator'" Required="true"/>
+                        <msx:Block>
+                          <Execute Statement="ProcessComponentCategoryElement(Resistors, Node, Designator, False)"/>
+                        </msx:Block>
+                      </msx:OnElement>
+                    </msx:Node.IterateChilds>
                   </msx:Block>
                 </msx:OnElement>
                 <msx:OnElement baseName="'Capacitors'">
                   <msx:Block>
-                    <Execute Statement="ProcessComponentCategoryElement(Capacitors, Node)"/>
+                    <msx:Node.IterateChilds Node="Node">
+                      <msx:OnElement baseName="'Component'">
+                        <msx:Attribute baseName="'Designator'" Required="true"/>
+                        <msx:Block>
+                          <Execute Statement="ProcessComponentCategoryElement(Capacitors, Node, Designator, False)"/>
+                        </msx:Block>
+                      </msx:OnElement>
+                    </msx:Node.IterateChilds>
+                  </msx:Block>
+                </msx:OnElement>
+                <msx:OnElement baseName="'Inductors'">
+                  <msx:Block>
+                    <msx:Node.IterateChilds Node="Node">
+                      <msx:OnElement baseName="'Component'">
+                        <msx:Attribute baseName="'Designator'" Required="true"/>
+                        <msx:Block>
+                          <Execute Statement="ProcessComponentCategoryElement(Inductors, Node, Designator, False)"/>
+                        </msx:Block>
+                      </msx:OnElement>
+                    </msx:Node.IterateChilds>
                   </msx:Block>
                 </msx:OnElement>
                 <msx:OnElement baseName="'ZenerDiodes'">
                   <msx:Block>
-                    <Execute Statement="ProcessComponentCategoryElement(ZenerDiodes, Node)"/>
+                    <msx:Node.IterateChilds Node="Node">
+                      <msx:OnElement baseName="'Component'">
+                        <msx:Attribute baseName="'Designator'" Required="true"/>
+                        <msx:Block>
+                          <Execute Statement="ProcessComponentCategoryElement(ZenerDiodes, Node, Designator, False)"/>
+                        </msx:Block>
+                      </msx:OnElement>
+                    </msx:Node.IterateChilds>
+                  </msx:Block>
+                </msx:OnElement>
+                <msx:OnElement baseName="'Components'">
+                  <msx:Block>
+                    <msx:Node.IterateChilds Node="Node">
+                      <msx:OnElement baseName="'Component'">
+                        <msx:Attribute baseName="'Designator'" Required="true"/>
+                        <msx:Block>
+                          <Execute Statement="IsProcessed:= False"/>
+                          <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="Category" Next="Category.Next">
+                            <Execute Statement="IsProcessed:= ProcessComponentCategoryElement(Category, Node, Designator, True)"/>
+                            <Break Condition="IsProcessed"/>
+                          </lil:LinkedList.Iterate>
+                          <rep:Reporter.Error Text="Format(sCalculatedSpecificationsNotProcessed, Designator.Text)" Condition="not IsProcessed"/>
+                        </msx:Block>
+                      </msx:OnElement>
+                    </msx:Node.IterateChilds>
                   </msx:Block>
                 </msx:OnElement>
                 <msx:OnOtherElement>
@@ -247,7 +308,7 @@
           <lil:LinkedList.Iterate Head="StockManager.CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
             <lil:LinkedList.Iterate Head="RunningItem.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
               <Case Expression="RunningSpec.InternalPartNumberVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                   <inx:Index.MapValue Index="InternalPartNumberIndex" Key="RunningSpec.InternalPartNumber" PreviousValue="FoundValue" Found="Found" Value="Value" Flags="NoErrorOnExist DiscardOnExist"/>
                   <Execute Statement="Link:= TSpecificationLink.Create(RunningSpec)"/>
                   <Choose>

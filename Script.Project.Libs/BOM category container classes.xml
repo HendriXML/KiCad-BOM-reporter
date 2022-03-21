@@ -17,8 +17,9 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils" 
   >
   <Uses>
-    <Use Identifier="ElectronicUtils"/>
+    <Use Identifier="ElectronicsUtils"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
     <Use Identifier="BomClasses"/>
     <Use Identifier="ResistorClasses"/>
     <Use Identifier="CapacitorClasses"/>

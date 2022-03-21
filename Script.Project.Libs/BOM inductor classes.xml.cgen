@@ -20,7 +20,7 @@
         </pkg:ReportTargets>
 
         <Imports>
-          <Import Identifier="ComponentClassGenerationUtils" Filename="ComponentClassGenerationUtils.xml"/>
+          <Import Identifier="ComponentClassGenerationUtils" Filename="Component class generation utils.xml"/>
         </Imports>
 
         <Uses>

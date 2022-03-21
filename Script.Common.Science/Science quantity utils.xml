@@ -1,0 +1,543 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  >
+  <Uses>
+    <Use Identifier="ScienceUnits"/>
+  </Uses>
+
+  <Constants>
+    <Constant Identifier="TransferDecimalSeparator" Type="string" Expression="'.'"/>
+  </Constants>
+
+  <Variables>
+    <Variable Identifier="UiDecimalSeparator" Type="Char"/>
+    <Variable Identifier="IniSeperateSection" Type="Boolean" Init="False"/>
+  </Variables>
+
+  <Procedures>
+    
+    <Function Identifier="UiStrToDecimalQuantity" Type="DecimalQuantity">
+      <Parameters>
+        <Parameter Identifier="Value" Type="string"/>
+      </Parameters>
+      <Block>
+        <DecimalQuantity.Parse Expression="Value" Result="Result">
+          <Unit Identifier="Ohm"/>
+          <Unit Identifier="Watt"/>
+          <Unit Identifier="Volt"/>
+          <Unit Identifier="Ampere"/>
+          <Unit Identifier="Henry"/>
+          <Unit Identifier="Farad"/>
+          <Unit Identifier="Meter"/>
+          <Unit Identifier="Hertz"/>
+          <Unit Identifier="Second"/>
+          <Unit Identifier="Hour"/>
+          <Unit Identifier="Division"/>
+          <Unit Identifier="Screen"/>
+          <Unit Identifier="Cycle"/>
+          <Unit Identifier="Sample"/>
+          <Unit Identifier="DacStep"/>
+          <Unit Identifier="Percentage" PercUse="Both"/>
+        </DecimalQuantity.Parse>
+      </Block>
+    </Function>
+
+    <Function Identifier="UiDecimalQuantityToStr" Type="string">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="UnitSeparator" Type="string" Init="' '"/>
+        <DecimalQuantity.Format Expression="Value">
+          <Group MatchedUnit="MatchedUnit" ScaledValue="ScaledValue" ScaledUncertaintyValue="ScaledUncertaintyValue">
+            <Match Unit="GΩ" ScaledValue.Min="1"/>
+            <Match Unit="MΩ" ScaledValue.Min="1"/>
+            <Match Unit="kΩ" ScaledValue.Min="1"/>
+            <Match Unit="Ω" ScaledValue.Min="1"/>
+            <Match Unit="mΩ" ScaledValue.Min="1"/>
+            <Match Unit="μΩ" ScaledValue.Min="1"/>
+            <Match Unit="nΩ"/>
+            <Match Unit="MV" ScaledValue.Min="1"/>
+            <Match Unit="kV" ScaledValue.Min="1"/>
+            <Match Unit="V" ScaledValue.Min="1"/>
+            <Match Unit="mV" ScaledValue.Min="1"/>
+            <Match Unit="μV" ScaledValue.Min="1"/>
+            <Match Unit="nV"/>
+            <Match Unit="GHz" ScaledValue.Min="1"/>
+            <Match Unit="MHz" ScaledValue.Min="1"/>
+            <Match Unit="kHz" ScaledValue.Min="1"/>
+            <Match Unit="Hz" ScaledValue.Min="1"/>
+            <Match Unit="mHz" ScaledValue.Min="1"/>
+            <Match Unit="μHz" ScaledValue.Min="1"/>
+            <Match Unit="Hz"/>
+            <Match Unit="kV·div⁻¹" ScaledValue.Min="1"/>
+            <Match Unit="V·div⁻¹" ScaledValue.Min="1"/>
+            <Match Unit="mV·div⁻¹" ScaledValue.Min="1"/>
+            <Match Unit="μV·div⁻¹" ScaledValue.Min="1"/>
+            <Match Unit="nV·div⁻¹"/>
+            <Match Unit="kA·div⁻¹" ScaledValue.Min="1"/>
+            <Match Unit="A·div⁻¹" ScaledValue.Min="1"/>
+            <Match Unit="mA·div⁻¹" ScaledValue.Min="1"/>
+            <Match Unit="μA·div⁻¹" ScaledValue.Min="1"/>
+            <Match Unit="nA·div⁻¹"/>
+            <Match Unit="kA" ScaledValue.Min="1"/>
+            <Match Unit="A" ScaledValue.Min="1"/>
+            <Match Unit="mA" ScaledValue.Min="1"/>
+            <Match Unit="μA" ScaledValue.Min="1"/>
+            <Match Unit="nA"/>
+            <Match Unit="A·h" ScaledValue.Min="1"/>
+            <Match Unit="mA·h" ScaledValue.Min="1"/>
+            <Match Unit="μA·h" ScaledValue.Min="1"/>
+            <Match Unit="nA·h"/>
+            <Match Unit="MW" ScaledValue.Min="1"/>
+            <Match Unit="kW" ScaledValue.Min="1"/>
+            <Match Unit="W" ScaledValue.Min="1"/>
+            <Match Unit="mW" ScaledValue.Min="1"/>
+            <Match Unit="μW" ScaledValue.Min="1"/>
+            <Match Unit="nW"/>
+            <Match Unit="kF" ScaledValue.Min="1"/>
+            <Match Unit="F" ScaledValue.Min="1"/>
+            <Match Unit="μF" ScaledValue.Min="1"/>
+            <Match Unit="nF" ScaledValue.Min="1"/>
+            <Match Unit="pF"/>
+            <Match Unit="s" ScaledValue.Min="1"/>
+            <Match Unit="μs" ScaledValue.Min="1"/>
+            <Match Unit="ns" ScaledValue.Min="1"/>
+            <Match Unit="ps"/>
+            <Match Unit="%" Statement="UnitSeparator:= ''"/>
+            <Block>
+              <Execute Statement="Result:= DecimalToStr(ScaledValue, 16, TDF.EngineringNoTrailingZero, True, UiDecimalSeparator) + UnitSeparator + MatchedUnit"/>
+            </Block>
+          </Group>
+          <Otherwise>
+            <Execute Statement="Result:= DecimalQuantityToStr(Value, 16, TDF.EngineringNoTrailingZero, True, UiDecimalSeparator)"/>
+          </Otherwise>
+        </DecimalQuantity.Format>
+      </Block>
+    </Function>
+
+    <Function Identifier="TransferStrToDecimalQuantity" Type="DecimalQuantity">
+      <Parameters>
+        <Parameter Identifier="Value" Type="string"/>
+      </Parameters>
+      <Block>
+        <DecimalQuantity.Parse Expression="Value" Result="Result">
+          <Unit Identifier="Ohm"/>
+          <Unit Identifier="Watt"/>
+          <Unit Identifier="Volt"/>
+          <Unit Identifier="Ampere"/>
+          <Unit Identifier="Henry"/>
+          <Unit Identifier="Farad"/>
+          <Unit Identifier="Meter"/>
+          <Unit Identifier="Hertz"/>
+          <Unit Identifier="Second"/>
+          <Unit Identifier="Hour"/>
+          <Unit Identifier="Division"/>
+          <Unit Identifier="Screen"/>
+          <Unit Identifier="Cycle"/>
+          <Unit Identifier="Sample"/>
+          <Unit Identifier="DacStep"/>
+          <Unit Identifier="Percentage" PercUse="Both"/>
+        </DecimalQuantity.Parse>
+      </Block>
+    </Function>
+
+    <Function Identifier="TryTransferStrToDecimalQuantity" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="TxtValue" Type="string"/>
+        <Parameter Identifier="DQValue" Type="DecimalQuantity" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <DecimalQuantity.Parse Expression="TxtValue" Result="DQValue" Succeeded="Result">
+          <Unit Identifier="Ohm"/>
+          <Unit Identifier="Watt"/>
+          <Unit Identifier="Volt"/>
+          <Unit Identifier="Ampere"/>
+          <Unit Identifier="Farad"/>
+          <Unit Identifier="Meter"/>
+          <Unit Identifier="Hertz"/>
+          <Unit Identifier="Second"/>
+          <Unit Identifier="Hour"/>
+          <Unit Identifier="Division"/>
+          <Unit Identifier="Screen"/>
+          <Unit Identifier="Cycle"/>
+          <Unit Identifier="Sample"/>
+          <Unit Identifier="DacStep"/>
+          <Unit Identifier="Percentage"/>
+        </DecimalQuantity.Parse>
+      </Block>
+    </Function>
+
+    <Function Identifier="TransferDecimalQuantityToStr" Type="string">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity"/>
+        <Parameter Identifier="AddUncertainty" Type="Boolean"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TFase" Elements="Value, Uncertainty" LowAlias="Low" HighAlias="High"/>
+      </Type>
+      <Variables>
+        <Variable Identifier="NumFormat" Type="TDF" Init="TDF.EngineringNoTrailingZero"/>
+        <Variable Identifier="UnitSeparator" Type="string" Init="' '"/>
+      </Variables>
+      <Procedures>
+        <Procedure Identifier="OnPercentage">
+          <Block>
+            <Execute Statement="UnitSeparator:= ''"/>
+            <Execute Statement="NumFormat:= TDF.NormSigNoTrailingZero"/>
+          </Block>
+        </Procedure>
+      </Procedures>
+      <Block>
+        <Variable Identifier="PrevFormat" Type="string"/>
+        <ForLoop Indexer="I" From="TFase.Low" To="TFase.High">
+          <DecimalQuantity.Format Expression="Value">
+            <Group MatchedUnit="MatchedUnit" ScaledValue="ScaledValue" ScaledUncertaintyValue="ScaledUncertaintyValue" SignificantDigits="16">
+              <Match Unit="GΩ" ScaledValue.Min="1"/>
+              <Match Unit="MΩ" ScaledValue.Min="1"/>
+              <Match Unit="kΩ" ScaledValue.Min="1"/>
+              <Match Unit="Ω" ScaledValue.Min="1"/>
+              <Match Unit="mΩ" ScaledValue.Min="1"/>
+              <Match Unit="μΩ" ScaledValue.Min="1"/>
+              <Match Unit="nΩ" ScaledValue.Min="1"/>
+              <Match Unit="Ω"/>
+              <Match Unit="MV" ScaledValue.Min="1"/>
+              <Match Unit="kV" ScaledValue.Min="1"/>
+              <Match Unit="V" ScaledValue.Min="1"/>
+              <Match Unit="mV" ScaledValue.Min="1"/>
+              <Match Unit="μV" ScaledValue.Min="1"/>
+              <Match Unit="nV" ScaledValue.Min="1"/>
+              <Match Unit="V"/>
+              <Match Unit="GHz" ScaledValue.Min="1"/>
+              <Match Unit="MHz" ScaledValue.Min="1"/>
+              <Match Unit="kHz" ScaledValue.Min="1"/>
+              <Match Unit="Hz" ScaledValue.Min="1"/>
+              <Match Unit="mHz" ScaledValue.Min="1"/>
+              <Match Unit="μHz" ScaledValue.Min="1"/>
+              <Match Unit="Hz"/>
+              <Match Unit="kV·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="V·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="mV·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="μV·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="nV·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="V·div⁻¹"/>
+              <Match Unit="kA·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="A·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="mA·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="μA·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="nA·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="A·div⁻¹"/>
+              <Match Unit="s·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="ms·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="μs·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="ns·div⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="s·div⁻¹"/>
+              <Match Unit="s" ScaledValue.Min="1"/>
+              <Match Unit="ms" ScaledValue.Min="1"/>
+              <Match Unit="μs" ScaledValue.Min="1"/>
+              <Match Unit="ns" ScaledValue.Min="1"/>
+              <Match Unit="ps" ScaledValue.Min="1"/>
+              <Match Unit="s"/>
+              <Match Unit="kA" ScaledValue.Min="1"/>
+              <Match Unit="A" ScaledValue.Min="1"/>
+              <Match Unit="mA" ScaledValue.Min="1"/>
+              <Match Unit="μA" ScaledValue.Min="1"/>
+              <Match Unit="A"/>
+              <Match Unit="A" ScaledValue.Min="1"/>
+              <Match Unit="MW" ScaledValue.Min="1"/>
+              <Match Unit="kW" ScaledValue.Min="1"/>
+              <Match Unit="W" ScaledValue.Min="1"/>
+              <Match Unit="mW" ScaledValue.Min="1"/>
+              <Match Unit="μW" ScaledValue.Min="1"/>
+              <Match Unit="nW" ScaledValue.Min="1"/>
+              <Match Unit="W"/>
+              <Match Unit="kF" ScaledValue.Min="1"/>
+              <Match Unit="F" ScaledValue.Min="1"/>
+              <Match Unit="μF" ScaledValue.Min="1"/>
+              <Match Unit="nF" ScaledValue.Min="1"/>
+              <Match Unit="pF" ScaledValue.Min="1"/>
+              <Match Unit="F"/>
+              <Match Unit="%" Statement="OnPercentage"/>
+              <Match Unit="" Statement="UnitSeparator:= ''"/>
+              <Block>
+                <Execute Statement="Result:= DecimalToStr(ScaledValue, 32, NumFormat, True, TransferDecimalSeparator) + UnitSeparator + MatchedUnit"/>
+              </Block>
+            </Group>
+            <Otherwise>
+              <Execute Statement="Result:= DecimalQuantityToStr(Value, 32, NumFormat, True, TransferDecimalSeparator)"/>
+              <!--<Exit/>-->
+            </Otherwise>
+          </DecimalQuantity.Format>
+          <Case Expression="I">
+            <On Select="TFase.Value">
+              <Exit Condition="not AddUncertainty"/>
+              <Execute Statement="Value:= Value.Uncertainty"/>
+              <Execute Statement="PrevFormat:= Result"/>
+            </On>
+            <On Select="TFase.Uncertainty">
+              <Execute Statement="Result:= PrevFormat + ' ± ' + Result"/>
+            </On>
+          </Case>
+        </ForLoop>
+      </Block>
+    </Function>
+
+    <Function Identifier="DQToStr" Type="string">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity"/>
+        <Parameter Identifier="AddUncertainty" Type="Boolean"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TFase" Elements="Value, Uncertainty" LowAlias="Low" HighAlias="High"/>
+      </Type>
+      <Block>
+        <Variable Identifier="UnitSeparator" Type="string" Init="' '"/>
+        <Variable Identifier="SignificantDigits" Type="Integer" Init="SignificantDigitsOfDecimalQuantity(Value)"/>
+        <Variable Identifier="UncertaintySignificantDigits" Type="Integer"/>
+        <Variable Identifier="PrevFormat" Type="string"/>
+        <Execute Statement="SignificantDigits:= SignificantDigitsOfDecimalQuantity(Value, UncertaintySignificantDigits)" Condition="AddUncertainty"/>
+        <Variable Identifier="DecimalFormat" Type="TDF" Init="TDF.EngineringMarkSigZero"/>
+        <Execute Statement="DecimalFormat:= TDF.EngineringNoTrailingZero" Condition="not Value.HasUncertainty"/>
+        <ForLoop Indexer="I" From="TFase.Low" To="TFase.High">
+          <DecimalQuantity.Format Expression="Value">
+            <Group MatchedUnit="MatchedUnit" ScaledValue="ScaledValue" ScaledUncertaintyValue="ScaledUncertaintyValue" SignificantDigits="SignificantDigits">
+              <Match Unit="GΩ" ScaledValue.Min="1"/>
+              <Match Unit="MΩ" ScaledValue.Min="1"/>
+              <Match Unit="kΩ" ScaledValue.Min="1"/>
+              <Match Unit="Ω" ScaledValue.Min="1"/>
+              <Match Unit="mΩ" ScaledValue.Min="1"/>
+              <Match Unit="μΩ" ScaledValue.Min="1"/>
+              <Match Unit="nΩ"/>
+              <Match Unit="MV" ScaledValue.Min="1"/>
+              <Match Unit="kV" ScaledValue.Min="1"/>
+              <Match Unit="V" ScaledValue.Min="1"/>
+              <Match Unit="mV" ScaledValue.Min="1"/>
+              <Match Unit="μV" ScaledValue.Min="1"/>
+              <Match Unit="nV" ScaledValue.Min="1"/>
+              <Match Unit="V"/>
+              <Match Unit="kA" ScaledValue.Min="1"/>
+              <Match Unit="A" ScaledValue.Min="1"/>
+              <Match Unit="mA" ScaledValue.Min="1"/>
+              <Match Unit="μA" ScaledValue.Min="1"/>
+              <Match Unit="nA"/>
+              <Match Unit="km" ScaledValue.Min="1"/>
+              <Match Unit="m" ScaledValue.Min="1"/>
+              <Match Unit="cm" ScaledValue.Min="1"/>
+              <Match Unit="mm" ScaledValue.Min="0.1"/>
+              <Match Unit="μm" ScaledValue.Min="1"/>
+              <Match Unit="nm"/>
+              <Match Unit="km²" ScaledValue.Min="0.001"/>
+              <Match Unit="m²" ScaledValue.Min="0.001"/>
+              <Match Unit="mm²" ScaledValue.Min="0.001"/>
+              <Match Unit="μm²" ScaledValue.Min="0.001"/>
+              <Match Unit="nm²"/>
+              <Match Unit="MW" ScaledValue.Min="1"/>
+              <Match Unit="kW" ScaledValue.Min="1"/>
+              <Match Unit="W" ScaledValue.Min="1"/>
+              <Match Unit="mW" ScaledValue.Min="1"/>
+              <Match Unit="μW" ScaledValue.Min="1"/>
+              <Match Unit="nW"/>
+              <Match Unit="Ms" ScaledValue.Min="1"/>
+              <Match Unit="ks" ScaledValue.Min="1"/>
+              <Match Unit="s" ScaledValue.Min="1"/>
+              <Match Unit="ms" ScaledValue.Min="1"/>
+              <Match Unit="μs" ScaledValue.Min="1"/>
+              <Match Unit="ns"/>
+              <Match Unit="GHz" ScaledValue.Min="1"/>
+              <Match Unit="MHz" ScaledValue.Min="1"/>
+              <Match Unit="kHz" ScaledValue.Min="1"/>
+              <Match Unit="Hz" ScaledValue.Min="1"/>
+              <Match Unit="mHz" ScaledValue.Min="1"/>
+              <Match Unit="μHz" ScaledValue.Min="1"/>
+              <Match Unit="nHz"/>
+              <Match Unit="kH" ScaledValue.Min="1"/>
+              <Match Unit="H" ScaledValue.Min="1"/>
+              <Match Unit="mH" ScaledValue.Min="1"/>
+              <Match Unit="μH" ScaledValue.Min="1"/>
+              <Match Unit="nH"/>
+              <Match Unit="kF" ScaledValue.Min="1"/>
+              <Match Unit="F" ScaledValue.Min="1"/>
+              <Match Unit="μF" ScaledValue.Min="1" Statement="DecimalFormat:= TDF.NormMarkSigZero"/>
+              <Match Unit="nF" ScaledValue.Min="1"/>
+              <Match Unit="pF"/>
+              <Match Unit="°C·W⁻¹" UnitOverride="'°C/W'"/>
+              <Match Unit="°C"/>
+              <Match Unit="V·W⁻¹" UnitOverride="'V/W'"/>
+              <Match Unit="%" Statement="UnitSeparator:= ''"/>
+              <Match Unit="" Statement="UnitSeparator:= ''"/>
+              <Match Unit="km·h⁻¹" UnitOverride="'km/h'"/>
+              <Match Unit="km·s⁻¹" ScaledValue.Min="1" UnitOverride="'km/s'"/>
+              <Match Unit="m·s⁻¹" ScaledValue.Min="1" UnitOverride="'m/s'"/>
+              <Match Unit="mm·s⁻¹" ScaledValue.Min="1" UnitOverride="'mm/s'"/>
+              <Match Unit="μm·s⁻¹" ScaledValue.Min="1" UnitOverride="'μm/s'"/>
+              <Match Unit="nm·s⁻¹" UnitOverride="'nm/s'"/>
+              <Match Unit="A·h" ScaledValue.Min="1"/>
+              <Match Unit="mA·h" ScaledValue.Min="1"/>
+              <Match Unit="μA·h" ScaledValue.Min="1"/>
+              <Match Unit="nA·h"/>
+              <Match Unit="MJ" ScaledValue.Min="1"/>
+              <Match Unit="kJ" ScaledValue.Min="1"/>
+              <Match Unit="J"/>
+              <Match Unit="mΩ·m⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="μΩ·m⁻¹" ScaledValue.Min="1"/>
+              <Match Unit="nΩ·m⁻¹"/>
+              <Block>
+                <Execute Statement="Result:= DecimalToStr(ScaledValue, SignificantDigits, TDF.NormMarkSigZero, True, UiDecimalSeparator) + UnitSeparator + MatchedUnit"/>
+              </Block>
+            </Group>
+            <Otherwise>
+              <Execute Statement="Result:= DecimalQuantityToStr(Value, SignificantDigits, DecimalFormat, True, UiDecimalSeparator)"/>
+              <!--<Exit/>-->
+            </Otherwise>
+          </DecimalQuantity.Format>
+          <Case Expression="I">
+            <On Select="TFase.Value">
+              <Exit Condition="not AddUncertainty"/>
+              <Execute Statement="DecimalFormat:= TDF.EngineringMarkSigZero"/>
+              <Execute Statement="Value:= Value.Uncertainty"/>
+              <Execute Statement="SignificantDigits:= UncertaintySignificantDigits"/>
+              <Execute Statement="PrevFormat:= Result"/>
+            </On>
+            <On Select="TFase.Uncertainty">
+              <Execute Statement="Result:= PrevFormat + ' ± ' + Result"/>
+            </On>
+          </Case>
+        </ForLoop>
+      </Block>
+    </Function>
+
+    <Function Identifier="DQToStrSpecial" Type="string">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity"/>
+        <Parameter Identifier="AddUncertainty" Type="Boolean"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TFase" Elements="Value, Uncertainty" LowAlias="Low" HighAlias="High"/>
+      </Type>
+      <Block>
+        <Variable Identifier="UnitSeparator" Type="string" Init="' '"/>
+        <Variable Identifier="SignificantDigits" Type="Integer" Init="SignificantDigitsOfDecimalQuantity(Value)"/>
+        <!--<rep:Reporter.Information Text="Format('SignificantDigits: %d', SignificantDigits)" Condition="IsDebugging"/>-->
+        <Variable Identifier="UncertaintySignificantDigits" Type="Integer"/>
+        <Variable Identifier="PrevFormat" Type="string"/>
+        <Execute Statement="SignificantDigits:= SignificantDigitsOfDecimalQuantity(Value, UncertaintySignificantDigits)" Condition="AddUncertainty"/>
+        <ForLoop Indexer="I" From="TFase.Low" To="TFase.High">
+          <Variable Identifier="DecimalFormat" Type="TDF" Init="TDF.NormMarkSigZero"/>
+          <DecimalQuantity.Format Expression="Value">
+            <Group MatchedUnit="MatchedUnit" ScaledValue="ScaledValue" ScaledUncertaintyValue="ScaledUncertaintyValue" SignificantDigits="SignificantDigits">
+              <Match Unit="mm"/>
+              <Block>
+                <Execute Statement="Result:= DecimalToStr(ScaledValue, SignificantDigits, DecimalFormat, True, UiDecimalSeparator) + UnitSeparator + MatchedUnit"/>
+              </Block>
+            </Group>
+            <Otherwise>
+              <Execute Statement="Result:= DecimalQuantityToStr(Value, SignificantDigits, DecimalFormat, True, UiDecimalSeparator)"/>
+              <!--<Exit/>-->
+            </Otherwise>
+          </DecimalQuantity.Format>
+          <Case Expression="I">
+            <On Select="TFase.Value">
+              <Exit Condition="not AddUncertainty"/>
+              <Execute Statement="Value:= Value.Uncertainty"/>
+              <Execute Statement="SignificantDigits:= UncertaintySignificantDigits"/>
+              <Execute Statement="PrevFormat:= Result"/>
+            </On>
+            <On Select="TFase.Uncertainty">
+              <Execute Statement="Result:= PrevFormat + ' ± ' + Result"/>
+            </On>
+          </Case>
+        </ForLoop>
+      </Block>
+    </Function>
+
+    <Function Identifier="DQToStrShort" Type="string">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity"/>
+      </Parameters>
+      <Type>
+        <Enumeration Identifier="TFase" Elements="Value, Uncertainty" LowAlias="Low" HighAlias="High"/>
+      </Type>
+      <Block>
+        <Variable Identifier="UnitSeparator" Type="string" Init="' '"/>
+        <DecimalQuantity.Format Expression="Value">
+          <Group MatchedUnit="MatchedUnit" ScaledValue="ScaledValue" ScaledUncertaintyValue="ScaledUncertaintyValue" SignificantDigits="32">
+            <Match Unit="mm"/>
+            <Block>
+              <Execute Statement="Result:= DecimalToStr(ScaledValue, 15, TDF.NormSigNoTrailingZero, True, UiDecimalSeparator) + UnitSeparator + MatchedUnit"/>
+            </Block>
+          </Group>
+          <Otherwise>
+            <Execute Statement="Result:= DecimalQuantityToStr(Value, 15, TDF.NormSigNoTrailingZero, True, UiDecimalSeparator)"/>
+            <!--<Exit/>-->
+          </Otherwise>
+        </DecimalQuantity.Format>
+      </Block>
+    </Function>
+
+    <Function Identifier="StoreDecimalQuantityToStr" Type="string">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity"/>
+        <Parameter Identifier="SigDigits" Type="Integer"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="UnitSeparator" Type="string" Init="' '"/>
+        <DecimalQuantity.Format Expression="Value">
+          <Group MatchedUnit="MatchedUnit" ScaledValue="ScaledValue" ScaledUncertaintyValue="ScaledUncertaintyValue">
+            <Match Unit="GΩ" ScaledValue.Min="1"/>
+            <Match Unit="MΩ" ScaledValue.Min="1"/>
+            <Match Unit="kΩ" ScaledValue.Min="1"/>
+            <Match Unit="Ω" ScaledValue.Min="1"/>
+            <Match Unit="mΩ" ScaledValue.Min="1"/>
+            <Match Unit="μΩ" ScaledValue.Min="1"/>
+            <Match Unit="nΩ"/>
+            <Match Unit="MV" ScaledValue.Min="1"/>
+            <Match Unit="kV" ScaledValue.Min="1"/>
+            <Match Unit="V" ScaledValue.Min="1"/>
+            <Match Unit="mV" ScaledValue.Min="1"/>
+            <Match Unit="μV" ScaledValue.Min="1"/>
+            <Match Unit="nV"/>
+            <Match Unit="kA" ScaledValue.Min="1"/>
+            <Match Unit="A" ScaledValue.Min="1"/>
+            <Match Unit="mA" ScaledValue.Min="1"/>
+            <Match Unit="μA" ScaledValue.Min="1"/>
+            <Match Unit="nA"/>
+            <Match Unit="MW" ScaledValue.Min="1"/>
+            <Match Unit="kW" ScaledValue.Min="1"/>
+            <Match Unit="W" ScaledValue.Min="1"/>
+            <Match Unit="mW" ScaledValue.Min="1"/>
+            <Match Unit="μW" ScaledValue.Min="1"/>
+            <Match Unit="nW"/>
+            <Match Unit="kH" ScaledValue.Min="1"/>
+            <Match Unit="H" ScaledValue.Min="1"/>
+            <Match Unit="mH" ScaledValue.Min="1"/>
+            <Match Unit="μH" ScaledValue.Min="1"/>
+            <Match Unit="nH"/>
+            <Match Unit="kF" ScaledValue.Min="1"/>
+            <Match Unit="F" ScaledValue.Min="1"/>
+            <!--<Match Unit="mF" ScaledValue.Min="1"/>-->
+            <Match Unit="μF" ScaledValue.Min="1"/>
+            <Match Unit="nF" ScaledValue.Min="1"/>
+            <Match Unit="pF"/>
+            <Match Unit="%" Statement="UnitSeparator:= ''"/>
+            <Match Unit="" Statement="UnitSeparator:= ''"/>
+            <Block>
+              <Execute Statement="Result:= DecimalToStr(ScaledValue, SigDigits, TDF.NormSigNoTrailingZero, False) + UnitSeparator + MatchedUnit"/>
+            </Block>
+          </Group>
+          <Otherwise>
+            <Execute Statement="Result:= DecimalQuantityToStr(Value, SigDigits, TDF.NormSigNoTrailingZero, False)"/>
+          </Otherwise>
+        </DecimalQuantity.Format>
+      </Block>
+    </Function>
+  </Procedures>
+
+  <Initialization>
+    <Execute Statement="UiDecimalSeparator:= GetLocaleChar(GetThreadLocale, LOCALE_SDECIMAL, '.')" Condition="IsEmpty(UiDecimalSeparator)"/>
+  </Initialization>
+</pkg:Library>

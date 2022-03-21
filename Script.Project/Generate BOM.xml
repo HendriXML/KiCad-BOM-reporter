@@ -21,7 +21,9 @@
     <pkg:Target Identifier="StockReport" Description="Partkeepr components"/>
     <pkg:Target Identifier="ReportEEVBlog" Description="BOM report - EEVBlog"/>
     <pkg:Target Identifier="ReportDokuWiki" Description="BOM report - DokuWiki"/>
+    <pkg:Target Identifier="IniFileEcho" Description="Configuration echo"/>
     <pkg:Target Identifier="Info" Description="Process info"/>
+    <pkg:TargetAlias TargetIdentifier="Info" Alias="ElectronicsTasks"/>
   </pkg:ReportTargets>
   <pkg:Config xml:space="preserve">[Settings]
 BomFilename=..\Resources.Project\ESeriesBOM.xml
@@ -33,27 +35,58 @@ SymbolMappingDirectory=..\Resources.Project.ComponentMappings
 ExportProjectID=-1
 ExportUnmatchedComponentsStorageID=-1
 
-[Display]
-HideESerieOfValue=0
-HideResistorMaxAmpVolt=0
-HideZenerDiodeMaxAmp=0
-HideFootprint=0
-MaxShowResistorVoltage=230V
-;Defaults to system
-;DecimalSeparator=,
+[GlobalConfig]
+;HideSpecs=ESerieOfValue, ResistorMaxAmpVolt, ZenerDiodeMaxAmp, Footprint
+HideSpecs=
 
-[Matching]
-SkipFootprint=0
+;SheetInfo=None|Root|All
+SheetInfo=All
+
+MaxShowResistorVoltage=230V
+
+;Defaults to system
+;UiDecimalSeparator=,
+
+;SeperateComponents=0|1
+SeperateComponents=1
+
+;SkipFootprintMatching=0|1
+SkipFootprintMatching=0
+
+[ElectronicsTasks.CombinationTarget]
+Value	= 123.0 Ω ± 2%
+
+[ElectronicsTasks.CombinationParameters]
+MaxESerie	= E24
+Granularity	= Fine
+Tolerance	= 2%
+Refine	= 1
+
+[CombinationTarget.Input]
+Source=Stock
+
+[CombinationTarget.Input.Resistor]
+ComponentKind=Resistor
+PowerRating = 250mW
+Tolerance.Max = 2%
+
+[CombinationTarget.Input.Capacitor]
+ComponentKind=Capacitor
+;Tolerance.Max = 2%
+
+[CombinationTarget.Input.Inductor]
+ComponentKind=Inductor
+;Tolerance.Max = 2%
 
 [Template.Resistor]
-PowerRating.Min = 250mW
-Tolerance = 2%
+PowerRating = 250mW
+Tolerance.Max = 2%
 Technology = metal film
 
 [Template.PolarisedCapacitor]
 ;Tolerance = 10%
 VoltageRating = 50V
-Technology = electrolytic
+Technology = aluminum electrolytic
 
 [Template.Capacitor]
 ;Tolerance = 10%
@@ -69,41 +102,61 @@ VoltageRating = 250V
 
   </pkg:Config>
   <Imports>
-    <Import Identifier="SiUnits" Filename="..\Script.Common.Science\SiUnits.xml"/>
-    <Import Identifier="ElectronicUtils" Filename="..\Script.Common.Electronics\ElectronicUtils.xml"/>
-    <Import Identifier="ReportStrings" Filename="..\Script.Common.Electronics\Report strings en-GB.xml"/>
-    <Import Identifier="ElectronicReportUtils" Filename="..\Script.Common.Electronics\ElectronicReportUtils.xml"/>
+    <Import Identifier="EnumerationUtils" Filename="..\Script.Common.System\Enumeration utils.xml"/>
+
+    <Import Identifier="ScienceUnits" Filename="..\Script.Common.Science\Science units.xml"/>
+    <Import Identifier="ScienceQuantityUtils" Filename="..\Script.Common.Science\Science quantity utils.xml"/>
+
+    <Import Identifier="ScienceIniHelper" Filename="..\Script.Common.Generic\Science ini helper.xml"/>
+    <Import Identifier="TaskReportStrings" Filename="..\Script.Common.Generic\Task report strings |languageCode|.xml"/>
+    <Import Identifier="TaskUtils" Filename="..\Script.Common.Generic\TaskUtils.xml"/>
     <Import Identifier="DokuWikiUtils" Filename="..\Script.Common.Generic\DokuWiki utils.xml"/>
     <Import Identifier="SimpleMachinesUtils" Filename="..\Script.Common.Generic\Simple machines utils.xml"/>
-    <Import Identifier="BomStrings" Filename="..\Script.Project.Libs\BOM strings en-GB.xml"/>
+
+    <Import Identifier="ElectronicsStrings" Filename="..\Script.Common.Electronics\Electronics strings |LanguageCode|.xml"/>
+    <Import Identifier="ElectronicsEnumerations" Filename="..\Script.Common.Electronics\Electronics enumerations.xml"/>
+    <Import Identifier="ElectronicsUtils" Filename="..\Script.Common.Electronics\Electronics utils.xml"/>
+    <Import Identifier="ElectronicsReportUtils" Filename="..\Script.Common.Electronics\Electronics report utils.xml"/>
+    <Import Identifier="ElectronicsTasks" Filename="..\Script.Common.Electronics\Electronics tasks.xml"/>
+
+    <Import Identifier="BomStrings" Filename="..\Script.Project.Libs\BOM strings |LanguageCode|.xml"/>
+    <Import Identifier="BomEnumerations" Filename="..\Script.Project.Libs\BOM enumerations.xml"/>
     <Import Identifier="BomClasses" Filename="..\Script.Project.Libs\BOM classes.xml"/>
-    <Import Identifier="NamedComponentClasses" Filename="..\Script.Project.Libs\BOM NamedComponentClasses.xml"/>
-    <Import Identifier="DeviceFunctions" Filename="..\Script.Project.Libs\BOM DeviceFunctions.xml"/>
-    <Import Identifier="DeviceFunctionDescription" Filename="..\Script.Project.Libs\BOM DeviceFunctionDescription en-GB.xml"/>
-    <Import Identifier="MultiFunctionComponentClasses" Filename="..\Script.Project.Libs\BOM MultiFunctionComponentClasses.xml"/>
-    <Import Identifier="IntegratedCircuitClasses" Filename="..\Script.Project.Libs\BOM IntegratedCircuitClasses.xml"/>
-    <Import Identifier="ResistorClasses" Filename="..\Script.Project.Libs\BOM ResistorClasses.xml"/>
-    <Import Identifier="CapacitorClasses" Filename="..\Script.Project.Libs\BOM CapacitorClasses.xml"/>
-    <Import Identifier="InductorClasses" Filename="..\Script.Project.Libs\BOM InductorClasses.xml"/>
-    <Import Identifier="ZenerDiodeClasses" Filename="..\Script.Project.Libs\BOM ZenerDiodeClasses.xml"/>
-    <Import Identifier="ConnectorClasses" Filename="..\Script.Project.Libs\BOM ConnectorClasses.xml"/>
-    <Import Identifier="DiodeClasses" Filename="..\Script.Project.Libs\BOM DiodeClasses.xml"/>
-    <Import Identifier="FuseClasses" Filename="..\Script.Project.Libs\BOM FuseClasses.xml"/>
-    <Import Identifier="CategoryContainer" Filename="..\Script.Project.Libs\BOM CategoryContainer.xml"/>
-    <Import Identifier="StockManager" Filename="..\Script.Project.Libs\BOM StockManager.xml"/>
-    <Import Identifier="CalculatedSpecificationsClasses" Filename="..\Script.Project.Libs\BOM CalculatedSpecifications.xml"/>
-    <Import Identifier="BillOfMaterialClass" Filename="..\Script.Project.Libs\BOM BillOfMaterialClass.xml"/>
-    <Import Identifier="PartKeeprProjectExport" Filename="..\Script.Project.Libs\BOM PartKeeprProjectExport.xml"/>
+    <Import Identifier="NamedComponentClasses" Filename="..\Script.Project.Libs\BOM named component classes.xml"/>
+    <Import Identifier="DeviceFunctions" Filename="..\Script.Project.Libs\BOM device functions.xml"/>
+    <Import Identifier="DeviceFunctionDescriptions" Filename="..\Script.Project.Libs\BOM device function descriptions |LanguageCode|.xml"/>
+    <Import Identifier="MultiFunctionComponentClasses" Filename="..\Script.Project.Libs\BOM multi function component classes.xml"/>
+    <Import Identifier="IntegratedCircuitClasses" Filename="..\Script.Project.Libs\BOM integrated circuit classes.xml"/>
+    <Import Identifier="ResistorClasses" Filename="..\Script.Project.Libs\BOM resistor classes.xml"/>
+    <Import Identifier="CapacitorClasses" Filename="..\Script.Project.Libs\BOM capacitor classes.xml"/>
+    <Import Identifier="InductorClasses" Filename="..\Script.Project.Libs\BOM inductor classes.xml"/>
+    <Import Identifier="ZenerDiodeClasses" Filename="..\Script.Project.Libs\BOM zener diode classes.xml"/>
+    <Import Identifier="ConnectorClasses" Filename="..\Script.Project.Libs\BOM connector classes.xml"/>
+    <Import Identifier="DiodeClasses" Filename="..\Script.Project.Libs\BOM diode classes.xml"/>
+    <Import Identifier="FuseClasses" Filename="..\Script.Project.Libs\BOM fuse classes.xml"/>
+    <Import Identifier="CategoryContainer" Filename="..\Script.Project.Libs\BOM category container classes.xml"/>
+    <Import Identifier="StockManager" Filename="..\Script.Project.Libs\BOM stock manager.xml"/>
+    <Import Identifier="CalculatedSpecificationsClasses" Filename="..\Script.Project.Libs\BOM calculated specifications classes.xml"/>
+    <Import Identifier="BillOfMaterialClass" Filename="..\Script.Project.Libs\BOM bill of material class.xml"/>
+    <Import Identifier="PartKeeprProjectExport" Filename="..\Script.Project.Libs\BOM partkeepr project export.xml"/>
   </Imports>
 
   <Uses>
-    <Use Identifier="SiUnits"/>
-    <Use Identifier="ElectronicUtils"/>
-    <Use Identifier="ReportStrings"/>
-    <Use Identifier="ElectronicReportUtils"/>
+    <Use Identifier="EnumerationUtils"/>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="ScienceQuantityUtils"/>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="TaskReportStrings"/>
+    <Use Identifier="TaskUtils"/>
+    <Use Identifier="ElectronicsUtils"/>
+    <Use Identifier="ElectronicsStrings"/>
+    <Use Identifier="ElectronicsReportUtils"/>
+    <Use Identifier="ElectronicsEnumerations"/>
+    <Use Identifier="ElectronicsTasks"/>
     <Use Identifier="DokuWikiUtils"/>
     <Use Identifier="SimpleMachinesUtils"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
     <Use Identifier="BomClasses"/>
     <Use Identifier="ResistorClasses"/>
     <Use Identifier="CategoryContainer"/>
@@ -114,25 +167,10 @@ VoltageRating = 250V
   </Uses>
 
   <Type>
-    <Enumeration Identifier="TUnattendedTask" Elements="Bom, BomEEVBlog, BomDokuWiki, BomDesignators, BomOrderPicking, Stock, StorageLocations, PartKeeprProjects"/>
-
-    <Enumeration Identifier="TUnattendedTaskFlags" Elements="
-                 Bom = 1 shl TUnattendedTask.Bom, 
-                 BomEEVBlog = 1 shl TUnattendedTask.BomEEVBlog, 
-                 BomDokuWiki = 1 shl TUnattendedTask.BomDokuWiki, 
-                 BomDesignators = 1 shl TUnattendedTask.BomDesignators, 
-                 BomOrderPicking = 1 shl TUnattendedTask.BomOrderPicking, 
-                 Stock = 1 shl TUnattendedTask.Stock, 
-                 StorageLocations = 1 shl TUnattendedTask.StorageLocations, 
-                 PartKeeprProjects = 1 shl TUnattendedTask.PartKeeprProjects"/>
-
-    <Enumeration Identifier="THideSpec" Elements="ESerieOfValue, ResistorMaxAmpVolt, ZenerDiodeMaxAmp, Footprint"/>
-
-    <Enumeration Identifier="THideSpecFlags" Elements="
-                 ESerieOfValue = 1 shl THideSpec.ESerieOfValue, 
-                 ResistorMaxAmpVolt = 1 shl THideSpec.ResistorMaxAmpVolt, 
-                 ZenerDiodeMaxAmp = 1 shl THideSpec.ZenerDiodeMaxAmp, 
-                 Footprint = 1 shl THideSpec.Footprint"/>
+    <DataClass Identifier="TRootTaskInfo">
+      <Field Identifier="Unattended" Type="Boolean"/>
+      <Field Identifier="TaskSelectionFlags" Type="TFlags"/>
+    </DataClass>
 
     <DataClass Identifier="TDatabase">
       <Field Identifier="DBConnection" Type="Connection"/>
@@ -150,29 +188,21 @@ VoltageRating = 250V
       <Field Identifier="ID" Type="Integer"/>
     </DataClass>
 
+    <DataClass Identifier="TAvailableValuesSource">
+      <Field Identifier="SpecificationTemplate" Type="TComponentSpec"/>
+      <Field Identifier="ComponentCategory" Type="TComponentCategory"/>
+    </DataClass>
+
   </Type>
 
   <Constants>
     <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
-    <Constant Identifier="secSettings" Type="string" Expression="'Settings'"/>
-    <Constant Identifier="secDisplay" Type="string" Expression="'Display'"/>
-    <Constant Identifier="secTasks" Type="string" Expression="'Tasks'"/>
-    <Constant Identifier="secMatching" Type="string" Expression="'Matching'"/>
-    <Constant Identifier="keyBomFilename" Type="string" Expression="'BomFilename'"/>
-    <Constant Identifier="keyDecimalSeparator" Type="string" Expression="'DecimalSeparator'"/>
-    <Constant Identifier="keyBomCount" Type="string" Expression="'BomCount'"/>
-    <Constant Identifier="keyConnectionString" Type="string" Expression="'ConnectionString'"/>
-    <Constant Identifier="keyExportProjectID" Type="string" Expression="'ExportProjectID'"/>
-    <Constant Identifier="keyTaskKind" Type="string" Expression="'TaskKind'"/>
-    <Constant Identifier="keyExportUnmatchedComponentsStorageID" Type="string" Expression="'ExportUnmatchedComponentsStorageID'"/>
-    <Constant Identifier="keyHideESerieOfValue" Type="string" Expression="'HideESerieOfValue'"/>
-    <Constant Identifier="keyHideResistorMaxAmpVolt" Type="string" Expression="'HideResistorMaxAmpVolt'"/>
-    <Constant Identifier="keyHideZenerDiodeMaxAmp" Type="string" Expression="'HideZenerDiodeMaxAmp'"/>
-    <Constant Identifier="keyHideFootprint" Type="string" Expression="'HideFootprint'"/>
-    <Constant Identifier="keyMaxShowResistorVoltage" Type="string" Expression="'MaxShowResistorVoltage'"/>
-    <Constant Identifier="keySymbolMappingDirectory" Type="string" Expression="'SymbolMappingDirectory'"/>
-    <Constant Identifier="keySkipFootprint" Type="string" Expression="'SkipFootprint'"/>
+    <Constant Identifier="ScriptVersion" Type="string" Expression="'6.35.3.0.0.55'"/>
   </Constants>
+
+  <Variables>
+    <Variable Identifier="PerfFreq" Type="CyclesPerSecondQ" Init="QueryPerformanceFrequency ~ ⌠cps⌡ ± 1.0⌠cps⌡"/>
+  </Variables>
 
   <Procedures>
 
@@ -183,17 +213,28 @@ VoltageRating = 250V
       <Block>
         <Execute Statement="Path:= ExtractFilePath(ScriptFilename)"/>
         <rep:Reporter.LabelValue Label="sPath" Value="Path" Target="Info"/>
+        <Task.MarkHandled/>
       </Block>
+    </Task>
+
+    <Task Identifier="IniHelper" SelfType="TIniHelper" SelfConstruction="TIniHelper.Create(ConfigInifile, True)">
+      <Init>
+        <Task.Description Expression="'IniHelper'"/>
+        <Task.MarkHandled/>
+      </Init>
     </Task>
 
     <Task Identifier="SymbolMappingPath" SelfType="TPathInfo" SelfConstruction="TPathInfo.Create">
       <Init>
         <Task.Description Expression="sSymbolMappingPathTD"/>
         <Task.AddDependency Task="ScriptPath" Result="ScriptPath" ResultType="TPathInfo"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
       </Init>
       <Block>
-        <Execute Statement="Path:= GetFilenameFromBase(ScriptPath.Path, ConfigInifile.ReadString(secSettings, keySymbolMappingDirectory, '..\Resources.Project.ComponentMappings'))"/>
+        <Execute Statement="Ini.Section(Task.Name)"/>
+        <Execute Statement="Path:= GetFilenameFromBase(ScriptPath.Path, Ini.ReadString('SymbolMappingDirectory', '..\Resources.Project.ComponentMappings'))"/>
         <rep:Reporter.LabelValue Label="sPath" Value="Path" Target="Info"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -201,14 +242,17 @@ VoltageRating = 250V
       <Init>
         <Task.Description Expression="sBomFilenameTD"/>
         <Task.AddDependency Task="ScriptPath" Result="ScriptPath" ResultType="TPathInfo"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
       </Init>
       <Block>
         <Variable Identifier="BomFilename" Type="string" Init="''"/>
-        <Block Condition="not CommandlineVariables.GetValue(keyBomFilename, BomFilename)">
-          <Execute Statement="BomFilename:= ConfigInifile.ReadString(secSettings, keyBomFilename, BomFilename)"/>
+        <Block Condition="not CommandlineVariables.GetValue('BomFilename', BomFilename)">
+          <Execute Statement="Ini.Section(Task.Name)"/>
+          <Execute Statement="BomFilename:= Ini.ReadString('BomFilename', BomFilename)"/>
         </Block>
         <Execute Statement="Filename:= GetFilenameFromBase(ScriptPath.Path, BomFilename)"/>
         <rep:Reporter.LabelValue Label="sFilename" Value="Filename" Target="Info"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -220,87 +264,70 @@ VoltageRating = 250V
       <Block>
         <Execute Statement="Filename:= ChangeFileExt(BomFilename.Filename, '-Calculated.xml')"/>
         <rep:Reporter.LabelValue Label="sFilename" Value="Filename" Target="Info"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
     <Task Identifier="GlobalConfig">
+      <Type>
+        <Enumeration Identifier="THideSpec" Elements="ESerieOfValue, ResistorMaxAmpVolt, ZenerDiodeMaxAmp, Footprint, Sheets, CompSep"/>
+      </Type>
       <Init>
         <Task.Description Expression="sGlobalConfigTD"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
       </Init>
       <Block>
-        <Execute Statement="DecimalSeparator:= ConfigInifile.ReadString(secDisplay, keyDecimalSeparator, DecimalSeparator)"/>
-        <Variable Identifier="HideSpecs" Type="THideSpecFlags" Init="0"/>
-        <Variable Identifier="HideSpec" Type="THideSpecFlags"/>
+        <Execute Statement="Ini.Section(Task.Name)"/>
+        <Execute Statement="UiDecimalSeparator:= Ini.ReadChar('DecimalSeparator', UiDecimalSeparator)"/>
+        <Execute Statement="SheetInfo:= TSheetInfo.All"/>
+        <Variable Identifier="HideSpecs" Type="TFlags" Init="0"/>
         <Variable Identifier="HideSpecsS" Type="string"/>
+        <Variable Identifier="SheetInfoS" Type="string"/>
         <Choose>
-          <When Expression="CommandlineVariables.GetValue('HideSpecs', HideSpecsS)">
-            <Object.Use Identifier="TaskRegister" Type="TCharacterTreeInt64Register" Expression="TCharacterTreeInt64Register.Create">
-              <Execute Statement="TaskRegister.Add('ESerieOfValue', THideSpecFlags.ESerieOfValue)"/>
-              <Execute Statement="TaskRegister.Add('ResistorMaxAmpVolt', THideSpecFlags.ResistorMaxAmpVolt)"/>
-              <Execute Statement="TaskRegister.Add('ZenerDiodeMaxAmp', THideSpecFlags.ZenerDiodeMaxAmp)"/>
-              <Execute Statement="TaskRegister.Add('Footprint', THideSpecFlags.Footprint)"/>
-              <Execute Statement="TaskRegister.Optimize"/>
-              <Execute Statement="TaskRegister.SearchStart"/>
-              <Variable Identifier="PendingSpec" Type="Boolean" Init="False"/>
-              <stm:StateHandler InitialState="StartID">
-                <StringLoop StringValue="HideSpecsS" OrdinalIdentifier="ChrI" CharacterIdentifier="Chr">
-                  <stm:HandleStates>
-                    <stm:State Name="StartID">
-                      <Raise Expression="Exception.Create(sUnsupportedHideSpecs)" Condition="not TaskRegister.SearchAdvance(Chr)"/>
-                      <stm:SetState Name="InSpecID"/>
-                      <Execute Statement="PendingSpec:= True"/>
-                    </stm:State>
-                    <stm:State Name="InSpecID">
-                      <Choose>
-                        <When Expression="TaskRegister.SearchAdvance(Chr)">
-                        </When>
-                        <When Expression="Chr = ','">
-                          <Raise Expression="sUnsupportedHideSpecs" Condition="not TaskRegister.SearchItem(HideSpec)"/>
-                          <Execute Statement="HideSpecs:= HideSpecs or HideSpec"/>
-                          <Execute Statement="TaskRegister.SearchStart"/>
-                          <stm:SetState Name="StartID"/>
-                        </When>
-                        <Otherwise>
-                          <Raise Expression="Exception.Create(sUnsupportedHideSpecs)"/>
-                        </Otherwise>
-                      </Choose>
-                    </stm:State>
-                  </stm:HandleStates>
-                </StringLoop>
-                <Block Condition="PendingSpec">
-                  <Raise Expression="sUnsupportedHideSpecs" Condition="not TaskRegister.SearchItem(HideSpec)"/>
-                  <Execute Statement="HideSpecs:= HideSpecs or HideSpec"/>
-                </Block>
-              </stm:StateHandler>
-            </Object.Use>
-            <Execute Statement="HideESerieOfValue:= (HideSpecs and THideSpecFlags.ESerieOfValue) = THideSpecFlags.ESerieOfValue"/>
-            <Execute Statement="HideResistorMaxAmpVolt:= (HideSpecs and THideSpecFlags.ResistorMaxAmpVolt) = THideSpecFlags.ResistorMaxAmpVolt"/>
-            <Execute Statement="HideZenerDiodeMaxAmp:= (HideSpecs and THideSpecFlags.ZenerDiodeMaxAmp) = THideSpecFlags.ZenerDiodeMaxAmp"/>
-            <Execute Statement="HideFootprint:= (HideSpecs and THideSpecFlags.Footprint) = THideSpecFlags.Footprint"/>
+          <When Expression="not CommandlineVariables.GetValue('HideSpecs', HideSpecsS)">
+            <Execute Statement="HideSpecs:= Ini.ReadEnumFlags('HideSpecs', HideSpecs, HideSpecNameRegister)"/>
+          </When>
+          <When Expression="not HideSpecNameRegister.GetFlags(HideSpecsS, HideSpecs)">
+            <Execute Statement="HideSpecs:= 0"/>
+            <rep:Reporter.Information Text="'Invalid hide spec'" Markup="Error"/>
           </When>
           <Otherwise>
-            <Execute Statement="HideESerieOfValue:= ConfigInifile.ReadBool(secDisplay, keyHideESerieOfValue, HideESerieOfValue)"/>
-            <Execute Statement="HideResistorMaxAmpVolt:= ConfigInifile.ReadBool(secDisplay, keyHideResistorMaxAmpVolt, HideESerieOfValue)"/>
-            <Execute Statement="HideZenerDiodeMaxAmp:= ConfigInifile.ReadBool(secDisplay, keyHideZenerDiodeMaxAmp, HideESerieOfValue)"/>
-            <Execute Statement="HideFootprint:= ConfigInifile.ReadBool(secDisplay, keyHideFootprint, HideFootprint)"/>
           </Otherwise>
         </Choose>
-        <Execute Statement="SkipFootprintMatching:= ConfigInifile.ReadBool(secMatching, keySkipFootprint, SkipFootprintMatching)"/>
+        <Choose>
+          <When Expression="not CommandlineVariables.GetValue('SheetInfo', SheetInfoS)">
+            <Execute Statement="SheetInfo:= Ini.ReadEnum('SheetInfo', SheetInfo, SheetInfoNameRegister)"/>
+          </When>
+          <When Expression="not SheetInfoNameRegister.GetItem(SheetInfoS, SheetInfo)">
+            <Execute Statement="SheetInfo:= TSheetInfo.All"/>
+            <rep:Reporter.Information Text="'Invalid hide spec'" Markup="Error"/>
+          </When>
+          <Otherwise>
+          </Otherwise>
+        </Choose>
+        <Execute Statement="HideESerieOfValue:= InFlags(THideSpec.ESerieOfValue, HideSpecs)"/>
+        <Execute Statement="HideResistorMaxAmpVolt:= InFlags(THideSpec.ResistorMaxAmpVolt, HideSpecs)"/>
+        <Execute Statement="HideZenerDiodeMaxAmp:= InFlags(THideSpec.ZenerDiodeMaxAmp, HideSpecs)"/>
+        <Execute Statement="HideFootprint:= InFlags(THideSpec.Footprint, HideSpecs)"/>
 
-        <Variable Identifier="MaxShowResistorVoltageS" Type="string" Init="ConfigInifile.ReadString(secDisplay, keyMaxShowResistorVoltage, EDecimalQuantityToStr(MaxShowResistorVoltage, TUnitPostFix.Compact))"/>
-        <Task.Assert Expression="ResistorMaxVoltConv.EStrToDecimalQuantity(MaxShowResistorVoltageS, MaxShowResistorVoltage)" FailMessage="'Invalid voltage: ' + MaxShowResistorVoltageS"/>
+        <Execute Statement="SeperateComponents:= Ini.ReadBool('SeperateComponents', SeperateComponents)"/>
+        <Execute Statement="SkipFootprintMatching:= Ini.ReadBool('SkipFootprintMatching', SkipFootprintMatching)"/>
+        <Execute Statement="MaxShowResistorVoltage:= Ini.ReadVoltage('MaxShowResistorVoltage', MaxShowResistorVoltage)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
     <Task Identifier="Database" SelfType="TDatabase" SelfConstruction="TDatabase.Create">
       <Init>
         <Task.Description Expression="sPartkeeprDatabaseTD"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
       </Init>
       <Block>
         <TryExcept>
           <Try>
             <Variable Identifier="LocDBConnection" Type="Connection"/>
-            <Variable Identifier="ConnectionString" Type="string" Init="ConfigInifile.ReadString(secSettings, keyConnectionString, 'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr')"/>
+            <Execute Statement="Ini.Section(Task.Name)"/>
+            <Variable Identifier="ConnectionString" Type="string" Init="Ini.ReadString('ConnectionString', 'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr')"/>
             <rep:Reporter.LabelValue Label="'ConnectionString'" Value="ConnectionString" Target="Info"/>
             <ado:Connection.Create Connection="LocDBConnection"/>
             <ado:Connection.Open ConnectionString="ConnectionString" Connection="LocDBConnection"/>
@@ -326,9 +353,11 @@ VoltageRating = 250V
     <Task Identifier="Database.ExportProjectID" SelfType="TIdInfo" SelfConstruction="TIdInfo.Create">
       <Init>
         <Task.Description Expression="sDatabaseExportProjectIdTD"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
       </Init>
       <Block>
-        <Variable Identifier="ExportProjectID" Type="Integer" Init="ConfigInifile.ReadInteger(secTasks, keyExportProjectID, -1)"/>
+        <Execute Statement="Ini.Section('Export project')"/>
+        <Variable Identifier="ExportProjectID" Type="Integer" Init="Ini.ReadInteger('ProjectID', -1)"/>
         <rep:Reporter.LabelValue Label="'ExportProjectID'" Value="IntToStr(ExportProjectID)" Target="Info"/>
         <Task.Mark Success="ExportProjectID &lt;&gt; -1"/>
       </Block>
@@ -337,9 +366,11 @@ VoltageRating = 250V
     <Task Identifier="Database.UnmatchedComponentsStorageID" SelfType="TIdInfo" SelfConstruction="TIdInfo.Create">
       <Init>
         <Task.Description Expression="sDatabaseUnmatchedComponentsStorageIdTD"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
       </Init>
       <Block>
-        <Variable Identifier="UnmatchedComponentsStorageID" Type="Integer" Init="ConfigInifile.ReadInteger(secTasks, keyExportUnmatchedComponentsStorageID, -1)"/>
+        <Execute Statement="Ini.Section('Unmatched components')"/>
+        <Variable Identifier="UnmatchedComponentsStorageID" Type="Integer" Init="Ini.ReadInteger('StorageID', -1)"/>
         <rep:Reporter.LabelValue Label="'UnmatchedComponentsStorageID'" Value="IntToStr(UnmatchedComponentsStorageID)" Target="Info"/>
         <Task.Mark Success="UnmatchedComponentsStorageID &lt;&gt; -1"/>
       </Block>
@@ -350,20 +381,23 @@ VoltageRating = 250V
         <Task.Description Expression="sBillOfMaterialsTD"/>
       </Init>
       <Block>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
-    <Task Identifier="BillOfMaterials.LoadTemplatesFromIniFile" SelfType="TBillOfMaterials" SelfConstruction="TBillOfMaterials.Create">
+    <Task Identifier="BillOfMaterials.LoadTemplatesFromIniFile">
       <Init>
         <Task.Description Expression="sBillOfMaterialsLoadTemplatesFromIniFileTD"/>
         <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
       </Init>
       <Block>
-        <Execute Statement="BillOfMaterials.LoadTemplatesFromIniFile(ConfigInifile)"/>
+        <Execute Statement="BillOfMaterials.LoadTemplatesFromIniFile(Ini)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
-    <Task Identifier="BillOfMaterials.LoadBomFile" SelfType="TBillOfMaterials" SelfConstruction="TBillOfMaterials.Create">
+    <Task Identifier="BillOfMaterials.LoadBomFile">
       <Init>
         <Task.Description Expression="sBillOfMaterialsLoadBomFileTD"/>
         <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
@@ -373,19 +407,20 @@ VoltageRating = 250V
       </Init>
       <Block>
         <Execute Statement="BillOfMaterials.LoadFromFile(BomFilename.Filename)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
     <Task Identifier="CalculatedSpecifications" SelfType="TCalculatedSpecifications" SelfConstruction="TCalculatedSpecifications.Create">
       <Init>
         <Task.Description Expression="sCalculatedSpecificationsTD"/>
-        <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
         <Task.AddDependency Task="CalculatedSpecificationsFilename" Result="CalculatedSpecificationsFilename" ResultType="TFileInfo"/>
       </Init>
       <Block>
         <rep:Reporter.DefaultTarget Identifier="Info"/>
         <Block Condition="FileExists(CalculatedSpecificationsFilename.Filename)">
           <Execute Statement="LoadFromFile(CalculatedSpecificationsFilename.Filename)"/>
+          <Task.MarkHandled/>
         </Block>
       </Block>
     </Task>
@@ -402,6 +437,7 @@ VoltageRating = 250V
       <Block>
         <rep:Reporter.DefaultTarget Identifier="StorageLocationReport"/>
         <Execute Statement="BillOfMaterials.ReportOrderPicking(StockManager)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -410,6 +446,7 @@ VoltageRating = 250V
         <Task.Description Expression="sStockManagerTD"/>
       </Init>
       <Block>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -422,6 +459,7 @@ VoltageRating = 250V
       </Init>
       <Block>
         <Execute Statement="StockManager.LoadFromDB(Database.DBConnection)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -433,6 +471,7 @@ VoltageRating = 250V
       </Init>
       <Block>
         <Execute Statement="StockManager.ConsolidateSpecifications"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -444,6 +483,7 @@ VoltageRating = 250V
       </Init>
       <Block>
         <Execute Statement="BillOfMaterials.ConsolidateSpecifications"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -451,20 +491,23 @@ VoltageRating = 250V
       <Init>
         <Task.Description Expression="sBillOfMaterialsDetermineBomCountTD"/>
         <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
       </Init>
       <Block>
         <Variable Identifier="BomCountS" Type="string" Init="''"/>
         <Variable Identifier="BomCount" Type="Integer" Init="1"/>
         <Choose>
-          <When Expression="CommandlineVariables.GetValue(keyBomCount, BomCountS)" >
+          <When Expression="CommandlineVariables.GetValue('BomCount', BomCountS)" >
             <Execute Statement="BomCount:= StrToInt(BomCountS)"/>
           </When>
           <Otherwise>
-            <Execute Statement="BomCount:= ConfigInifile.ReadInteger(secSettings, keyBomCount, BomCount)"/>
+            <Execute Statement="Ini.Section(Task.Name)"/>
+            <Execute Statement="BomCount:= Ini.ReadInteger('BomCount', BomCount)"/>
           </Otherwise>
         </Choose>
         <rep:Reporter.LabelValue Label="sCountField" Value="IntToStr(BomCount)" Target="Info"/>
         <Execute Statement="BillOfMaterials.BomCount:= BomCount"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -477,6 +520,7 @@ VoltageRating = 250V
       </Init>
       <Block>
         <Execute Statement="BillOfMaterials.ProcessDesignators"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -490,6 +534,7 @@ VoltageRating = 250V
       </Init>
       <Block>
         <Execute Statement="BillOfMaterials.AssignStockComponents(StockManager)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -500,6 +545,7 @@ VoltageRating = 250V
       </Init>
       <Block>
         <Execute Statement="LoadSymbolMappings(SymbolMappingPath.Path)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -510,6 +556,7 @@ VoltageRating = 250V
       </Init>
       <Block>
         <Execute Statement="ReadKnownUnits(Database.DBConnection)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -521,6 +568,7 @@ VoltageRating = 250V
       <Block>
         <rep:Reporter.DefaultTarget Identifier="Info"/>
         <Execute Statement="ReportStorageLocations(Database.DBConnection)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -530,7 +578,9 @@ VoltageRating = 250V
         <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
       </Init>
       <Block>
+        <rep:Reporter.DefaultTarget Identifier="Info"/>
         <Execute Statement="ReportPartKeeprProjects(Database.DBConnection)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -544,6 +594,7 @@ VoltageRating = 250V
       <Block>
         <rep:Reporter.DefaultTarget Identifier="StockReport"/>
         <Execute Statement="StockManager.Report"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -560,6 +611,7 @@ VoltageRating = 250V
       <Block>
         <rep:Reporter.DefaultTarget Identifier="Info"/>
         <Execute Statement="MatchUnmatchedSchemaComponentsToCategories(Database.DBConnection, BillOfMaterials, StockManager, True, DatabaseUnmatchedComponentsStorageID.ID)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -579,6 +631,7 @@ VoltageRating = 250V
       <Block>
         <rep:Reporter.DefaultTarget Identifier="Info"/>
         <Execute Statement="ExportToPartKeeprProject(Database.DBConnection, BillOfMaterials, DatabaseExportProjectID.ID, DatabaseUnmatchedComponentsStorageID.ID)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -588,10 +641,12 @@ VoltageRating = 250V
         <Task.AddDependency Task="GlobalConfig"/>
         <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
         <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+        <Task.AddDependency Task="StockManager.ConsolidateSpecifications"/>
       </Init>
       <Block>
         <rep:Reporter.DefaultTarget Identifier="Info"/>
         <Execute Statement="ChangePartDescriptions(Database.DBConnection, StockManager, TComponentProperty.Name)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -601,10 +656,12 @@ VoltageRating = 250V
         <Task.AddDependency Task="GlobalConfig"/>
         <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
         <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+        <Task.AddDependency Task="StockManager.ConsolidateSpecifications"/>
       </Init>
       <Block>
         <rep:Reporter.DefaultTarget Identifier="Info"/>
         <Execute Statement="ChangePartDescriptions(Database.DBConnection, StockManager, TComponentProperty.Description)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -621,6 +678,7 @@ VoltageRating = 250V
         <rep:Reporter.DefaultTarget Identifier="Report"/>
         <Execute Statement="BillOfMaterials.Report"/>
         <rep:Reporter.DefaultTarget Identifier="Info"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -634,6 +692,7 @@ VoltageRating = 250V
         <rep:Reporter.GetIterator Target="Report" Iterator="ReportIterator"/>
         <rep:Reporter.DefaultTarget Identifier="ReportEEVBlog"/>
         <Execute Statement="ReportAsSimpleMachines(ReportIterator)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -647,6 +706,7 @@ VoltageRating = 250V
         <rep:Reporter.GetIterator Target="Report" Iterator="ReportIterator"/>
         <rep:Reporter.DefaultTarget Identifier="ReportDokuWiki"/>
         <Execute Statement="ReportAsDokuWiki(ReportIterator)"/>
+        <Task.MarkHandled/>
       </Block>
     </Task>
 
@@ -661,94 +721,304 @@ VoltageRating = 250V
       <Block>
         <rep:Reporter.DefaultTarget Identifier="DesignatorReport"/>
         <Execute Statement="BillOfMaterials.ReportDesignators(CalculatedSpecifications)"/>
+        <Task.MarkHandled/>
       </Block>
+    </Task>
+
+    <Task Identifier="CombineTargetMatching.Stock.Source" SelfType="TAvailableValuesSource" SelfConstruction="TAvailableValuesSource.Create">
+      <Init>
+        <Task.Description Expression="sCombineTargetMatchingStockSource"/>
+        <Task.AddDependency Task="ElectronicsTasks.CombinationTarget" Result="CombinationTarget" ResultType="TCombinationTarget"/>
+        <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
+        <Task.AddDependency Task="StockManager.ConsolidateSpecifications"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
+      </Init>
+      <Block>
+        <Variable Identifier="TargetUnit" Type="UnitString" Init="CombinationTarget.Value.UnitS"/>
+        <Variable Identifier="IniSection" Type="string" Init="''"/>
+        <Choose>
+          <When Expression="CompatibleUnits(TargetUnit, ⌠Ω⌡)">
+            <Execute Statement="ComponentCategory:= StockManager.Resistors"/>
+            <Execute Statement="IniSection:= 'CombinationTarget.Input.Resistor'"/>
+          </When>
+          <When Expression="CompatibleUnits(TargetUnit, ⌠F⌡)">
+            <Execute Statement="ComponentCategory:= StockManager.Capacitors"/>
+            <Execute Statement="IniSection:= 'CombinationTarget.Input.Capacitor'"/>
+          </When>
+          <When Expression="CompatibleUnits(TargetUnit, ⌠H⌡)">
+            <Execute Statement="ComponentCategory:= StockManager.Inductors"/>
+            <Execute Statement="IniSection:= 'CombinationTarget.Input.Inductor'"/>
+          </When>
+        </Choose>
+        <Task.Assert Expression="Assigned(ComponentCategory)" FailMessage="'Unsupported target unit'"/>
+        <Block Condition="Ini.Inifile.SectionExists(IniSection)">
+          <Execute Statement="SpecificationTemplate:= ComponentCategory.CreateSpecification"/>
+          <Execute Statement="SpecificationTemplate.LoadFromIniFileSection(Ini, IniSection)"/>
+        </Block>
+        <Task.MarkHandled/>
+      </Block>
+    </Task>
+
+    <Task Identifier="CombineTargetMatching.Stock.AvailableValues" SelfType="TAvailableValuesInfo" SelfConstruction="TAvailableValuesInfo.Create">
+      <Init>
+        <Task.Description Expression="sCombineTargetMatchingsStockAvailableValue"/>
+        <Task.AddDependency Task="ElectronicsTasks.ValuesManager" Result="ValuesManager" ResultType="TESerieValuesManager"/>
+        <Task.AddDependency Task="ElectronicsTasks.CombinationTarget" Result="CombinationTarget" ResultType="TCombinationTarget"/>
+        <Task.AddDependency Task="CombineTargetMatching.Stock.Source" Result="StockSource" ResultType="TAvailableValuesSource"/>
+      </Init>
+      <Block>
+        <Variable Identifier="TargetUnit" Type="UnitString" Init="CombinationTarget.Value.UnitS"/>
+        <Variable Identifier="ComponentCategory" Type="TComponentCategory" Init="StockSource.ComponentCategory"/>
+        <Variable Identifier="Specification" Type="TComponentSpec" Init="StockSource.SpecificationTemplate"/>
+        <Variable Identifier="Value" Type="DecimalQuantity"/>
+        <Execute Statement="Values:= ValuesManager.NewSerieValues"/>
+        <Execute Statement="Values.BeginUpdate"/>
+        <TryFinally>
+          <Try>
+            <lil:LinkedList.Iterate Head="ComponentCategory.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="Item" Next="Item.Next">
+              <Choose>
+                <When Expression="not Assigned(Item.StockComponentHead)">
+                </When>
+                <When Expression="Assigned(Specification) and not Specification.DoesMatchSpecification(Item)">
+                  <!--<rep:Reporter.Information Text="'Did not match'" Target="Info"/>-->
+                </When>
+                <When Expression="(Item is TPassiveSpec)">
+                  <Block Condition="TPassiveSpec(Item).GetValue(Value)">
+                    <Task.Assert Expression="CompatibleUnits(Value.UnitS, TargetUnit)" FailMessage="'Units do not match'"/>
+                    <rep:Reporter.Information Text="UiDecimalQuantityToStr(Value)" Markup="BulletList" Target="Info"/>
+                    <Execute Statement="Values.AddSerieValue(Value)"/>
+                  </Block>
+                </When>
+              </Choose>
+            </lil:LinkedList.Iterate>
+          </Try>
+          <Finally>
+            <Execute Statement="Values.EndUpdate"/>
+          </Finally>
+        </TryFinally>
+        <Task.MarkHandled/>
+      </Block>
+    </Task>
+
+    <Task Identifier="ComponentCombination.Stock">
+      <Variables>
+        <Variable Identifier="CombinationInfo" Type="TCombinationInfo" Init="Task.InstanceObject as TCombinationInfo"/>
+        <Variable Identifier="ConfigurationInfo" Type="T4CompConfigEnumInfo" Init="CombinationInfo.ConfigurationInfo"/>
+        <Variable Identifier="ConfigurationKind" Type="T4CompConfig" Init="ConfigurationInfo.Enum"/>
+      </Variables>
+      <Init>
+        <Task.Description Expression="Format(sCombineTargetMatchingsStockMatching, ConfigurationKind + 1, ConfigurationInfo.Description)"/>
+        <Task.AddDependency Task="ElectronicsTasks.ComponentCombination" InstanceObject="CombinationInfo" Result="ComponentCombination" ResultType="TCombinationResult"/>
+        <Task.AddDependency Task="CombineTargetMatching.Stock.Source" Result="StockSource" ResultType="TAvailableValuesSource"/>
+      </Init>
+      <Block>
+        <Variable Identifier="LineSep" Type="Boolean" Init="False"/>
+        <Variable Identifier="Value" Type="DecimalQuantity"/>
+        <Variable Identifier="ComponentSpecAsString" Type="string"/>
+        <Variable Identifier="CountS" Type="string"/>
+        <Variable Identifier="ReportLine" Type="string"/>
+        <Variable Identifier="ComponentCategory" Type="TComponentCategory" Init="StockSource.ComponentCategory"/>
+        <Variable Identifier="FilterSpecification" Type="TComponentSpec" Init="StockSource.SpecificationTemplate"/>
+        <Variable Identifier="MatchSpecification" Type="TComponentSpec" Init="ComponentCategory.CreateSpecification"/>
+        <Execute Statement="MatchSpecification.Template:= FilterSpecification"/>
+        <Execute Statement="MatchSpecification.ApplyTemplate"/>
+        <Objects.Use>
+          <Object Identifier="SpecReportContext" Type="TSpecReportContext" Expression="TSpecReportContext.Create"/>
+          <Object Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create"/>
+          <Block>
+            <Execute Statement="SpecReportContext.ColumnManager:= ColumnManager"/>
+            <Execute Statement="SpecReportContext.ColumnOffset:= 1"/>
+            <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, 2)"/>
+            <ForLoop Indexer="Im" From="0" To="1">
+              <Execute Statement="SpecReportContext.Measure:= Im = 0"/>
+              <ForLoop Indexer="I" From="0" To="ComponentCombination.InputCount - 1">
+                <!--<rep:Reporter.LabelValue Label="ListValue(I, '', 'A', 'B', 'C', 'D')" Value="DQToStr(ComponentCombination.InputValues[I], True)" Target="Info" Condition="not SpecReportContext.Measure"/>-->
+                <Execute Statement="TPassiveSpec(MatchSpecification).SetValue(ComponentCombination.InputValues[I])" Condition="MatchSpecification is TPassiveSpec"/>
+                <Execute Statement="ComponentSpecAsString:= MatchSpecification.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
+                <Block Condition="not SpecReportContext.Measure">
+                  <rep:Reporter.Information Text="''" Target="Info" Condition="LineSep"/>
+                  <!--<rep:Reporter.Information Text="ListValue(I, '', 'A', 'B', 'C', 'D')" Target="Info" Markup="Header3"/>-->
+                  <Execute Statement="ReportLine:= Format('  %-*s%-*s%-*s', 
+                                          ColumnManager.GetColumnWidth(0, 1), ListValue(I, '', 'A', 'B', 'C', 'D'),
+                                          ColumnManager.GetColumnWidth(1, TNamedComponentSpecColumns.Max+2), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(TNamedComponentSpecColumns.Max+3, 1), ComponentKindDescription(MatchSpecification.ComponentKind) 
+                                          )"/>
+                  <rep:Reporter.Information Text="ReportLine" Target="Info" Markup="Header4"/>
+                  <Execute Statement="LineSep:= True"/>
+                </Block>
+                <lil:LinkedList.Iterate Head="ComponentCategory.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="Item" Next="Item.Next">
+                  <Choose>
+                    <When Expression="not Assigned(Item.StockComponentHead)">
+                    </When>
+                    <When Expression="not MatchSpecification.DoesMatchSpecification(Item)">
+                      <!--<rep:Reporter.Information Text="'Did not match'" Target="Info"/>-->
+                    </When>
+                    <When Expression="(Item is TPassiveSpec)">
+                      <Block Condition="TPassiveSpec(Item).GetValue(Value)">
+                        <!--<rep:Reporter.Information Text="UiDecimalQuantityToStr(Value)" Markup="BulletList" Target="Info"/>-->
+                        <Execute Statement="ComponentSpecAsString:= Item.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
+                        <Variable Identifier="TotCount" Type="UInt32" Init="0"/>
+                        <Variable Identifier="StockSep" Type="Boolean" Init="False"/>
+                        <Variable Identifier="StockDescriptions" Type="string" Init="''"/>
+                        <lil:LinkedList.Iterate Head="Item.StockComponentHead" ItemType="TStockComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
+                          <Execute Statement="StockDescriptions:= StockDescriptions + ', '" Condition="StockSep"/>
+                          <Execute Statement="StockDescriptions:= StockDescriptions + Format('%dx #%d @%s', RunningComponent.Amount, RunningComponent.ID, RunningComponent.Location.Name)"/>
+                          <Execute Statement="TotCount:= TotCount + RunningComponent.Amount"/>
+                          <Execute Statement="StockSep:= True"/>
+                          <Execute Statement="RunningComponent:= RunningComponent.Next"/>
+                        </lil:LinkedList.Iterate>
+                        <Execute Statement="CountS:= Format('%ux ', TotCount)"/>
+                        <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, System.Length(CountS))" Condition="SpecReportContext.Measure"/>
+                        <Block Condition="not SpecReportContext.Measure">
+                          <!--<rep:Reporter.Information Text="ListValue(I, '', 'A', 'B', 'C', 'D')" Target="Info" Markup="Header3"/>-->
+                          <Execute Statement="ReportLine:= Format('  %-*s%-*s%-*s %s', 
+                                          ColumnManager.GetColumnWidth(0, 1), CountS,
+                                          ColumnManager.GetColumnWidth(1, TNamedComponentSpecColumns.Max+2), ComponentSpecAsString,
+                                          ColumnManager.GetColumnWidth(TNamedComponentSpecColumns.Max+3, 1), ComponentKindDescription(Item.ComponentKind),
+                                          StockDescriptions 
+                                          )"/>
+                          <rep:Reporter.Information Text="ReportLine" Target="Info"/>
+                        </Block>
+                      </Block>
+                    </When>
+                  </Choose>
+                </lil:LinkedList.Iterate>
+              </ForLoop>
+            </ForLoop>
+            <Task.MarkHandled/>
+          </Block>
+        </Objects.Use>
+      </Block>
+    </Task>
+
+    <Task Identifier="ComponentCombinations.Stock">
+      <Variables>
+        <Variable Identifier="AvailableInputTask" Type="TTaskRef" Init="Task.InstanceObject as TTaskRef"/>
+      </Variables>
+      <Init>
+        <Task.Description Expression="cCompCombosTaskStock"/>
+        <Task.Kind Expression="TTaskKind.tkCategory"/>
+        <Variable Identifier="NameRegister" Type="TEnumNameRegister" Init="FourCompConfigEnumManager.NameRegister"/>
+        <ForLoop Indexer="I" From="T4CompConfig.Low" To="T4CompConfig.High">
+          <Task.AddDependency Task="ComponentCombination.Stock" InstanceObject="TCombinationInfo.Create(NameRegister.Objects[I], AvailableInputTask)"/>
+        </ForLoop>
+      </Init>
+    </Task>
+
+    <Task Identifier="UtilityTasks">
+      <Variables>
+        <Variable Identifier="InstanceObject" Type="TRootTaskInfo" Init="Task.InstanceObject as TRootTaskInfo"/>
+        <Variable Identifier="Unattended" Type="Boolean" Init="InstanceObject.Unattended"/>
+        <Variable Identifier="TaskSelectionFlags" Type="TFlags" Init="InstanceObject.TaskSelectionFlags"/>
+        <Variable Identifier="AvailableInputTask" Type="TTaskRef" Init="ObjNil"/>
+      </Variables>
+      <Init>
+        <Task.Description Expression="sUtilityTasks"/>
+        <Task.Kind Expression="TTaskKind.tkCategory"/>
+        <Variable Identifier="Source" Type="TAvailableValueSource" Init="TAvailableValueSource.Stock"/>
+        <Object.Use Identifier="Ini" Type="TIniHelper" Expression="TIniHelper.Create(ConfigInifile, True)" Condition="not Assigned(AvailableInputTask)">
+          <Execute Statement="Ini.Section('CombinationTarget.Input')"/>
+          <Execute Statement="Source:= Ini.ReadEnum('Source', Source, AvailableValueSourceEnumManager.NameRegister)"/>
+          <Case Expression="Source">
+            <On Select="TAvailableValueSource.Stock">
+              <Task.AcquireTaskReference Task="CombineTargetMatching.Stock.AvailableValues" RefObj="TTaskRef.Create" ReleaseObj="AvailableInputTask"/>
+            </On>
+          </Case>
+        </Object.Use>
+        <Case Expression="Source">
+          <On Select="TAvailableValueSource.Stock">
+            <Task.AddDependency Task="ComponentCombinations.Stock" Condition="InFlags(TUnattendedTask.ComponentCombinations, TaskSelectionFlags)" InstanceObject="AvailableInputTask" IgnoreFailure="True"/>
+          </On>
+          <Otherwise>
+            <Task.AddDependency Task="ElectronicsTasks.ComponentCombinations" Condition="InFlags(TUnattendedTask.ComponentCombinations, TaskSelectionFlags)" InstanceObject="AvailableInputTask" IgnoreFailure="True"/>
+          </Otherwise>
+        </Case>
+        <Task.AddDependency Task="Report.Stock" Condition="InFlags(TUnattendedTask.Stock, TaskSelectionFlags)" IgnoreFailure="True"/>
+        <Task.AddDependency Task="Report.StorageLocations" Condition="InFlags(TUnattendedTask.StorageLocations, TaskSelectionFlags)" IgnoreFailure="True"/>
+        <Task.AddDependency Task="Report.PartKeeprProjects" Condition="InFlags(TUnattendedTask.PartKeeprProjects, TaskSelectionFlags)" IgnoreFailure="True"/>
+        <Task.AddDependency Task="UpdateDB.MatchUnmatchedSchemaComponentsToCategories" Condition="not Unattended" IgnoreFailure="True"/>
+        <Task.AddDependency Task="UpdateDB.ChangeProjectParts" Condition="not Unattended" IgnoreFailure="True"/>
+        <Task.AddDependency Task="UpdateDB.ChangePartNames" Condition="not Unattended" IgnoreFailure="True"/>
+        <Task.AddDependency Task="UpdateDB.ChangePartDescriptions" Condition="not Unattended" IgnoreFailure="True"/>
+      </Init>
     </Task>
 
   </Procedures>
 
   <Block>
-    <sts:Status.Block Text="sSelectingTasks" LeaveText="sExecutedTasks">
-      <Variable Identifier="UseSelection" Type="Boolean" Init="True"/>
-      <Variable Identifier="UnattendedTasks" Type="TUnattendedTaskFlags" Init="0"/>
-      <Variable Identifier="UnattendedTask" Type="TUnattendedTaskFlags"/>
-      <Variable Identifier="UnattendedS" Type="string"/>
-      <Block Condition="CommandlineVariables.GetValue('Unattended', UnattendedS)">
-        <Execute Statement="UseSelection:= False"/>
-        <Object.Use Identifier="TaskRegister" Type="TCharacterTreeInt64Register" Expression="TCharacterTreeInt64Register.Create">
-          <Execute Statement="TaskRegister.Add('Bom', TUnattendedTaskFlags.Bom)"/>
-          <Execute Statement="TaskRegister.Add('BomEEVBlog', TUnattendedTaskFlags.BomEEVBlog)"/>
-          <Execute Statement="TaskRegister.Add('BomDokuWiki', TUnattendedTaskFlags.BomDokuWiki)"/>
-          <Execute Statement="TaskRegister.Add('BomDesignators', TUnattendedTaskFlags.BomDesignators)"/>
-          <Execute Statement="TaskRegister.Add('BomOrderPicking', TUnattendedTaskFlags.BomOrderPicking)"/>
-          <Execute Statement="TaskRegister.Add('Stock', TUnattendedTaskFlags.Stock)"/>
-          <Execute Statement="TaskRegister.Add('StorageLocations', TUnattendedTaskFlags.StorageLocations)"/>
-          <Execute Statement="TaskRegister.Add('PartKeeprProjects', TUnattendedTaskFlags.PartKeeprProjects)"/>
-          <Execute Statement="TaskRegister.Optimize"/>
-          <Execute Statement="TaskRegister.SearchStart"/>
-          <stm:StateHandler InitialState="StartID">
-            <StringLoop StringValue="UnattendedS" OrdinalIdentifier="ChrI" CharacterIdentifier="Chr">
-              <stm:HandleStates>
-                <stm:State Name="StartID">
-                  <Raise Expression="Exception.Create(sUnsupportedUnattendedTask)" Condition="not TaskRegister.SearchAdvance(Chr)"/>
-                  <stm:SetState Name="InTaskID"/>
-                </stm:State>
-                <stm:State Name="InTaskID">
-                  <Choose>
-                    <When Expression="TaskRegister.SearchAdvance(Chr)">
-                    </When>
-                    <When Expression="Chr = ','">
-                      <Raise Expression="Exception.Create(sUnsupportedUnattendedTask)" Condition="not TaskRegister.SearchItem(UnattendedTask)"/>
-                      <Execute Statement="UnattendedTasks:= UnattendedTasks or UnattendedTask"/>
-                      <Execute Statement="TaskRegister.SearchStart"/>
-                      <stm:SetState Name="StartID"/>
-                    </When>
-                    <Otherwise>
-                      <Raise Expression="sUnsupportedUnattendedTask"/>
-                    </Otherwise>
-                  </Choose>
-                </stm:State>
-              </stm:HandleStates>
-            </StringLoop>
-            <Raise Expression="sUnsupportedUnattendedTask" Condition="not TaskRegister.SearchItem(UnattendedTask)"/>
-            <Execute Statement="UnattendedTasks:= UnattendedTasks or UnattendedTask"/>
-          </stm:StateHandler>
-        </Object.Use>
-      </Block>
-      <ExecuteTasks Unattended="not UseSelection">
-        <Task Identifier="Report.BOM" Condition="((UnattendedTasks and TUnattendedTaskFlags.Bom) = TUnattendedTaskFlags.Bom) xor UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="Report.Bom.EEVBlog" Condition="((UnattendedTasks and TUnattendedTaskFlags.BomEEVBlog) = TUnattendedTaskFlags.BomEEVBlog) xor UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="Report.Bom.DokuWiki" Condition="((UnattendedTasks and TUnattendedTaskFlags.BomDokuWiki) = TUnattendedTaskFlags.BomDokuWiki) xor UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="Report.BomDesignators" Condition="((UnattendedTasks and TUnattendedTaskFlags.BomDesignators) = TUnattendedTaskFlags.BomDesignators) xor UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="Report.BomOrderPicking" Condition="((UnattendedTasks and TUnattendedTaskFlags.BomOrderPicking) = TUnattendedTaskFlags.BomOrderPicking) xor UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="Report.Stock" Condition="((UnattendedTasks and TUnattendedTaskFlags.Stock) = TUnattendedTaskFlags.Stock) xor UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="Report.StorageLocations" Condition="((UnattendedTasks and TUnattendedTaskFlags.StorageLocations) = TUnattendedTaskFlags.StorageLocations) xor UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="Report.PartKeeprProjects" Condition="((UnattendedTasks and TUnattendedTaskFlags.PartKeeprProjects) = TUnattendedTaskFlags.PartKeeprProjects) xor UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="UpdateDB.MatchUnmatchedSchemaComponentsToCategories" Condition="UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="UpdateDB.ChangeProjectParts" Condition="UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="UpdateDB.ChangePartNames" Condition="UseSelection" IgnoreFailure="True"/>
-        <Task Identifier="UpdateDB.ChangePartDescriptions" Condition="UseSelection" IgnoreFailure="True"/>
-        <SelectionSuspend>
-          <Resume.ResumeRequest/>
-          <Resume.BreakRequest/>
-        </SelectionSuspend>
-        <BeforeExecuteTask Identifier="Task">
-          <rep:Reporter.Information Text="Task.Description" Markup="Header2" Target="Info"/>
-          <rep:Reporter.Information Text="Task.Hint" Condition="IsNonEmptyString(Task.Hint)" Markup="Comment" Target="Info"/>
-          <sts:Status Text="Format(sExecutingTask, Task.Description)" Depth="1"/>
-        </BeforeExecuteTask>
-        <AfterExecuteTask Identifier="Task">
-          <Case Expression="Task.Status">
-            <On Select="TTaskStatus.tsFailed">
-              <rep:Reporter.Error Text="Format(sTaskFailed, Task.Description)" Target="Info"/>
-              <sts:Status Text="Format(sTaskFailed, Task.Description)" Depth="1"/>
-            </On>
-            <Otherwise>
-              <sts:Status Text="Format(sExecutedTask, Task.Description)" Depth="1"/>
-            </Otherwise>
-          </Case>
-          <rep:Reporter.Information Text="''" Target="Info"/>
-        </AfterExecuteTask>
-      </ExecuteTasks>
+    <Variable Identifier="StartCounter" Type="CycleQ"/>
+    <Variable Identifier="EndCounter" Type="CycleQ"/>
+    <Variable Identifier="TimeBetweenCounters" Type="Time"/>
+    <Variable Identifier="TimeBetweenCountersS" Type="string"/>
+    <Variable Identifier="Unattended" Type="Boolean" Init="False"/>
+    <Variable Identifier="TaskSelectionFlags" Type="TFlags" Init="RangeFlags(TUnattendedTask.Low, TUnattendedTask.High)"/>
+    <Variable Identifier="UnattendedTask" Type="TUnattendedTask"/>
+    <Variable Identifier="UnattendedS" Type="string"/>
+    <rep:Reporter.DefaultTarget Identifier="Info"/>
+    <rep:Reporter.Information Text="sScriptLog" Markup="Header1"/>
+    <rep:Reporter.LabelValue Label="sTime" Value="FormatDateTime('', Now)"/>
+    <rep:Reporter.LabelValue Label="sInterpreterVersion" Value="GetVersionInfo('%d.%d.%d')"/>
+    <rep:Reporter.LabelValue Label="sScriptVersion" Value="ScriptVersion"/>
+    <rep:Reporter.LabelValue Label="sFilename" Value="ScriptFilename"/>
+    <rep:Reporter.Information Text="''"/>
+    <Choose>
+      <When Expression="PauseRequest">
+      </When>
+      <When Expression="CommandlineVariables.GetValue('Unattended', UnattendedS)">
+        <Raise Expression="Exception.Create(sUnsupportedUnattendedTask)" Condition="not UnattendedTaskNameRegister.GetFlags(UnattendedS, TaskSelectionFlags)"/>
+        <Execute Statement="Unattended:= True"/>
+      </When>
+    </Choose>
+    <sts:Status.Block Text="sTasksAreBeingCreated" LeaveText="sTasksAreExecuted">
+      <sts:Status.Block>
+        <ExecuteTasks Unattended="Unattended">
+          <Task Identifier="Report.BOM" Condition="InFlags(TUnattendedTask.Bom, TaskSelectionFlags)" IgnoreFailure="True"/>
+          <Task Identifier="Report.Bom.EEVBlog" Condition="InFlags(TUnattendedTask.BomEEVBlog, TaskSelectionFlags)" IgnoreFailure="True"/>
+          <Task Identifier="Report.Bom.DokuWiki" Condition="InFlags(TUnattendedTask.BomDokuWiki, TaskSelectionFlags)" IgnoreFailure="True"/>
+          <Task Identifier="Report.BomDesignators" Condition="InFlags(TUnattendedTask.BomDesignators, TaskSelectionFlags)" IgnoreFailure="True"/>
+          <Task Identifier="Report.BomOrderPicking" Condition="InFlags(TUnattendedTask.BomOrderPicking, TaskSelectionFlags)" IgnoreFailure="True"/>
+          <Task Identifier="UtilityTasks" InstanceObject="TRootTaskInfo.Create(Unattended, TaskSelectionFlags)"/>
+          <BeforeInitTask Identifier="Task">
+            <sts:Status Text="Format(sTaskIsBeingInitialized, Task.Description)" Depth="1"/>
+          </BeforeInitTask>
+          <AfterInit>
+            <sts:Status Text="sTasksAreCreated" Depth="2"/>
+            <sts:Status Text="sSelectTasks" Depth="1"/>
+          </AfterInit>
+          <SelectionSuspend>
+            <Resume.ResumeRequest/>
+            <Resume.BreakRequest/>
+          </SelectionSuspend>
+          <BeforeExecuteTask Identifier="Task">
+            <Block  Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
+              <rep:Reporter.Information Text="Task.Description" Markup="Header2" Target="Info"/>
+              <rep:Reporter.Information Text="Task.Hint" Condition="IsNonEmptyString(Task.Hint)" Markup="Comment" Target="Info"/>
+              <sts:Status Text="Format(sTaskIsBeingExecuted, Task.Description)" Depth="1"/>
+              <Execute Statement="StartCounter:= QueryPerformanceCounter ~ ⌠cycle⌡ ± 1.0⌠cycle⌡"/>
+            </Block>
+          </BeforeExecuteTask>
+          <AfterExecuteTask Identifier="Task">
+            <ExitOnAbortRequest/>
+            <Block Condition="Task.Kind &lt;&gt; TTaskKind.tkCategory">
+              <Execute Statement="EndCounter:= QueryPerformanceCounter ~ ⌠cycle⌡ ± 1.0⌠cycle⌡"/>
+              <Execute Statement="TimeBetweenCounters:= (EndCounter - StartCounter) / PerfFreq"/>
+              <Execute Statement="TimeBetweenCountersS:= ' (' + DQToStr(TimeBetweenCounters, False) + ')'"/>
+              <Case Expression="Task.Status">
+                <On Select="TTaskStatus.tsHandled">
+                  <rep:Reporter.Information Text="Format(sTaskIsExecutedEx, Task.Description, TaskStatusDescription(Task)) + TimeBetweenCountersS" Target="Info"/>
+                </On>
+                <Otherwise>
+                  <rep:Reporter.Error Text="Format(sTaskIsExecutedEx, Task.Description, TaskStatusDescription(Task)) + TimeBetweenCountersS" Target="Info"/>
+                </Otherwise>
+              </Case>
+              <rep:Reporter.Information Text="''" Target="Info"/>
+            </Block>
+          </AfterExecuteTask>
+        </ExecuteTasks>
+      </sts:Status.Block>
     </sts:Status.Block>
+    <rep:Reporter.DefaultTarget Identifier="Info"/>
+    <rep:Reporter.Information Text="sScriptDone" Markup="Header2"/>
+    <rep:Reporter.LabelValue Label="sTime" Value="FormatDateTime('', Now)"/>
   </Block>
 </pkg:Program>

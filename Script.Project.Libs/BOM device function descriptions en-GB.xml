@@ -21,7 +21,9 @@
   xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement" 
   >
   <Uses>
+    <Use Identifier="EnumerationUtils"/>
     <Use Identifier="DeviceFunctions"/>
+    <Use Identifier="BomEnumerations"/>
   </Uses>
 	<Procedures>
 
@@ -59,62 +61,14 @@
       </Block>
     </Function>
 
-
     <Function Identifier="GetDeviceFunctionDescription" Type="string">
-			<Parameters>
-				<Parameter Identifier="ImplementedFunction" Type="TBaseImplementedFunction"/>
-			</Parameters>
+      <Parameters>
+        <Parameter Identifier="ImplementedFunction" Type="TBaseImplementedFunction"/>
+      </Parameters>
       <Block>
-        <Case Expression="ImplementedFunction.DeviceFunction" Optimalisation="integermapping">
-          <On Select="TDeviceFunction.OpAmp">
-            <Execute Statement="Result:= 'opamp'"/>
-          </On>
-          <On Select="TDeviceFunction.Comparator">
-            <Execute Statement="Result:= 'comparator'"/>
-          </On>
-          <On Select="TDeviceFunction.SchmittTrigger">
-            <Execute Statement="Result:= 'schmitt trigger'"/>
-          </On>
-          <On Select="TDeviceFunction.Optocoupler">
-            <Execute Statement="Result:= 'optocoupler'"/>
-          </On>
-          <On Select="TDeviceFunction.Timer">
-            <Execute Statement="Result:= 'timer'"/>
-          </On>
-          <On Select="TDeviceFunction.AndGate">
-            <Execute Statement="Result:= 'AND gate'"/>
-          </On>
-          <On Select="TDeviceFunction.OrGate">
-            <Execute Statement="Result:= 'OR gate'"/>
-          </On>
-          <On Select="TDeviceFunction.XorGate">
-            <Execute Statement="Result:= 'XOR gate'"/>
-          </On>
-          <On Select="TDeviceFunction.XnorGate">
-            <Execute Statement="Result:= 'XNOR gate'"/>
-          </On>
-          <On Select="TDeviceFunction.NandGate">
-            <Execute Statement="Result:= 'NAND gate'"/>
-          </On>
-          <On Select="TDeviceFunction.NorGate">
-            <Execute Statement="Result:= 'NOR gate'"/>
-          </On>
-          <On Select="TDeviceFunction.NotGate">
-            <Execute Statement="Result:= 'NOT gate'"/>
-          </On>
-          <On Select="TDeviceFunction.VRef">
-            <Execute Statement="Result:= 'reference voltage'"/>
-          </On>
-          <On Select="TDeviceFunction.TempSens">
-            <Execute Statement="Result:= 'temperature sensor'"/>
-          </On>
-          <Otherwise>
-            <Raise Expression="Exception.Create('Unsupported device function')"/>
-          </Otherwise>
-        </Case>
+        <Execute Statement="Result:= TDeviceFunctionEnumInfo(DeviceFunctionNameRegister.Objects[ImplementedFunction.DeviceFunction]).Description"/>
         <Execute Statement="Result:= GetCountPrefix(ImplementedFunction.Count) + Result"/>
       </Block>
-		</Function>
-    
-	</Procedures>
+    </Function>
+  </Procedures>
 </pkg:Library>

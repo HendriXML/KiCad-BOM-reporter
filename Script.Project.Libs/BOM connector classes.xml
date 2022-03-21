@@ -17,10 +17,12 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement">
   <Uses>
-    <Use Identifier="SiUnits"/>
-    <Use Identifier="ElectronicUtils"/>
-    <Use Identifier="BomClasses"/>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="ElectronicsUtils"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
   </Uses>
   <Type>
     <DataClass Identifier="TConnectorSpec" Inherit="TComponentSpec" DefaultConstructor="createonly">
@@ -38,16 +40,12 @@
       <Field Identifier="PinColsHigh" Type="Integer"/>
       <Field Identifier="ErrorPins" Type="string"/>
       <!--<-<TComponentSpec.Fields-->
-      <Field Identifier="AmperageRatingVT" Type="TValueType"/>
-      <Field Identifier="AmperageRating" Type="Current"/>
-      <Field Identifier="ErrorAmperageRating" Type="string"/>
-      <Field Identifier="AmperageRatingMinVT" Type="TValueType"/>
-      <Field Identifier="AmperageRatingMin" Type="Current"/>
-      <Field Identifier="ErrorAmperageRatingMin" Type="string"/>
-      <Field Identifier="AmperageRatingMaxVT" Type="TValueType"/>
-      <Field Identifier="AmperageRatingMax" Type="Current"/>
-      <Field Identifier="ErrorAmperageRatingMax" Type="string"/>
-<!-->->-->
+      <Field Identifier="CurrentRatingVT" Type="TValueType"/>
+      <Field Identifier="CurrentRating" Type="Current"/>
+      <Field Identifier="ErrorCurrentRating" Type="string"/>
+      <Field Identifier="CurrentRatingBounds" Type="TBoundType"/>
+      <Field Identifier="CurrentRatingUpperBound" Type="Current"/>
+      <!-->->-->
     </DataClass>
 
     <DataClass Identifier="TConnectorCategory" Inherit="TComponentCategory" DefaultConstructor="createonly">
@@ -62,7 +60,7 @@
   </Type>
 
   <Variables>
-    <Variable Identifier="ConnectorAmperageRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Amp)"/>
+    <Variable Identifier="ConnectorCurrentRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Amp)"/>
   </Variables>
 
   <Procedures>
@@ -403,10 +401,8 @@
             <Execute Statement="PinColsLow:= LocPinCols"/>
             <Execute Statement="PinRowsHigh:= LocPinRows"/>
             <Execute Statement="PinColsHigh:= LocPinCols"/>
-            <rep:Reporter.Information Text="Format('Pins: %.2dx%.2d', LocPinRows, LocPinCols)" Condition="IsVerbose"/>
           </When>
           <Otherwise>
-            <rep:Reporter.Error Text="Format('Pins could not be safely parsed from value: %s', PartAttrib.Text)" Condition="IsVerbose"/>
             <Execute Statement="PinsVT:= TValueType.Error"/>
             <Execute Statement="ErrorPins:= PartAttrib.Text"/>
           </Otherwise>
@@ -436,10 +432,10 @@
         <Execute Statement="Result:= False"/>
         <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
         <Case Expression="PinsVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Exit Condition="not (ComponentSpec is TConnectorSpec)"/>
             <Case Expression="TConnectorSpec(ComponentSpec).PinsVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="PinRowsLow &lt; TConnectorSpec(ComponentSpec).PinRowsLow"/>
                 <Exit Condition="PinColsLow &lt; TConnectorSpec(ComponentSpec).PinColsLow"/>
                 <Exit Condition="PinRowsHigh &gt; TConnectorSpec(ComponentSpec).PinRowsHigh"/>
@@ -454,62 +450,52 @@
             <Exit/>
           </On>
         </Case>
-        <Variable Identifier="IsRanged" Type="Boolean"/>
+        <Variable Identifier="IsMultiple" Type="Boolean"/>
         <!--<-<TComponentSpec.DoesMatchSpecification-->
-        <Execute Statement="IsRanged:= False"/>
-        <Case Expression="AmperageRatingMinVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+        <Case Expression="CurrentRatingVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Exit Condition="not (ComponentSpec is TConnectorSpec)"/>
-            <Case Expression="TConnectorSpec(ComponentSpec).AmperageRatingVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="AmperageRatingMin &gt; TConnectorSpec(ComponentSpec).AmperageRating"/>
-                <Execute Statement="IsRanged:= True"/>
+            <Case Expression="TConnectorSpec(ComponentSpec).CurrentRatingVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="CurrentRating &lt;&gt; TConnectorSpec(ComponentSpec).CurrentRating"/>
               </On>
-               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                 <Exit/>
-               </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Exit Condition="not (ComponentSpec is TConnectorSpec)"/>
+            <Case Expression="TConnectorSpec(ComponentSpec).CurrentRatingVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Case Expression="CurrentRatingBounds">
+                  <On Select="TBoundType.Lower">
+                    <Exit Condition="TConnectorSpec(ComponentSpec).CurrentRating &lt; CurrentRating"/>
+                  </On>
+                  <On Select="TBoundType.Upper">
+                    <Exit Condition="TConnectorSpec(ComponentSpec).CurrentRating &gt; CurrentRatingUpperBound"/>
+                  </On>
+                  <On Select="TBoundType.Range">
+                    <Exit Condition="(TConnectorSpec(ComponentSpec).CurrentRating &lt; CurrentRating) or (TConnectorSpec(ComponentSpec).CurrentRating &gt; CurrentRatingUpperBound)"/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
             </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
-        <Case Expression="AmperageRatingMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Exit Condition="not (ComponentSpec is TConnectorSpec)"/>
-            <Case Expression="TConnectorSpec(ComponentSpec).AmperageRatingVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="AmperageRatingMax &lt; TConnectorSpec(ComponentSpec).AmperageRating"/>
-                <Execute Statement="IsRanged:= True"/>
-              </On>
-               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                 <Exit/>
-               </On>
-            </Case>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Exit/>
-          </On>
-        </Case>
-        <Block Condition="not IsRanged">
-          <Case Expression="AmperageRatingVT">
-            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-              <Exit Condition="not (ComponentSpec is TConnectorSpec)"/>
-              <Case Expression="TConnectorSpec(ComponentSpec).AmperageRatingVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                  <Exit Condition="AmperageRating &lt;&gt; TConnectorSpec(ComponentSpec).AmperageRating"/>
-                </On>
-                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                   <Exit/>
-                 </On>
-              </Case>
-            </On>
-            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-              <Exit/>
-            </On>
-          </Case>
-        </Block>
-<!-->->-->
+        <!-->->-->
         <Execute Statement="Result:= True"/>
       </Block>
     </Function>
@@ -521,9 +507,9 @@
       <Block>
         <Execute Statement="Result:= 0"/>
         <Case Expression="ComponentKindVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ComponentKindVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -538,9 +524,9 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="PartNumberVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.PartNumberVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="SameText(PartNumber, ComponentSpec.PartNumber)"/>
               </On>
               <Otherwise>
@@ -554,9 +540,9 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="ManufacturerVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ManufacturerVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="SameText(Manufacturer, ComponentSpec.Manufacturer)"/>
               </On>
               <Otherwise>
@@ -570,22 +556,22 @@
         </Case>
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="FootprintVT">
-          <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.FootprintVT">
-              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
               </On>
-              <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+              <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
                 <Execute Statement="Result:= Result + 1" Condition="ComponentSpec.FootprintMask.Matches(Footprint)"/>
               </On>
-              <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+              <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
               </On>
               <Otherwise>
                 <Exit/>
               </Otherwise>
             </Case>
           </On>
-          <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
@@ -619,62 +605,76 @@
                 <Execute Statement="PinColsLow:= LocPinColsLow"/>
                 <Execute Statement="PinRowsHigh:= LocPinRowsHigh"/>
                 <Execute Statement="PinColsHigh:= LocPinColsHigh"/>
-                <rep:Reporter.Information Text="Format('Pins: %.2dx%.2d..%.2dx%.2d', LocPinRowsLow, LocPinColsLow, LocPinRowsHigh, LocPinColsHigh)" Condition="IsVerbose"/>
               </When>
               <Otherwise>
-                <rep:Reporter.Error Text="Format('Pins could not be safely parsed from value: %s', Value)" Condition="IsVerbose"/>
                 <Execute Statement="PinsVT:= TValueType.Error"/>
                 <Execute Statement="ErrorPins:= Value"/>
               </Otherwise>
             </Choose>
           </On>
           <!--<-<TComponentSpec.HandleField-->
-          <On Select="TCustomField.AmperageRating">
+          <On Select="TCustomField.CurrentRating">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="AmperageRatingVT:= TValueType.Cleared"/>
+                <Execute Statement="CurrentRatingVT:= TValueType.Cleared"/>
               </When>
-              <When Expression="ConnectorAmperageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="AmperageRatingVT:= TValueType.Specified"/>
-                <Execute Statement="AmperageRating:= LocValue"/>
+              <When Expression="ConnectorCurrentRatingConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Execute Statement="CurrentRatingVT:= TValueType.Specified"/>
+                <Execute Statement="CurrentRating:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="AmperageRatingVT:= TValueType.Error"/>
-                <Execute Statement="ErrorAmperageRating:= Value"/>
+                <Execute Statement="CurrentRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorCurrentRating:= Value"/>
               </Otherwise>
             </Choose>
           </On>
-          <On Select="TCustomField.AmperageRatingMin">
+          <On Select="TCustomField.CurrentRatingMin">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="AmperageRatingMinVT:= TValueType.Cleared"/>
+                <Execute Statement="CurrentRatingVT:= TValueType.Cleared"/>
               </When>
-              <When Expression="ConnectorAmperageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="AmperageRatingMinVT:= TValueType.Specified"/>
-                <Execute Statement="AmperageRatingMin:= LocValue"/>
+              <When Expression="ConnectorCurrentRatingConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Choose>
+                  <When Expression="(CurrentRatingVT = TValueType.SpecifiedEx) and (CurrentRatingBounds = TBoundType.Upper)">
+                    <Execute Statement="CurrentRatingBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="CurrentRatingVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="CurrentRatingBounds:= TBoundType.Lower"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="CurrentRating:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="AmperageRatingMinVT:= TValueType.Error"/>
-                <Execute Statement="ErrorAmperageRatingMin:= Value"/>
+                <Execute Statement="CurrentRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorCurrentRating:= Value"/>
               </Otherwise>
             </Choose>
           </On>
-          <On Select="TCustomField.AmperageRatingMax">
+          <On Select="TCustomField.CurrentRatingMax">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="AmperageRatingMaxVT:= TValueType.Cleared"/>
+                <Execute Statement="CurrentRatingVT:= TValueType.Cleared"/>
               </When>
-              <When Expression="ConnectorAmperageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="AmperageRatingMaxVT:= TValueType.Specified"/>
-                <Execute Statement="AmperageRatingMax:= LocValue"/>
+              <When Expression="ConnectorCurrentRatingConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Choose>
+                  <When Expression="(CurrentRatingVT = TValueType.SpecifiedEx) and (CurrentRatingBounds = TBoundType.Lower)">
+                    <Execute Statement="CurrentRatingBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="CurrentRatingVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="CurrentRatingBounds:= TBoundType.Upper"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="CurrentRatingUpperBound:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="AmperageRatingMaxVT:= TValueType.Error"/>
-                <Execute Statement="ErrorAmperageRatingMax:= Value"/>
+                <Execute Statement="CurrentRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorCurrentRating:= Value"/>
               </Otherwise>
             </Choose>
           </On>
-<!-->->-->
+          <!-->->-->
           <Otherwise>
             <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
           </Otherwise>
@@ -686,7 +686,7 @@
       <Parameters>
         <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
         <Parameter Identifier="Value" Type="string" Direction="Output"/>
-        <Parameter Identifier="AmperageRating" Type="string" Direction="Output"/>
+        <Parameter Identifier="CurrentRating" Type="string" Direction="Output"/>
         <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
         <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
         <Parameter Identifier="InternalPartNumber" Type="string" Direction="Output"/>
@@ -699,7 +699,7 @@
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Value:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Choose>
               <When Expression="(PinRowsLow = PinRowsHigh) and (PinColsLow = PinColsHigh)">
                 <Execute Statement="Value:= Format('%.2dx%.2d', PinRowsLow, PinColsLow)"/>
@@ -716,40 +716,31 @@
 
         <Variable Identifier="Range" Type="string"/>
         <!--<-<TComponentSpec.GetSpecificationValues-->
-        <Case Expression="AmperageRatingMinVT">
+        <Case Expression="CurrentRatingVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Range:= ''"/>
+            <Execute Statement="CurrentRating:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= EDecimalQuantityToStr(AmperageRatingMin, UnitPostFix) + #$2026"/>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="CurrentRating:= EDecimalQuantityToStr(Self.CurrentRating, UnitPostFix)"/>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '!' + ErrorAmperageRatingMin + '!' + #$2026"/>
-          </On>
-        </Case>
-        <Case Expression="AmperageRatingMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + EDecimalQuantityToStr(AmperageRatingMax, UnitPostFix)"/>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + '!' + ErrorAmperageRatingMax + '!' "/>
-          </On>
-        </Case>
-        <Execute Statement="Range:=  Range " Condition="IsNonEmptyString(Range)"/>
-        <Case Expression="AmperageRatingVT">
-          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="AmperageRating:= Range"/>
-          </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="AmperageRating:= EDecimalQuantityToStr(Self.AmperageRating, UnitPostFix) + Range"/>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="CurrentRatingBounds">
+              <On Select="TBoundType.Lower">
+                <Execute Statement="CurrentRating:= EDecimalQuantityToStr(Self.CurrentRating, UnitPostFix) + #$2026"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="CurrentRating:= #$2026 + EDecimalQuantityToStr(Self.CurrentRatingUpperBound, UnitPostFix)"/>
+              </On>
+              <On Select="TBoundType.Range">
+                <Execute Statement="CurrentRating:= EDecimalQuantityToStr(Self.CurrentRating, UnitPostFix) + #$2026 + EDecimalQuantityToStr(Self.CurrentRatingUpperBound, UnitPostFix)"/>
+              </On>
+            </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="AmperageRating:= '!' + ErrorAmperageRating + '!' + Range"/>
+            <Execute Statement="CurrentRating:= '!' + ErrorCurrentRating + '!'"/>
           </On>
         </Case>
-<!-->->-->
+        <!-->->-->
         <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
       </Block>
     </Procedure>
@@ -818,7 +809,7 @@
           <Case Expression="PinsVT" Optimalisation="integermapping">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
               <Case Expression="locTemplate.PinsVT" Optimalisation="integermapping">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                   <Execute Statement="PinRowsLow:= locTemplate.PinRowsLow"/>
                   <Execute Statement="PinColsLow:= locTemplate.PinColsLow"/>
                   <Execute Statement="PinRowsHigh:= locTemplate.PinRowsHigh"/>
@@ -833,49 +824,27 @@
             </On>
           </Case>
           <!--<-<TComponentSpec.ApplyTemplate-->
-          <Case Expression="AmperageRatingVT">
+          <Case Expression="CurrentRatingVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="AmperageRatingMinVT">
-                <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                  <Case Expression="AmperageRatingMaxVT">
-                    <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                      <Case Expression="locTemplate.AmperageRatingVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="AmperageRating:= locTemplate.AmperageRating"/>
-                          <Execute Statement="AmperageRatingVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="AmperageRating:= locTemplate.ErrorAmperageRating"/>
-                          <Execute Statement="AmperageRatingVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.AmperageRatingMinVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="AmperageRatingMin:= locTemplate.AmperageRatingMin"/>
-                          <Execute Statement="AmperageRatingMinVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="AmperageRatingMin:= locTemplate.ErrorAmperageRatingMin"/>
-                          <Execute Statement="AmperageRatingMinVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.AmperageRatingMaxVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="AmperageRatingMax:= locTemplate.AmperageRatingMax"/>
-                          <Execute Statement="AmperageRatingMaxVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="AmperageRatingMax:= locTemplate.ErrorAmperageRatingMax"/>
-                          <Execute Statement="AmperageRatingMaxVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                    </On>
-                  </Case>
+              <Case Expression="locTemplate.CurrentRatingVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="CurrentRating:= locTemplate.CurrentRating"/>
+                  <Execute Statement="CurrentRatingVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                  <Execute Statement="CurrentRating:= locTemplate.CurrentRating" Condition="InFlags(locTemplate.CurrentRatingBounds, cValidLowerFlags)"/>
+                  <Execute Statement="CurrentRatingUpperBound:= locTemplate.CurrentRatingUpperBound" Condition="InFlags(locTemplate.CurrentRatingBounds, cValidUpperFlags)"/>
+                  <Execute Statement="CurrentRatingBounds:= locTemplate.CurrentRatingBounds"/>
+                  <Execute Statement="CurrentRatingVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorCurrentRating:= locTemplate.ErrorCurrentRating"/>
+                  <Execute Statement="CurrentRatingVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
           </Case>
-<!-->->-->
+          <!-->->-->
         </Block>
         <Execute Statement="inherited ApplyTemplate"/>
       </Block>
@@ -884,15 +853,15 @@
 
     <Procedure Identifier="TConnectorCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
       </Parameters>
       <Constants>
         <Constant Identifier="sSectionConnectors" Type="string" Expression="'Template.Connectors'"/>
       </Constants>
       <Block>
-        <ConditionalBlock Expression="IniFile.SectionExists(sSectionConnectors)">
+        <ConditionalBlock Expression="Ini.Inifile.SectionExists(sSectionConnectors)">
           <Execute Statement="TemplateConnector:= TConnectorSpec.Create"/>
-          <Execute Statement="TemplateConnector.LoadFromIniFileSection(IniFile, sSectionConnectors)"/>
+          <Execute Statement="TemplateConnector.LoadFromIniFileSection(Ini, sSectionConnectors)"/>
         </ConditionalBlock>
       </Block>
     </Procedure>
@@ -955,26 +924,26 @@
         <Execute Statement="Result:= CompareStateValue(A.ID, A.PinColsHigh, A.PinsVT, B.ID, B.PinColsHigh, B.PinsVT)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
         <!--<-<TComponentSpec.CompareSpecifications-->
-        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.AmperageRating, A.AmperageRatingVT, A.AmperageRatingMin, A.AmperageRatingMinVT, A.AmperageRatingMax, A.AmperageRatingMaxVT, B.ID, B.AmperageRating, B.AmperageRatingVT, B.AmperageRatingMin, B.AmperageRatingMinVT, B.AmperageRatingMax, B.AmperageRatingMaxVT)"/>
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.CurrentRatingVT, A.CurrentRating, A.CurrentRatingUpperBound, A.CurrentRatingBounds, B.ID, B.CurrentRatingVT, B.CurrentRating, B.CurrentRatingUpperBound, B.CurrentRatingBounds)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-<!-->->-->
+        <!-->->-->
         <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
       </Block>
     </Function>
 
     <Function Identifier="TConnectorCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
         <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
       </Parameters>
       <Constants>
         <Constant Identifier="cConnector" Type="string" Expression="'Connector'"/>
       </Constants>
       <Block>
-        <Execute Statement="Result:= IniFile.SectionExists(cConnector)"/>
+        <Execute Statement="Result:= Ini.Inifile.SectionExists(cConnector)"/>
         <Block Condition="Result">
           <Execute Statement="ComponentSpec:= TConnectorSpec.Create"/>
-          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cConnector)"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(Ini, cConnector)"/>
         </Block>
       </Block>
     </Function>

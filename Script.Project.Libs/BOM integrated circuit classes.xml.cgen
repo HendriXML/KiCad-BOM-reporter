@@ -30,7 +30,7 @@
         </pkg:ReportTargets>
 
         <Imports>
-          <Import Identifier="ComponentClassGenerationUtils" Filename="ComponentClassGenerationUtils.xml"/>
+          <Import Identifier="ComponentClassGenerationUtils" Filename="Component class generation utils.xml"/>
         </Imports>
 
         <Uses>
@@ -88,7 +88,7 @@
         <Block>
           <Execute Statement="GenerateFieldSections(ObjNil)"/>
           <msx:Document.Create Identifier="XmlDoc"/>
-          <msx:Document.LoadFromFile Document="XmlDoc" Filename="GetFilenameFromBase(ExtractFilePath(ScriptFilename), 'ComponentKinds.xml')"/>
+          <msx:Document.LoadFromFile Document="XmlDoc" Filename="GetFilenameFromBase(ExtractFilePath(ScriptFilename), '..\Resources.Project.CodeGen\Component kinds.xml')"/>
           
           <rep:Reporter.DefaultTarget Identifier="TIntegratedCircuitSpec.CheckComponentKind"/>
           <rep:Reporter.Information Text="''"/>

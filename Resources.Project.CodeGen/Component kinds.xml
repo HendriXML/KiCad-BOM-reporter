@@ -730,6 +730,16 @@
       <Header Text="Spanningsreferentie IC's"/>
     </Language>
   </ComponentKind>
+  <ComponentKind Name="VoltageRegulator" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="voltage regulator"/>
+      <Header Text="Voltage regulators"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="spanningsregelaar"/>
+      <Header Text="Spanningsregelaars"/>
+    </Language>
+  </ComponentKind>
   <ComponentKind Name="Switch">
     <Language LangID="en-GB">
       <Name Text="switch"/>

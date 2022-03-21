@@ -23,20 +23,30 @@
     <Constant Identifier="sIn" Type="string" Expression="'gebruikt'"/>
     <Constant Identifier="sOut" Type="string" Expression="'levert'"/>
     <Constant Identifier="sIntermediate" Type="string" Expression="'tussentijds'"/>
-    <Constant Identifier="sNeeds" Type="string" Expression="'heeft nodig'"/>
-    <Constant Identifier="sNeededBy" Type="string" Expression="'is nodig voor'"/>
-    <Constant Identifier="sIsUsedBy" Type="string" Expression="'Wordt gebruikt door'"/>
-    <Constant Identifier="sMakesUsedOf" Type="string" Expression="'Maakt gebruik van'"/>
-    <Constant Identifier="sChecksOk" Type="string" Expression="'Controles doorstaan'"/>
-    <Constant Identifier="sSelectingTasks" Type="string" Expression="'Selecteer de taken die uitgevoerd dienen te worden..'"/>
-    <Constant Identifier="sExecutingTasks" Type="string" Expression="'Taken worden uitgevoerd..'"/>
-    <Constant Identifier="sExecutedTasks" Type="string" Expression="'Taken zijn uitgevoerd'"/>
-    <Constant Identifier="sExecutingTask" Type="string" Expression="'Taak &quot;%s&quot; wordt uitgevoerd..'"/>
-    <Constant Identifier="sExecutedTask" Type="string" Expression="'Taak &quot;%s&quot; is uitgevoerd'"/>
-    <Constant Identifier="sTaskFailed" Type="string" Expression="'Taak &quot;%s&quot; kon niet worden uitgevoerd'"/>
+    <Constant Identifier="sYes" Type="string" Expression="'Ja'"/>
+    <Constant Identifier="sNo" Type="string" Expression="'Nee'"/>
+
     <Constant Identifier="sSimulating" Type="string" Expression="'Simuleren..'"/>
     <Constant Identifier="sDoneSimulating" Type="string" Expression="'Klaar met simuleren'"/>
     <Constant Identifier="sNoSimulationResults" Type="string" Expression="'Simuleren was niet succesvol'"/>
-    <Constant Identifier="sVersion" Type="string" Expression="'Versie: '"/>
+
+    <Constant Identifier="sPrefixProvidesSpecifiedValues" Type="string" Expression="'Levert gespecificeerde waarden - '"/>
+    <Constant Identifier="sPrefixProvidesMeasuredValues" Type="string" Expression="'Levert gemeten waarden - '"/>
+    <Constant Identifier="sPrefixProvidesCalculatedValues" Type="string" Expression="'Levert berekende waarden - '"/>
+    <Constant Identifier="sPrefixProvidesChoosenValues" Type="string" Expression="'Levert gekozen waarden - '"/>
+    <Constant Identifier="sPrefixProvidesChoosenComponents" Type="string" Expression="'Levert gekozen componenten - '"/>
+    <Constant Identifier="sPrefixValidatesValues" Type="string" Expression="'Valideert waarden - '"/>
+    <Constant Identifier="sPrefixExportValuesToSchematic" Type="string" Expression="'Exporteerd waarden naar schema - '"/>
+    
+    <Constant Identifier="sChecksOk" Type="string" Expression="'Controles doorstaan'"/>
+    <Constant Identifier="cComparisonFail" Type="string" Expression="'%s zou %s moeten zijn'"/>
+    <Constant Identifier="cSpecifiedValueFail" Type="string" Expression="'%s komt niet overeen met gespecificeerde waarde'"/>
+
+    <Constant Identifier="cCompConfigTask" Type="string" Expression="'Beste combinatie voor vervangingswaarde bepalen - configuratie %d - (%s)'"/>
+    <Constant Identifier="cCompCombosTask" Type="string" Expression="'Beste combinatie voor vervangingswaarde bepalen'"/>
+    <Constant Identifier="cValuesManagerTask" Type="string" Expression="'Simulatie waarden beheerder'"/>
+    <Constant Identifier="cComboConfigTask" Type="string" Expression="'Combinatie configuratie'"/>
+    <Constant Identifier="cCombinationTargetTask" Type="string" Expression="'Combinatie doel configuratie'"/>
+    <Constant Identifier="cAvailableValuesInputTask" Type="string" Expression="'Beschikbare waarden genomen van invoer tabblad'"/>
   </Constants>
 </pkg:Library>

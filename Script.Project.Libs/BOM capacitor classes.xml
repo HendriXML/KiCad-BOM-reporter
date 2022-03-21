@@ -17,52 +17,45 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   >
   <Uses>
-    <Use Identifier="SiUnits"/>
-    <Use Identifier="ElectronicUtils"/>
-    <Use Identifier="BomClasses"/>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="ElectronicsUtils"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
   </Uses>
   <Type>
     <Enumeration Identifier="TCapacitorTechnology" Elements="Unspecified, Electrolytic, Ceramic, Tantalum, SilverMica, PolyesterFilm, MetallisedPolyesterFilm, Polycarbonate, Polypropylene, Glass" LowAlias="Low" HighAlias="High"/>
 
-    <DataClass Identifier="TCapacitorSpec" Inherit="TComponentSpec" DefaultConstructor="createonly">
+    <DataClass Identifier="TCapacitorSpec" Inherit="TPassiveSpec" DefaultConstructor="createonly">
       <VirtualMethod Identifier="vmHandleField" Override="true"/>
       <VirtualMethod Identifier="vmCheckComponentKind" Override="true"/>
       <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
       <VirtualMethod Identifier="vmApplyTemplate" Override="true"/>
       <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
       <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
+      <VirtualMethod Identifier="vmGetValue" Override="true"/>
+      <VirtualMethod Identifier="vmSetValue" Override="true"/>
       <!--<-<TComponentSpec.Fields-->
       <Field Identifier="CapacitanceVT" Type="TValueType"/>
       <Field Identifier="Capacitance" Type="CapacitanceDQ"/>
       <Field Identifier="ErrorCapacitance" Type="string"/>
-      <Field Identifier="CapacitanceMinVT" Type="TValueType"/>
-      <Field Identifier="CapacitanceMin" Type="CapacitanceDQ"/>
-      <Field Identifier="ErrorCapacitanceMin" Type="string"/>
-      <Field Identifier="CapacitanceMaxVT" Type="TValueType"/>
-      <Field Identifier="CapacitanceMax" Type="CapacitanceDQ"/>
-      <Field Identifier="ErrorCapacitanceMax" Type="string"/>
+      <Field Identifier="CapacitanceBounds" Type="TBoundType"/>
+      <Field Identifier="CapacitanceUpperBound" Type="CapacitanceDQ"/>
       <Field Identifier="VoltageRatingVT" Type="TValueType"/>
       <Field Identifier="VoltageRating" Type="VoltageDQ"/>
       <Field Identifier="ErrorVoltageRating" Type="string"/>
-      <Field Identifier="VoltageRatingMinVT" Type="TValueType"/>
-      <Field Identifier="VoltageRatingMin" Type="VoltageDQ"/>
-      <Field Identifier="ErrorVoltageRatingMin" Type="string"/>
-      <Field Identifier="VoltageRatingMaxVT" Type="TValueType"/>
-      <Field Identifier="VoltageRatingMax" Type="VoltageDQ"/>
-      <Field Identifier="ErrorVoltageRatingMax" Type="string"/>
+      <Field Identifier="VoltageRatingBounds" Type="TBoundType"/>
+      <Field Identifier="VoltageRatingUpperBound" Type="VoltageDQ"/>
       <Field Identifier="ToleranceVT" Type="TValueType"/>
       <Field Identifier="Tolerance" Type="ToleranceDQ"/>
       <Field Identifier="ErrorTolerance" Type="string"/>
-      <Field Identifier="ToleranceMinVT" Type="TValueType"/>
-      <Field Identifier="ToleranceMin" Type="ToleranceDQ"/>
-      <Field Identifier="ErrorToleranceMin" Type="string"/>
-      <Field Identifier="ToleranceMaxVT" Type="TValueType"/>
-      <Field Identifier="ToleranceMax" Type="ToleranceDQ"/>
-      <Field Identifier="ErrorToleranceMax" Type="string"/>
+      <Field Identifier="ToleranceBounds" Type="TBoundType"/>
+      <Field Identifier="ToleranceUpperBound" Type="ToleranceDQ"/>
       <Field Identifier="TechnologyVT" Type="TValueType"/>
       <Field Identifier="Technology" Type="TCapacitorTechnology"/>
       <Field Identifier="ErrorTechnology" Type="string"/>
+      <Field Identifier="TechnologySet" Type="TFlags"/>
       <!-->->-->
     </DataClass>
 
@@ -86,7 +79,6 @@
 
   <Variables>
     <Variable Identifier="CapacitorCapacitanceConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Farad)"/>
-    <Variable Identifier="CapacitorTechnologyIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
     <Variable Identifier="CapacitorVoltageRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Volt)"/>
     <Variable Identifier="CapacitorToleranceConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Perc)"/>
   </Variables>
@@ -135,39 +127,6 @@
       </Block>
     </Function>
 
-    <Procedure Identifier="InitCapacitorTechnologyIndex">
-      <Parameters>
-        <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
-      </Parameters>
-      <Block>
-        <ForLoop Indexer="I" From="TCapacitorTechnology.Low" To="TCapacitorTechnology.High">
-          <inx:Index.MapValue Index="Index" Key="CapacitorTechnologyName(I)" Value="I"/>
-        </ForLoop>
-      </Block>
-    </Procedure>
-
-    <Function Identifier="CapacitorTechnologyAsString" Type="string">
-      <Parameters>
-        <Parameter Identifier="Technology" Type="TCapacitorTechnology"/>
-      </Parameters>
-      <Block>
-        <Case Expression="Technology">
-          <On Select="TCapacitorTechnology.Unspecified">
-            <Execute Statement="Result:= ''"/>
-          </On>
-          <On Select="TCapacitorTechnology.Electrolytic">
-            <Execute Statement="Result:= sCapacitorTechnologyElectrolytic"/>
-          </On>
-          <On Select="TCapacitorTechnology.Ceramic">
-            <Execute Statement="Result:= sCapacitorTechnologyCeramic"/>
-          </On>
-          <Otherwise>
-            <Execute Statement="Result:= CapacitorTechnologyName(Technology)"/>
-          </Otherwise>
-        </Case>
-      </Block>
-    </Function>
-
     <Function Identifier="TCapacitorSpec.CheckComponentKind" VirtualMethod="vmCheckComponentKind" Type="Boolean">
       <Parameters>
         <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
@@ -189,33 +148,41 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
-        <Variable Identifier="IsRanged" Type="Boolean"/>
+        <Variable Identifier="IsMultiple" Type="Boolean"/>
         <!--<-<TComponentSpec.DoesMatchSpecification-->
-        <Execute Statement="IsRanged:= False"/>
-        <Case Expression="CapacitanceMinVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+        <Case Expression="CapacitanceVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
             <Case Expression="TCapacitorSpec(ComponentSpec).CapacitanceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="CapacitanceMin &gt; TCapacitorSpec(ComponentSpec).Capacitance"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="Capacitance &lt;&gt; TCapacitorSpec(ComponentSpec).Capacitance"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
               </On>
             </Case>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Exit/>
-          </On>
-        </Case>
-        <Case Expression="CapacitanceMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
             <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
             <Case Expression="TCapacitorSpec(ComponentSpec).CapacitanceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="CapacitanceMax &lt; TCapacitorSpec(ComponentSpec).Capacitance"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Case Expression="CapacitanceBounds">
+                  <On Select="TBoundType.Lower">
+                    <Exit Condition="TCapacitorSpec(ComponentSpec).Capacitance &lt; Capacitance"/>
+                  </On>
+                  <On Select="TBoundType.Upper">
+                    <Exit Condition="TCapacitorSpec(ComponentSpec).Capacitance &gt; CapacitanceUpperBound"/>
+                  </On>
+                  <On Select="TBoundType.Range">
+                    <Exit Condition="(TCapacitorSpec(ComponentSpec).Capacitance &lt; Capacitance) or (TCapacitorSpec(ComponentSpec).Capacitance &gt; CapacitanceUpperBound)"/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
@@ -226,49 +193,39 @@
             <Exit/>
           </On>
         </Case>
-        <Block Condition="not IsRanged">
-          <Case Expression="CapacitanceVT">
-            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-              <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
-              <Case Expression="TCapacitorSpec(ComponentSpec).CapacitanceVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                  <Exit Condition="Capacitance &lt;&gt; TCapacitorSpec(ComponentSpec).Capacitance"/>
-                </On>
-                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                  <Exit/>
-                </On>
-              </Case>
-            </On>
-            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-              <Exit/>
-            </On>
-          </Case>
-        </Block>
-        <Execute Statement="IsRanged:= False"/>
-        <Case Expression="VoltageRatingMinVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+        <Case Expression="VoltageRatingVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
             <Case Expression="TCapacitorSpec(ComponentSpec).VoltageRatingVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="VoltageRatingMin &gt; TCapacitorSpec(ComponentSpec).VoltageRating"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="VoltageRating &lt;&gt; TCapacitorSpec(ComponentSpec).VoltageRating"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
               </On>
             </Case>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Exit/>
-          </On>
-        </Case>
-        <Case Expression="VoltageRatingMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
             <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
             <Case Expression="TCapacitorSpec(ComponentSpec).VoltageRatingVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="VoltageRatingMax &lt; TCapacitorSpec(ComponentSpec).VoltageRating"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Case Expression="VoltageRatingBounds">
+                  <On Select="TBoundType.Lower">
+                    <Exit Condition="TCapacitorSpec(ComponentSpec).VoltageRating &lt; VoltageRating"/>
+                  </On>
+                  <On Select="TBoundType.Upper">
+                    <Exit Condition="TCapacitorSpec(ComponentSpec).VoltageRating &gt; VoltageRatingUpperBound"/>
+                  </On>
+                  <On Select="TBoundType.Range">
+                    <Exit Condition="(TCapacitorSpec(ComponentSpec).VoltageRating &lt; VoltageRating) or (TCapacitorSpec(ComponentSpec).VoltageRating &gt; VoltageRatingUpperBound)"/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
@@ -279,49 +236,39 @@
             <Exit/>
           </On>
         </Case>
-        <Block Condition="not IsRanged">
-          <Case Expression="VoltageRatingVT">
-            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-              <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
-              <Case Expression="TCapacitorSpec(ComponentSpec).VoltageRatingVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                  <Exit Condition="VoltageRating &lt;&gt; TCapacitorSpec(ComponentSpec).VoltageRating"/>
-                </On>
-                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                  <Exit/>
-                </On>
-              </Case>
-            </On>
-            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-              <Exit/>
-            </On>
-          </Case>
-        </Block>
-        <Execute Statement="IsRanged:= False"/>
-        <Case Expression="ToleranceMinVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+        <Case Expression="ToleranceVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
             <Case Expression="TCapacitorSpec(ComponentSpec).ToleranceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="ToleranceMin &gt; TCapacitorSpec(ComponentSpec).Tolerance"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="Tolerance &lt;&gt; TCapacitorSpec(ComponentSpec).Tolerance"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
               </On>
             </Case>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Exit/>
-          </On>
-        </Case>
-        <Case Expression="ToleranceMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
             <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
             <Case Expression="TCapacitorSpec(ComponentSpec).ToleranceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                <Exit Condition="ToleranceMax &lt; TCapacitorSpec(ComponentSpec).Tolerance"/>
-                <Execute Statement="IsRanged:= True"/>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Case Expression="ToleranceBounds">
+                  <On Select="TBoundType.Lower">
+                    <Exit Condition="TCapacitorSpec(ComponentSpec).Tolerance &lt; Tolerance"/>
+                  </On>
+                  <On Select="TBoundType.Upper">
+                    <Exit Condition="TCapacitorSpec(ComponentSpec).Tolerance &gt; ToleranceUpperBound"/>
+                  </On>
+                  <On Select="TBoundType.Range">
+                    <Exit Condition="(TCapacitorSpec(ComponentSpec).Tolerance &lt; Tolerance) or (TCapacitorSpec(ComponentSpec).Tolerance &gt; ToleranceUpperBound)"/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
@@ -332,30 +279,29 @@
             <Exit/>
           </On>
         </Case>
-        <Block Condition="not IsRanged">
-          <Case Expression="ToleranceVT">
-            <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-              <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
-              <Case Expression="TCapacitorSpec(ComponentSpec).ToleranceVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                  <Exit Condition="Tolerance &lt;&gt; TCapacitorSpec(ComponentSpec).Tolerance"/>
-                </On>
-                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                  <Exit/>
-                </On>
-              </Case>
-            </On>
-            <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-              <Exit/>
-            </On>
-          </Case>
-        </Block>
         <Case Expression="TechnologyVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
             <Case Expression="TCapacitorSpec(ComponentSpec).TechnologyVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="Technology &lt;&gt; TCapacitorSpec(ComponentSpec).Technology"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
+            <Exit Condition="not InFlags(TCapacitorSpec(ComponentSpec).Technology, TechnologySet)"/>
+            <Case Expression="TCapacitorSpec(ComponentSpec).TechnologyVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
               </On>
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit/>
@@ -381,9 +327,9 @@
         <Exit Condition="not (ComponentSpec is TCapacitorSpec)"/>
 
         <Case Expression="ComponentKindVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ComponentKindVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -399,9 +345,9 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="CapacitanceVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="TCapacitorSpec(ComponentSpec).CapacitanceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="Capacitance &lt;&gt; TCapacitorSpec(ComponentSpec).Capacitance" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -417,9 +363,9 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="TechnologyVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="TCapacitorSpec(ComponentSpec).TechnologyVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="Technology &lt;&gt; TCapacitorSpec(ComponentSpec).Technology" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -435,9 +381,9 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="VoltageRatingVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="TCapacitorSpec(ComponentSpec).VoltageRatingVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="VoltageRating &lt;&gt; TCapacitorSpec(ComponentSpec).VoltageRating" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -453,31 +399,31 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="FootprintVT">
-          <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.FootprintVT">
-              <On Select="TFootPrintValueType.SpecifiedByTemplate, TFootPrintValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
               </On>
-              <On Select="TFootPrintValueType.MaskSpecifiedByTemplate, TFootPrintValueType.MaskSpecified">
+              <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
                 <Execute Statement="Result:= Result + 1" Condition="ComponentSpec.FootprintMask.Matches(Footprint)"/>
               </On>
-              <On Select="TFootPrintValueType.Unspecified, TFootPrintValueType.Cleared, TFootPrintValueType.ClearedByTemplate">
+              <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
               </On>
               <Otherwise>
                 <Exit/>
               </Otherwise>
             </Case>
           </On>
-          <On Select="TFootPrintValueType.Error, TFootPrintValueType.ErrorByTemplate">
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Exit/>
           </On>
         </Case>
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="ToleranceVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="TCapacitorSpec(ComponentSpec).ToleranceVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="Tolerance &lt;&gt; TCapacitorSpec(ComponentSpec).Tolerance" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -493,9 +439,9 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="PartNumberVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.PartNumberVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="not SameText(PartNumber, ComponentSpec.PartNumber)" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -511,9 +457,9 @@
 
         <Execute Statement="Result:= Result shl 1"/>
         <Case Expression="ManufacturerVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ComponentSpec.ManufacturerVT">
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Exit Condition="not SameText(Manufacturer, ComponentSpec.Manufacturer)" Result="0"/>
                 <Execute Statement="Result:= Result + 1"/>
               </On>
@@ -538,6 +484,7 @@
       </Parameters>
       <Variables>
         <Variable Identifier="LocValue" Type="DecimalQuantity"/>
+        <Variable Identifier="LocFlags" Type="TFlags"/>
         <Variable Identifier="LocCapacitorTechnology" Type="TCapacitorTechnology"/>
         <Variable Identifier="Found" Type="Boolean"/>
       </Variables>
@@ -562,30 +509,46 @@
           <On Select="TCustomField.ValueMin">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="CapacitanceMinVT:= TValueType.Cleared"/>
+                <Execute Statement="CapacitanceVT:= TValueType.Cleared"/>
               </When>
               <When Expression="CapacitorCapacitanceConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="CapacitanceMinVT:= TValueType.Specified"/>
-                <Execute Statement="CapacitanceMin:= LocValue"/>
+                <Choose>
+                  <When Expression="(CapacitanceVT = TValueType.SpecifiedEx) and (CapacitanceBounds = TBoundType.Upper)">
+                    <Execute Statement="CapacitanceBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="CapacitanceVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="CapacitanceBounds:= TBoundType.Lower"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="Capacitance:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="CapacitanceMinVT:= TValueType.Error"/>
-                <Execute Statement="ErrorCapacitanceMin:= Value"/>
+                <Execute Statement="CapacitanceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorCapacitance:= Value"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TCustomField.ValueMax">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="CapacitanceMaxVT:= TValueType.Cleared"/>
+                <Execute Statement="CapacitanceVT:= TValueType.Cleared"/>
               </When>
               <When Expression="CapacitorCapacitanceConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="CapacitanceMaxVT:= TValueType.Specified"/>
-                <Execute Statement="CapacitanceMax:= LocValue"/>
+                <Choose>
+                  <When Expression="(CapacitanceVT = TValueType.SpecifiedEx) and (CapacitanceBounds = TBoundType.Lower)">
+                    <Execute Statement="CapacitanceBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="CapacitanceVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="CapacitanceBounds:= TBoundType.Upper"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="CapacitanceUpperBound:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="CapacitanceMaxVT:= TValueType.Error"/>
-                <Execute Statement="ErrorCapacitanceMax:= Value"/>
+                <Execute Statement="CapacitanceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorCapacitance:= Value"/>
               </Otherwise>
             </Choose>
           </On>
@@ -607,30 +570,46 @@
           <On Select="TCustomField.VoltageRatingMin">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="VoltageRatingMinVT:= TValueType.Cleared"/>
+                <Execute Statement="VoltageRatingVT:= TValueType.Cleared"/>
               </When>
               <When Expression="CapacitorVoltageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="VoltageRatingMinVT:= TValueType.Specified"/>
-                <Execute Statement="VoltageRatingMin:= LocValue"/>
+                <Choose>
+                  <When Expression="(VoltageRatingVT = TValueType.SpecifiedEx) and (VoltageRatingBounds = TBoundType.Upper)">
+                    <Execute Statement="VoltageRatingBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="VoltageRatingVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="VoltageRatingBounds:= TBoundType.Lower"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="VoltageRating:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="VoltageRatingMinVT:= TValueType.Error"/>
-                <Execute Statement="ErrorVoltageRatingMin:= Value"/>
+                <Execute Statement="VoltageRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorVoltageRating:= Value"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TCustomField.VoltageRatingMax">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="VoltageRatingMaxVT:= TValueType.Cleared"/>
+                <Execute Statement="VoltageRatingVT:= TValueType.Cleared"/>
               </When>
               <When Expression="CapacitorVoltageRatingConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="VoltageRatingMaxVT:= TValueType.Specified"/>
-                <Execute Statement="VoltageRatingMax:= LocValue"/>
+                <Choose>
+                  <When Expression="(VoltageRatingVT = TValueType.SpecifiedEx) and (VoltageRatingBounds = TBoundType.Lower)">
+                    <Execute Statement="VoltageRatingBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="VoltageRatingVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="VoltageRatingBounds:= TBoundType.Upper"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="VoltageRatingUpperBound:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="VoltageRatingMaxVT:= TValueType.Error"/>
-                <Execute Statement="ErrorVoltageRatingMax:= Value"/>
+                <Execute Statement="VoltageRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorVoltageRating:= Value"/>
               </Otherwise>
             </Choose>
           </On>
@@ -652,30 +631,46 @@
           <On Select="TCustomField.ToleranceMin">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="ToleranceMinVT:= TValueType.Cleared"/>
+                <Execute Statement="ToleranceVT:= TValueType.Cleared"/>
               </When>
               <When Expression="CapacitorToleranceConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="ToleranceMinVT:= TValueType.Specified"/>
-                <Execute Statement="ToleranceMin:= LocValue"/>
+                <Choose>
+                  <When Expression="(ToleranceVT = TValueType.SpecifiedEx) and (ToleranceBounds = TBoundType.Upper)">
+                    <Execute Statement="ToleranceBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ToleranceVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="ToleranceBounds:= TBoundType.Lower"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="Tolerance:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="ToleranceMinVT:= TValueType.Error"/>
-                <Execute Statement="ErrorToleranceMin:= Value"/>
+                <Execute Statement="ToleranceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorTolerance:= Value"/>
               </Otherwise>
             </Choose>
           </On>
           <On Select="TCustomField.ToleranceMax">
             <Choose>
               <When Expression="Clear">
-                <Execute Statement="ToleranceMaxVT:= TValueType.Cleared"/>
+                <Execute Statement="ToleranceVT:= TValueType.Cleared"/>
               </When>
               <When Expression="CapacitorToleranceConv.EStrToDecimalQuantity(Value, LocValue)">
-                <Execute Statement="ToleranceMaxVT:= TValueType.Specified"/>
-                <Execute Statement="ToleranceMax:= LocValue"/>
+                <Choose>
+                  <When Expression="(ToleranceVT = TValueType.SpecifiedEx) and (ToleranceBounds = TBoundType.Lower)">
+                    <Execute Statement="ToleranceBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ToleranceVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="ToleranceBounds:= TBoundType.Upper"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="ToleranceUpperBound:= LocValue"/>
               </When>
               <Otherwise>
-                <Execute Statement="ToleranceMaxVT:= TValueType.Error"/>
-                <Execute Statement="ErrorToleranceMax:= Value"/>
+                <Execute Statement="ToleranceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorTolerance:= Value"/>
               </Otherwise>
             </Choose>
           </On>
@@ -685,11 +680,31 @@
                 <Execute Statement="TechnologyVT:= TValueType.Cleared"/>
               </When>
               <Otherwise>
-                <inx:Index.FindValue Index="CapacitorTechnologyIndex" Key="Value" Value="LocCapacitorTechnology" Found="Found" Flags="NoErrorOnNotFound"/>
+                <Execute Statement="Found:= CapacitorTechnologyNameRegister.GetItem(Value, LocCapacitorTechnology)"/>
                 <Choose>
                   <When Expression="Found">
                     <Execute Statement="Technology:= LocCapacitorTechnology"/>
                     <Execute Statement="TechnologyVT:= TValueType.Specified"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ErrorTechnology:= Value"/>
+                    <Execute Statement="TechnologyVT:= TValueType.Error"/>
+                  </Otherwise>
+                </Choose>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.TechnologySet">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="TechnologyVT:= TValueType.Cleared"/>
+              </When>
+              <Otherwise>
+                <Choose>
+                  <When Expression="CapacitorTechnologyNameRegister.GetFlags(Value, LocFlags)">
+                    <Execute Statement="TechnologySet:= LocFlags"/>
+                    <Execute Statement="TechnologyVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="TechnologyVT:= TValueType.Cleared" Condition="LocFlags = 0"/>
                   </When>
                   <Otherwise>
                     <Execute Statement="ErrorTechnology:= Value"/>
@@ -707,6 +722,31 @@
       </Block>
     </Procedure>
 
+    <Function Identifier="TCapacitorSpec.GetValue" VirtualMethod="vmGetValue" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Case Expression="CapacitanceVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="Value:= Capacitance"/>
+            <Exit Result="True"/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= False"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TCapacitorSpec.SetValue" VirtualMethod="vmSetValue">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Capacitance:= Value"/>
+        <Execute Statement="CapacitanceVT:= TValueType.Specified"/>
+      </Block>
+    </Procedure>
+
     <Procedure Identifier="TCapacitorSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
       <Variables>
         <Variable Identifier="locTemplate" Type="TCapacitorSpec"/>
@@ -718,139 +758,77 @@
           <!--<-<TComponentSpec.ApplyTemplate-->
           <Case Expression="CapacitanceVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="CapacitanceMinVT">
-                <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                  <Case Expression="CapacitanceMaxVT">
-                    <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                      <Case Expression="locTemplate.CapacitanceVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="Capacitance:= locTemplate.Capacitance"/>
-                          <Execute Statement="CapacitanceVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="Capacitance:= locTemplate.ErrorCapacitance"/>
-                          <Execute Statement="CapacitanceVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.CapacitanceMinVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="CapacitanceMin:= locTemplate.CapacitanceMin"/>
-                          <Execute Statement="CapacitanceMinVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="CapacitanceMin:= locTemplate.ErrorCapacitanceMin"/>
-                          <Execute Statement="CapacitanceMinVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.CapacitanceMaxVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="CapacitanceMax:= locTemplate.CapacitanceMax"/>
-                          <Execute Statement="CapacitanceMaxVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="CapacitanceMax:= locTemplate.ErrorCapacitanceMax"/>
-                          <Execute Statement="CapacitanceMaxVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                    </On>
-                  </Case>
+              <Case Expression="locTemplate.CapacitanceVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="Capacitance:= locTemplate.Capacitance"/>
+                  <Execute Statement="CapacitanceVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                  <Execute Statement="Capacitance:= locTemplate.Capacitance" Condition="InFlags(locTemplate.CapacitanceBounds, cValidLowerFlags)"/>
+                  <Execute Statement="CapacitanceUpperBound:= locTemplate.CapacitanceUpperBound" Condition="InFlags(locTemplate.CapacitanceBounds, cValidUpperFlags)"/>
+                  <Execute Statement="CapacitanceBounds:= locTemplate.CapacitanceBounds"/>
+                  <Execute Statement="CapacitanceVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorCapacitance:= locTemplate.ErrorCapacitance"/>
+                  <Execute Statement="CapacitanceVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
           </Case>
           <Case Expression="VoltageRatingVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="VoltageRatingMinVT">
-                <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                  <Case Expression="VoltageRatingMaxVT">
-                    <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                      <Case Expression="locTemplate.VoltageRatingVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="VoltageRating:= locTemplate.VoltageRating"/>
-                          <Execute Statement="VoltageRatingVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="VoltageRating:= locTemplate.ErrorVoltageRating"/>
-                          <Execute Statement="VoltageRatingVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.VoltageRatingMinVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="VoltageRatingMin:= locTemplate.VoltageRatingMin"/>
-                          <Execute Statement="VoltageRatingMinVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="VoltageRatingMin:= locTemplate.ErrorVoltageRatingMin"/>
-                          <Execute Statement="VoltageRatingMinVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.VoltageRatingMaxVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="VoltageRatingMax:= locTemplate.VoltageRatingMax"/>
-                          <Execute Statement="VoltageRatingMaxVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="VoltageRatingMax:= locTemplate.ErrorVoltageRatingMax"/>
-                          <Execute Statement="VoltageRatingMaxVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                    </On>
-                  </Case>
+              <Case Expression="locTemplate.VoltageRatingVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="VoltageRating:= locTemplate.VoltageRating"/>
+                  <Execute Statement="VoltageRatingVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                  <Execute Statement="VoltageRating:= locTemplate.VoltageRating" Condition="InFlags(locTemplate.VoltageRatingBounds, cValidLowerFlags)"/>
+                  <Execute Statement="VoltageRatingUpperBound:= locTemplate.VoltageRatingUpperBound" Condition="InFlags(locTemplate.VoltageRatingBounds, cValidUpperFlags)"/>
+                  <Execute Statement="VoltageRatingBounds:= locTemplate.VoltageRatingBounds"/>
+                  <Execute Statement="VoltageRatingVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorVoltageRating:= locTemplate.ErrorVoltageRating"/>
+                  <Execute Statement="VoltageRatingVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
           </Case>
           <Case Expression="ToleranceVT">
             <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-              <Case Expression="ToleranceMinVT">
-                <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                  <Case Expression="ToleranceMaxVT">
-                    <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
-                      <Case Expression="locTemplate.ToleranceVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="Tolerance:= locTemplate.Tolerance"/>
-                          <Execute Statement="ToleranceVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="Tolerance:= locTemplate.ErrorTolerance"/>
-                          <Execute Statement="ToleranceVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.ToleranceMinVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="ToleranceMin:= locTemplate.ToleranceMin"/>
-                          <Execute Statement="ToleranceMinVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="ToleranceMin:= locTemplate.ErrorToleranceMin"/>
-                          <Execute Statement="ToleranceMinVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                      <Case Expression="locTemplate.ToleranceMaxVT">
-                        <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-                          <Execute Statement="ToleranceMax:= locTemplate.ToleranceMax"/>
-                          <Execute Statement="ToleranceMaxVT:= TValueType.SpecifiedByTemplate"/>
-                        </On>
-                        <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                          <Execute Statement="ToleranceMax:= locTemplate.ErrorToleranceMax"/>
-                          <Execute Statement="ToleranceMaxVT:= TValueType.ErrorByTemplate"/>
-                        </On>
-                      </Case>
-                    </On>
-                  </Case>
+              <Case Expression="locTemplate.ToleranceVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="Tolerance:= locTemplate.Tolerance"/>
+                  <Execute Statement="ToleranceVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                  <Execute Statement="Tolerance:= locTemplate.Tolerance" Condition="InFlags(locTemplate.ToleranceBounds, cValidLowerFlags)"/>
+                  <Execute Statement="ToleranceUpperBound:= locTemplate.ToleranceUpperBound" Condition="InFlags(locTemplate.ToleranceBounds, cValidUpperFlags)"/>
+                  <Execute Statement="ToleranceBounds:= locTemplate.ToleranceBounds"/>
+                  <Execute Statement="ToleranceVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorTolerance:= locTemplate.ErrorTolerance"/>
+                  <Execute Statement="ToleranceVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
             </On>
           </Case>
           <Case Expression="TechnologyVT">
-            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.SpecifiedExByTemplate, TValueType.ErrorByTemplate">
               <Case Expression="locTemplate.TechnologyVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                   <Execute Statement="Technology:= locTemplate.Technology"/>
                   <Execute Statement="TechnologyVT:= TValueType.SpecifiedByTemplate"/>
                 </On>
+                <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
+                  <Execute Statement="TechnologySet:= locTemplate.TechnologySet"/>
+                  <Execute Statement="TechnologyVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
                 <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-                  <Execute Statement="Technology:= locTemplate.ErrorTechnology"/>
+                  <Execute Statement="ErrorTechnology:= locTemplate.ErrorTechnology"/>
                   <Execute Statement="TechnologyVT:= TValueType.ErrorByTemplate"/>
                 </On>
               </Case>
@@ -880,111 +858,87 @@
         <Execute Statement="UnitPostFix:= TUnitPostFix.Separated" Condition="FormatType = TSpecFormatType.Name"/>
         <Variable Identifier="Range" Type="string"/>
         <!--<-<TComponentSpec.GetSpecificationValues-->
-        <Case Expression="CapacitanceMinVT">
-          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Range:= ''"/>
-          </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= EDecimalQuantityToStr(CapacitanceMin, UnitPostFix) + #$2026"/>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '!' + ErrorCapacitanceMin + '!' + #$2026"/>
-          </On>
-        </Case>
-        <Case Expression="CapacitanceMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + EDecimalQuantityToStr(CapacitanceMax, UnitPostFix)"/>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + '!' + ErrorCapacitanceMax + '!' "/>
-          </On>
-        </Case>
-        <Execute Statement="Range:=  Range " Condition="IsNonEmptyString(Range)"/>
         <Case Expression="CapacitanceVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Capacitance:= Range"/>
+            <Execute Statement="Capacitance:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Capacitance:= EDecimalQuantityToStr(Self.Capacitance, UnitPostFix) + Range"/>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="Capacitance:= EDecimalQuantityToStr(Self.Capacitance, UnitPostFix)"/>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Capacitance:= '!' + ErrorCapacitance + '!' + Range"/>
-          </On>
-        </Case>
-        <Case Expression="VoltageRatingMinVT">
-          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Range:= ''"/>
-          </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= EDecimalQuantityToStr(VoltageRatingMin, UnitPostFix) + #$2026"/>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '!' + ErrorVoltageRatingMin + '!' + #$2026"/>
-          </On>
-        </Case>
-        <Case Expression="VoltageRatingMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + EDecimalQuantityToStr(VoltageRatingMax, UnitPostFix)"/>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="CapacitanceBounds">
+              <On Select="TBoundType.Lower">
+                <Execute Statement="Capacitance:= EDecimalQuantityToStr(Self.Capacitance, UnitPostFix) + #$2026"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="Capacitance:= #$2026 + EDecimalQuantityToStr(Self.CapacitanceUpperBound, UnitPostFix)"/>
+              </On>
+              <On Select="TBoundType.Range">
+                <Execute Statement="Capacitance:= EDecimalQuantityToStr(Self.Capacitance, UnitPostFix) + #$2026 + EDecimalQuantityToStr(Self.CapacitanceUpperBound, UnitPostFix)"/>
+              </On>
+            </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + '!' + ErrorVoltageRatingMax + '!' "/>
+            <Execute Statement="Capacitance:= '!' + ErrorCapacitance + '!'"/>
           </On>
         </Case>
-        <Execute Statement="Range:=  Range " Condition="IsNonEmptyString(Range)"/>
         <Case Expression="VoltageRatingVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="VoltageRating:= Range"/>
+            <Execute Statement="VoltageRating:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="VoltageRating:= EDecimalQuantityToStr(Self.VoltageRating, UnitPostFix) + Range"/>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="VoltageRating:= EDecimalQuantityToStr(Self.VoltageRating, UnitPostFix)"/>
           </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="VoltageRating:= '!' + ErrorVoltageRating + '!' + Range"/>
-          </On>
-        </Case>
-        <Case Expression="ToleranceMinVT">
-          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Range:= ''"/>
-          </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= EDecimalQuantityToStr(ToleranceMin, UnitPostFix) + #$2026"/>
-          </On>
-          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= '!' + ErrorToleranceMin + '!' + #$2026"/>
-          </On>
-        </Case>
-        <Case Expression="ToleranceMaxVT">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + EDecimalQuantityToStr(ToleranceMax, UnitPostFix)"/>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="VoltageRatingBounds">
+              <On Select="TBoundType.Lower">
+                <Execute Statement="VoltageRating:= EDecimalQuantityToStr(Self.VoltageRating, UnitPostFix) + #$2026"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="VoltageRating:= #$2026 + EDecimalQuantityToStr(Self.VoltageRatingUpperBound, UnitPostFix)"/>
+              </On>
+              <On Select="TBoundType.Range">
+                <Execute Statement="VoltageRating:= EDecimalQuantityToStr(Self.VoltageRating, UnitPostFix) + #$2026 + EDecimalQuantityToStr(Self.VoltageRatingUpperBound, UnitPostFix)"/>
+              </On>
+            </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Range:= #$2026" Condition="IsEmptyString(Range)"/>
-            <Execute Statement="Range:= Range + '!' + ErrorToleranceMax + '!' "/>
+            <Execute Statement="VoltageRating:= '!' + ErrorVoltageRating + '!'"/>
           </On>
         </Case>
-        <Execute Statement="Range:=  Range " Condition="IsNonEmptyString(Range)"/>
         <Case Expression="ToleranceVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
-            <Execute Statement="Tolerance:= Range"/>
+            <Execute Statement="Tolerance:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
-            <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix) + Range"/>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix)"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="ToleranceBounds">
+              <On Select="TBoundType.Lower">
+                <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix) + #$2026"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="Tolerance:= #$2026 + EDecimalQuantityToStr(Self.ToleranceUpperBound, UnitPostFix)"/>
+              </On>
+              <On Select="TBoundType.Range">
+                <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix) + #$2026 + EDecimalQuantityToStr(Self.ToleranceUpperBound, UnitPostFix)"/>
+              </On>
+            </Case>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
-            <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!' + Range"/>
+            <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
           </On>
         </Case>
         <Case Expression="TechnologyVT">
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="Technology:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="Technology:= CapacitorTechnologyAsString(Self.Technology)"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Execute Statement="Technology:= CapacitorTechnologySetAsString(Self.TechnologySet)"/>
           </On>
           <On Select="TValueType.Error, TValueType.ErrorByTemplate">
             <Execute Statement="Technology:= '!' + ErrorTechnology + '!'"/>
@@ -995,7 +949,7 @@
           <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
             <Execute Statement="ESerie:= ''"/>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="ESerie:= ESerieOfValue(Self.Capacitance)"/>
           </On>
         </Case>
@@ -1076,7 +1030,7 @@
       <Block>
         <Execute Statement="Result:= False"/>
         <Case Expression="ComponentSpec.CapacitanceVT" Optimalisation="integermapping">
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Execute Statement="Result:= True"/>
             <Execute Statement="Key:= ComponentSpec.Capacitance"/>
           </On>
@@ -1142,13 +1096,13 @@
         <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
         <Exit Condition="Result &lt;&gt; 0"/>
         <!--<-<TComponentSpec.CompareSpecifications-->
-        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.Capacitance, A.CapacitanceVT, A.CapacitanceMin, A.CapacitanceMinVT, A.CapacitanceMax, A.CapacitanceMaxVT, B.ID, B.Capacitance, B.CapacitanceVT, B.CapacitanceMin, B.CapacitanceMinVT, B.CapacitanceMax, B.CapacitanceMaxVT)"/>
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.CapacitanceVT, A.Capacitance, A.CapacitanceUpperBound, A.CapacitanceBounds, B.ID, B.CapacitanceVT, B.Capacitance, B.CapacitanceUpperBound, B.CapacitanceBounds)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.VoltageRating, A.VoltageRatingVT, A.VoltageRatingMin, A.VoltageRatingMinVT, A.VoltageRatingMax, A.VoltageRatingMaxVT, B.ID, B.VoltageRating, B.VoltageRatingVT, B.VoltageRatingMin, B.VoltageRatingMinVT, B.VoltageRatingMax, B.VoltageRatingMaxVT)"/>
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.VoltageRatingVT, A.VoltageRating, A.VoltageRatingUpperBound, A.VoltageRatingBounds, B.ID, B.VoltageRatingVT, B.VoltageRating, B.VoltageRatingUpperBound, B.VoltageRatingBounds)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.Tolerance, A.ToleranceVT, A.ToleranceMin, A.ToleranceMinVT, A.ToleranceMax, A.ToleranceMaxVT, B.ID, B.Tolerance, B.ToleranceVT, B.ToleranceMin, B.ToleranceMinVT, B.ToleranceMax, B.ToleranceMaxVT)"/>
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.ToleranceVT, A.Tolerance, A.ToleranceUpperBound, A.ToleranceBounds, B.ID, B.ToleranceVT, B.Tolerance, B.ToleranceUpperBound, B.ToleranceBounds)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
-        <Execute Statement="Result:= CompareStateValue(A.ID, A.Technology, A.TechnologyVT, B.ID, B.Technology, B.TechnologyVT)"/>
+        <Execute Statement="Result:= CompareStateEnumValue(A.ID, A.TechnologyVT, A.Technology, A.TechnologySet, B.ID, B.TechnologyVT, B.Technology, B.TechnologySet)"/>
         <Exit Condition="Result &lt;&gt; 0"/>
         <!-->->-->
         <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
@@ -1157,20 +1111,20 @@
 
     <Procedure Identifier="TCapacitorCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
       </Parameters>
       <Constants>
-        <Constant Identifier="sSectionCapacitorTHT" Type="string" Expression="'Template.Capacitor.THT'"/>
-        <Constant Identifier="sSectionPolarisedCapacitorTHT" Type="string" Expression="'Template.PolarisedCapacitor.THT'"/>
+        <Constant Identifier="sSectionCapacitor" Type="string" Expression="'Template.Capacitor'"/>
+        <Constant Identifier="sSectionPolarisedCapacitor" Type="string" Expression="'Template.PolarisedCapacitor'"/>
       </Constants>
       <Block>
-        <ConditionalBlock Expression="IniFile.SectionExists(sSectionCapacitorTHT)">
+        <ConditionalBlock Expression="Ini.Inifile.SectionExists(sSectionCapacitor)">
           <Execute Statement="TemplateCapacitorTHT:= TCapacitorSpec.Create"/>
-          <Execute Statement="TemplateCapacitorTHT.LoadFromIniFileSection(IniFile, sSectionCapacitorTHT)"/>
+          <Execute Statement="TemplateCapacitorTHT.LoadFromIniFileSection(Ini, sSectionCapacitor)"/>
         </ConditionalBlock>
-        <ConditionalBlock Expression="IniFile.SectionExists(sSectionPolarisedCapacitorTHT)">
+        <ConditionalBlock Expression="Ini.Inifile.SectionExists(sSectionPolarisedCapacitor)">
           <Execute Statement="TemplatePolarisedCapacitorTHT:= TCapacitorSpec.Create"/>
-          <Execute Statement="TemplatePolarisedCapacitorTHT.LoadFromIniFileSection(IniFile, sSectionPolarisedCapacitorTHT)"/>
+          <Execute Statement="TemplatePolarisedCapacitorTHT.LoadFromIniFileSection(Ini, sSectionPolarisedCapacitor)"/>
         </ConditionalBlock>
       </Block>
     </Procedure>
@@ -1194,29 +1148,21 @@
 
     <Function Identifier="TCapacitorCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
         <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
       </Parameters>
       <Constants>
         <Constant Identifier="cCapacitorSection" Type="string" Expression="'Capacitor'"/>
       </Constants>
       <Block>
-        <Execute Statement="Result:= IniFile.SectionExists(cCapacitorSection)"/>
+        <Execute Statement="Result:= Ini.Inifile.SectionExists(cCapacitorSection)"/>
         <Block Condition="Result">
           <Execute Statement="ComponentSpec:= TCapacitorSpec.Create"/>
-          <Execute Statement="ComponentSpec.LoadFromIniFileSection(IniFile, cCapacitorSection)"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(Ini, cCapacitorSection)"/>
         </Block>
       </Block>
     </Function>
 
   </Procedures>
-
-  <Initialization>
-    <Execute Statement="InitCapacitorTechnologyIndex(CapacitorTechnologyIndex)"/>
-  </Initialization>
-
-  <Finalization>
-    <Free Identifier="CapacitorTechnologyIndex"/>
-  </Finalization>
 
 </pkg:Library>

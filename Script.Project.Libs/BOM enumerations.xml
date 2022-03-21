@@ -1,0 +1,1209 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:sim="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:cod="urn:schemas-www-wisware.nl-xmlscripting-codeparser"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers"
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement"
+  >
+  <Uses>
+    <Use Identifier="EnumerationUtils"/>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="BomStrings"/>
+  </Uses>
+  <Type>
+    <Enumeration Identifier="TSiUnit" Elements="None, Ohm, Watt, Farad, Henry, Volt, Amp, Perc, Hz, Meter, Second" LowAlias="Low" HighAlias="High"/>
+
+    <Enumeration Identifier="TUnitPostFix" Elements="None, Compact, Separated"/>
+
+    <Enumeration Identifier="TComponentSpecConsolidateKind" Elements="Schema, Stock"/>
+
+    <Enumeration Identifier="TValueType" Elements="Unspecified, Cleared, ClearedByTemplate, Specified, SpecifiedEx, SpecifiedByTemplate, SpecifiedExByTemplate, Error, ErrorByTemplate"/>
+
+    <Enumeration Identifier="TBoundType" Elements="Lower, Upper, Range"/>
+
+    <Enumeration Identifier="TDeepSearchstate" Elements="None, Running, Done"/>
+
+    <Enumeration Identifier="TSpecFormatType" Elements="Description, Name, Fixed"/>
+
+    <Enumeration Identifier="TResistorSpecColumns"           Elements="Value, ESerie, PowerRating,         MaxAmpVolt, Tolerance,      Technology,     FootPrint, PartNumberModel, InternalPartNumber"/>
+    <Enumeration Identifier="TCapacitorSpecColumns"          Elements="Value, ESerie, VoltageRating,       SpanA1,     Tolerance,      Technology,     FootPrint, PartNumberModel, InternalPartNumber"/>
+    <Enumeration Identifier="TZenerDiodeSpecColumns"         Elements="Value, ESerie, PowerRating,         MaxAmp,     Tolerance,      None1,          FootPrint, PartNumberModel, InternalPartNumber"/>
+    <Enumeration Identifier="TInductorSpecColumns"           Elements="Value, ESerie, AmpRating,           SpanA1,     Tolerance,      None1,          FootPrint, PartNumberModel, InternalPartNumber"/>
+    <Enumeration Identifier="TConnectorSpecColumns"          Elements="Value, SpanA2, SpanA3,              SpanA4,     AmpRating,      SpanB2,         FootPrint, PartNumberModel, InternalPartNumber"/>
+    <Enumeration Identifier="TDiodeSpecColumns"              Elements="Value, SpanA2, ReverseVoltageRating,SpanB2,     CurrentRating, ForwardVoltage, FootPrint, PartNumberModel, InternalPartNumber"/>
+    <Enumeration Identifier="TFuseSpecColumns"               Elements="Value, SpanA2, VoltageRating,       NoneA1,     NoneA2,         BreakSpeed,     FootPrint, PartNumberModel, InternalPartNumber"/>
+    <Enumeration Identifier="TNamedComponentSpecColumns"     Elements="Value, SpanA2, SpanA3,              SpanA4,     SpanA5,         SpanA6,         FootPrint, PartNumberModel, InternalPartNumber" LowAlias="Min" HighAlias="Max"/>
+    <Enumeration Identifier="TIntegratedCircuitSpecColumns"  Elements="Value, SpanA2, Functions,           SpanB2,     SpanB3,         SpanB4,         FootPrint, PartNumberModel, InternalPartNumber"/>
+
+    <!--<-<Type.TComponentKind-->
+    <Enumeration Identifier="TComponentKind" Elements="None, Resistor, VariableResistor, Capacitor, PolarisedCapacitor, VariableCapacitor, Inductor, BridgeRectifier, ZenerDiode, Diode, SchottkyDiode, Laserdiode, 
+        Photodiode, SpecialDiode, DualDiode, NPNTransistor, PNPTransistor, NFET, PFET, NIGBT, NJFET, PJFET, NMOSFET, PMOSFET, PUJT, NUJT, OpAmp, AudioAmplifier, Comparator, Diac, SCR, TRIAC, LED, Fuse, 
+        Polyfuse, Antenna, Crystal, DelayLine, EmiFilter, FerriteBead, FrequencyCounter, PhotoTransistor, HallGenerator, Thermistor, PhotoResistor, Varistor, Microphone, Memristor, ResistorNetwork, ResistorPack, 
+        Resonator, RFShield, RotaryEncoder, Thermocouple, VoltageDivider, Jumper, Connector, SolarCell, Battery, Adapter, Transformer, Peltier, Speaker, Buzzer, Earphone, Lamp, Heater, ElectromagneticActor, 
+        MeasuringDevice, Timer, SchmittTrigger, Optocoupler, ReferenceVoltageIC, VoltageRegulator, Switch, Heatsink, Relay, IntegratedCircuit, Module, Component, NonComponent" LowAlias="Low" HighAlias="High"/>
+    <!-->->-->
+
+    <DataClass Identifier="TComponentKindEnumInfo" ClassOfIdentifier="TTComponentKindEnumInfo" Inherit="TEnumDescriptionInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+      <Field Identifier="Header" Type="string"/>
+    </DataClass>
+
+    <Enumeration Identifier="TCustomField" Elements="Unknown, ComponentKind, Value, ValueMin, ValueMax, Footprint, FootprintMask, InternalPartNumber, PartNumber, Manufacturer, PowerRating, PowerRatingMin, PowerRatingMax, 
+                 VoltageRating, VoltageRatingMin, VoltageRatingMax, CurrentRating, CurrentRatingMin, CurrentRatingMax, Tolerance, ToleranceMin, ToleranceMax, Technology, TechnologySet, Pins, 
+                 ForwardVoltage, ForwardVoltageMin, ForwardVoltageMax, ReverseVoltageRating, ReverseVoltageRatingMin, ReverseVoltageRatingMax, BreakSpeed, BreakSpeedSet, Dimensions, Functions" LowAlias="Low" HighAlias="High"/>
+
+    <DataClass Identifier="TCustomFieldEnumInfo" ClassOfIdentifier="TTCustomFieldEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+      <VirtualMethod Identifier="vmRegisterEnums" Override="true"/>
+    </DataClass>
+
+    <Enumeration Identifier="TResistorTechnology" Elements="MetalFilm, CarbonFilm, Wirewound, CarbonComposition" LowAlias="Low" HighAlias="High"/>
+
+    <DataClass Identifier="TResistorTechnologyEnumInfo" ClassOfIdentifier="TTResistorTechnologyEnumInfo" Inherit="TEnumDescriptionInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+    </DataClass>
+
+    <Enumeration Identifier="TCapacitorTechnology" Elements="AluminumElectrolytic, TantalumElectrolytic, NiobiumElectrolytic, Ceramic, SilverMica, PolyesterFilm, MetallisedPolyesterFilm, Polycarbonate, Polypropylene, Glass" LowAlias="Low" HighAlias="High"/>
+
+    <DataClass Identifier="TCapacitorTechnologyEnumInfo" ClassOfIdentifier="TTCapacitorTechnologyEnumInfo" Inherit="TEnumDescriptionInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+    </DataClass>
+
+    <Enumeration Identifier="TBreakSpeed" Elements="VeryFast, Fast, Medium, Slow, VerySlow" LowAlias="Low" HighAlias="High"/>
+
+    <DataClass Identifier="TBreakSpeedEnumInfo" ClassOfIdentifier="TTBreakSpeedEnumInfo" Inherit="TEnumDescriptionInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+    </DataClass>
+    
+    <Enumeration Identifier="TDeviceFunction" Elements="OpAmp, Comparator, SchmittTrigger, Optocoupler, Timer, AndGate, OrGate, XorGate, XnorGate, NandGate, NorGate, NotGate, VRef, TempSens" LowAlias="Low" HighAlias="High"/>
+
+    <DataClass Identifier="TDeviceFunctionEnumInfo" ClassOfIdentifier="TTDeviceFunctionEnumInfo" Inherit="TEnumDescriptionInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+      <Field Identifier="MultiDescription" Type="string"/>
+    </DataClass>
+
+    <Enumeration Identifier="TUnattendedTask" Elements="Bom, BomEEVBlog, BomDokuWiki, BomDesignators, BomOrderPicking, Stock, StorageLocations, PartKeeprProjects, ComponentCombinations" LowAlias="Low" HighAlias="High"/>
+
+    <DataClass Identifier="TUnattendedTaskEnumInfo" ClassOfIdentifier="TTUnattendedTaskEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+    </DataClass>
+
+    <Enumeration Identifier="THideSpec" Elements="ESerieOfValue, ResistorMaxAmpVolt, ZenerDiodeMaxAmp, Footprint" LowAlias="Low" HighAlias="High"/>
+
+    <DataClass Identifier="THideSpecEnumInfo" ClassOfIdentifier="TTHideSpecEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+    </DataClass>
+
+    <Enumeration Identifier="TSheetInfo" Elements="None, Root, All" LowAlias="Low" HighAlias="High"/>
+
+    <DataClass Identifier="TSheetInfoEnumInfo" ClassOfIdentifier="TTSheetInfoEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+    </DataClass>
+  </Type>
+
+  <Constants>
+    <Constant Identifier="cValidLowerFlags" Type="TFlags" Expression="Flags(TBoundType.Lower, TBoundType.Range)"/>
+    <Constant Identifier="cValidUpperFlags" Type="TFlags" Expression="Flags(TBoundType.Upper, TBoundType.Range)"/>
+    <Constant Identifier="sUnitName" Type="string" Expression="'BOM classes.xml'"/>
+    <Constant Identifier="sErrorInvalidComponentKind" Type="string" Expression="'Invalid ComponentKind'"/>
+    <Constant Identifier="sErrorInvalidCustomField" Type="string" Expression="'Invalid CustomField'"/>
+    <Constant Identifier="sErrorInvalidResistorTechnology" Type="string" Expression="'Invalid ResistorTechnology'"/>
+    <Constant Identifier="sErrorInvalidCapacitorTechnology" Type="string" Expression="'Invalid CapacitorTechnology'"/>
+    <Constant Identifier="sErrorInvalidBreakSpeed" Type="string" Expression="'Invalid BreakSpeed'"/>
+    <Constant Identifier="sErrorInvalidDeviceFunction" Type="string" Expression="'Invalid DeviceFunction'"/>
+    <Constant Identifier="sErrorInvalidUnattendedTask" Type="string" Expression="'Invalid UnattendedTask'"/>
+    <Constant Identifier="sErrorInvalidHideSpec" Type="string" Expression="'Invalid HideSpec'"/>
+    <Constant Identifier="sErrorInvalidSheetInfo" Type="string" Expression="'Invalid SheetInfo'"/>
+  </Constants>
+
+  <Variables>
+    <Variable Identifier="SetSep" Type="string" Init="', '"/>
+    <!--<-<Variables.TComponentKind-->
+    <Variable Identifier="cComponentKindNone" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.None, 'None', sNoneDescription, sNoneHeader)"/>
+    <Variable Identifier="cComponentKindResistor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Resistor, 'Resistor', sResistorDescription, sResistorHeader)"/>
+    <Variable Identifier="cComponentKindVariableResistor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.VariableResistor, 'VariableResistor', sVariableResistorDescription, sVariableResistorHeader)"/>
+    <Variable Identifier="cComponentKindCapacitor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Capacitor, 'Capacitor', sCapacitorDescription, sCapacitorHeader)"/>
+    <Variable Identifier="cComponentKindPolarisedCapacitor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.PolarisedCapacitor, 'PolarisedCapacitor', sPolarisedCapacitorDescription, sPolarisedCapacitorHeader)"/>
+    <Variable Identifier="cComponentKindVariableCapacitor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.VariableCapacitor, 'VariableCapacitor', sVariableCapacitorDescription, sVariableCapacitorHeader)"/>
+    <Variable Identifier="cComponentKindInductor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Inductor, 'Inductor', sInductorDescription, sInductorHeader)"/>
+    <Variable Identifier="cComponentKindBridgeRectifier" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.BridgeRectifier, 'BridgeRectifier', sBridgeRectifierDescription, sBridgeRectifierHeader)"/>
+    <Variable Identifier="cComponentKindZenerDiode" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.ZenerDiode, 'ZenerDiode', sZenerDiodeDescription, sZenerDiodeHeader)"/>
+    <Variable Identifier="cComponentKindDiode" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Diode, 'Diode', sDiodeDescription, sDiodeHeader)"/>
+    <Variable Identifier="cComponentKindSchottkyDiode" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.SchottkyDiode, 'SchottkyDiode', sSchottkyDiodeDescription, sSchottkyDiodeHeader)"/>
+    <Variable Identifier="cComponentKindLaserdiode" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Laserdiode, 'Laserdiode', sLaserdiodeDescription, sLaserdiodeHeader)"/>
+    <Variable Identifier="cComponentKindPhotodiode" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Photodiode, 'Photodiode', sPhotodiodeDescription, sPhotodiodeHeader)"/>
+    <Variable Identifier="cComponentKindSpecialDiode" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.SpecialDiode, 'SpecialDiode', sSpecialDiodeDescription, sSpecialDiodeHeader)"/>
+    <Variable Identifier="cComponentKindDualDiode" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.DualDiode, 'DualDiode', sDualDiodeDescription, sDualDiodeHeader)"/>
+    <Variable Identifier="cComponentKindNPNTransistor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.NPNTransistor, 'NPNTransistor', sNPNTransistorDescription, sNPNTransistorHeader)"/>
+    <Variable Identifier="cComponentKindPNPTransistor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.PNPTransistor, 'PNPTransistor', sPNPTransistorDescription, sPNPTransistorHeader)"/>
+    <Variable Identifier="cComponentKindNFET" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.NFET, 'NFET', sNFETDescription, sNFETHeader)"/>
+    <Variable Identifier="cComponentKindPFET" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.PFET, 'PFET', sPFETDescription, sPFETHeader)"/>
+    <Variable Identifier="cComponentKindNIGBT" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.NIGBT, 'NIGBT', sNIGBTDescription, sNIGBTHeader)"/>
+    <Variable Identifier="cComponentKindNJFET" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.NJFET, 'NJFET', sNJFETDescription, sNJFETHeader)"/>
+    <Variable Identifier="cComponentKindPJFET" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.PJFET, 'PJFET', sPJFETDescription, sPJFETHeader)"/>
+    <Variable Identifier="cComponentKindNMOSFET" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.NMOSFET, 'NMOSFET', sNMOSFETDescription, sNMOSFETHeader)"/>
+    <Variable Identifier="cComponentKindPMOSFET" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.PMOSFET, 'PMOSFET', sPMOSFETDescription, sPMOSFETHeader)"/>
+    <Variable Identifier="cComponentKindPUJT" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.PUJT, 'PUJT', sPUJTDescription, sPUJTHeader)"/>
+    <Variable Identifier="cComponentKindNUJT" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.NUJT, 'NUJT', sNUJTDescription, sNUJTHeader)"/>
+    <Variable Identifier="cComponentKindOpAmp" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.OpAmp, 'OpAmp', sOpAmpDescription, sOpAmpHeader)"/>
+    <Variable Identifier="cComponentKindAudioAmplifier" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.AudioAmplifier, 'AudioAmplifier', sAudioAmplifierDescription, sAudioAmplifierHeader)"/>
+    <Variable Identifier="cComponentKindComparator" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Comparator, 'Comparator', sComparatorDescription, sComparatorHeader)"/>
+    <Variable Identifier="cComponentKindDiac" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Diac, 'Diac', sDiacDescription, sDiacHeader)"/>
+    <Variable Identifier="cComponentKindSCR" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.SCR, 'SCR', sSCRDescription, sSCRHeader)"/>
+    <Variable Identifier="cComponentKindTRIAC" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.TRIAC, 'TRIAC', sTRIACDescription, sTRIACHeader)"/>
+    <Variable Identifier="cComponentKindLED" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.LED, 'LED', sLEDDescription, sLEDHeader)"/>
+    <Variable Identifier="cComponentKindFuse" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Fuse, 'Fuse', sFuseDescription, sFuseHeader)"/>
+    <Variable Identifier="cComponentKindPolyfuse" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Polyfuse, 'Polyfuse', sPolyfuseDescription, sPolyfuseHeader)"/>
+    <Variable Identifier="cComponentKindAntenna" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Antenna, 'Antenna', sAntennaDescription, sAntennaHeader)"/>
+    <Variable Identifier="cComponentKindCrystal" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Crystal, 'Crystal', sCrystalDescription, sCrystalHeader)"/>
+    <Variable Identifier="cComponentKindDelayLine" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.DelayLine, 'DelayLine', sDelayLineDescription, sDelayLineHeader)"/>
+    <Variable Identifier="cComponentKindEmiFilter" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.EmiFilter, 'EmiFilter', sEmiFilterDescription, sEmiFilterHeader)"/>
+    <Variable Identifier="cComponentKindFerriteBead" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.FerriteBead, 'FerriteBead', sFerriteBeadDescription, sFerriteBeadHeader)"/>
+    <Variable Identifier="cComponentKindFrequencyCounter" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.FrequencyCounter, 'FrequencyCounter', sFrequencyCounterDescription, sFrequencyCounterHeader)"/>
+    <Variable Identifier="cComponentKindPhotoTransistor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.PhotoTransistor, 'PhotoTransistor', sPhotoTransistorDescription, sPhotoTransistorHeader)"/>
+    <Variable Identifier="cComponentKindHallGenerator" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.HallGenerator, 'HallGenerator', sHallGeneratorDescription, sHallGeneratorHeader)"/>
+    <Variable Identifier="cComponentKindThermistor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Thermistor, 'Thermistor', sThermistorDescription, sThermistorHeader)"/>
+    <Variable Identifier="cComponentKindPhotoResistor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.PhotoResistor, 'PhotoResistor', sPhotoResistorDescription, sPhotoResistorHeader)"/>
+    <Variable Identifier="cComponentKindVaristor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Varistor, 'Varistor', sVaristorDescription, sVaristorHeader)"/>
+    <Variable Identifier="cComponentKindMicrophone" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Microphone, 'Microphone', sMicrophoneDescription, sMicrophoneHeader)"/>
+    <Variable Identifier="cComponentKindMemristor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Memristor, 'Memristor', sMemristorDescription, sMemristorHeader)"/>
+    <Variable Identifier="cComponentKindResistorNetwork" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.ResistorNetwork, 'ResistorNetwork', sResistorNetworkDescription, sResistorNetworkHeader)"/>
+    <Variable Identifier="cComponentKindResistorPack" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.ResistorPack, 'ResistorPack', sResistorPackDescription, sResistorPackHeader)"/>
+    <Variable Identifier="cComponentKindResonator" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Resonator, 'Resonator', sResonatorDescription, sResonatorHeader)"/>
+    <Variable Identifier="cComponentKindRFShield" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.RFShield, 'RFShield', sRFShieldDescription, sRFShieldHeader)"/>
+    <Variable Identifier="cComponentKindRotaryEncoder" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.RotaryEncoder, 'RotaryEncoder', sRotaryEncoderDescription, sRotaryEncoderHeader)"/>
+    <Variable Identifier="cComponentKindThermocouple" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Thermocouple, 'Thermocouple', sThermocoupleDescription, sThermocoupleHeader)"/>
+    <Variable Identifier="cComponentKindVoltageDivider" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.VoltageDivider, 'VoltageDivider', sVoltageDividerDescription, sVoltageDividerHeader)"/>
+    <Variable Identifier="cComponentKindJumper" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Jumper, 'Jumper', sJumperDescription, sJumperHeader)"/>
+    <Variable Identifier="cComponentKindConnector" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Connector, 'Connector', sConnectorDescription, sConnectorHeader)"/>
+    <Variable Identifier="cComponentKindSolarCell" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.SolarCell, 'SolarCell', sSolarCellDescription, sSolarCellHeader)"/>
+    <Variable Identifier="cComponentKindBattery" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Battery, 'Battery', sBatteryDescription, sBatteryHeader)"/>
+    <Variable Identifier="cComponentKindAdapter" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Adapter, 'Adapter', sAdapterDescription, sAdapterHeader)"/>
+    <Variable Identifier="cComponentKindTransformer" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Transformer, 'Transformer', sTransformerDescription, sTransformerHeader)"/>
+    <Variable Identifier="cComponentKindPeltier" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Peltier, 'Peltier', sPeltierDescription, sPeltierHeader)"/>
+    <Variable Identifier="cComponentKindSpeaker" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Speaker, 'Speaker', sSpeakerDescription, sSpeakerHeader)"/>
+    <Variable Identifier="cComponentKindBuzzer" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Buzzer, 'Buzzer', sBuzzerDescription, sBuzzerHeader)"/>
+    <Variable Identifier="cComponentKindEarphone" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Earphone, 'Earphone', sEarphoneDescription, sEarphoneHeader)"/>
+    <Variable Identifier="cComponentKindLamp" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Lamp, 'Lamp', sLampDescription, sLampHeader)"/>
+    <Variable Identifier="cComponentKindHeater" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Heater, 'Heater', sHeaterDescription, sHeaterHeader)"/>
+    <Variable Identifier="cComponentKindElectromagneticActor" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.ElectromagneticActor, 'ElectromagneticActor', sElectromagneticActorDescription, sElectromagneticActorHeader)"/>
+    <Variable Identifier="cComponentKindMeasuringDevice" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.MeasuringDevice, 'MeasuringDevice', sMeasuringDeviceDescription, sMeasuringDeviceHeader)"/>
+    <Variable Identifier="cComponentKindTimer" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Timer, 'Timer', sTimerDescription, sTimerHeader)"/>
+    <Variable Identifier="cComponentKindSchmittTrigger" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.SchmittTrigger, 'SchmittTrigger', sSchmittTriggerDescription, sSchmittTriggerHeader)"/>
+    <Variable Identifier="cComponentKindOptocoupler" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Optocoupler, 'Optocoupler', sOptocouplerDescription, sOptocouplerHeader)"/>
+    <Variable Identifier="cComponentKindReferenceVoltageIC" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.ReferenceVoltageIC, 'ReferenceVoltageIC', sReferenceVoltageICDescription, sReferenceVoltageICHeader)"/>
+    <Variable Identifier="cComponentKindVoltageRegulator" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.VoltageRegulator, 'VoltageRegulator', sVoltageRegulatorDescription, sVoltageRegulatorHeader)"/>
+    <Variable Identifier="cComponentKindSwitch" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Switch, 'Switch', sSwitchDescription, sSwitchHeader)"/>
+    <Variable Identifier="cComponentKindHeatsink" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Heatsink, 'Heatsink', sHeatsinkDescription, sHeatsinkHeader)"/>
+    <Variable Identifier="cComponentKindRelay" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Relay, 'Relay', sRelayDescription, sRelayHeader)"/>
+    <Variable Identifier="cComponentKindIntegratedCircuit" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.IntegratedCircuit, 'IntegratedCircuit', sIntegratedCircuitDescription, sIntegratedCircuitHeader)"/>
+    <Variable Identifier="cComponentKindModule" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Module, 'Module', sModuleDescription, sModuleHeader)"/>
+    <Variable Identifier="cComponentKindComponent" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.Component, 'Component', sComponentDescription, sComponentHeader)"/>
+    <Variable Identifier="cComponentKindNonComponent" Type="TComponentKindEnumInfo" Init="TComponentKindEnumInfo.Create(TComponentKind.NonComponent, 'NonComponent', sNonComponentDescription, sNonComponentHeader)"/>
+    <!-->->-->
+    <Variable Identifier="ComponentKindEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TComponentKindEnumInfo)"/>
+    <Variable Identifier="ComponentKindNameRegister" Type="TEnumNameRegister"/>
+
+    <Variable Identifier="cCustomFieldUnknown" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Unknown, 'Unknown')"/>
+    <Variable Identifier="cCustomFieldComponentKind" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ComponentKind, 'ComponentKind')"/>
+    <Variable Identifier="cCustomFieldValue" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Value, 'Value')"/>
+    <Variable Identifier="cCustomFieldValueMin" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ValueMin, 'Value.Min')"/>
+    <Variable Identifier="cCustomFieldValueMax" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ValueMax, 'Value.Max')"/>
+    <Variable Identifier="cCustomFieldFootprint" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Footprint, 'Footprint')"/>
+    <Variable Identifier="cCustomFieldFootprintMask" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.FootprintMask, 'Footprint.Mask')"/>
+    <Variable Identifier="cCustomFieldInternalPartNumber" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.InternalPartNumber, 'InternalPartNumber')"/>
+    <Variable Identifier="cCustomFieldPartNumber" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.PartNumber, 'PartNumber')"/>
+    <Variable Identifier="cCustomFieldManufacturer" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Manufacturer, 'Manufacturer')"/>
+    <Variable Identifier="cCustomFieldPowerRating" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.PowerRating, 'PowerRating')"/>
+    <Variable Identifier="cCustomFieldPowerRatingMin" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.PowerRatingMin, 'PowerRating.Min')"/>
+    <Variable Identifier="cCustomFieldPowerRatingMax" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.PowerRatingMax, 'PowerRating.Max')"/>
+    <Variable Identifier="cCustomFieldVoltageRating" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.VoltageRating, 'VoltageRating')"/>
+    <Variable Identifier="cCustomFieldVoltageRatingMin" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.VoltageRatingMin, 'VoltageRating.Min')"/>
+    <Variable Identifier="cCustomFieldVoltageRatingMax" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.VoltageRatingMax, 'VoltageRating.Max')"/>
+    <Variable Identifier="cCustomFieldCurrentRating" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.CurrentRating, 'CurrentRating')"/>
+    <Variable Identifier="cCustomFieldCurrentRatingMin" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.CurrentRatingMin, 'CurrentRating.Min')"/>
+    <Variable Identifier="cCustomFieldCurrentRatingMax" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.CurrentRatingMax, 'CurrentRating.Max')"/>
+    <Variable Identifier="cCustomFieldTolerance" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Tolerance, 'Tolerance')"/>
+    <Variable Identifier="cCustomFieldToleranceMin" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ToleranceMin, 'Tolerance.Min')"/>
+    <Variable Identifier="cCustomFieldToleranceMax" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ToleranceMax, 'Tolerance.Max')"/>
+    <Variable Identifier="cCustomFieldTechnology" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Technology, 'Technology')"/>
+    <Variable Identifier="cCustomFieldTechnologySet" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.TechnologySet, 'Technology.Set')"/>
+    <Variable Identifier="cCustomFieldPins" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Pins, 'Pins')"/>
+    <Variable Identifier="cCustomFieldForwardVoltage" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ForwardVoltage, 'ForwardVoltage')"/>
+    <Variable Identifier="cCustomFieldForwardVoltageMin" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ForwardVoltageMin, 'ForwardVoltage.Min')"/>
+    <Variable Identifier="cCustomFieldForwardVoltageMax" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ForwardVoltageMax, 'ForwardVoltage.Max')"/>
+    <Variable Identifier="cCustomFieldReverseVoltageRating" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ReverseVoltageRating, 'ReverseVoltageRating')"/>
+    <Variable Identifier="cCustomFieldReverseVoltageRatingMin" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ReverseVoltageRatingMin, 'ReverseVoltageRating.Min')"/>
+    <Variable Identifier="cCustomFieldReverseVoltageRatingMax" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ReverseVoltageRatingMax, 'ReverseVoltageRating.Max')"/>
+    <Variable Identifier="cCustomFieldBreakSpeed" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.BreakSpeed, 'BreakSpeed')"/>
+    <Variable Identifier="cCustomFieldBreakSpeedSet" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.BreakSpeedSet, 'BreakSpeedSet')"/>
+    <Variable Identifier="cCustomFieldDimensions" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Dimensions, 'Dimensions')"/>
+    <Variable Identifier="cCustomFieldFunctions" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Functions, 'Functions')"/>
+    <Variable Identifier="CustomFieldEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TCustomFieldEnumInfo)"/>
+    <Variable Identifier="CustomFieldNameRegister" Type="TEnumNameRegister"/>
+
+    <!--<Variable Identifier="cResistorTechnologyUnspecified" Type="TResistorTechnologyEnumInfo" Init="TResistorTechnologyEnumInfo.Create(TResistorTechnology.Unspecified, 'unspecified', '')"/>-->
+    <Variable Identifier="cResistorTechnologyMetalFilm" Type="TResistorTechnologyEnumInfo" Init="TResistorTechnologyEnumInfo.Create(TResistorTechnology.MetalFilm, 'metal film', sResistorTechnologyMetalFilm)"/>
+    <Variable Identifier="cResistorTechnologyCarbonFilm" Type="TResistorTechnologyEnumInfo" Init="TResistorTechnologyEnumInfo.Create(TResistorTechnology.CarbonFilm, 'carbon film', sResistorTechnologyCarbonFilm)"/>
+    <Variable Identifier="cResistorTechnologyWirewound" Type="TResistorTechnologyEnumInfo" Init="TResistorTechnologyEnumInfo.Create(TResistorTechnology.Wirewound, 'wirewound', sResistorTechnologyWirewound)"/>
+    <Variable Identifier="cResistorTechnologyCarbonComposition" Type="TResistorTechnologyEnumInfo" Init="TResistorTechnologyEnumInfo.Create(TResistorTechnology.CarbonComposition, 'carbon composition', sResistorTechnologyCarbonComposition)"/>
+    <Variable Identifier="ResistorTechnologyEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TResistorTechnologyEnumInfo)"/>
+    <Variable Identifier="ResistorTechnologyNameRegister" Type="TEnumNameRegister"/>
+
+    <Variable Identifier="cCapacitorTechnologyAluminumElectrolytic" Type="TCapacitorTechnologyEnumInfo" Init="TCapacitorTechnologyEnumInfo.Create(TCapacitorTechnology.AluminumElectrolytic, 'aluminum electrolytic', sCapacitorTechnologyAluminumElectrolytic)"/>
+    <Variable Identifier="cCapacitorTechnologyTantalumElectrolytic" Type="TCapacitorTechnologyEnumInfo" Init="TCapacitorTechnologyEnumInfo.Create(TCapacitorTechnology.TantalumElectrolytic, 'tantalum electrolytic', sCapacitorTechnologyTantalumElectrolytic)"/>
+    <Variable Identifier="cCapacitorTechnologyNiobiumElectrolytic" Type="TCapacitorTechnologyEnumInfo" Init="TCapacitorTechnologyEnumInfo.Create(TCapacitorTechnology.NiobiumElectrolytic, 'niobium electrolytic', sCapacitorTechnologyNiobiumElectrolytic)"/>
+    <Variable Identifier="cCapacitorTechnologyCeramic" Type="TCapacitorTechnologyEnumInfo" Init="TCapacitorTechnologyEnumInfo.Create(TCapacitorTechnology.Ceramic, 'ceramic', sCapacitorTechnologyCeramic)"/>
+    <Variable Identifier="cCapacitorTechnologySilverMica" Type="TCapacitorTechnologyEnumInfo" Init="TCapacitorTechnologyEnumInfo.Create(TCapacitorTechnology.SilverMica, 'silver mica', sCapacitorTechnologySilverMica)"/>
+    <Variable Identifier="cCapacitorTechnologyPolyesterFilm" Type="TCapacitorTechnologyEnumInfo" Init="TCapacitorTechnologyEnumInfo.Create(TCapacitorTechnology.PolyesterFilm, 'polyester film', sCapacitorTechnologyPolyesterFilm)"/>
+    <Variable Identifier="cCapacitorTechnologyMetallisedPolyesterFilm" Type="TCapacitorTechnologyEnumInfo" Init="TCapacitorTechnologyEnumInfo.Create(TCapacitorTechnology.MetallisedPolyesterFilm, 'metallised polyester film', sCapacitorTechnologyMetallisedPolyesterFilm)"/>
+    <Variable Identifier="cCapacitorTechnologyPolycarbonate" Type="TCapacitorTechnologyEnumInfo" Init="TCapacitorTechnologyEnumInfo.Create(TCapacitorTechnology.Polycarbonate, 'polycarbonate', sCapacitorTechnologyPolycarbonate)"/>
+    <Variable Identifier="cCapacitorTechnologyPolypropylene" Type="TCapacitorTechnologyEnumInfo" Init="TCapacitorTechnologyEnumInfo.Create(TCapacitorTechnology.Polypropylene, 'polypropylene', sCapacitorTechnologyPolypropylene)"/>
+    <Variable Identifier="cCapacitorTechnologyGlass" Type="TCapacitorTechnologyEnumInfo" Init="TCapacitorTechnologyEnumInfo.Create(TCapacitorTechnology.Glass, 'glass', sCapacitorTechnologyGlass)"/>
+    <Variable Identifier="CapacitorTechnologyEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TCapacitorTechnologyEnumInfo)"/>
+    <Variable Identifier="CapacitorTechnologyNameRegister" Type="TEnumNameRegister"/>
+
+    <Variable Identifier="cBreakSpeedVeryFast" Type="TBreakSpeedEnumInfo" Init="TBreakSpeedEnumInfo.Create(TBreakSpeed.VeryFast, 'very fast', sBreakSpeedVeryFast)"/>
+    <Variable Identifier="cBreakSpeedFast" Type="TBreakSpeedEnumInfo" Init="TBreakSpeedEnumInfo.Create(TBreakSpeed.Fast, 'fast', sBreakSpeedFast)"/>
+    <Variable Identifier="cBreakSpeedMedium" Type="TBreakSpeedEnumInfo" Init="TBreakSpeedEnumInfo.Create(TBreakSpeed.Medium, 'medium', sBreakSpeedMedium)"/>
+    <Variable Identifier="cBreakSpeedSlow" Type="TBreakSpeedEnumInfo" Init="TBreakSpeedEnumInfo.Create(TBreakSpeed.Slow, 'slow', sBreakSpeedSlow)"/>
+    <Variable Identifier="cBreakSpeedVerySlow" Type="TBreakSpeedEnumInfo" Init="TBreakSpeedEnumInfo.Create(TBreakSpeed.VerySlow, 'very slow', sBreakSpeedVerySlow)"/>
+    <Variable Identifier="BreakSpeedEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TBreakSpeedEnumInfo)"/>
+    <Variable Identifier="BreakSpeedNameRegister" Type="TEnumNameRegister"/>
+
+    <Variable Identifier="cDeviceFunctionOpAmp" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.OpAmp, 'OpAmp', sDeviceFunctionOpAmp, sDeviceFunctionOpAmpMulti)"/>
+    <Variable Identifier="cDeviceFunctionComparator" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.Comparator, 'Comparator', sDeviceFunctionComparator, sDeviceFunctionComparatorMulti)"/>
+    <Variable Identifier="cDeviceFunctionSchmittTrigger" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.SchmittTrigger, 'SchmittTrigger', sDeviceFunctionSchmittTrigger, sDeviceFunctionSchmittTriggerMulti)"/>
+    <Variable Identifier="cDeviceFunctionOptocoupler" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.Optocoupler, 'Optocoupler', sDeviceFunctionOptocoupler, sDeviceFunctionOptocouplerMulti)"/>
+    <Variable Identifier="cDeviceFunctionTimer" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.Timer, 'Timer', sDeviceFunctionTimer, sDeviceFunctionTimerMulti)"/>
+    <Variable Identifier="cDeviceFunctionAndGate" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.AndGate, 'AND', sDeviceFunctionAndGate, sDeviceFunctionAndGateMulti)"/>
+    <Variable Identifier="cDeviceFunctionOrGate" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.OrGate, 'OR', sDeviceFunctionOrGate, sDeviceFunctionOrGateMulti)"/>
+    <Variable Identifier="cDeviceFunctionXorGate" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.XorGate, 'XOR', sDeviceFunctionXorGate, sDeviceFunctionXorGateMulti)"/>
+    <Variable Identifier="cDeviceFunctionXnorGate" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.XnorGate, 'XNOR', sDeviceFunctionXnorGate, sDeviceFunctionXnorGateMulti)"/>
+    <Variable Identifier="cDeviceFunctionNandGate" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.NandGate, 'NAND', sDeviceFunctionNandGate, sDeviceFunctionNandGateMulti)"/>
+    <Variable Identifier="cDeviceFunctionNorGate" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.NorGate, 'NOR', sDeviceFunctionNorGate, sDeviceFunctionNorGateMulti)"/>
+    <Variable Identifier="cDeviceFunctionNotGate" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.NotGate, 'NOT', sDeviceFunctionNotGate, sDeviceFunctionNotGateMulti)"/>
+    <Variable Identifier="cDeviceFunctionVRef" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.VRef, 'VRef', sDeviceFunctionVRef, sDeviceFunctionVRefMulti)"/>
+    <Variable Identifier="cDeviceFunctionTempSens" Type="TDeviceFunctionEnumInfo" Init="TDeviceFunctionEnumInfo.Create(TDeviceFunction.TempSens, 'TempSens', sDeviceFunctionTempSens, sDeviceFunctionTempSensMulti)"/>
+    <Variable Identifier="DeviceFunctionEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TDeviceFunctionEnumInfo)"/>
+    <Variable Identifier="DeviceFunctionNameRegister" Type="TEnumNameRegister"/>
+
+    <Variable Identifier="cUnattendedTaskBom" Type="TUnattendedTaskEnumInfo" Init="TUnattendedTaskEnumInfo.Create(TUnattendedTask.Bom, 'Bom')"/>
+    <Variable Identifier="cUnattendedTaskBomEEVBlog" Type="TUnattendedTaskEnumInfo" Init="TUnattendedTaskEnumInfo.Create(TUnattendedTask.BomEEVBlog, 'BomEEVBlog')"/>
+    <Variable Identifier="cUnattendedTaskBomDokuWiki" Type="TUnattendedTaskEnumInfo" Init="TUnattendedTaskEnumInfo.Create(TUnattendedTask.BomDokuWiki, 'BomDokuWiki')"/>
+    <Variable Identifier="cUnattendedTaskBomDesignators" Type="TUnattendedTaskEnumInfo" Init="TUnattendedTaskEnumInfo.Create(TUnattendedTask.BomDesignators, 'BomDesignators')"/>
+    <Variable Identifier="cUnattendedTaskBomOrderPicking" Type="TUnattendedTaskEnumInfo" Init="TUnattendedTaskEnumInfo.Create(TUnattendedTask.BomOrderPicking, 'BomOrderPicking')"/>
+    <Variable Identifier="cUnattendedTaskStock" Type="TUnattendedTaskEnumInfo" Init="TUnattendedTaskEnumInfo.Create(TUnattendedTask.Stock, 'Stock')"/>
+    <Variable Identifier="cUnattendedTaskStorageLocations" Type="TUnattendedTaskEnumInfo" Init="TUnattendedTaskEnumInfo.Create(TUnattendedTask.StorageLocations, 'StorageLocations')"/>
+    <Variable Identifier="cUnattendedTaskPartKeeprProjects" Type="TUnattendedTaskEnumInfo" Init="TUnattendedTaskEnumInfo.Create(TUnattendedTask.PartKeeprProjects, 'PartKeeprProjects')"/>
+    <Variable Identifier="cUnattendedTaskComponentCombinations" Type="TUnattendedTaskEnumInfo" Init="TUnattendedTaskEnumInfo.Create(TUnattendedTask.ComponentCombinations, 'ComponentCombinations')"/>
+    <Variable Identifier="UnattendedTaskEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TUnattendedTaskEnumInfo)"/>
+    <Variable Identifier="UnattendedTaskNameRegister" Type="TEnumNameRegister"/>
+
+    <Variable Identifier="cHideSpecESerieOfValue" Type="THideSpecEnumInfo" Init="THideSpecEnumInfo.Create(THideSpec.ESerieOfValue, 'ESerieOfValue')"/>
+    <Variable Identifier="cHideSpecResistorMaxAmpVolt" Type="THideSpecEnumInfo" Init="THideSpecEnumInfo.Create(THideSpec.ResistorMaxAmpVolt, 'ResistorMaxAmpVolt')"/>
+    <Variable Identifier="cHideSpecZenerDiodeMaxAmp" Type="THideSpecEnumInfo" Init="THideSpecEnumInfo.Create(THideSpec.ZenerDiodeMaxAmp, 'ZenerDiodeMaxAmp')"/>
+    <Variable Identifier="cHideSpecFootprint" Type="THideSpecEnumInfo" Init="THideSpecEnumInfo.Create(THideSpec.Footprint, 'Footprint')"/>
+    <Variable Identifier="HideSpecEnumManager" Type="TEnumManager" Init="TEnumManager.Create(THideSpecEnumInfo)"/>
+    <Variable Identifier="HideSpecNameRegister" Type="TEnumNameRegister"/>
+
+    <Variable Identifier="cSheetInfoNone" Type="TSheetInfoEnumInfo" Init="TSheetInfoEnumInfo.Create(TSheetInfo.None, 'None')"/>
+    <Variable Identifier="cSheetInfoRoot" Type="TSheetInfoEnumInfo" Init="TSheetInfoEnumInfo.Create(TSheetInfo.Root, 'Root')"/>
+    <Variable Identifier="cSheetInfoAll" Type="TSheetInfoEnumInfo" Init="TSheetInfoEnumInfo.Create(TSheetInfo.All, 'All')"/>
+    <Variable Identifier="SheetInfoEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TSheetInfoEnumInfo)"/>
+    <Variable Identifier="SheetInfoNameRegister" Type="TEnumNameRegister"/>
+  </Variables>
+
+  <Procedures>
+
+    <Function Identifier="ComponentKindName" Type="string" IsDeterministic="true">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ComponentKindEnumManager.NameRegister.Keys[ComponentKind]"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ComponentKindDescription" Type="string" IsDeterministic="true">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= TComponentKindEnumInfo(ComponentKindNameRegister.Objects[ComponentKind]).Description"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ComponentKindHeader" Type="string" IsDeterministic="true">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= TComponentKindEnumInfo(ComponentKindNameRegister.Objects[ComponentKind]).Header"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TTComponentKindEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <!--<-<Procedures.TTComponentKindEnumInfo.GetInfo.Case-->
+          <On Select="TComponentKind.None">
+            <Execute Statement="Result:= cComponentKindNone"/>
+          </On>
+          <On Select="TComponentKind.Resistor">
+            <Execute Statement="Result:= cComponentKindResistor"/>
+          </On>
+          <On Select="TComponentKind.VariableResistor">
+            <Execute Statement="Result:= cComponentKindVariableResistor"/>
+          </On>
+          <On Select="TComponentKind.Capacitor">
+            <Execute Statement="Result:= cComponentKindCapacitor"/>
+          </On>
+          <On Select="TComponentKind.PolarisedCapacitor">
+            <Execute Statement="Result:= cComponentKindPolarisedCapacitor"/>
+          </On>
+          <On Select="TComponentKind.VariableCapacitor">
+            <Execute Statement="Result:= cComponentKindVariableCapacitor"/>
+          </On>
+          <On Select="TComponentKind.Inductor">
+            <Execute Statement="Result:= cComponentKindInductor"/>
+          </On>
+          <On Select="TComponentKind.BridgeRectifier">
+            <Execute Statement="Result:= cComponentKindBridgeRectifier"/>
+          </On>
+          <On Select="TComponentKind.ZenerDiode">
+            <Execute Statement="Result:= cComponentKindZenerDiode"/>
+          </On>
+          <On Select="TComponentKind.Diode">
+            <Execute Statement="Result:= cComponentKindDiode"/>
+          </On>
+          <On Select="TComponentKind.SchottkyDiode">
+            <Execute Statement="Result:= cComponentKindSchottkyDiode"/>
+          </On>
+          <On Select="TComponentKind.Laserdiode">
+            <Execute Statement="Result:= cComponentKindLaserdiode"/>
+          </On>
+          <On Select="TComponentKind.Photodiode">
+            <Execute Statement="Result:= cComponentKindPhotodiode"/>
+          </On>
+          <On Select="TComponentKind.SpecialDiode">
+            <Execute Statement="Result:= cComponentKindSpecialDiode"/>
+          </On>
+          <On Select="TComponentKind.DualDiode">
+            <Execute Statement="Result:= cComponentKindDualDiode"/>
+          </On>
+          <On Select="TComponentKind.NPNTransistor">
+            <Execute Statement="Result:= cComponentKindNPNTransistor"/>
+          </On>
+          <On Select="TComponentKind.PNPTransistor">
+            <Execute Statement="Result:= cComponentKindPNPTransistor"/>
+          </On>
+          <On Select="TComponentKind.NFET">
+            <Execute Statement="Result:= cComponentKindNFET"/>
+          </On>
+          <On Select="TComponentKind.PFET">
+            <Execute Statement="Result:= cComponentKindPFET"/>
+          </On>
+          <On Select="TComponentKind.NIGBT">
+            <Execute Statement="Result:= cComponentKindNIGBT"/>
+          </On>
+          <On Select="TComponentKind.NJFET">
+            <Execute Statement="Result:= cComponentKindNJFET"/>
+          </On>
+          <On Select="TComponentKind.PJFET">
+            <Execute Statement="Result:= cComponentKindPJFET"/>
+          </On>
+          <On Select="TComponentKind.NMOSFET">
+            <Execute Statement="Result:= cComponentKindNMOSFET"/>
+          </On>
+          <On Select="TComponentKind.PMOSFET">
+            <Execute Statement="Result:= cComponentKindPMOSFET"/>
+          </On>
+          <On Select="TComponentKind.PUJT">
+            <Execute Statement="Result:= cComponentKindPUJT"/>
+          </On>
+          <On Select="TComponentKind.NUJT">
+            <Execute Statement="Result:= cComponentKindNUJT"/>
+          </On>
+          <On Select="TComponentKind.OpAmp">
+            <Execute Statement="Result:= cComponentKindOpAmp"/>
+          </On>
+          <On Select="TComponentKind.AudioAmplifier">
+            <Execute Statement="Result:= cComponentKindAudioAmplifier"/>
+          </On>
+          <On Select="TComponentKind.Comparator">
+            <Execute Statement="Result:= cComponentKindComparator"/>
+          </On>
+          <On Select="TComponentKind.Diac">
+            <Execute Statement="Result:= cComponentKindDiac"/>
+          </On>
+          <On Select="TComponentKind.SCR">
+            <Execute Statement="Result:= cComponentKindSCR"/>
+          </On>
+          <On Select="TComponentKind.TRIAC">
+            <Execute Statement="Result:= cComponentKindTRIAC"/>
+          </On>
+          <On Select="TComponentKind.LED">
+            <Execute Statement="Result:= cComponentKindLED"/>
+          </On>
+          <On Select="TComponentKind.Fuse">
+            <Execute Statement="Result:= cComponentKindFuse"/>
+          </On>
+          <On Select="TComponentKind.Polyfuse">
+            <Execute Statement="Result:= cComponentKindPolyfuse"/>
+          </On>
+          <On Select="TComponentKind.Antenna">
+            <Execute Statement="Result:= cComponentKindAntenna"/>
+          </On>
+          <On Select="TComponentKind.Crystal">
+            <Execute Statement="Result:= cComponentKindCrystal"/>
+          </On>
+          <On Select="TComponentKind.DelayLine">
+            <Execute Statement="Result:= cComponentKindDelayLine"/>
+          </On>
+          <On Select="TComponentKind.EmiFilter">
+            <Execute Statement="Result:= cComponentKindEmiFilter"/>
+          </On>
+          <On Select="TComponentKind.FerriteBead">
+            <Execute Statement="Result:= cComponentKindFerriteBead"/>
+          </On>
+          <On Select="TComponentKind.FrequencyCounter">
+            <Execute Statement="Result:= cComponentKindFrequencyCounter"/>
+          </On>
+          <On Select="TComponentKind.PhotoTransistor">
+            <Execute Statement="Result:= cComponentKindPhotoTransistor"/>
+          </On>
+          <On Select="TComponentKind.HallGenerator">
+            <Execute Statement="Result:= cComponentKindHallGenerator"/>
+          </On>
+          <On Select="TComponentKind.Thermistor">
+            <Execute Statement="Result:= cComponentKindThermistor"/>
+          </On>
+          <On Select="TComponentKind.PhotoResistor">
+            <Execute Statement="Result:= cComponentKindPhotoResistor"/>
+          </On>
+          <On Select="TComponentKind.Varistor">
+            <Execute Statement="Result:= cComponentKindVaristor"/>
+          </On>
+          <On Select="TComponentKind.Microphone">
+            <Execute Statement="Result:= cComponentKindMicrophone"/>
+          </On>
+          <On Select="TComponentKind.Memristor">
+            <Execute Statement="Result:= cComponentKindMemristor"/>
+          </On>
+          <On Select="TComponentKind.ResistorNetwork">
+            <Execute Statement="Result:= cComponentKindResistorNetwork"/>
+          </On>
+          <On Select="TComponentKind.ResistorPack">
+            <Execute Statement="Result:= cComponentKindResistorPack"/>
+          </On>
+          <On Select="TComponentKind.Resonator">
+            <Execute Statement="Result:= cComponentKindResonator"/>
+          </On>
+          <On Select="TComponentKind.RFShield">
+            <Execute Statement="Result:= cComponentKindRFShield"/>
+          </On>
+          <On Select="TComponentKind.RotaryEncoder">
+            <Execute Statement="Result:= cComponentKindRotaryEncoder"/>
+          </On>
+          <On Select="TComponentKind.Thermocouple">
+            <Execute Statement="Result:= cComponentKindThermocouple"/>
+          </On>
+          <On Select="TComponentKind.VoltageDivider">
+            <Execute Statement="Result:= cComponentKindVoltageDivider"/>
+          </On>
+          <On Select="TComponentKind.Jumper">
+            <Execute Statement="Result:= cComponentKindJumper"/>
+          </On>
+          <On Select="TComponentKind.Connector">
+            <Execute Statement="Result:= cComponentKindConnector"/>
+          </On>
+          <On Select="TComponentKind.SolarCell">
+            <Execute Statement="Result:= cComponentKindSolarCell"/>
+          </On>
+          <On Select="TComponentKind.Battery">
+            <Execute Statement="Result:= cComponentKindBattery"/>
+          </On>
+          <On Select="TComponentKind.Adapter">
+            <Execute Statement="Result:= cComponentKindAdapter"/>
+          </On>
+          <On Select="TComponentKind.Transformer">
+            <Execute Statement="Result:= cComponentKindTransformer"/>
+          </On>
+          <On Select="TComponentKind.Peltier">
+            <Execute Statement="Result:= cComponentKindPeltier"/>
+          </On>
+          <On Select="TComponentKind.Speaker">
+            <Execute Statement="Result:= cComponentKindSpeaker"/>
+          </On>
+          <On Select="TComponentKind.Buzzer">
+            <Execute Statement="Result:= cComponentKindBuzzer"/>
+          </On>
+          <On Select="TComponentKind.Earphone">
+            <Execute Statement="Result:= cComponentKindEarphone"/>
+          </On>
+          <On Select="TComponentKind.Lamp">
+            <Execute Statement="Result:= cComponentKindLamp"/>
+          </On>
+          <On Select="TComponentKind.Heater">
+            <Execute Statement="Result:= cComponentKindHeater"/>
+          </On>
+          <On Select="TComponentKind.ElectromagneticActor">
+            <Execute Statement="Result:= cComponentKindElectromagneticActor"/>
+          </On>
+          <On Select="TComponentKind.MeasuringDevice">
+            <Execute Statement="Result:= cComponentKindMeasuringDevice"/>
+          </On>
+          <On Select="TComponentKind.Timer">
+            <Execute Statement="Result:= cComponentKindTimer"/>
+          </On>
+          <On Select="TComponentKind.SchmittTrigger">
+            <Execute Statement="Result:= cComponentKindSchmittTrigger"/>
+          </On>
+          <On Select="TComponentKind.Optocoupler">
+            <Execute Statement="Result:= cComponentKindOptocoupler"/>
+          </On>
+          <On Select="TComponentKind.ReferenceVoltageIC">
+            <Execute Statement="Result:= cComponentKindReferenceVoltageIC"/>
+          </On>
+          <On Select="TComponentKind.VoltageRegulator">
+            <Execute Statement="Result:= cComponentKindVoltageRegulator"/>
+          </On>
+          <On Select="TComponentKind.Switch">
+            <Execute Statement="Result:= cComponentKindSwitch"/>
+          </On>
+          <On Select="TComponentKind.Heatsink">
+            <Execute Statement="Result:= cComponentKindHeatsink"/>
+          </On>
+          <On Select="TComponentKind.Relay">
+            <Execute Statement="Result:= cComponentKindRelay"/>
+          </On>
+          <On Select="TComponentKind.IntegratedCircuit">
+            <Execute Statement="Result:= cComponentKindIntegratedCircuit"/>
+          </On>
+          <On Select="TComponentKind.Module">
+            <Execute Statement="Result:= cComponentKindModule"/>
+          </On>
+          <On Select="TComponentKind.Component">
+            <Execute Statement="Result:= cComponentKindComponent"/>
+          </On>
+          <On Select="TComponentKind.NonComponent">
+            <Execute Statement="Result:= cComponentKindNonComponent"/>
+          </On>
+          <!-->->-->
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidComponentKind)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTComponentKindEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TComponentKind.Low"/>
+        <Execute Statement="HighValue:= TComponentKind.High"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TTCustomFieldEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TCustomField.Unknown">
+            <Execute Statement="Result:= cCustomFieldUnknown"/>
+          </On>
+          <On Select="TCustomField.ComponentKind">
+            <Execute Statement="Result:= cCustomFieldComponentKind"/>
+          </On>
+          <On Select="TCustomField.Value">
+            <Execute Statement="Result:= cCustomFieldValue"/>
+          </On>
+          <On Select="TCustomField.ValueMin">
+            <Execute Statement="Result:= cCustomFieldValueMin"/>
+          </On>
+          <On Select="TCustomField.ValueMax">
+            <Execute Statement="Result:= cCustomFieldValueMax"/>
+          </On>
+          <On Select="TCustomField.Footprint">
+            <Execute Statement="Result:= cCustomFieldFootprint"/>
+          </On>
+          <On Select="TCustomField.FootprintMask">
+            <Execute Statement="Result:= cCustomFieldFootprintMask"/>
+          </On>
+          <On Select="TCustomField.InternalPartNumber">
+            <Execute Statement="Result:= cCustomFieldInternalPartNumber"/>
+          </On>
+          <On Select="TCustomField.PartNumber">
+            <Execute Statement="Result:= cCustomFieldPartNumber"/>
+          </On>
+          <On Select="TCustomField.Manufacturer">
+            <Execute Statement="Result:= cCustomFieldManufacturer"/>
+          </On>
+          <On Select="TCustomField.PowerRating">
+            <Execute Statement="Result:= cCustomFieldPowerRating"/>
+          </On>
+          <On Select="TCustomField.PowerRatingMin">
+            <Execute Statement="Result:= cCustomFieldPowerRatingMin"/>
+          </On>
+          <On Select="TCustomField.PowerRatingMax">
+            <Execute Statement="Result:= cCustomFieldPowerRatingMax"/>
+          </On>
+          <On Select="TCustomField.VoltageRating">
+            <Execute Statement="Result:= cCustomFieldVoltageRating"/>
+          </On>
+          <On Select="TCustomField.VoltageRatingMin">
+            <Execute Statement="Result:= cCustomFieldVoltageRatingMin"/>
+          </On>
+          <On Select="TCustomField.VoltageRatingMax">
+            <Execute Statement="Result:= cCustomFieldVoltageRatingMax"/>
+          </On>
+          <On Select="TCustomField.CurrentRating">
+            <Execute Statement="Result:= cCustomFieldCurrentRating"/>
+          </On>
+          <On Select="TCustomField.CurrentRatingMin">
+            <Execute Statement="Result:= cCustomFieldCurrentRatingMin"/>
+          </On>
+          <On Select="TCustomField.CurrentRatingMax">
+            <Execute Statement="Result:= cCustomFieldCurrentRatingMax"/>
+          </On>
+          <On Select="TCustomField.Tolerance">
+            <Execute Statement="Result:= cCustomFieldTolerance"/>
+          </On>
+          <On Select="TCustomField.ToleranceMin">
+            <Execute Statement="Result:= cCustomFieldToleranceMin"/>
+          </On>
+          <On Select="TCustomField.ToleranceMax">
+            <Execute Statement="Result:= cCustomFieldToleranceMax"/>
+          </On>
+          <On Select="TCustomField.Technology">
+            <Execute Statement="Result:= cCustomFieldTechnology"/>
+          </On>
+          <On Select="TCustomField.TechnologySet">
+            <Execute Statement="Result:= cCustomFieldTechnologySet"/>
+          </On>
+          <On Select="TCustomField.Pins">
+            <Execute Statement="Result:= cCustomFieldPins"/>
+          </On>
+          <On Select="TCustomField.ForwardVoltage">
+            <Execute Statement="Result:= cCustomFieldForwardVoltage"/>
+          </On>
+          <On Select="TCustomField.ForwardVoltageMin">
+            <Execute Statement="Result:= cCustomFieldForwardVoltageMin"/>
+          </On>
+          <On Select="TCustomField.ForwardVoltageMax">
+            <Execute Statement="Result:= cCustomFieldForwardVoltageMax"/>
+          </On>
+          <On Select="TCustomField.ReverseVoltageRating">
+            <Execute Statement="Result:= cCustomFieldReverseVoltageRating"/>
+          </On>
+          <On Select="TCustomField.ReverseVoltageRatingMin">
+            <Execute Statement="Result:= cCustomFieldReverseVoltageRatingMin"/>
+          </On>
+          <On Select="TCustomField.ReverseVoltageRatingMax">
+            <Execute Statement="Result:= cCustomFieldReverseVoltageRatingMax"/>
+          </On>
+          <On Select="TCustomField.BreakSpeed">
+            <Execute Statement="Result:= cCustomFieldBreakSpeed"/>
+          </On>
+          <On Select="TCustomField.BreakSpeedSet">
+            <Execute Statement="Result:= cCustomFieldBreakSpeedSet"/>
+          </On>
+          <On Select="TCustomField.Dimensions">
+            <Execute Statement="Result:= cCustomFieldDimensions"/>
+          </On>
+          <On Select="TCustomField.Functions">
+            <Execute Statement="Result:= cCustomFieldFunctions"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidCustomField)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTCustomFieldEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TCustomField.Low"/>
+        <Execute Statement="HighValue:= TCustomField.High"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TTCustomFieldEnumInfo.RegisterEnums" VirtualMethod="vmRegisterEnums">
+      <Parameters>
+        <Parameter Identifier="NameRegister" Type="TEnumNameRegister"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="inherited RegisterEnums(NameRegister)"/>
+        <Execute Statement="NameRegister.AddAlias('AmperageRating', TCustomField.CurrentRating)"/>
+        <Execute Statement="NameRegister.AddAlias('AmperageRating.Min', TCustomField.CurrentRatingMin)"/>
+        <Execute Statement="NameRegister.AddAlias('AmperageRating.Max', TCustomField.CurrentRatingMax)"/>
+      </Block>
+    </Procedure>
+    
+    <Function Identifier="GetCustomFieldName" Type="string" IsDeterministic="true">
+      <Parameters>
+        <Parameter Identifier="Field" Type="TCustomField"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= TCustomFieldEnumInfo(CustomFieldNameRegister.Keys[Field])"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ResistorTechnologyName" Type="string">
+      <Parameters>
+        <Parameter Identifier="Technology" Type="TResistorTechnology"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= TResistorTechnologyEnumInfo(ResistorTechnologyNameRegister.Keys[Technology])"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ResistorTechnologySetAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="Flags" Type="TFlags"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="AddSep" Type="Boolean" Init="False"/>
+        <Execute Statement="Result:= ''"/>
+        <Flags.Loop Flags="Flags" OrdinalIdentifier="I">
+          <Execute Statement="Result:= Result + SetSep" Condition="AddSep"/>
+          <Execute Statement="Result:= Result + TResistorTechnologyEnumInfo(ResistorTechnologyNameRegister.Objects[I]).Description"/>
+          <Execute Statement="AddSep:= True"/>
+        </Flags.Loop>
+      </Block>
+    </Function>
+
+    <Function Identifier="ResistorTechnologyAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="Technology" Type="TResistorTechnology"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= TResistorTechnologyEnumInfo(ResistorTechnologyNameRegister.Objects[Technology]).Description"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TTResistorTechnologyEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <!--<On Select="TResistorTechnology.Unspecified">
+            <Execute Statement="Result:= cResistorTechnologyUnspecified"/>
+          </On>-->
+          <On Select="TResistorTechnology.MetalFilm">
+            <Execute Statement="Result:= cResistorTechnologyMetalFilm"/>
+          </On>
+          <On Select="TResistorTechnology.CarbonFilm">
+            <Execute Statement="Result:= cResistorTechnologyCarbonFilm"/>
+          </On>
+          <On Select="TResistorTechnology.Wirewound">
+            <Execute Statement="Result:= cResistorTechnologyWirewound"/>
+          </On>
+          <On Select="TResistorTechnology.CarbonComposition">
+            <Execute Statement="Result:= cResistorTechnologyCarbonComposition"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidResistorTechnology)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTResistorTechnologyEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TResistorTechnology.Low"/>
+        <Execute Statement="HighValue:= TResistorTechnology.High"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TTCapacitorTechnologyEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TCapacitorTechnology.AluminumElectrolytic">
+            <Execute Statement="Result:= cCapacitorTechnologyAluminumElectrolytic"/>
+          </On>
+          <On Select="TCapacitorTechnology.TantalumElectrolytic">
+            <Execute Statement="Result:= cCapacitorTechnologyTantalumElectrolytic"/>
+          </On>
+          <On Select="TCapacitorTechnology.NiobiumElectrolytic">
+            <Execute Statement="Result:= cCapacitorTechnologyNiobiumElectrolytic"/>
+          </On>
+          <On Select="TCapacitorTechnology.Ceramic">
+            <Execute Statement="Result:= cCapacitorTechnologyCeramic"/>
+          </On>
+          <On Select="TCapacitorTechnology.SilverMica">
+            <Execute Statement="Result:= cCapacitorTechnologySilverMica"/>
+          </On>
+          <On Select="TCapacitorTechnology.PolyesterFilm">
+            <Execute Statement="Result:= cCapacitorTechnologyPolyesterFilm"/>
+          </On>
+          <On Select="TCapacitorTechnology.MetallisedPolyesterFilm">
+            <Execute Statement="Result:= cCapacitorTechnologyMetallisedPolyesterFilm"/>
+          </On>
+          <On Select="TCapacitorTechnology.Polycarbonate">
+            <Execute Statement="Result:= cCapacitorTechnologyPolycarbonate"/>
+          </On>
+          <On Select="TCapacitorTechnology.Polypropylene">
+            <Execute Statement="Result:= cCapacitorTechnologyPolypropylene"/>
+          </On>
+          <On Select="TCapacitorTechnology.Glass">
+            <Execute Statement="Result:= cCapacitorTechnologyGlass"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidCapacitorTechnology)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTCapacitorTechnologyEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TCapacitorTechnology.Low"/>
+        <Execute Statement="HighValue:= TCapacitorTechnology.High"/>
+      </Block>
+    </Procedure>
+    
+    <Function Identifier="CapacitorTechnologyAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="Technology" Type="TCapacitorTechnology"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= TCapacitorTechnologyEnumInfo(CapacitorTechnologyNameRegister.Objects[Technology]).Description"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="CapacitorTechnologySetAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="Flags" Type="TFlags"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="AddSep" Type="Boolean" Init="False"/>
+        <Execute Statement="Result:= ''"/>
+        <Flags.Loop Flags="Flags" OrdinalIdentifier="I">
+          <Execute Statement="Result:= Result + SetSep" Condition="AddSep"/>
+          <Execute Statement="Result:= Result + TCapacitorTechnologyEnumInfo(CapacitorTechnologyNameRegister.Objects[I]).Description"/>
+          <Execute Statement="AddSep:= True"/>
+        </Flags.Loop>
+      </Block>
+    </Function>
+
+    <Function Identifier="TTBreakSpeedEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TBreakSpeed.VeryFast">
+            <Execute Statement="Result:= cBreakSpeedVeryFast"/>
+          </On>
+          <On Select="TBreakSpeed.Fast">
+            <Execute Statement="Result:= cBreakSpeedFast"/>
+          </On>
+          <On Select="TBreakSpeed.Medium">
+            <Execute Statement="Result:= cBreakSpeedMedium"/>
+          </On>
+          <On Select="TBreakSpeed.Slow">
+            <Execute Statement="Result:= cBreakSpeedSlow"/>
+          </On>
+          <On Select="TBreakSpeed.VerySlow">
+            <Execute Statement="Result:= cBreakSpeedVerySlow"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidBreakSpeed)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTBreakSpeedEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TBreakSpeed.Low"/>
+        <Execute Statement="HighValue:= TBreakSpeed.High"/>
+      </Block>
+    </Procedure>
+    
+    <Function Identifier="BreakSpeedAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="BreakSpeed" Type="TBreakSpeed"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= TBreakSpeedEnumInfo(BreakSpeedNameRegister.Objects[BreakSpeed]).Description"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="BreakSpeedSetAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="Flags" Type="TFlags"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="AddSep" Type="Boolean" Init="False"/>
+        <Execute Statement="Result:= ''"/>
+        <Flags.Loop Flags="Flags" OrdinalIdentifier="I">
+          <Execute Statement="Result:= Result + SetSep" Condition="AddSep"/>
+          <Execute Statement="Result:= Result + TBreakSpeedEnumInfo(BreakSpeedNameRegister.Objects[I]).Description"/>
+          <Execute Statement="AddSep:= True"/>
+        </Flags.Loop>
+      </Block>
+    </Function>
+
+    <Function Identifier="TTDeviceFunctionEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TDeviceFunction.OpAmp">
+            <Execute Statement="Result:= cDeviceFunctionOpAmp"/>
+          </On>
+          <On Select="TDeviceFunction.Comparator">
+            <Execute Statement="Result:= cDeviceFunctionComparator"/>
+          </On>
+          <On Select="TDeviceFunction.SchmittTrigger">
+            <Execute Statement="Result:= cDeviceFunctionSchmittTrigger"/>
+          </On>
+          <On Select="TDeviceFunction.Optocoupler">
+            <Execute Statement="Result:= cDeviceFunctionOptocoupler"/>
+          </On>
+          <On Select="TDeviceFunction.Timer">
+            <Execute Statement="Result:= cDeviceFunctionTimer"/>
+          </On>
+          <On Select="TDeviceFunction.AndGate">
+            <Execute Statement="Result:= cDeviceFunctionAndGate"/>
+          </On>
+          <On Select="TDeviceFunction.OrGate">
+            <Execute Statement="Result:= cDeviceFunctionOrGate"/>
+          </On>
+          <On Select="TDeviceFunction.XorGate">
+            <Execute Statement="Result:= cDeviceFunctionXorGate"/>
+          </On>
+          <On Select="TDeviceFunction.XnorGate">
+            <Execute Statement="Result:= cDeviceFunctionXnorGate"/>
+          </On>
+          <On Select="TDeviceFunction.NandGate">
+            <Execute Statement="Result:= cDeviceFunctionNandGate"/>
+          </On>
+          <On Select="TDeviceFunction.NorGate">
+            <Execute Statement="Result:= cDeviceFunctionNorGate"/>
+          </On>
+          <On Select="TDeviceFunction.NotGate">
+            <Execute Statement="Result:= cDeviceFunctionNotGate"/>
+          </On>
+          <On Select="TDeviceFunction.VRef">
+            <Execute Statement="Result:= cDeviceFunctionVRef"/>
+          </On>
+          <On Select="TDeviceFunction.TempSens">
+            <Execute Statement="Result:= cDeviceFunctionTempSens"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidDeviceFunction)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTDeviceFunctionEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TDeviceFunction.Low"/>
+        <Execute Statement="HighValue:= TDeviceFunction.High"/>
+      </Block>
+    </Procedure>
+    
+    <Function Identifier="DeviceFunctionName" Type="string">
+      <Parameters>
+        <Parameter Identifier="DeviceFunction" Type="TDeviceFunction"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= DeviceFunctionNameRegister.Keys[DeviceFunction]"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TTUnattendedTaskEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TUnattendedTask.Bom">
+            <Execute Statement="Result:= cUnattendedTaskBom"/>
+          </On>
+          <On Select="TUnattendedTask.BomEEVBlog">
+            <Execute Statement="Result:= cUnattendedTaskBomEEVBlog"/>
+          </On>
+          <On Select="TUnattendedTask.BomDokuWiki">
+            <Execute Statement="Result:= cUnattendedTaskBomDokuWiki"/>
+          </On>
+          <On Select="TUnattendedTask.BomDesignators">
+            <Execute Statement="Result:= cUnattendedTaskBomDesignators"/>
+          </On>
+          <On Select="TUnattendedTask.BomOrderPicking">
+            <Execute Statement="Result:= cUnattendedTaskBomOrderPicking"/>
+          </On>
+          <On Select="TUnattendedTask.Stock">
+            <Execute Statement="Result:= cUnattendedTaskStock"/>
+          </On>
+          <On Select="TUnattendedTask.StorageLocations">
+            <Execute Statement="Result:= cUnattendedTaskStorageLocations"/>
+          </On>
+          <On Select="TUnattendedTask.PartKeeprProjects">
+            <Execute Statement="Result:= cUnattendedTaskPartKeeprProjects"/>
+          </On>
+          <On Select="TUnattendedTask.ComponentCombinations">
+            <Execute Statement="Result:= cUnattendedTaskComponentCombinations"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidUnattendedTask)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTUnattendedTaskEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TUnattendedTask.Low"/>
+        <Execute Statement="HighValue:= TUnattendedTask.High"/>
+      </Block>
+    </Procedure>
+    
+    <Function Identifier="TTHideSpecEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="THideSpec.ESerieOfValue">
+            <Execute Statement="Result:= cHideSpecESerieOfValue"/>
+          </On>
+          <On Select="THideSpec.ResistorMaxAmpVolt">
+            <Execute Statement="Result:= cHideSpecResistorMaxAmpVolt"/>
+          </On>
+          <On Select="THideSpec.ZenerDiodeMaxAmp">
+            <Execute Statement="Result:= cHideSpecZenerDiodeMaxAmp"/>
+          </On>
+          <On Select="THideSpec.Footprint">
+            <Execute Statement="Result:= cHideSpecFootprint"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidHideSpec)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTHideSpecEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= THideSpec.Low"/>
+        <Execute Statement="HighValue:= THideSpec.High"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TTSheetInfoEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TSheetInfo.None">
+            <Execute Statement="Result:= cSheetInfoNone"/>
+          </On>
+          <On Select="TSheetInfo.Root">
+            <Execute Statement="Result:= cSheetInfoRoot"/>
+          </On>
+          <On Select="TSheetInfo.All">
+            <Execute Statement="Result:= cSheetInfoAll"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidSheetInfo)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTSheetInfoEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TSheetInfo.Low"/>
+        <Execute Statement="HighValue:= TSheetInfo.High"/>
+      </Block>
+    </Procedure>
+  </Procedures>
+
+  <Initialization>
+    <Execute Statement="ComponentKindNameRegister:= ComponentKindEnumManager.NameRegister"/>
+    <Execute Statement="CustomFieldNameRegister:= CustomFieldEnumManager.NameRegister"/>
+    <Execute Statement="ResistorTechnologyNameRegister:= ResistorTechnologyEnumManager.NameRegister"/>
+    <Execute Statement="CapacitorTechnologyNameRegister:= CapacitorTechnologyEnumManager.NameRegister"/>
+    <Execute Statement="BreakSpeedNameRegister:= BreakSpeedEnumManager.NameRegister"/>
+    <Execute Statement="DeviceFunctionNameRegister:= DeviceFunctionEnumManager.NameRegister"/>
+    <Execute Statement="UnattendedTaskNameRegister:= UnattendedTaskEnumManager.NameRegister"/>
+    <Execute Statement="HideSpecNameRegister:= HideSpecEnumManager.NameRegister"/>
+    <Execute Statement="SheetInfoNameRegister:= SheetInfoEnumManager.NameRegister"/>
+  </Initialization>
+</pkg:Library>

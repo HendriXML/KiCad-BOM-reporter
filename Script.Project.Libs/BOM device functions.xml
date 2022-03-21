@@ -21,12 +21,11 @@
   xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement"
   >
   <Uses>
+    <Use Identifier="BomEnumerations"/>
     <Use Identifier="BomClasses"/>
   </Uses>
 
   <Type>
-    <Enumeration Identifier="TDeviceFunction" Elements="OpAmp, Comparator, SchmittTrigger, Optocoupler, Timer, AndGate, OrGate, XorGate, XnorGate, NandGate, NorGate, NotGate, VRef, TempSens" LowAlias="Low" HighAlias="High"/>
-
     <DataClass Identifier="TBaseImplementedFunction">
       <Field Identifier="DeviceFunction" Type="TDeviceFunction"/>
       <Field Identifier="Count" Type="Integer"/>
@@ -34,9 +33,7 @@
     </DataClass>
 
   </Type>
-  <Variables>
-    <Variable Identifier="DeviceFunctionIndex" Type="TMappingCaseInSensitiveUnicodeStringToInt64" Init="TMappingCaseInSensitiveUnicodeStringToInt64.Create"/>
-  </Variables>
+
   <Procedures>
     <Function Identifier="TBaseImplementedFunction.CompareTo" Type="Integer">
       <Parameters>
@@ -48,72 +45,6 @@
       </Block>
     </Function>
 
-    <Function Identifier="DeviceFunctionName" Type="string">
-      <Parameters>
-        <Parameter Identifier="DeviceFunction" Type="TDeviceFunction"/>
-      </Parameters>
-      <Block>
-        <Case Expression="DeviceFunction" Optimalisation="integermapping">
-          <On Select="TDeviceFunction.OpAmp">
-            <Execute Statement="Result:= 'OpAmp'"/>
-          </On>
-          <On Select="TDeviceFunction.Comparator">
-            <Execute Statement="Result:= 'Comparator'"/>
-          </On>
-          <On Select="TDeviceFunction.SchmittTrigger">
-            <Execute Statement="Result:= 'SchmittTrigger'"/>
-          </On>
-          <On Select="TDeviceFunction.Optocoupler">
-            <Execute Statement="Result:= 'Optocoupler'"/>
-          </On>
-          <On Select="TDeviceFunction.Timer">
-            <Execute Statement="Result:= 'Timer'"/>
-          </On>
-          <On Select="TDeviceFunction.AndGate">
-            <Execute Statement="Result:= 'AND'"/>
-          </On>
-          <On Select="TDeviceFunction.OrGate">
-            <Execute Statement="Result:= 'OR'"/>
-          </On>
-          <On Select="TDeviceFunction.XorGate">
-            <Execute Statement="Result:= 'XOR'"/>
-          </On>
-          <On Select="TDeviceFunction.XnorGate">
-            <Execute Statement="Result:= 'XNOR'"/>
-          </On>
-          <On Select="TDeviceFunction.NandGate">
-            <Execute Statement="Result:= 'NAND'"/>
-          </On>
-          <On Select="TDeviceFunction.NorGate">
-            <Execute Statement="Result:= 'NOR'"/>
-          </On>
-          <On Select="TDeviceFunction.NotGate">
-            <Execute Statement="Result:= 'NOT'"/>
-          </On>
-          <On Select="TDeviceFunction.VRef">
-            <Execute Statement="Result:= 'VRef'"/>
-          </On>
-          <On Select="TDeviceFunction.TempSens">
-            <Execute Statement="Result:= 'TempSens'"/>
-          </On>
-          <Otherwise>
-            <Raise Expression="Exception.Create('Unmapped device function')"/>
-          </Otherwise>
-        </Case>
-      </Block>
-    </Function>
-
-    <Procedure Identifier="InitDeviceFunctionIndex">
-      <Parameters>
-        <Parameter Identifier="Index" Type="TAbstractBoxedValueMappingHashIndex"/>
-      </Parameters>
-      <Block>
-        <ForLoop Indexer="I" From="TDeviceFunction.Low" To="TDeviceFunction.High">
-          <inx:Index.MapValue Index="Index" Key="DeviceFunctionName(I)" Value="I"/>
-        </ForLoop>
-      </Block>
-    </Procedure>
-
     <Function Identifier="ParseFunctions" Type="Boolean">
       <Parameters>
         <Parameter Identifier="Value" Type="string"/>
@@ -121,47 +52,39 @@
       </Parameters>
       <Variables>
         <Variable Identifier="Count" Type="Integer"/>
-        <Variable Identifier="Identifier" Type="string"/>
         <Variable Identifier="ImplementedFunctionHead" Type="TBaseImplementedFunction" Init="ObjNil"/>
         <Variable Identifier="ImplementedFunctionTail" Type="TBaseImplementedFunction" Init="ObjNil"/>
       </Variables>
-      <Procedures>
-        <Function Identifier="AddFunction" Type="Boolean">
-          <Block>
-            <!--<rep:Reporter.Information Text="Format('AddFunction(%s, %d)', EncodeDelphiString(Identifier), Count)" Condition="IsDebugging"/>-->
-            <Variable Identifier="DeviceFunction" Type="TDeviceFunction"/>
-            <inx:Index.FindValue Index="DeviceFunctionIndex" Key="Identifier" Value="DeviceFunction" Found="Result" Flags="NoErrorOnNotFound"/>
-            <Exit Condition="not Result"/>
-            <!--<rep:Reporter.Information Text="Format('AddFunction(%s, %d) - Index.FindValue', EncodeDelphiString(Identifier), Count)" Condition="IsDebugging"/>-->
-            <Variable Identifier="ImplementedFunction" Type="TBaseImplementedFunction" Init="TBaseImplementedFunction.Create(DeviceFunction, Count)"/>
-            <lil:LinkedList.LinkUp Head="ImplementedFunctionHead" Tail="ImplementedFunctionTail" TailLinkStatement="ImplementedFunctionTail.Next:= Item" Item="ImplementedFunction" />
-          </Block>
-        </Function>
-      </Procedures>
       <Block>
+        <Variable Identifier="DeviceFunction" Type="TDeviceFunction"/>
+        <Variable Identifier="ImplementedFunction" Type="TBaseImplementedFunction"/>
         <Execute Statement="Result:= False"/>
         <stm:StateHandler InitialState="Start">
           <StringLoop StringValue="Value" OrdinalIdentifier="ChrI" CharacterIdentifier="Chr">
             <stm:HandleStates>
               <stm:State Name="Start">
-                <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                  <On Select="' '">
-                  </On>
-                  <On Select="'0'..'9'">
-                    <Execute Statement="Count:= ChrI - CharOrd('0')"/>
-                    <stm:SetState Name="InCount"/>
-                  </On>
-                  <On Select="'a'..'z', 'A'..'Z'">
-                    <Execute Statement="Identifier:= Chr"/>
+                <Execute Statement="DeviceFunctionNameRegister.SearchStart"/>
+                <Choose>
+                  <When Expression="DeviceFunctionNameRegister.SearchAdvance(Chr)">
                     <Execute Statement="Count:= 1"/>
                     <stm:SetState Name="InIdentifer"/>
                     <Execute Statement="Result:= True"/>
-                  </On>
+                  </When>
                   <Otherwise>
-                    <Execute Statement="Result:= False"/>
-                    <Break/>
+                    <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                      <On Select="' '">
+                      </On>
+                      <On Select="'0'..'9'">
+                        <Execute Statement="Count:= ChrI - CharOrd('0')"/>
+                        <stm:SetState Name="InCount"/>
+                      </On>
+                      <Otherwise>
+                        <Execute Statement="Result:= False"/>
+                        <Break/>
+                      </Otherwise>
+                    </Case>
                   </Otherwise>
-                </Case>
+                </Choose>
               </stm:State>
               <stm:State Name="InCount">
                 <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
@@ -178,33 +101,38 @@
                 </Case>
               </stm:State>
               <stm:State Name="InIdentifer">
-                <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                  <On Select="'a'..'z', 'A'..'Z'">
-                    <Execute Statement="Identifier:= Identifier + Chr"/>
-                  </On>
-                  <On Select="';'">
-                    <Execute Statement="Result:= False"/>
-                    <Break Condition="not AddFunction"/>
-                    <stm:SetState Name="Start"/>
-                  </On>
+                <Choose>
+                  <When Expression="DeviceFunctionNameRegister.SearchAdvance(Chr)">
+                  </When>
+                  <When Expression="DeviceFunctionNameRegister.SearchItem(DeviceFunction)">
+                    <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                      <On Select="';'">
+                        <Execute Statement="ImplementedFunction:= TBaseImplementedFunction.Create(DeviceFunction, Count)"/>
+                        <lil:LinkedList.LinkUp Head="ImplementedFunctionHead" Tail="ImplementedFunctionTail" TailLinkStatement="ImplementedFunctionTail.Next:= Item" Item="ImplementedFunction" />
+                        <stm:SetState Name="Start"/>
+                      </On>
+                      <Otherwise>
+                        <Execute Statement="Result:= False"/>
+                        <Break/>
+                      </Otherwise>
+                    </Case>
+                  </When>
                   <Otherwise>
                     <Execute Statement="Result:= False"/>
                     <Break/>
                   </Otherwise>
-                </Case>
+                </Choose>
               </stm:State>
               <stm:State Name="AfterMultiplier">
-                <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
-                  <On Select="'a'..'z', 'A'..'Z'">
-                    <Execute Statement="Identifier:= Chr"/>
-                    <stm:SetState Name="InIdentifer"/>
+                <Choose>
+                  <When Expression="DeviceFunctionNameRegister.SearchAdvance(Chr)">
                     <Execute Statement="Result:= True"/>
-                  </On>
+                  </When>
                   <Otherwise>
                     <Execute Statement="Result:= False"/>
                     <Break/>
                   </Otherwise>
-                </Case>
+                </Choose>
               </stm:State>
             </stm:HandleStates>
           </StringLoop>
@@ -215,7 +143,18 @@
           </lil:LinkedList.Iterate>
           <Exit/>
         </Block>
-        <Exit Result="False" Condition="not AddFunction"/>
+        <Choose>
+          <When Expression="DeviceFunctionNameRegister.SearchItem(DeviceFunction)">
+            <Execute Statement="ImplementedFunction:= TBaseImplementedFunction.Create(DeviceFunction, Count)"/>
+            <lil:LinkedList.LinkUp Head="ImplementedFunctionHead" Tail="ImplementedFunctionTail" TailLinkStatement="ImplementedFunctionTail.Next:= Item" Item="ImplementedFunction" />
+          </When>
+          <Otherwise>
+              <lil:LinkedList.Iterate Head="ImplementedFunctionHead" ItemType="TBaseImplementedFunction" RunningItem="Item" Next="Item.Next">
+                <Free Expression="Item"/>
+              </lil:LinkedList.Iterate>
+              <Exit Result="False"/>
+          </Otherwise>
+        </Choose>
         <Block Condition="Assigned(ImplementedFunctionHead)">
           <lil:LinkedList.MergeSort Head="ImplementedFunctionHead" ItemType="TBaseImplementedFunction" LinkUp="ItemA.Next:= ItemB" Next="Item.Next" IsInOrder="ItemA.CompareTo(ItemB) &lt;= 0"/>
           <Variable Identifier="PrevItem" Type="TBaseImplementedFunction" Init="ImplementedFunctionHead"/>
@@ -313,17 +252,17 @@
               <On Select="TValueType.Error, TValueType.ErrorByTemplate">
                 <Exit Result="-1"/>
               </On>
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <Execute Statement="Result:= 1"/>
               </On>
             </Case>
           </On>
-          <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
             <Case Expression="ValueTypeB">
               <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate, TValueType.Error, TValueType.ErrorByTemplate">
                 <Execute Statement="Result:= -1"/>
               </On>
-              <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                 <WhileLoop Expression="Assigned(HeadA) and Assigned(HeadB)">
                   <Execute Statement="Comp:= HeadA.CompareTo(HeadB)"/>
                   <Exit Result="Comp" Condition="Comp &lt;&gt; 0"/>
@@ -356,13 +295,5 @@
     </Function>
 
   </Procedures>
-
-  <Initialization>
-    <Execute Statement="InitDeviceFunctionIndex(DeviceFunctionIndex)"/>
-  </Initialization>
-
-  <Finalization>
-    <Free Identifier="DeviceFunctionIndex"/>
-  </Finalization>
 
 </pkg:Library>

@@ -7,17 +7,7 @@
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="Directory" type="T_Directory"  minOccurs="0" maxOccurs="1" />
         <xs:element name="Directory.MaskMatch" type="T_Directory.MaskMatch" minOccurs="0" maxOccurs="1" />
-        <xs:element name="Directory.ExpressionMatch" type="T_Directory.ExpressionMatch" minOccurs="0" maxOccurs="1" >
-          <xs:annotation>
-            <xs:documentation>
-              Expression must result one of these values:
-              TExpressionMatchKind.mkNone
-              TExpressionMatchKind.mkMatchThis
-              TExpressionMatchKind.mkMatchAndRetrySubDirectory
-              TExpressionMatchKind.mkRetrySubDirectory
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
+        <xs:element name="Directory.ExpressionMatch" type="T_Directory.ExpressionMatch" minOccurs="0" maxOccurs="1"/>
       </xs:choice>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="File" type="T_File" minOccurs="0" maxOccurs="1" />
@@ -32,6 +22,7 @@
       <xs:extension base="proc:T_AbstractProcessItem">
         <xs:sequence>
           <xs:element name="Progress.Directory" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
+          <xs:element name="Progress.Directory.NoBrowse" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
           <xs:element name="Progress.File" minOccurs="0" maxOccurs="1" type="proc:T_Block"/>
           <xs:group ref="InnerDirectoryGroup" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
@@ -81,7 +72,17 @@
   <xs:complexType name="T_Directory.ExpressionMatch">
     <xs:complexContent>
       <xs:extension base="T_BaseDirectoryMatch">
-        <xs:attribute name="Expression" type="proc:expression" use="required"/>
+        <xs:attribute name="Expression" type="proc:expression" use="required">
+          <xs:annotation>
+            <xs:documentation>
+              Expression must result one of these values:
+              TExpressionMatchKind.mkNone
+              TExpressionMatchKind.mkMatchThis
+              TExpressionMatchKind.mkMatchAndRetrySubDirectory
+              TExpressionMatchKind.mkRetrySubDirectory
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

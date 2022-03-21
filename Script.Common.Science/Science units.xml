@@ -35,7 +35,7 @@
 
     <Unit Identifier="Radian" Symbol="rad"/>
 
-    <Unit Identifier="Pascal" Symbol="Pa" Equivalent="⌠kg·m⁻¹·s⁻²⌡"/>
+    <Unit Identifier="Pascal" Symbol="Pa" Equivalent="⌠kg·m⁻¹·s⁻²⌡" Prefixes="n μ m h k M G"/>
 
     <Unit Identifier="Ohm" Symbol="Ω" Equivalent="⌠kg·m²·s⁻³·A⁻²⌡" Prefixes="n μ m k M G"/>
 
@@ -65,11 +65,25 @@
 
     <Unit Identifier="Percentage" Symbol="%"/>
 
+    <Unit Identifier="Degree" Symbol="°"/>
+
     <Unit Identifier="Hour" Symbol="h"/>
-    
+
     <Unit Identifier="Day" Symbol="d"/>
 
     <Unit Identifier="Week" Symbol="wk"/>
+
+    <Unit Identifier="Division" Symbol="div"/>
+
+    <Unit Identifier="Screen" Symbol="scr"/>
+
+    <Unit Identifier="Cycle" Symbol="cycle"/>
+
+    <Unit Identifier="Sample" Symbol="sample"/>
+
+    <Unit Identifier="DacStep" Symbol="dacstep"/>
+
+    <Unit Identifier="CyclesPerSecond" Symbol="cps" Equivalent="⌠cycle·s⁻¹⌡"/>
 
     <Quantity Identifier="Mass" Unit="⌠kg⌡"/>
 
@@ -80,7 +94,7 @@
     <Quantity Identifier="TemperatureC" Unit="⌠°C⌡"/>
 
     <Quantity Identifier="ThermalResistance" Unit="⌠K·W⁻¹⌡"/>
-    
+
     <Quantity Identifier="ElectricCurrent" Unit="⌠A⌡"/>
 
     <Quantity Identifier="ElectricResistance" Unit="⌠Ω⌡"/>
@@ -121,9 +135,15 @@
 
     <Quantity Identifier="Weight" Unit="⌠kg⌡"/>
 
+    <Quantity Identifier="Pressure" Unit="⌠Pa⌡"/>
+
     <Quantity Identifier="TemperatureCoefficientOfResistance" Unit="⌠K⁻¹⌡"/>
 
     <Quantity Identifier="RC" Unit="⌠Ω·F⌡"/>
+
+    <Quantity Identifier="AngleDegree" Unit="⌠°⌡"/>
+
+    <DecimalQuantity Identifier="AngleDegreeDQ" Unit="⌠°⌡"/>
 
     <Alias Identifier="Voltage" RefersTo="ElectricPotential"/>
 
@@ -138,6 +158,8 @@
     <Alias Identifier="Height" RefersTo="Distance"/>
 
     <Alias Identifier="Lenght" RefersTo="Distance"/>
+
+    <Alias Identifier="LenghtQ" RefersTo="Distance"/>
 
     <Alias Identifier="Depth" RefersTo="Distance"/>
 
@@ -195,16 +217,18 @@
 
     <!--<Alias Identifier="DepthDQ" RefersTo="DistanceDQ"/>-->
 
-    <Quantity Identifier="PercentageDQ" Unit="⌠%⌡"/>
+    <Quantity Identifier="PercentageRatioDQ" Unit="⌠%⌡"/>
 
-    <Alias Identifier="Tolerance" RefersTo="PercentageDQ"/>
-
-    <DecimalQuantity Identifier="ToleranceDQ" Unit="⌠%⌡"/>
+    <Alias Identifier="PercentageDQ" RefersTo="PercentageRatioDQ"/>
+    
+    <Alias Identifier="ToleranceDQ" RefersTo="PercentageRatioDQ"/>
 
     <Quantity Identifier="PercentageRatio" Unit="⌠%⌡"/>
 
     <Alias Identifier="PercentageQ" RefersTo="PercentageRatio"/>
 
+    <Alias Identifier="Tolerance" RefersTo="PercentageRatio"/>
+    
     <Quantity Identifier="Resistivity" Unit="⌠Ω·m⌡"/>
 
     <Quantity Identifier="Angle" Unit="⌠rad⌡"/>
@@ -222,11 +246,112 @@
     <Quantity Identifier="CurrentHour" Unit="⌠A·h⌡"/>
 
     <Alias Identifier="BatteryCapacity" RefersTo="CurrentHour"/>
-    
+
     <Alias Identifier="Ratio" RefersTo="Dimensionless"/>
-    
+
     <Quantity Identifier="DistancePerHour" Unit="⌠m·h⁻¹⌡"/>
-    </Type>
+    
+    <Quantity Identifier="ResistancePerMeter" Unit="⌠Ω·m⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="DivisionDQ" Unit="⌠div⌡"/>
+
+    <DecimalQuantity Identifier="ScreenDQ" Unit="⌠scr⌡"/>
+
+    <DecimalQuantity Identifier="SamplePerScreenDQ" Unit="⌠sample·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="DacStepDQ" Unit="⌠dacstep⌡"/>
+
+    <DecimalQuantity Identifier="DacStepPerDivDQ" Unit="⌠dacstep·div⁻¹⌡"/>
+
+    <Quantity Identifier="CyclesPerScreenQ" Unit="⌠cycle·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="CyclesPerScreenDQ" Unit="⌠cycle·scr⁻¹⌡"/>
+
+    <Quantity Identifier="CycleQ" Unit="⌠cycle⌡"/>
+
+    <DecimalQuantity Identifier="CycleDQ" Unit="⌠cycle⌡"/>
+
+    <Quantity Identifier="SamplesPerSec" Unit="⌠sample·s⁻¹⌡"/>
+
+    <Quantity Identifier="SampleQ" Unit="⌠sample⌡"/>
+
+    <DecimalQuantity Identifier="DivisionPerScreenDQ" Unit="⌠div·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="TimePerDivDQ" Unit="⌠s·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="DivPerDacStepDQ" Unit="⌠div·dacstep⁻¹⌡"/>
+
+    <Quantity Identifier="TimePerDiv" Unit="⌠s·div⁻¹⌡"/>
+
+    <Quantity Identifier="VoltagePerDiv" Unit="⌠V·div⁻¹⌡"/>
+
+    <Quantity Identifier="CurrentPerDiv" Unit="⌠A·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="VoltagePerDivDQ" Unit="⌠V·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="CurrentPerDivDQ" Unit="⌠A·div⁻¹⌡"/>
+
+    <Quantity Identifier="VoltagePerDacStep" Unit="⌠V·dacstep⁻¹⌡"/>
+
+    <Quantity Identifier="TimePerSample" Unit="⌠s·sample⁻¹⌡"/>
+
+    <Quantity Identifier="CyclesPerSecondQ" Unit="⌠cps⌡"/>
+<!--
+    <Unit Identifier="Division" Symbol="div"/>
+
+    <Unit Identifier="Screen" Symbol="scr"/>
+
+    <Unit Identifier="Cycle" Symbol="cycle"/>
+
+    <Unit Identifier="Sample" Symbol="sample"/>
+
+    <Unit Identifier="DacStep" Symbol="dacstep"/>
+
+    <DecimalQuantity Identifier="DivisionDQ" Unit="⌠div⌡"/>
+
+    <DecimalQuantity Identifier="ScreenDQ" Unit="⌠scr⌡"/>
+
+    <DecimalQuantity Identifier="SamplePerScreenDQ" Unit="⌠sample·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="DacStepDQ" Unit="⌠dacstep⌡"/>
+
+    <DecimalQuantity Identifier="DacStepPerDivDQ" Unit="⌠dacstep·div⁻¹⌡"/>
+
+    <Quantity Identifier="CyclesPerScreenQ" Unit="⌠cycle·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="CyclesPerScreenDQ" Unit="⌠cycle·scr⁻¹⌡"/>
+
+    <Quantity Identifier="CycleQ" Unit="⌠cycle⌡"/>
+
+    <DecimalQuantity Identifier="CycleDQ" Unit="⌠cycle⌡"/>
+
+    <Quantity Identifier="SamplesPerSec" Unit="⌠sample·s⁻¹⌡"/>
+
+    <Quantity Identifier="SampleQ" Unit="⌠sample⌡"/>
+
+    <DecimalQuantity Identifier="DivisionPerScreenDQ" Unit="⌠div·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="TimePerDivDQ" Unit="⌠s·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="DivPerDacStepDQ" Unit="⌠div·dacstep⁻¹⌡"/>
+
+    <Quantity Identifier="TimePerDiv" Unit="⌠s·div⁻¹⌡"/>
+
+    <Quantity Identifier="VoltagePerDiv" Unit="⌠V·div⁻¹⌡"/>
+
+    <Quantity Identifier="CurrentPerDiv" Unit="⌠A·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="VoltagePerDivDQ" Unit="⌠V·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="CurrentPerDivDQ" Unit="⌠A·div⁻¹⌡"/>
+
+    <Quantity Identifier="VoltagePerDacStep" Unit="⌠V·dacstep⁻¹⌡"/>
+
+    <Quantity Identifier="TimePerSample" Unit="⌠s·sample⁻¹⌡"/>
+
+-->
+  </Type>
+  
   <Constants>
     <Constant Identifier="cSecondPerHour" Type="Quantity" Expression="3600±0⌠s⌡ / 1±0⌠h⌡"/>
     <Constant Identifier="cHourPerSecond" Type="Quantity" Expression="1±0⌠h⌡ / 3600±0⌠s⌡"/>

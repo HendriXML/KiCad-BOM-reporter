@@ -23,20 +23,30 @@
     <Constant Identifier="sIn" Type="string" Expression="'consumes'"/>
     <Constant Identifier="sOut" Type="string" Expression="'provides'"/>
     <Constant Identifier="sIntermediate" Type="string" Expression="'intermediate'"/>
-    <Constant Identifier="sNeeds" Type="string" Expression="'needs'"/>
-    <Constant Identifier="sNeededBy" Type="string" Expression="'needed by'"/>
-    <Constant Identifier="sIsUsedBy" Type="string" Expression="'is used by'"/>
-    <Constant Identifier="sMakesUsedOf" Type="string" Expression="'makes use of'"/>
-    <Constant Identifier="sChecksOk" Type="string" Expression="'Checks passed'"/>
-    <Constant Identifier="sSelectingTasks" Type="string" Expression="'Select the task that need to be executed..'"/>
-    <Constant Identifier="sExecutingTasks" Type="string" Expression="'Tasks are being executed..'"/>
-    <Constant Identifier="sExecutedTasks" Type="string" Expression="'Tasks are executed'"/>
-    <Constant Identifier="sExecutingTask" Type="string" Expression="'Executing task &quot;%s&quot;..'"/>
-    <Constant Identifier="sExecutedTask" Type="string" Expression="'Task &quot;%s&quot; is executed'"/>
-    <Constant Identifier="sTaskFailed" Type="string" Expression="'Task &quot;%s&quot; could not be executed'"/>
+    <Constant Identifier="sYes" Type="string" Expression="'Yes'"/>
+    <Constant Identifier="sNo" Type="string" Expression="'No'"/>
+
     <Constant Identifier="sSimulating" Type="string" Expression="'Simulating..'"/>
     <Constant Identifier="sDoneSimulating" Type="string" Expression="'Done simulating'"/>
     <Constant Identifier="sNoSimulationResults" Type="string" Expression="'Simulation was not successfull'"/>
-    <Constant Identifier="sVersion" Type="string" Expression="'Version: '"/>
+
+    <Constant Identifier="sPrefixProvidesSpecifiedValues" Type="string" Expression="'Provides specified values - '"/>
+    <Constant Identifier="sPrefixProvidesMeasuredValues" Type="string" Expression="'Provides measured values - '"/>
+    <Constant Identifier="sPrefixProvidesCalculatedValues" Type="string" Expression="'Provides calculated values - '"/>
+    <Constant Identifier="sPrefixProvidesChoosenValues" Type="string" Expression="'Provides choosen values - '"/>
+    <Constant Identifier="sPrefixProvidesChoosenComponents" Type="string" Expression="'Provides choosen components - '"/>
+    <Constant Identifier="sPrefixValidatesValues" Type="string" Expression="'Validates values - '"/>
+    <Constant Identifier="sPrefixExportValuesToSchematic" Type="string" Expression="'Export values to schematic - '"/>
+
+    <Constant Identifier="sChecksOk" Type="string" Expression="'Checks passed'"/>
+    <Constant Identifier="cComparisonFail" Type="string" Expression="'%s should be a %s'"/>
+    <Constant Identifier="cSpecifiedValueFail" Type="string" Expression="'%s doesn''t match specified value'"/>
+
+    <Constant Identifier="cCompConfigTask" Type="string" Expression="'Determine optimal combinations for replacement value - config %d - (%s)'"/>
+    <Constant Identifier="cCompCombosTask" Type="string" Expression="'Determine optimal combinations for replacement value'"/>
+    <Constant Identifier="cValuesManagerTask" Type="string" Expression="'Simulation values manager'"/>
+    <Constant Identifier="cComboConfigTask" Type="string" Expression="'Combinations configuration'"/>
+    <Constant Identifier="cCombinationTargetTask" Type="string" Expression="'Combination target configuration'"/>
+    <Constant Identifier="cAvailableValuesInputTask" Type="string" Expression="'Available values provided by input tabsheet'"/>
   </Constants>
 </pkg:Library>

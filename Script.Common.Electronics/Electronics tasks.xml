@@ -1,0 +1,305 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:sim="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:cod="urn:schemas-www-wisware.nl-xmlscripting-codeparser"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers"
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement"
+  >
+  <Uses>
+    <Use Identifier="EnumerationUtils"/>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="ScienceQuantityUtils"/>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="ElectronicsStrings"/>
+    <Use Identifier="ElectronicsUtils"/>
+    <Use Identifier="ElectronicsReportUtils"/>
+    <Use Identifier="ElectronicsEnumerations"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TCombinationTarget">
+      <Field Identifier="Value" Type="DecimalQuantity"/>
+    </DataClass>
+
+    <DataClass Identifier="TCombinationParameters">
+      <Field Identifier="MaxESerie" Type="TESerie"/>
+      <Field Identifier="Granularity" Type="TValueGranularity"/>
+      <Field Identifier="Tolerance" Type="PercentageRatioDQ"/>
+      <Field Identifier="Refine" Type="Boolean"/>
+      <Field Identifier="RefineESerie" Type="TSerie"/>
+    </DataClass>
+
+    <DataClass Identifier="TCombinationInfo">
+      <Field Identifier="ConfigurationInfo" Type="T4CompConfigEnumInfo"/>
+      <Field Identifier="AvailableInputTask" Type="TTaskRef"/>
+    </DataClass>
+    
+    <DataClass Identifier="TCombinationResult">
+      <Constant Identifier="MaxInputCount" Type="UInt32" Expression="4"/>
+      <Field.Indexed Identifier="InputValues" Type="DecimalQuantity" Count="MaxInputCount"/>
+      <Field Identifier="InputCount" Type="UInt32"/>
+      <Field Identifier="ComboResult" Type="DecimalQuantity"/>
+    </DataClass>
+    
+    <DataClass Identifier="TAvailableValuesInfo">
+      <Field Identifier="Values" Type="TESerieValues"/>
+    </DataClass>
+  </Type>
+
+  <Procedures>
+    <Task Identifier="ElectronicsTasks.CombinationTarget" SelfType="TCombinationTarget" SelfConstruction="TCombinationTarget.Create">
+      <Init>
+        <Task.Description Expression="cCombinationTargetTask"/>
+      </Init>
+      <Block>
+        <Object.Use Identifier="Ini" Type="TIniHelper" Expression="TIniHelper.Create(ConfigInifile, True)">
+          <Execute Statement="Ini.Section(Task.Name)"/>
+          <Execute Statement="Value:= Ini.ReadDecimalQuantity('Value', 100.0⌠Ω⌡, True)"/>
+          <rep:Reporter.LabelValue Label="'Target value'" Value="DQToStr(Value, True)" Target="ElectronicsTasks"/>
+        </Object.Use>
+        <Task.MarkHandled/>
+      </Block>
+    </Task>
+
+    <Task Identifier="ElectronicsTasks.CombinationParameters" SelfType="TCombinationParameters" SelfConstruction="TCombinationParameters.Create">
+      <Init>
+        <Task.Description Expression="cComboConfigTask"/>
+      </Init>
+      <Block>
+        <TryExcept>
+          <Try>
+            <Object.Use Identifier="Ini" Type="TIniHelper" Expression="TIniHelper.Create(ConfigInifile, True)">
+              <Execute Statement="Ini.Section(Task.Name)"/>
+              <Execute Statement="MaxESerie:= TESerie.E24"/>
+              <Execute Statement="MaxESerie:= Ini.ReadEnum('MaxESerie', MaxESerie, ESerieEnumManager.NameRegister)"/>
+              <Execute Statement="Granularity:= TValueGranularity.Fine"/>
+              <Execute Statement="Granularity:= Ini.ReadEnum('Granularity', Granularity, ValueGranularityEnumManager.NameRegister)"/>
+              <Execute Statement="Tolerance:= Ini.ReadDecimalQuantity('Tolerance', 0.01⌠%⌡)"/>
+              <Execute Statement="Refine:= Ini.ReadBool('Refine', True)"/>
+              <Execute Statement="RefineESerie:= GetESerie(MaxESerie)"/>
+              <rep:Reporter.LabelValue Label="'Tolerances'" Value="DQToStr(Tolerance, False)" Target="ElectronicsTasks"/>
+              <rep:Reporter.LabelValue Label="'Granularity'" Value="ValueGranularityEnumManager.NameRegister.Keys[Granularity]" Target="ElectronicsTasks"/>
+              <rep:Reporter.LabelValue Label="'MaxESerie'" Value="ESerieEnumManager.NameRegister.Keys[MaxESerie]" Target="ElectronicsTasks"/>
+              <rep:Reporter.LabelValue Label="'Refine'" Value="IfElse(Refine, sYes, sNo)" Target="ElectronicsTasks"/>
+            </Object.Use>
+            <Task.MarkHandled/>
+          </Try>
+          <Except>
+            <On Identifier="E" ClassType="Exception">
+              <rep:Reporter.Information Text="E.Message" Markup="Error"/>
+              <Task.MarkFailed/>
+            </On>
+            <Otherwise>
+              <Task.MarkFailed/>
+            </Otherwise>
+          </Except>
+        </TryExcept>
+      </Block>
+    </Task>
+
+    <Task Identifier="ElectronicsTasks.ValuesManager" SelfType="TESerieValuesManager" SelfConstruction="TESerieValuesManager.Create">
+      <Init>
+        <Task.Description Expression="cValuesManagerTask"/>
+      </Init>
+      <Block>
+        <Task.MarkHandled/>
+      </Block>
+    </Task>
+
+    <Task Identifier="ElectronicsTasks.AvailableValues.InputTab" SelfType="TAvailableValuesInfo" SelfConstruction="TAvailableValuesInfo.Create">
+      <Init>
+        <Task.Description Expression="cAvailableValuesInputTask"/>
+        <Task.AddDependency Task="ElectronicsTasks.ValuesManager" Result="ValuesManager" ResultType="TESerieValuesManager"/>
+      </Init>
+      <Block>
+        <Execute Statement="Values:= ValuesManager.NewSerieValues"/>
+        <Execute Statement="Values.BeginUpdate"/>
+        <TryFinally>
+          <Try>
+            <ForLoop Indexer="I" From="0" To="InputStrings.Count - 1">
+              <Variable Identifier="Value" Type="DecimalQuantity" Init="UiStrToDecimalQuantity(InputStrings[I])"/>
+              <Execute Statement="Values.AddSerieValue(Value)"/>
+            </ForLoop>
+          </Try>
+          <Finally>
+            <Execute Statement="Values.EndUpdate"/>
+          </Finally>
+        </TryFinally>
+        <Task.MarkHandled/>
+      </Block>
+    </Task>
+
+    <Task Identifier="ElectronicsTasks.ComponentCombination" SelfType="TCombinationResult" SelfConstruction="TCombinationResult.Create">
+      <Variables>
+        <Variable Identifier="CombinationInfo" Type="TCombinationInfo" Init="Task.InstanceObject as TCombinationInfo"/>
+        <Variable Identifier="ConfigurationInfo" Type="T4CompConfigEnumInfo" Init="CombinationInfo.ConfigurationInfo"/>
+        <Variable Identifier="ConfigurationKind" Type="T4CompConfig" Init="ConfigurationInfo.Enum"/>
+        <Variable Identifier="AvailableInputTask" Type="TTaskRef" Init="CombinationInfo.AvailableInputTask"/>
+      </Variables>
+      <Init>
+        <Task.Description Expression="Format(cCompConfigTask, ConfigurationKind + 1, ConfigurationInfo.Description)"/>
+        <Task.AddDependency Task="ElectronicsTasks.ValuesManager" Result="ValuesManager" ResultType="TESerieValuesManager"/>
+        <Task.AddDependency Task="ElectronicsTasks.CombinationTarget" Result="CombinationTarget" ResultType="TCombinationTarget"/>
+        <Task.AddDependency Task="ElectronicsTasks.CombinationParameters" Result="CombinationParameters" ResultType="TCombinationParameters"/>
+        <Task.AddReferencedDependency TaskReference="AvailableInputTask" Result="AvailableValuesTsk" ResultType="TAvailableValuesInfo" Condition="Assigned(AvailableInputTask)"/>
+      </Init>
+      <Block>
+        <Variable Identifier="TargetUnit" Type="UnitString" Init="CombinationTarget.Value.UnitS"/>
+        <Variable Identifier="AvailableValues" Type="TESerieValues" Init="ObjNil"/>
+        <Execute Statement="AvailableValues:= AvailableValuesTsk.Values" Condition="Assigned(AvailableInputTask)"/>
+        <Choose>
+          <When Expression="CompatibleUnits(TargetUnit, ⌠F⌡) or CompatibleUnits(TargetUnit, ⌠S⌡)">
+            <Execute Statement="ConfigurationKind:= CompConfigInverse(ConfigurationKind)"/>
+          </When>
+        </Choose>
+        <Objects.Use>
+          <Object Identifier="Configuration" Type="TBaseComponentConfiguration" Expression="CreateCompConfigObject(ConfigurationKind)"/>
+          <Block>
+            <Variable Identifier="ValueSets" Type="TValueSets" Init="ValuesManager.GetValueSets(Configuration, CombinationParameters.Granularity, CombinationParameters.MaxESerie)"/>
+            <Variable Identifier="ESerieValues" Type="TESerieValues" Init="ValuesManager.GetValueSetsValues(ValueSets)"/>
+            <!--    function MatchingValues(const TargetValue: Decimal; SerieValues: TESerieValues; out A, B, C, D: TSerieNode; out ScaleA, ScaleB, ScaleC, ScaleD: Int16; out Diff: Extended): Decimal;
+-->
+            <Variable Identifier="TargetValue" Type="DecimalQuantity" Init="CombinationTarget.Value"/>
+            <Variable Identifier="UnitS" Type="UnitString" Init="TargetValue.UnitS"/>
+            <Variable Identifier="Tolerance" Type="PercentageRatioDQ" Init="CombinationParameters.Tolerance"/>
+            <Variable Identifier="ToleranceFrac" Type="Extended" Init="Tolerance * cPercToFrac"/>
+            <Variable Identifier="ComboValue" Type="Quantity"/>
+            <Variable Identifier="NodeA" Type="TSerieNode"/>
+            <Variable Identifier="NodeB" Type="TSerieNode"/>
+            <Variable Identifier="NodeC" Type="TSerieNode"/>
+            <Variable Identifier="NodeD" Type="TSerieNode"/>
+            <Variable Identifier="ScaleA" Type="Int32"/>
+            <Variable Identifier="ScaleB" Type="Int32"/>
+            <Variable Identifier="ScaleC" Type="Int32"/>
+            <Variable Identifier="ScaleD" Type="Int32"/>
+            <Variable Identifier="Diff" Type="Extended"/>
+            <Variable Identifier="HasRefined" Type="Boolean" Init="False"/>
+            <Variable Identifier="Rd" Type="Decimal" Init="Configuration.MatchingValues(TargetValue, ESerieValues, AvailableValues, NodeA, NodeB, NodeC, NodeD, ScaleA, ScaleB, ScaleC, ScaleD, Diff)"/>
+            <Task.Assert Expression="Assigned(NodeA)"/>
+            <Variable Identifier="Ad" Type="Decimal" Init="0"/>
+            <Variable Identifier="Bd" Type="Decimal" Init="0"/>
+            <Variable Identifier="Cd" Type="Decimal" Init="0"/>
+            <Variable Identifier="Dd" Type="Decimal" Init="0"/>
+
+            <Execute Statement="Ad:= ScaleDecimal(NodeA.Value, ScaleA)" Condition="Assigned(NodeA)"/>
+            <Execute Statement="Bd:= ScaleDecimal(NodeB.Value, ScaleB)" Condition="Assigned(NodeB)"/>
+            <Execute Statement="Cd:= ScaleDecimal(NodeC.Value, ScaleC)" Condition="Assigned(NodeC)"/>
+            <Execute Statement="Dd:= ScaleDecimal(NodeD.Value, ScaleD)" Condition="Assigned(NodeD)"/>
+            <Block Condition="CombinationParameters.Refine">
+              <Execute Statement="HasRefined:= Configuration.RefineValues(TargetValue, CombinationParameters.RefineESerie, AvailableValues, Ad, Bd, Cd, Dd, Rd, Diff)"/>
+            </Block>
+            <Execute Statement="InputCount:= Configuration.GetComponentCount"/>
+            <ForLoop Indexer="I" From="0" To="InputCount - 1">
+              <Case Expression="I" Optimalisation="integermapping">
+                <On Select="0">
+                  <Execute Statement="InputValues[I]:= Ad ~ UnitS"/>
+                </On>
+                <On Select="1">
+                  <Execute Statement="InputValues[I]:= Bd ~ UnitS"/>
+                </On>
+                <On Select="2">
+                  <Execute Statement="InputValues[I]:= Cd ~ UnitS"/>
+                </On>
+                <On Select="3">
+                  <Execute Statement="InputValues[I]:= Dd ~ UnitS"/>
+                </On>
+              </Case>
+              <Execute Statement="InputValues[I]:= InputValues[I] ± (InputValues[I] * ToleranceFrac)"/>
+            </ForLoop>
+            <!--<Variable Identifier="A" Type="DecimalQuantity" Init="Ad ~ UnitS" Condition="Assigned(NodeA)"/>
+            <Variable Identifier="B" Type="DecimalQuantity" Init="Bd ~ UnitS" Condition="Assigned(NodeB)"/>
+            <Variable Identifier="C" Type="DecimalQuantity" Init="Cd ~ UnitS" Condition="Assigned(NodeC)"/>
+            <Variable Identifier="D" Type="DecimalQuantity" Init="Dd ~ UnitS" Condition="Assigned(NodeD)"/>
+            <Execute Statement="A:= A ± (A * ToleranceFrac)" Condition="Assigned(NodeA)"/>
+            <Execute Statement="B:= B ± (B * ToleranceFrac)" Condition="Assigned(NodeB)"/>
+            <Execute Statement="C:= C ± (C * ToleranceFrac)" Condition="Assigned(NodeC)"/>
+            <Execute Statement="D:= D ± (D * ToleranceFrac)" Condition="Assigned(NodeD)"/>-->
+            <Choose>
+              <When Expression="Configuration is TConfig1">
+                <Execute Statement="ComboResult:= TConfig1(Configuration).GetValue(InputValues[0])"/>
+              </When>
+              <When Expression="Configuration is TConfig2">
+                <Execute Statement="ComboResult:= TConfig2(Configuration).GetValue(InputValues[0], InputValues[1])"/>
+              </When>
+              <When Expression="Configuration is TConfig3">
+                <Execute Statement="ComboResult:= TConfig3(Configuration).GetValue(InputValues[0], InputValues[1], InputValues[2])"/>
+              </When>
+              <When Expression="Configuration is TConfig4">
+                <Execute Statement="ComboResult:= TConfig4(Configuration).GetValue(InputValues[0], InputValues[1], InputValues[2], InputValues[3])"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="ComboResult:= Rd ~ UnitS"/>
+              </Otherwise>
+            </Choose>
+            <!--<rep:Reporter.Information Text="'Output'" Markup="Header3" Target="ElectronicsTasks"/>-->
+            <rep:Reporter.LabelValue Label="'Matches specs'" Value="IfElse(MatchesSpec(ComboResult, TargetValue), 'YES', 'NO!')" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="'Used E-series'" Value="(ValueSetsEnumManager.NameRegister.Objects[ValueSets] as TValueSetsEnumInfo).Description" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="'Relative difference'" Value="StoreDecimalQuantityToStr(Diff * cFracToPerc, 5)" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="'Refined'" Value="IfElse(HasRefined, sYes, sNo)" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="'Result'" Value="DQToStr(ComboResult, True)" Target="ElectronicsTasks"/>
+            <!--<rep:Reporter.Information Text="'Input'" Markup="Header3" Target="ElectronicsTasks"/>-->
+            <!--<rep:Reporter.LabelValue Label="'A'" Value="DQToStr(A, True)" Target="ElectronicsTasks" Condition="Assigned(NodeA)"/>
+            <rep:Reporter.LabelValue Label="'B'" Value="DQToStr(B, True)" Target="ElectronicsTasks" Condition="Assigned(NodeB)"/>
+            <rep:Reporter.LabelValue Label="'C'" Value="DQToStr(C, True)" Target="ElectronicsTasks" Condition="Assigned(NodeC)"/>
+            <rep:Reporter.LabelValue Label="'D'" Value="DQToStr(D, True)" Target="ElectronicsTasks" Condition="Assigned(NodeD)"/>-->
+            <ForLoop Indexer="I" From="0" To="InputCount - 1">
+              <rep:Reporter.LabelValue Label="ListValue(I, '', 'A', 'B', 'C', 'D')" Value="DQToStr(InputValues[I], True)" Target="ElectronicsTasks"/>
+            </ForLoop>
+          </Block>
+        </Objects.Use>
+        <Task.MarkHandled/>
+      </Block>
+    </Task>
+
+    <Task Identifier="ElectronicsTasks.ComponentCombinations">
+      <Variables>
+        <Variable Identifier="AvailableInputTask" Type="TTaskRef" Init="ObjNil"/>
+      </Variables>
+      <Init>
+        <Task.Description Expression="cCompCombosTask"/>
+        <Choose>
+          <When Expression="not Assigned(Task.InstanceObject)">
+          </When>
+          <When Expression="Task.InstanceObject is TTaskRef">
+            <Execute Statement="AvailableInputTask:= Task.InstanceObject as TTaskRef"/>
+          </When>
+        </Choose>
+        <Object.Use Identifier="Ini" Type="TIniHelper" Expression="TIniHelper.Create(ConfigInifile, True)" Condition="not Assigned(AvailableInputTask)">
+          <Execute Statement="Ini.Section(Task.Name + '.Init')"/>
+          <Variable Identifier="Source" Type="TAvailableValueSource" Init="TAvailableValueSource.None"/>
+          <Execute Statement="Source:= Ini.ReadEnum('Source', Source, AvailableValueSourceEnumManager.NameRegister)"/>
+          <!--<rep:Reporter.LabelValue Label="'Source'" Value="AvailableValueSourceEnumManager.NameRegister.Keys[Source]" Target="ElectronicsTasks"/>-->
+          <Case Expression="Source">
+            <On Select="TAvailableValueSource.InputTab">
+              <Task.AcquireTaskReference Task="ElectronicsTasks.AvailableValues.InputTab" RefObj="TTaskRef.Create" ReleaseObj="AvailableInputTask"/>
+            </On>
+          </Case>
+        </Object.Use>
+        <Variable Identifier="NameRegister" Type="TEnumNameRegister" Init="FourCompConfigEnumManager.NameRegister"/>
+        <ForLoop Indexer="I" From="T4CompConfig.Low" To="T4CompConfig.High">
+          <Task.AddDependency Task="ElectronicsTasks.ComponentCombination" InstanceObject="TCombinationInfo.Create(NameRegister.Objects[I], AvailableInputTask)"/>
+        </ForLoop>
+      </Init>
+      <Block>
+        <Task.MarkHandled/>
+      </Block>
+      <Finalization>
+        <Free Identifier="AvailableInputTask"/>
+      </Finalization>
+    </Task>
+  </Procedures>
+</pkg:Library>

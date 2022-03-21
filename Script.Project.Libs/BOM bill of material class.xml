@@ -17,8 +17,10 @@
   xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
   >
   <Uses>
-    <Use Identifier="BomClasses"/>
+    <Use Identifier="ScienceIniHelper"/>
     <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
     <Use Identifier="ResistorClasses"/>
     <Use Identifier="CapacitorClasses"/>
     <Use Identifier="InductorClasses"/>
@@ -32,29 +34,34 @@
     <Use Identifier="CalculatedSpecificationsClasses"/>
   </Uses>
   <Type>
-    <DataClass Identifier="TBillOfMaterials" Inherit="TCategoryContainer" DefaultConstructor="none">
+    <DataClass Identifier="TSheetInfoLink">
+      <Constant Identifier="CommentCount" Type="UInt32" Expression="9"/>
+      <Field Identifier="Name" Type="string"/>
+      <Field Identifier="Number" Type="UInt32"/>
       <Field Identifier="Title" Type="string"/>
       <Field Identifier="Company" Type="string"/>
       <Field Identifier="Revision" Type="string"/>
       <Field Identifier="Date" Type="string"/>
       <Field Identifier="Source" Type="string"/>
-      <Field Identifier="Comment1" Type="string"/>
-      <Field Identifier="Comment2" Type="string"/>
-      <Field Identifier="Comment3" Type="string"/>
-      <Field Identifier="Comment4" Type="string"/>
+      <Field.Indexed Identifier="Comments" Type="string" Count="CommentCount"/>
+      <Field Identifier="Next" Type="TSheetInfoLink"/>
+    </DataClass>
+
+    <DataClass Identifier="TBillOfMaterials" Inherit="TCategoryContainer" DefaultConstructor="none">
       <Field Identifier="BomCount" Type="UInt32"/>
       <Field Identifier="PickRequestList" Type="TObjectList"/>
+      <Field Identifier="SheetInfoHead" Type="TSheetInfoLink"/>
     </DataClass>
   </Type>
   <Procedures>
 
     <Procedure Identifier="TBillOfMaterials.LoadTemplatesFromIniFile">
       <Parameters>
-        <Parameter Identifier="IniFile" Type="TCustomIniFile"/>
+        <Parameter Identifier="Ini" Type="TIniHelper"/>
       </Parameters>
       <Block>
         <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
-          <Execute Statement="RunningItem.LoadTemplatesFromIniFile(IniFile)"/>
+          <Execute Statement="RunningItem.LoadTemplatesFromIniFile(Ini)"/>
         </lil:LinkedList.Iterate>
       </Block>
     </Procedure>
@@ -66,7 +73,6 @@
         <Parameter Identifier="ID" Type="Integer" />
       </Parameters>
       <Block>
-        <rep:Reporter.Information Text="Format('Component: %s', Reference)"  Markup="Header3" Condition="IsVerbose"/>
         <Choose>
           <When Expression="Resistors.ProcessSchemaXml(Element, Reference, ID)"/>
           <When Expression="Capacitors.ProcessSchemaXml(Element, Reference, ID)"/>
@@ -78,10 +84,9 @@
           <When Expression="IntegratedCircuits.ProcessSchemaXml(Element, Reference, ID)"/>
           <When Expression="NamedComponents.ProcessSchemaXml(Element, Reference, ID)"/>
           <Otherwise>
-            <rep:Reporter.Error Text="Format('Component %s werd niet herkend', Reference)"/>
+            <rep:Reporter.Error Text="Format(sUnrecognizedComponent, Reference)"/>
           </Otherwise>
         </Choose>
-        <rep:Reporter.Information Text="''" Condition="IsVerbose"/>
       </Block>
     </Procedure>
 
@@ -94,6 +99,8 @@
         <Variable Identifier="Count" Type="Integer" Init="0"/>
       </Variables>
       <Block>
+        <Variable Identifier="SheetInfoHead" Type="TSheetInfoLink" Init="ObjNil"/>
+        <Variable Identifier="SheetInfoTail" Type="TSheetInfoLink" Init="ObjNil"/>
         <msx:Document.Create Identifier="Document"/>
         <msx:Document.LoadFromFile Document="Document" Filename="Filename"/>
         <msx:Node.IterateChilds Node="Document">
@@ -104,54 +111,49 @@
                   <msx:Block>
                     <msx:Node.IterateChilds Node="Node">
                       <msx:OnElement baseName="'sheet'">
+                        <msx:Attribute baseName="'number'" Required="false"/>
+                        <msx:Attribute baseName="'name'" Required="true"/>
                         <msx:Block>
+                          <lil:LinkedList.LinkUp Head="SheetInfoHead" Tail="SheetInfoTail" Item="TSheetInfoLink.Create" TailLinkStatement="SheetInfoTail.Next:= Item"/>
+                          <Execute Statement="SheetInfoTail.Name:= name.Text"/>
+                          <Execute Statement="SheetInfoTail.Number:= IfElse(Assigned(number), StrToInt(number.Text), -1)"/>
                           <msx:Node.IterateChilds Node="Node">
                             <msx:OnElement baseName="'title_block'">
                               <msx:Block>
                                 <msx:Node.IterateChilds Node="Node">
                                   <msx:OnElement baseName="'title'">
                                     <msx:Block>
-                                      <Execute Statement="Title:= Node.Text"/>
+                                      <Execute Statement="SheetInfoTail.Title:= Node.Text"/>
                                     </msx:Block>
                                   </msx:OnElement>
                                   <msx:OnElement baseName="'company'">
                                     <msx:Block>
-                                      <Execute Statement="Company:= Node.Text"/>
+                                      <Execute Statement="SheetInfoTail.Company:= Node.Text"/>
                                     </msx:Block>
                                   </msx:OnElement>
                                   <msx:OnElement baseName="'rev'">
                                     <msx:Block>
-                                      <Execute Statement="Revision:= Node.Text"/>
+                                      <Execute Statement="SheetInfoTail.Revision:= Node.Text"/>
                                     </msx:Block>
                                   </msx:OnElement>
                                   <msx:OnElement baseName="'date'">
                                     <msx:Block>
-                                      <Execute Statement="Date:= Node.Text"/>
+                                      <Execute Statement="SheetInfoTail.Date:= Node.Text"/>
                                     </msx:Block>
                                   </msx:OnElement>
                                   <msx:OnElement baseName="'source'">
                                     <msx:Block>
-                                      <Execute Statement="Source:= Node.Text"/>
+                                      <Execute Statement="SheetInfoTail.Source:= Node.Text"/>
                                     </msx:Block>
                                   </msx:OnElement>
                                   <msx:OnElement baseName="'comment'">
                                     <msx:Attribute baseName="'number'" Required="true"/>
                                     <msx:Attribute baseName="'value'" Required="true"/>
                                     <msx:Block>
-                                      <Case Expression="StrToInt(number.Text)">
-                                        <On Select="1">
-                                          <Execute Statement="Comment1:= value.Text"/>
-                                        </On>
-                                        <On Select="2">
-                                          <Execute Statement="Comment2:= value.Text"/>
-                                        </On>
-                                        <On Select="3">
-                                          <Execute Statement="Comment3:= value.Text"/>
-                                        </On>
-                                        <On Select="4">
-                                          <Execute Statement="Comment4:= value.Text"/>
-                                        </On>
-                                      </Case>
+                                      <sys:Variable Identifier="NumberI" Type="UInt32" Init="StrToInt(number.Text) - 1"/>
+                                      <sys:Block Condition="NumberI &lt; TSheetInfoLink.CommentCount - 1">
+                                        <Execute Statement="SheetInfoTail.Comments[NumberI]:= value.Text"/>
+                                      </sys:Block>
                                     </msx:Block>
                                   </msx:OnElement>
                                   <msx:OnOtherElement/>
@@ -186,28 +188,46 @@
             </msx:Block>
           </msx:OnElement>
         </msx:Node.IterateChilds>
+        <Execute Statement="Self.SheetInfoHead:= SheetInfoHead"/>
       </Block>
     </Procedure>
 
-    <Procedure Identifier="TBillOfMaterials.ReportTitleBlock">
+    <Procedure Identifier="TBillOfMaterials.ReportSheetBlock">
       <Block>
-        <rep:Reporter.LabelValue Label="sTitleField" Value="Title" Condition="IsNonEmptystring(Title)"/>
-        <rep:Reporter.LabelValue Label="sCompanyField" Value="Company" Condition="IsNonEmptystring(Company)"/>
-        <rep:Reporter.LabelValue Label="sRevisionField" Value="Revision" Condition="IsNonEmptystring(Revision)"/>
-        <rep:Reporter.LabelValue Label="sDateField" Value="Date" Condition="IsNonEmptystring(Date)"/>
-        <rep:Reporter.LabelValue Label="sSourceField" Value="Source" Condition="IsNonEmptystring(Source)"/>
-        <rep:Reporter.LabelValue Label="sComment1Field" Value="Comment1" Condition="IsNonEmptystring(Comment1)"/>
-        <rep:Reporter.LabelValue Label="sComment2Field" Value="Comment2" Condition="IsNonEmptystring(Comment2)"/>
-        <rep:Reporter.LabelValue Label="sComment3Field" Value="Comment3" Condition="IsNonEmptystring(Comment3)"/>
-        <rep:Reporter.LabelValue Label="sComment4Field" Value="Comment4" Condition="IsNonEmptystring(Comment4)"/>
+        <Exit Condition="SheetInfo = TSheetInfo.None"/>
+        <rep:Reporter.Information Text="sSheetsHeader" Markup="Header2" Condition="SheetInfo &lt;&gt; TSheetInfo.Root"/>
+        <lil:LinkedList.Iterate Head="SheetInfoHead" ItemType="TSheetInfoLink" RunningItem="Item" Next="Item.Next">
+          <Choose>
+            <When Expression="IsNonEmptystring(Item.Title)">
+              <rep:Reporter.Information Text="Item.Title" Markup="Header2" Condition="SheetInfo = TSheetInfo.Root"/>
+              <rep:Reporter.Information Text="Item.Title" Markup="Header3" Condition="SheetInfo &lt;&gt; TSheetInfo.Root"/>
+            </When>
+            <Otherwise>
+              <rep:Reporter.Information Text="Format(sSheetHeader, Item.Number)" Markup="Header2" Condition="SheetInfo = TSheetInfo.Root"/>
+              <rep:Reporter.Information Text="Format(sSheetHeader, Item.Number)" Markup="Header3" Condition="SheetInfo &lt;&gt; TSheetInfo.Root"/>
+            </Otherwise>
+          </Choose>
+          <Block Condition="SheetInfo &lt;&gt; TSheetInfo.Root">
+            <rep:Reporter.LabelValue Label="sNameField" Value="Item.Name"/>
+            <rep:Reporter.LabelValue Label="sNumberField" Value="Format('%d', Item.Number)" Condition="Item.Number &lt;&gt; -1"/>
+          </Block>
+          <rep:Reporter.LabelValue Label="sCompanyField" Value="Item.Company" Condition="IsNonEmptystring(Item.Company)"/>
+          <rep:Reporter.LabelValue Label="sRevisionField" Value="Item.Revision" Condition="IsNonEmptystring(Item.Revision)"/>
+          <rep:Reporter.LabelValue Label="sDateField" Value="Item.Date" Condition="IsNonEmptystring(Item.Date)"/>
+          <rep:Reporter.LabelValue Label="sSourceField" Value="Item.Source" Condition="IsNonEmptystring(Item.Source)"/>
+          <sys:ForLoop Indexer="I" From="0" To="TSheetInfoLink.CommentCount - 1">
+            <rep:Reporter.LabelValue Label="Format(sCommentField, I + 1)" Value="Item.Comments[I]" Condition="IsNonEmptystring(Item.Comments[I])"/>
+          </sys:ForLoop>
+          <Exit Condition="SheetInfo = TSheetInfo.Root"/>
+        </lil:LinkedList.Iterate>
       </Block>
     </Procedure>
 
     <Procedure Identifier="TBillOfMaterials.Report">
       <Block>
         <rep:Reporter.Information Text="sBOMHeader" Markup="Header1"/>
-        <Execute Statement="ReportTitleBlock"/>
-        <rep:Reporter.LabelValue Label="sCountField" Value="IntToStr(BomCount)"/>
+        <rep:Reporter.LabelValue Label="sCountField" Value="IntToStr(BomCount)" Condition="BomCount &lt;&gt; 1"/>
+        <Execute Statement="ReportSheetBlock"/>
 
         <Object.Use Identifier="SchemaContext" Type="TSchemaReportContext" Expression="TSchemaReportContext.Create">
           <Object.Use Identifier="StockContext" Type="TStockReportContext" Expression="TStockReportContext.Create">
@@ -223,7 +243,7 @@
                 <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
                   <Execute Statement="RunningCategory.ReportSchema(BomCount, SchemaContext, StockContext)"/>
                 </lil:LinkedList.Iterate>
-                <rep:Reporter.Information Text="''"/>
+                <!--<rep:Reporter.Information Text="''"/>-->
                 <Execute Statement="StockContext.Measure:= False"/>
                 <Execute Statement="SpecReportContext.Measure:= False"/>
                 <Execute Statement="SchemaContext.Measure:= False"/>
@@ -278,14 +298,14 @@
               <lil:LinkedList.Iterate Head="DesignatorInfoHead" ItemType="TDesignatorInfo" RunningItem="RunningDesignatorInfo" Next="RunningDesignatorInfo.Next">
                 <Execute Statement="ComponentSpec:= RunningDesignatorInfo.ComponentSpec"/>
                 <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
-                <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
+                <Execute Statement="ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, Length(Component.Reference)+2)"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(TNamedComponentSpecColumns.Max+3, 1, Length(ComponentKindDescription(ComponentSpec.ComponentKind)))"/>
               </lil:LinkedList.Iterate>
               <lil:LinkedList.Iterate Head="CalculatedDesignatorInfoHead" ItemType="TDesignatorInfo" RunningItem="RunningDesignatorInfo" Next="RunningDesignatorInfo.Next">
                 <Execute Statement="ComponentSpec:= RunningDesignatorInfo.ComponentSpec"/>
                 <Execute Statement="Component:= RunningDesignatorInfo.SchemaComponent"/>
-                <Execute Statement="ComponentSpecAsString:= ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
+                <Execute Statement="ComponentSpec.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(0, 1, Length(Component.Reference)+2)"/>
                 <Execute Statement="ColumnManager.RequestColumnWidth(TNamedComponentSpecColumns.Max+3, 1, Length(ComponentKindDescription(ComponentSpec.ComponentKind)))"/>
               </lil:LinkedList.Iterate>
@@ -295,7 +315,7 @@
               <Execute Statement="SpecReportContext.Measure:= False"/>
               <Execute Statement="DesignatorsReportContext.Measure:= False"/>
               <rep:Reporter.Information Text="sDesignatorReport" Markup="Header1"/>
-              <Execute Statement="ReportTitleBlock"/>
+              <Execute Statement="ReportSheetBlock"/>
               <Variable Identifier="RunningDesignatorInfo" Type="TDesignatorInfo" Init="DesignatorInfoHead"/>
               <Variable Identifier="RunningCalcDesignatorInfo" Type="TDesignatorInfo" Init="CalculatedDesignatorInfoHead"/>
               <Variable Identifier="CompResult" Type="Integer"/>
@@ -500,8 +520,8 @@
                 <Execute Statement="SchemaContext.Measure:= False"/>
                 <Execute Statement="ClearPickCount"/>
                 <rep:Reporter.Information Text="sReportStorageLocations" Markup="Header1"/>
-                <Execute Statement="ReportTitleBlock"/>
-                <rep:Reporter.LabelValue Label="sCountField" Value="IntToStr(BomCount)"/>
+                <Execute Statement="ReportSheetBlock"/>
+                <rep:Reporter.LabelValue Label="sCountField" Value="IntToStr(BomCount)" Condition="BomCount &lt;&gt; 1"/>
                 <rep:Reporter.Information Text="''"/>
                 <Execute Statement="ReportLocationCategory(StockManager.RootStorageLocationCategory, SchemaContext, StockContext)"/>
                 <Execute Statement="ReportRequestsOutOfStock(StockContext)"/>
@@ -528,7 +548,7 @@
           <lil:LinkedList.Iterate Head="StockManager.CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
             <lil:LinkedList.Iterate Head="RunningItem.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpec" Next="RunningSpec.Next">
               <Case Expression="RunningSpec.InternalPartNumberVT">
-                <On Select="TValueType.SpecifiedByTemplate, TValueType.Specified">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
                   <inx:Index.MapValue Index="InternalPartNumberIndex" Key="RunningSpec.InternalPartNumber" PreviousValue="FoundValue" Found="Found" Value="Value" Flags="NoErrorOnExist DiscardOnExist"/>
                   <Execute Statement="Link:= TSpecificationLink.Create(RunningSpec)"/>
                   <Choose>
