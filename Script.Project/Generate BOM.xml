@@ -220,7 +220,7 @@ ID = -1
 
   <Constants>
     <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
-    <Constant Identifier="ScriptVersion" Type="string" Expression="'7.00.3.0.0.61'"/>
+    <Constant Identifier="ScriptVersion" Type="string" Expression="'7.00.3.0.0.65'"/>
   </Constants>
 
   <Variables>
@@ -853,6 +853,7 @@ ID = -1
         <Task.Description Expression="Format(sCombineTargetMatchingsStockMatching, ConfigurationKind + 1, ConfigurationInfo.Description)"/>
         <Task.AddDependency Task="ElectronicsTasks.ComponentCombination" InstanceObject="CombinationInfo" Result="ComponentCombination" ResultType="TCombinationResult"/>
         <Task.AddDependency Task="CombineTargetMatching.Stock.Source" Result="StockSource" ResultType="TAvailableValuesSource"/>
+        <Task.AddDependency Task="GlobalConfig"/>
       </Init>
       <Block>
         <Variable Identifier="Value" Type="DecimalQuantity"/>
