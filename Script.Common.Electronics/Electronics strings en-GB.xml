@@ -47,6 +47,7 @@
     <Constant Identifier="cValuesManagerTask" Type="string" Expression="'Simulation values manager'"/>
     <Constant Identifier="cComboConfigTask" Type="string" Expression="'Combinations configuration'"/>
     <Constant Identifier="cCombinationTargetTask" Type="string" Expression="'Combination target configuration'"/>
-    <Constant Identifier="cAvailableValuesInputTask" Type="string" Expression="'Available values provided by input tabsheet'"/>
+    <Constant Identifier="cAvailableValuesInputTabTask" Type="string" Expression="'Available values provided by input tabsheet'"/>
+    <Constant Identifier="cAvailableValuesTextFileTask" Type="string" Expression="'Available values provided by a text file'"/>
   </Constants>
 </pkg:Library>

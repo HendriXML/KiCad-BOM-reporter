@@ -422,7 +422,6 @@
       <Block>
         <Variable Identifier="UnitSeparator" Type="string" Init="' '"/>
         <Variable Identifier="SignificantDigits" Type="Integer" Init="SignificantDigitsOfDecimalQuantity(Value)"/>
-        <!--<rep:Reporter.Information Text="Format('SignificantDigits: %d', SignificantDigits)" Condition="IsDebugging"/>-->
         <Variable Identifier="UncertaintySignificantDigits" Type="Integer"/>
         <Variable Identifier="PrevFormat" Type="string"/>
         <Execute Statement="SignificantDigits:= SignificantDigitsOfDecimalQuantity(Value, UncertaintySignificantDigits)" Condition="AddUncertainty"/>

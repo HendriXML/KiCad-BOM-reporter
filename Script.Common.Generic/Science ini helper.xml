@@ -27,7 +27,11 @@
     <DataClass Identifier="TIniHelper" DefaultConstructor="none">
       <Field Identifier="Inifile" Type="TCustomIniFile"/>
       <Field Identifier="EnableEcho" Type="Boolean"/>
+      <Field Identifier="AutoComments" Type="Boolean"/>
       <Field Identifier="CurrentSection" Type="string"/>
+    </DataClass>
+
+    <DataClass Identifier="TScienceIniHelper" Inherit="TIniHelper" DefaultConstructor="none">
     </DataClass>
   </Type>
 
@@ -47,7 +51,7 @@
         <Execute Statement="Result:= ResultDQ"/>
       </Block>
     </Function>
-    
+
     <Procedure Identifier="TIniHelper.Section">
       <Parameters>
         <Parameter Identifier="Section" Type="string"/>
@@ -61,6 +65,42 @@
         </Block>
       </Block>
     </Procedure>
+
+    <Procedure Identifier="TIniHelper.EchoComment">
+      <Parameters>
+        <Parameter Identifier="Comment" Type="string"/>
+      </Parameters>
+      <Block>
+        <rep:Reporter.Information Text="';' + Comment" Target="IniFileEcho" Markup="Comment" Condition="EnableEcho"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TIniHelper.EchoEnumComment" Type="TEnumBase">
+      <Parameters>
+        <Parameter Identifier="Key" Type="string"/>
+        <Parameter Identifier="EnumRegister" Type="TEnumNameRegister"/>
+        <Parameter Identifier="Seperation" Type="string"/>
+      </Parameters>
+      <Block>
+        <Exit Condition="not EnableEcho"/>
+        <Variable Identifier="Value" Type="string" Init="''"/>
+        <Variable Identifier="EnumName" Type="string"/>
+        <stm:StateHandler InitialState="First">
+          <ForLoop Indexer="I" From="0" To="EnumRegister.HighItem">
+            <stm:HandleStates Condition="EnumRegister.GetKey(I, EnumName)">
+              <stm:State Name="First">
+                <Execute Statement="Value:= EnumName"/>
+                <stm:SetState Name="Other"/>
+              </stm:State>
+              <stm:State Name="Other">
+                <Execute Statement="Value:= Value + Seperation + EnumName"/>
+              </stm:State>
+            </stm:HandleStates>
+          </ForLoop>
+        </stm:StateHandler>
+        <rep:Reporter.Information Text="';' + Key + '=' + Value" Target="IniFileEcho" Markup="Comment" Condition="EnableEcho"/>
+      </Block>
+    </Function>
 
     <Function Identifier="TIniHelper.ReadBool" Type="Boolean">
       <Parameters>
@@ -148,103 +188,6 @@
       </Block>
     </Function>
 
-    <Constructor Identifier="TIniHelper.Create">
-      <Parameters>
-        <Parameter Identifier="Inifile" Type="TCustomIniFile"/>
-        <Parameter Identifier="EnableEcho" Type="Boolean"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Self.Inifile:= Inifile"/>
-        <Execute Statement="Self.EnableEcho:= EnableEcho"/>
-      </Block>
-    </Constructor>
-
-    <Function Identifier="TIniHelper.ReadDecimalQuantity" Type="DecimalQuantity">
-      <Parameters>
-        <Parameter Identifier="Key" Type="string"/>
-        <Parameter Identifier="Default" Type="DecimalQuantity"/>
-        <Parameter Identifier="AddUncertainty" Type="Boolean"/>
-      </Parameters>
-      <Block>
-        <Variable Identifier="ResultS" Type="string" Init="Inifile.ReadString(CurrentSection, Key, TransferDecimalQuantityToStr(Default, AddUncertainty))"/>
-        <Execute Statement="Result:= TransferStrToDecimalQuantity(ResultS)"/>
-        <Execute Statement="Result:= Result ± (0.0 ~ Result.UnitS)" Condition="not AddUncertainty"/>
-        <rep:Reporter.LabelValue Label="Key" Value="'= ' + TransferDecimalQuantityToStr(Result, AddUncertainty)" Target="IniFileEcho" Condition="EnableEcho"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TIniHelper.ReadDecimalQuantity" Type="DecimalQuantity">
-      <Parameters>
-        <Parameter Identifier="Key" Type="string"/>
-        <Parameter Identifier="Default" Type="DecimalQuantity"/>
-      </Parameters>
-      <Block>
-        <Variable Identifier="ResultS" Type="string" Init="Inifile.ReadString(CurrentSection, Key, TransferDecimalQuantityToStr(Default, False))"/>
-        <Execute Statement="Result:= TransferStrToDecimalQuantity(ResultS)"/>
-        <rep:Reporter.LabelValue Label="Key" Value="'= ' + TransferDecimalQuantityToStr(Result, False)" Target="IniFileEcho" Condition="EnableEcho"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TIniHelper.ReadFrequency" Type="FrequencyDQ">
-      <Parameters>
-        <Parameter Identifier="Key" Type="string"/>
-        <Parameter Identifier="Default" Type="FrequencyDQ"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TIniHelper.ReadVoltage" Type="VoltageDQ">
-      <Parameters>
-        <Parameter Identifier="Key" Type="string"/>
-        <Parameter Identifier="Default" Type="VoltageDQ"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TIniHelper.ReadVoltagePerDiv" Type="VoltagePerDivDQ">
-      <Parameters>
-        <Parameter Identifier="Key" Type="string"/>
-        <Parameter Identifier="Default" Type="VoltagePerDivDQ"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TIniHelper.ReadTime" Type="TimeDQ">
-      <Parameters>
-        <Parameter Identifier="Key" Type="string"/>
-        <Parameter Identifier="Default" Type="TimeDQ"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TIniHelper.ReadCurrent" Type="CurrentDQ">
-      <Parameters>
-        <Parameter Identifier="Key" Type="string"/>
-        <Parameter Identifier="Default" Type="CurrentDQ"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
-      </Block>
-    </Function>
-
-    <Function Identifier="TIniHelper.ReadDimensionless" Type="DimensionlessDQ">
-      <Parameters>
-        <Parameter Identifier="Key" Type="string"/>
-        <Parameter Identifier="Default" Type="DimensionlessDQ"/>
-      </Parameters>
-      <Block>
-        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
-      </Block>
-    </Function>
-
     <Function Identifier="TIniHelper.ReadDecimal" Type="Decimal">
       <Parameters>
         <Parameter Identifier="Key" Type="string"/>
@@ -267,7 +210,10 @@
       <Block>
         <Variable Identifier="ResultS" Type="string" Init="Inifile.ReadString(CurrentSection, Key, EnumRegister.Keys[Default])"/>
         <Execute Statement="Result:= EnumRegister.IDsByKey[ResultS]"/>
-        <rep:Reporter.LabelValue Label="Key" Value="'= ' + EnumRegister.Keys[Result]" Target="IniFileEcho" Condition="EnableEcho"/>
+        <Block Condition="EnableEcho">
+          <Execute Statement="EchoEnumComment(Key, EnumRegister, '|')" Condition="AutoComments"/>
+          <rep:Reporter.LabelValue Label="Key" Value="'= ' + EnumRegister.Keys[Result]" Target="IniFileEcho"/>
+        </Block>
       </Block>
     </Function>
 
@@ -280,7 +226,108 @@
       <Block>
         <Variable Identifier="ResultS" Type="string" Init="Inifile.ReadString(CurrentSection, Key, EnumRegister.FlagsToString(Default))"/>
         <Execute Statement="Result:= Default" Condition="not EnumRegister.GetFlags(ResultS, Result)"/>
-        <rep:Reporter.LabelValue Label="Key" Value="'= ' + EnumRegister.FlagsToString(Result)" Target="IniFileEcho" Condition="EnableEcho"/>
+        <Block Condition="EnableEcho">
+          <Execute Statement="EchoEnumComment(Key, EnumRegister, ', ')" Condition="AutoComments"/>
+        <rep:Reporter.LabelValue Label="Key" Value="'= ' + EnumRegister.FlagsToString(Result)" Target="IniFileEcho"/>
+        </Block>
+      </Block>
+    </Function>
+
+    <Constructor Identifier="TIniHelper.Create">
+      <Parameters>
+        <Parameter Identifier="Inifile" Type="TCustomIniFile"/>
+        <Parameter Identifier="EnableEcho" Type="Boolean"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Self.Inifile:= Inifile"/>
+        <Execute Statement="Self.EnableEcho:= EnableEcho"/>
+        <Execute Statement="AutoComments:= True"/>
+      </Block>
+    </Constructor>
+
+    <Function Identifier="TScienceIniHelper.ReadDecimalQuantity" Type="DecimalQuantity">
+      <Parameters>
+        <Parameter Identifier="Key" Type="string"/>
+        <Parameter Identifier="Default" Type="DecimalQuantity"/>
+        <Parameter Identifier="AddUncertainty" Type="Boolean"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ResultS" Type="string" Init="Inifile.ReadString(CurrentSection, Key, TransferDecimalQuantityToStr(Default, AddUncertainty))"/>
+        <Execute Statement="Result:= TransferStrToDecimalQuantity(ResultS)"/>
+        <Execute Statement="Result:= Result ± (0.0 ~ Result.UnitS)" Condition="not AddUncertainty"/>
+        <rep:Reporter.LabelValue Label="Key" Value="'= ' + TransferDecimalQuantityToStr(Result, AddUncertainty)" Target="IniFileEcho" Condition="EnableEcho"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TScienceIniHelper.ReadDecimalQuantity" Type="DecimalQuantity">
+      <Parameters>
+        <Parameter Identifier="Key" Type="string"/>
+        <Parameter Identifier="Default" Type="DecimalQuantity"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ResultS" Type="string" Init="Inifile.ReadString(CurrentSection, Key, TransferDecimalQuantityToStr(Default, False))"/>
+        <Execute Statement="Result:= TransferStrToDecimalQuantity(ResultS)"/>
+        <rep:Reporter.LabelValue Label="Key" Value="'= ' + TransferDecimalQuantityToStr(Result, False)" Target="IniFileEcho" Condition="EnableEcho"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TScienceIniHelper.ReadFrequency" Type="FrequencyDQ">
+      <Parameters>
+        <Parameter Identifier="Key" Type="string"/>
+        <Parameter Identifier="Default" Type="FrequencyDQ"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TScienceIniHelper.ReadVoltage" Type="VoltageDQ">
+      <Parameters>
+        <Parameter Identifier="Key" Type="string"/>
+        <Parameter Identifier="Default" Type="VoltageDQ"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TScienceIniHelper.ReadVoltagePerDiv" Type="VoltagePerDivDQ">
+      <Parameters>
+        <Parameter Identifier="Key" Type="string"/>
+        <Parameter Identifier="Default" Type="VoltagePerDivDQ"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TScienceIniHelper.ReadTime" Type="TimeDQ">
+      <Parameters>
+        <Parameter Identifier="Key" Type="string"/>
+        <Parameter Identifier="Default" Type="TimeDQ"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TScienceIniHelper.ReadCurrent" Type="CurrentDQ">
+      <Parameters>
+        <Parameter Identifier="Key" Type="string"/>
+        <Parameter Identifier="Default" Type="CurrentDQ"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TScienceIniHelper.ReadDimensionless" Type="DimensionlessDQ">
+      <Parameters>
+        <Parameter Identifier="Key" Type="string"/>
+        <Parameter Identifier="Default" Type="DimensionlessDQ"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ReadDecimalQuantity(Key, Default)"/>
       </Block>
     </Function>
 

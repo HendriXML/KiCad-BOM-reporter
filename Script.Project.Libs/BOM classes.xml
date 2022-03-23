@@ -170,7 +170,7 @@
       <Field Identifier="PartNumber" Type="string"/>
       <Field Identifier="ManufacturerVT" Type="TValueType"/>
       <Field Identifier="Manufacturer" Type="string"/>
-      <Field Identifier="SchemaUsageCount" Type="UInt32"/>
+      <Field Identifier="SchemaUsageCount" Type="Integer"/>
       <Field Identifier="ComponentDesignators" Type="string"/>
       <Field Identifier="PickedCount" Type="UInt32"/>
       <Field Identifier="Next" Type="TComponentSpec"/>
@@ -1543,7 +1543,7 @@
 
     <Procedure Identifier="TComponentSpec.LoadFromIniFileSection">
       <Parameters>
-        <Parameter Identifier="Ini" Type="TIniHelper"/>
+        <Parameter Identifier="Ini" Type="TScienceIniHelper"/>
         <Parameter Identifier="Section" Type="string"/>
       </Parameters>
       <Variables>
@@ -1783,7 +1783,7 @@
 
     <Procedure Identifier="TComponentCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
       <Parameters>
-        <Parameter Identifier="Ini" Type="TIniHelper"/>
+        <Parameter Identifier="Ini" Type="TScienceIniHelper"/>
       </Parameters>
       <Block>
       </Block>
@@ -1791,7 +1791,7 @@
 
     <Function Identifier="TComponentCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
       <Parameters>
-        <Parameter Identifier="Ini" Type="TIniHelper"/>
+        <Parameter Identifier="Ini" Type="TScienceIniHelper"/>
         <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
       </Parameters>
       <Block>
@@ -2054,7 +2054,7 @@
         <Parameter Identifier="StockCategory" Type="TComponentCategory"/>
         <Parameter Identifier="InternalPartNumberIndex" Type="TMappingCaseInSensitiveUnicodeStringToObject"/>
         <Parameter Identifier="PickRequestList" Type="TObjectList"/>
-        <Parameter Identifier="BomCount" Type="UInt32"/>
+        <Parameter Identifier="BomCount" Type="Integer"/>
       </Parameters>
       <Variables>
         <Variable Identifier="RunningSpec" Type="TComponentSpec" Init="ComponentSpecHead"/>
@@ -2063,7 +2063,7 @@
         <Variable Identifier="RunningComponent" Type="TSchemaComponent"/>
         <Variable Identifier="StorageLocation" Type="TStorageLocation"/>
         <Variable Identifier="PickRequest" Type="TPickRequest"/>
-        <Variable Identifier="TotCount" Type="UInt32"/>
+        <Variable Identifier="TotCount" Type="Integer"/>
       </Variables>
       <Block>
         <WhileLoop Expression="Assigned(RunningSpec)">
@@ -3087,8 +3087,6 @@
             </StringLoop>
           </stm:StateHandler>
           <Exit Condition="not ValidEndState"/>
-          <!--<rep:Reporter.Information Text="Format('Scale: %d', Scale)" Condition="IsDebugging"/>
-          <rep:Reporter.Information Text="Format('FracScale: %d', FracScale)" Condition="IsDebugging"/>-->
           <Execute Statement="IntValue:= Digits.GetDecimal(Scale + FracScale, IsNegative) ~ UnitStr"/>
         </Object.Use>
         <Exit Result="True"/>

@@ -57,7 +57,7 @@
       <Field Identifier="Description" Type="string"/>
     </DataClass>
 
-    <Enumeration Identifier="TAvailableValueSource" Elements="None, InputTab, TextFile, XmlFile, Stock" LowAlias="Low" HighAlias="High"/>
+    <Enumeration Identifier="TAvailableValueSource" Elements="None, InputTab, TextFile" LowAlias="Low" HighAlias="High"/>
 
     <DataClass Identifier="TAvailableValueSourceEnumInfo" ClassOfIdentifier="TTAvailableValueSourceEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
       <VirtualMethod Identifier="vmGetInfo" Override="true"/>
@@ -151,8 +151,6 @@
     <Variable Identifier="cAvailableValueSourceNone" Type="TAvailableValueSourceEnumInfo" Init="TAvailableValueSourceEnumInfo.Create(TAvailableValueSource.None, 'None')"/>
     <Variable Identifier="cAvailableValueSourceInputTab" Type="TAvailableValueSourceEnumInfo" Init="TAvailableValueSourceEnumInfo.Create(TAvailableValueSource.InputTab, 'InputTab')"/>
     <Variable Identifier="cAvailableValueSourceTextFile" Type="TAvailableValueSourceEnumInfo" Init="TAvailableValueSourceEnumInfo.Create(TAvailableValueSource.TextFile, 'TextFile')"/>
-    <Variable Identifier="cAvailableValueSourceXmlFile" Type="TAvailableValueSourceEnumInfo" Init="TAvailableValueSourceEnumInfo.Create(TAvailableValueSource.XmlFile, 'XmlFile')"/>
-    <Variable Identifier="cAvailableValueSourceStock" Type="TAvailableValueSourceEnumInfo" Init="TAvailableValueSourceEnumInfo.Create(TAvailableValueSource.Stock, 'Stock')"/>
     <Variable Identifier="AvailableValueSourceEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TAvailableValueSourceEnumInfo)"/>
   </Variables>
 
@@ -465,12 +463,6 @@
           </On>
           <On Select="TAvailableValueSource.TextFile">
             <Execute Statement="Result:= cAvailableValueSourceTextFile"/>
-          </On>
-          <On Select="TAvailableValueSource.XmlFile">
-            <Execute Statement="Result:= cAvailableValueSourceXmlFile"/>
-          </On>
-          <On Select="TAvailableValueSource.Stock">
-            <Execute Statement="Result:= cAvailableValueSourceStock"/>
           </On>
           <Otherwise>
             <Raise Expression="Exception.Create(sErrorInvalidAvailableValueSource)"/>

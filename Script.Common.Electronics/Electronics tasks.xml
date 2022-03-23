@@ -47,30 +47,38 @@
       <Field Identifier="ConfigurationInfo" Type="T4CompConfigEnumInfo"/>
       <Field Identifier="AvailableInputTask" Type="TTaskRef"/>
     </DataClass>
-    
+
     <DataClass Identifier="TCombinationResult">
       <Constant Identifier="MaxInputCount" Type="UInt32" Expression="4"/>
       <Field.Indexed Identifier="InputValues" Type="DecimalQuantity" Count="MaxInputCount"/>
       <Field Identifier="InputCount" Type="UInt32"/>
       <Field Identifier="ComboResult" Type="DecimalQuantity"/>
     </DataClass>
-    
+
     <DataClass Identifier="TAvailableValuesInfo">
       <Field Identifier="Values" Type="TESerieValues"/>
     </DataClass>
   </Type>
 
   <Procedures>
+    <Task Identifier="ElectronicsTasks.IniHelper" SelfType="TScienceIniHelper" SelfConstruction="TScienceIniHelper.Create(ConfigInifile, True)">
+      <Init>
+        <Task.Description Expression="'IniHelper'"/>
+      </Init>
+      <Block>
+        <Task.MarkHandled/>
+      </Block>
+    </Task>
+
     <Task Identifier="ElectronicsTasks.CombinationTarget" SelfType="TCombinationTarget" SelfConstruction="TCombinationTarget.Create">
       <Init>
         <Task.Description Expression="cCombinationTargetTask"/>
+        <Task.AddDependency Task="ElectronicsTasks.IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
-        <Object.Use Identifier="Ini" Type="TIniHelper" Expression="TIniHelper.Create(ConfigInifile, True)">
-          <Execute Statement="Ini.Section(Task.Name)"/>
-          <Execute Statement="Value:= Ini.ReadDecimalQuantity('Value', 100.0⌠Ω⌡, True)"/>
-          <rep:Reporter.LabelValue Label="'Target value'" Value="DQToStr(Value, True)" Target="ElectronicsTasks"/>
-        </Object.Use>
+        <Execute Statement="Ini.Section(Task.Name)"/>
+        <Execute Statement="Value:= Ini.ReadDecimalQuantity('Value', 100.0⌠Ω⌡, True)"/>
+        <rep:Reporter.LabelValue Label="'Target value'" Value="DQToStr(Value, True)" Target="ElectronicsTasks"/>
         <Task.MarkHandled/>
       </Block>
     </Task>
@@ -78,24 +86,47 @@
     <Task Identifier="ElectronicsTasks.CombinationParameters" SelfType="TCombinationParameters" SelfConstruction="TCombinationParameters.Create">
       <Init>
         <Task.Description Expression="cComboConfigTask"/>
+        <Task.AddDependency Task="ElectronicsTasks.IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
         <TryExcept>
           <Try>
-            <Object.Use Identifier="Ini" Type="TIniHelper" Expression="TIniHelper.Create(ConfigInifile, True)">
-              <Execute Statement="Ini.Section(Task.Name)"/>
-              <Execute Statement="MaxESerie:= TESerie.E24"/>
-              <Execute Statement="MaxESerie:= Ini.ReadEnum('MaxESerie', MaxESerie, ESerieEnumManager.NameRegister)"/>
-              <Execute Statement="Granularity:= TValueGranularity.Fine"/>
-              <Execute Statement="Granularity:= Ini.ReadEnum('Granularity', Granularity, ValueGranularityEnumManager.NameRegister)"/>
-              <Execute Statement="Tolerance:= Ini.ReadDecimalQuantity('Tolerance', 0.01⌠%⌡)"/>
-              <Execute Statement="Refine:= Ini.ReadBool('Refine', True)"/>
-              <Execute Statement="RefineESerie:= GetESerie(MaxESerie)"/>
-              <rep:Reporter.LabelValue Label="'Tolerances'" Value="DQToStr(Tolerance, False)" Target="ElectronicsTasks"/>
-              <rep:Reporter.LabelValue Label="'Granularity'" Value="ValueGranularityEnumManager.NameRegister.Keys[Granularity]" Target="ElectronicsTasks"/>
-              <rep:Reporter.LabelValue Label="'MaxESerie'" Value="ESerieEnumManager.NameRegister.Keys[MaxESerie]" Target="ElectronicsTasks"/>
-              <rep:Reporter.LabelValue Label="'Refine'" Value="IfElse(Refine, sYes, sNo)" Target="ElectronicsTasks"/>
-            </Object.Use>
+            <Execute Statement="Ini.Section(Task.Name)"/>
+            <Execute Statement="MaxESerie:= TESerie.E24"/>
+            <Execute Statement="MaxESerie:= Ini.ReadEnum('MaxESerie', MaxESerie, ESerieEnumManager.NameRegister)"/>
+            <Execute Statement="Tolerance:= 40⌠%⌡"/>
+            <Case Expression="MaxESerie">
+              <On Select="TESerie.E1, TESerie.E3">
+                <Execute Statement="Tolerance:= 40⌠%⌡"/>
+              </On>
+              <On Select="TESerie.E6">
+                <Execute Statement="Tolerance:= 20⌠%⌡"/>
+              </On>
+              <On Select="TESerie.E12">
+                <Execute Statement="Tolerance:= 10⌠%⌡"/>
+              </On>
+              <On Select="TESerie.E24">
+                <Execute Statement="Tolerance:= 5⌠%⌡"/>
+              </On>
+              <On Select="TESerie.E48">
+                <Execute Statement="Tolerance:= 2⌠%⌡"/>
+              </On>
+              <On Select="TESerie.E96">
+                <Execute Statement="Tolerance:= 1⌠%⌡"/>
+              </On>
+              <On Select="TESerie.E192">
+                <Execute Statement="Tolerance:= 0.5⌠%⌡"/>
+              </On>
+            </Case>
+            <Execute Statement="Granularity:= TValueGranularity.Fine"/>
+            <Execute Statement="Granularity:= Ini.ReadEnum('Granularity', Granularity, ValueGranularityEnumManager.NameRegister)"/>
+            <Execute Statement="Tolerance:= Ini.ReadDecimalQuantity('Tolerance', Tolerance)"/>
+            <Execute Statement="Refine:= Ini.ReadBool('Refine', True)"/>
+            <Execute Statement="RefineESerie:= GetESerie(MaxESerie)"/>
+            <rep:Reporter.LabelValue Label="'Tolerances'" Value="DQToStr(Tolerance, False)" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="'Granularity'" Value="ValueGranularityEnumManager.NameRegister.Keys[Granularity]" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="'MaxESerie'" Value="ESerieEnumManager.NameRegister.Keys[MaxESerie]" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="'Refine'" Value="IfElse(Refine, sYes, sNo)" Target="ElectronicsTasks"/>
             <Task.MarkHandled/>
           </Try>
           <Except>
@@ -122,24 +153,80 @@
 
     <Task Identifier="ElectronicsTasks.AvailableValues.InputTab" SelfType="TAvailableValuesInfo" SelfConstruction="TAvailableValuesInfo.Create">
       <Init>
-        <Task.Description Expression="cAvailableValuesInputTask"/>
+        <Task.Description Expression="cAvailableValuesInputTabTask"/>
         <Task.AddDependency Task="ElectronicsTasks.ValuesManager" Result="ValuesManager" ResultType="TESerieValuesManager"/>
       </Init>
       <Block>
-        <Execute Statement="Values:= ValuesManager.NewSerieValues"/>
-        <Execute Statement="Values.BeginUpdate"/>
-        <TryFinally>
+        <TryExcept>
           <Try>
-            <ForLoop Indexer="I" From="0" To="InputStrings.Count - 1">
-              <Variable Identifier="Value" Type="DecimalQuantity" Init="UiStrToDecimalQuantity(InputStrings[I])"/>
-              <Execute Statement="Values.AddSerieValue(Value)"/>
-            </ForLoop>
+            <Execute Statement="Values:= ValuesManager.NewSerieValues"/>
+            <Execute Statement="Values.BeginUpdate"/>
+            <TryFinally>
+              <Try>
+                <ForLoop Indexer="I" From="0" To="InputStrings.Count - 1">
+                  <Variable Identifier="Value" Type="DecimalQuantity" Init="UiStrToDecimalQuantity(InputStrings[I])"/>
+                  <Execute Statement="Values.AddSerieValue(Value)"/>
+                </ForLoop>
+              </Try>
+              <Finally>
+                <Execute Statement="Values.EndUpdate"/>
+              </Finally>
+            </TryFinally>
+            <Task.MarkHandled/>
           </Try>
-          <Finally>
-            <Execute Statement="Values.EndUpdate"/>
-          </Finally>
-        </TryFinally>
-        <Task.MarkHandled/>
+          <Except>
+            <On Identifier="E" ClassType="Exception">
+              <rep:Reporter.Information Text="E.Message" Markup="Error"/>
+              <Task.MarkFailed/>
+            </On>
+            <Otherwise>
+              <Task.MarkFailed/>
+            </Otherwise>
+          </Except>
+        </TryExcept>
+      </Block>
+    </Task>
+
+    <Task Identifier="ElectronicsTasks.AvailableValues.TextFile" SelfType="TAvailableValuesInfo" SelfConstruction="TAvailableValuesInfo.Create">
+      <Init>
+        <Task.Description Expression="cAvailableValuesTextFileTask"/>
+        <Task.AddDependency Task="ElectronicsTasks.ValuesManager" Result="ValuesManager" ResultType="TESerieValuesManager"/>
+        <Task.AddDependency Task="ElectronicsTasks.IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
+      </Init>
+      <Block>
+        <TryExcept>
+          <Try>
+            <Object.Use Identifier="InputStrings" Type="TStringList" Expression="TStringList.Create">
+              <Execute Statement="Ini.Section(Task.Name)"/>
+              <Variable Identifier="Filename" Type="string" Init="GetFilenameFromBase(ExtractFilePath(ScriptFilename), Ini.ReadString('Filename', '..\Resources.Project\Resistor values.txt'))"/>
+              <rep:Reporter.LabelValue Label="sLabelFilename" Value="Filename" Target="ElectronicsTasks"/>
+              <Execute Statement="InputStrings.LoadFromFile(Filename)"/>
+              <Execute Statement="Values:= ValuesManager.NewSerieValues"/>
+              <Execute Statement="Values.BeginUpdate"/>
+              <TryFinally>
+                <Try>
+                  <ForLoop Indexer="I" From="0" To="InputStrings.Count - 1">
+                    <Variable Identifier="Value" Type="DecimalQuantity" Init="UiStrToDecimalQuantity(InputStrings[I])"/>
+                    <Execute Statement="Values.AddSerieValue(Value)"/>
+                  </ForLoop>
+                </Try>
+                <Finally>
+                  <Execute Statement="Values.EndUpdate"/>
+                </Finally>
+              </TryFinally>
+            </Object.Use>
+            <Task.MarkHandled/>
+          </Try>
+          <Except>
+            <On Identifier="E" ClassType="Exception">
+              <rep:Reporter.Information Text="E.Message" Markup="Error"/>
+              <Task.MarkFailed/>
+            </On>
+            <Otherwise>
+              <Task.MarkFailed/>
+            </Otherwise>
+          </Except>
+        </TryExcept>
       </Block>
     </Task>
 
@@ -278,7 +365,7 @@
             <Execute Statement="AvailableInputTask:= Task.InstanceObject as TTaskRef"/>
           </When>
         </Choose>
-        <Object.Use Identifier="Ini" Type="TIniHelper" Expression="TIniHelper.Create(ConfigInifile, True)" Condition="not Assigned(AvailableInputTask)">
+        <Object.Use Identifier="Ini" Type="TScienceIniHelper" Expression="TScienceIniHelper.Create(ConfigInifile, True)" Condition="not Assigned(AvailableInputTask)">
           <Execute Statement="Ini.Section(Task.Name + '.Init')"/>
           <Variable Identifier="Source" Type="TAvailableValueSource" Init="TAvailableValueSource.None"/>
           <Execute Statement="Source:= Ini.ReadEnum('Source', Source, AvailableValueSourceEnumManager.NameRegister)"/>
@@ -286,6 +373,9 @@
           <Case Expression="Source">
             <On Select="TAvailableValueSource.InputTab">
               <Task.AcquireTaskReference Task="ElectronicsTasks.AvailableValues.InputTab" RefObj="TTaskRef.Create" ReleaseObj="AvailableInputTask"/>
+            </On>
+            <On Select="TAvailableValueSource.TextFile">
+              <Task.AcquireTaskReference Task="ElectronicsTasks.AvailableValues.TextFile" RefObj="TTaskRef.Create" ReleaseObj="AvailableInputTask"/>
             </On>
           </Case>
         </Object.Use>

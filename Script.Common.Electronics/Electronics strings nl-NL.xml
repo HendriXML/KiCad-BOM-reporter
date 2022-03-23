@@ -47,6 +47,7 @@
     <Constant Identifier="cValuesManagerTask" Type="string" Expression="'Simulatie waarden beheerder'"/>
     <Constant Identifier="cComboConfigTask" Type="string" Expression="'Combinatie configuratie'"/>
     <Constant Identifier="cCombinationTargetTask" Type="string" Expression="'Combinatie doel configuratie'"/>
-    <Constant Identifier="cAvailableValuesInputTask" Type="string" Expression="'Beschikbare waarden genomen van invoer tabblad'"/>
+    <Constant Identifier="cAvailableValuesInputTabTask" Type="string" Expression="'Beschikbare waarden genomen van invoer tabblad'"/>
+    <Constant Identifier="cAvailableValuesTextFileTask" Type="string" Expression="'Beschikbare waarden genomen van een tekstbestand'"/>
   </Constants>
 </pkg:Library>

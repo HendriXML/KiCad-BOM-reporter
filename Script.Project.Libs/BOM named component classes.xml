@@ -315,7 +315,7 @@
 
     <Function Identifier="TNamedComponentCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
       <Parameters>
-        <Parameter Identifier="Ini" Type="TIniHelper"/>
+        <Parameter Identifier="Ini" Type="TScienceIniHelper"/>
         <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
       </Parameters>
       <Constants>

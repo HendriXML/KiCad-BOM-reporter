@@ -123,6 +123,13 @@
       <VirtualMethod Identifier="vmGetInfo" Override="true"/>
       <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
     </DataClass>
+    
+    <Enumeration Identifier="TUseStock" Elements="No,Source,SourceAndMatch" LowAlias="Low" HighAlias="High"/>
+
+    <DataClass Identifier="TUseStockEnumInfo" ClassOfIdentifier="TTUseStockEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+    </DataClass>
   </Type>
 
   <Constants>
@@ -138,6 +145,7 @@
     <Constant Identifier="sErrorInvalidUnattendedTask" Type="string" Expression="'Invalid UnattendedTask'"/>
     <Constant Identifier="sErrorInvalidHideSpec" Type="string" Expression="'Invalid HideSpec'"/>
     <Constant Identifier="sErrorInvalidSheetInfo" Type="string" Expression="'Invalid SheetInfo'"/>
+    <Constant Identifier="sErrorInvalidUseStock" Type="string" Expression="'Invalid UseStock'"/>
   </Constants>
 
   <Variables>
@@ -336,6 +344,12 @@
     <Variable Identifier="cSheetInfoAll" Type="TSheetInfoEnumInfo" Init="TSheetInfoEnumInfo.Create(TSheetInfo.All, 'All')"/>
     <Variable Identifier="SheetInfoEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TSheetInfoEnumInfo)"/>
     <Variable Identifier="SheetInfoNameRegister" Type="TEnumNameRegister"/>
+    
+    <Variable Identifier="cUseStockNo" Type="TUseStockEnumInfo" Init="TUseStockEnumInfo.Create(TUseStock.No, 'No')"/>
+    <Variable Identifier="cUseStockSource" Type="TUseStockEnumInfo" Init="TUseStockEnumInfo.Create(TUseStock.Source, 'Source')"/>
+    <Variable Identifier="cUseStockSourceAndMatch" Type="TUseStockEnumInfo" Init="TUseStockEnumInfo.Create(TUseStock.SourceAndMatch, 'SourceAndMatch')"/>
+    <Variable Identifier="UseStockEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TUseStockEnumInfo)"/>
+    <Variable Identifier="UseStockNameRegister" Type="TEnumNameRegister"/>
   </Variables>
 
   <Procedures>
@@ -1193,6 +1207,39 @@
         <Execute Statement="HighValue:= TSheetInfo.High"/>
       </Block>
     </Procedure>
+
+    <Function Identifier="TTUseStockEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TUseStock.No">
+            <Execute Statement="Result:= cUseStockNo"/>
+          </On>
+          <On Select="TUseStock.Source">
+            <Execute Statement="Result:= cUseStockSource"/>
+          </On>
+          <On Select="TUseStock.SourceAndMatch">
+            <Execute Statement="Result:= cUseStockSourceAndMatch"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidUseStock)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTUseStockEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TUseStock.Low"/>
+        <Execute Statement="HighValue:= TUseStock.High"/>
+      </Block>
+    </Procedure>
   </Procedures>
 
   <Initialization>
@@ -1205,5 +1252,6 @@
     <Execute Statement="UnattendedTaskNameRegister:= UnattendedTaskEnumManager.NameRegister"/>
     <Execute Statement="HideSpecNameRegister:= HideSpecEnumManager.NameRegister"/>
     <Execute Statement="SheetInfoNameRegister:= SheetInfoEnumManager.NameRegister"/>
+    <Execute Statement="UseStockNameRegister:= UseStockEnumManager.NameRegister"/>
   </Initialization>
 </pkg:Library>

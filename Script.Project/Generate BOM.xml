@@ -15,6 +15,7 @@
             xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement"
             xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd">
   <pkg:ReportTargets Cached="true">
+    <pkg:Target Identifier="Info" Description="Process info"/>
     <pkg:Target Identifier="Report" Description="BOM report"/>
     <pkg:Target Identifier="DesignatorReport" Description="Designator report"/>
     <pkg:Target Identifier="StorageLocationReport" Description="Storage location report"/>
@@ -22,25 +23,27 @@
     <pkg:Target Identifier="ReportEEVBlog" Description="BOM report - EEVBlog"/>
     <pkg:Target Identifier="ReportDokuWiki" Description="BOM report - DokuWiki"/>
     <pkg:Target Identifier="IniFileEcho" Description="Configuration echo"/>
-    <pkg:Target Identifier="Info" Description="Process info"/>
     <pkg:TargetAlias TargetIdentifier="Info" Alias="ElectronicsTasks"/>
   </pkg:ReportTargets>
-  <pkg:Config xml:space="preserve">[Settings]
-BomFilename=..\Resources.Project\ESeriesBOM.xml
-BomCount=1
-ConnectionString=Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr
-SymbolMappingDirectory=..\Resources.Project.ComponentMappings
+  <pkg:Config xml:space="preserve">
+[BillOfMaterials.DetermineBomCount]
+;BomCount = 1
 
-[Tasks]
-ExportProjectID=-1
-ExportUnmatchedComponentsStorageID=-1
+[Database]
+;ConnectionString = Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr
+
+[SymbolMappingPath]
+;SymbolMappingDirectory = ..\Resources.Project.ComponentMappings
+
+[BomFilename]
+BomFilename=..\Resources.Project\ESeriesBOM.xml
 
 [GlobalConfig]
 ;HideSpecs=ESerieOfValue, ResistorMaxAmpVolt, ZenerDiodeMaxAmp, Footprint
-HideSpecs=
+;HideSpecs=
 
 ;SheetInfo=None|Root|All
-SheetInfo=All
+;SheetInfo=All
 
 MaxShowResistorVoltage=230V
 
@@ -48,29 +51,31 @@ MaxShowResistorVoltage=230V
 ;UiDecimalSeparator=,
 
 ;SeperateComponents=0|1
-SeperateComponents=1
+;SeperateComponents=1
 
 ;SkipFootprintMatching=0|1
-SkipFootprintMatching=0
+;SkipFootprintMatching=0
 
 [ElectronicsTasks.CombinationTarget]
 Value	= 123.0 Ω ± 2%
 
 [ElectronicsTasks.CombinationParameters]
-MaxESerie	= E24
-Granularity	= Fine
-Tolerance	= 2%
-Refine	= 1
+;MaxESerie	= E24
+;Granularity	= Fine
+;Tolerance	= 2%
+;Refine	= 1
 
-[CombinationTarget.Input]
-Source=Stock
+[ComponentCombinations.Stock]
+;UseStock=No|Source|SourceAndMatch
+;UseStock=SourceAndMatch
 
 [CombinationTarget.Input.Resistor]
 ComponentKind=Resistor
-PowerRating = 250mW
+PowerRating = 250 mW
 Tolerance.Max = 2%
 
 [CombinationTarget.Input.Capacitor]
+;ComponentKind=Capacitor|PolarisedCapacitor
 ComponentKind=Capacitor
 ;Tolerance.Max = 2%
 
@@ -78,29 +83,47 @@ ComponentKind=Capacitor
 ComponentKind=Inductor
 ;Tolerance.Max = 2%
 
+[ElectronicsTasks.ComponentCombinations.Init]
+;Source=None|InputTab|TextFile
+;Source=None
+
+[ElectronicsTasks.CombinationParameters]
+;MaxESerie=E1|E3|E6|E12|E24|E48|E96|E192
+;MaxESerie=E24
+;Granularity=ExtraCoarse|Coarse|Fine|ExtraFine
+;Granularity=Fine
+;Refine=0|1
+;Refine=1
+;Tolerance=2%
+
 [Template.Resistor]
-PowerRating = 250mW
+PowerRating = 250 mW
 Tolerance.Max = 2%
 Technology = metal film
 
 [Template.PolarisedCapacitor]
-;Tolerance = 10%
-VoltageRating = 50V
+;Tolerance.Max = 10%
+;VoltageRating.Min = 50 V
 Technology = aluminum electrolytic
 
 [Template.Capacitor]
-;Tolerance = 10%
-VoltageRating = 50V
+;Tolerance.Max = 10%
+;VoltageRating.Min = 50 V
 Technology = ceramic
 
 [Template.ZenderDiode]
-;Tolerance = 10%
-PowerRating = 1W
+;Tolerance.Max = 10%
+PowerRating.Min = 1 W
 
 [Template.Fuse]
-VoltageRating = 250V
+VoltageRating.Min = 250 V
 
-  </pkg:Config>
+[Database.References.UnmatchedComponentsStorageID]
+ID = -1
+
+[Database.References.ExportProjectID]
+ID = -1
+</pkg:Config>
   <Imports>
     <Import Identifier="EnumerationUtils" Filename="..\Script.Common.System\Enumeration utils.xml"/>
 
@@ -137,7 +160,7 @@ VoltageRating = 250V
     <Import Identifier="CategoryContainer" Filename="..\Script.Project.Libs\BOM category container classes.xml"/>
     <Import Identifier="StockManager" Filename="..\Script.Project.Libs\BOM stock manager.xml"/>
     <Import Identifier="CalculatedSpecificationsClasses" Filename="..\Script.Project.Libs\BOM calculated specifications classes.xml"/>
-    <Import Identifier="BillOfMaterialClass" Filename="..\Script.Project.Libs\BOM bill of material class.xml"/>
+    <Import Identifier="BillOfMaterialClass" Filename="..\Script.Project.Libs\BOM bill of material classes.xml"/>
     <Import Identifier="PartKeeprProjectExport" Filename="..\Script.Project.Libs\BOM partkeepr project export.xml"/>
   </Imports>
 
@@ -197,7 +220,7 @@ VoltageRating = 250V
 
   <Constants>
     <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
-    <Constant Identifier="ScriptVersion" Type="string" Expression="'6.35.3.0.0.55'"/>
+    <Constant Identifier="ScriptVersion" Type="string" Expression="'7.00.3.0.0.61'"/>
   </Constants>
 
   <Variables>
@@ -217,18 +240,27 @@ VoltageRating = 250V
       </Block>
     </Task>
 
-    <Task Identifier="IniHelper" SelfType="TIniHelper" SelfConstruction="TIniHelper.Create(ConfigInifile, True)">
+    <Task Identifier="IniHelper" SelfType="TScienceIniHelper" SelfConstruction="TScienceIniHelper.Create(ConfigInifile, True)">
       <Init>
         <Task.Description Expression="'IniHelper'"/>
-        <Task.MarkHandled/>
       </Init>
+      <Block>
+        <Execute Statement="Section(Task.Name)"/>
+        <Execute Statement="EchoEnumComment('ComponentKind', ComponentKindNameRegister, ', ')"/>
+        <Execute Statement="EchoEnumComment('CustomField', CustomFieldNameRegister, ', ')"/>
+        <Execute Statement="EchoEnumComment('ResistorTechnology', ResistorTechnologyNameRegister, ', ')"/>
+        <Execute Statement="EchoEnumComment('CapacitorTechnology', CapacitorTechnologyNameRegister, ', ')"/>
+        <Execute Statement="EchoEnumComment('BreakSpeed', BreakSpeedNameRegister, ', ')"/>
+        <Execute Statement="EchoEnumComment('DeviceFunction', DeviceFunctionNameRegister, ', ')"/>
+        <Task.MarkHandled/>
+      </Block>
     </Task>
 
     <Task Identifier="SymbolMappingPath" SelfType="TPathInfo" SelfConstruction="TPathInfo.Create">
       <Init>
         <Task.Description Expression="sSymbolMappingPathTD"/>
         <Task.AddDependency Task="ScriptPath" Result="ScriptPath" ResultType="TPathInfo"/>
-        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
         <Execute Statement="Ini.Section(Task.Name)"/>
@@ -242,7 +274,7 @@ VoltageRating = 250V
       <Init>
         <Task.Description Expression="sBomFilenameTD"/>
         <Task.AddDependency Task="ScriptPath" Result="ScriptPath" ResultType="TPathInfo"/>
-        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
         <Variable Identifier="BomFilename" Type="string" Init="''"/>
@@ -274,7 +306,7 @@ VoltageRating = 250V
       </Type>
       <Init>
         <Task.Description Expression="sGlobalConfigTD"/>
-        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
         <Execute Statement="Ini.Section(Task.Name)"/>
@@ -320,7 +352,7 @@ VoltageRating = 250V
     <Task Identifier="Database" SelfType="TDatabase" SelfConstruction="TDatabase.Create">
       <Init>
         <Task.Description Expression="sPartkeeprDatabaseTD"/>
-        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
         <TryExcept>
@@ -350,29 +382,29 @@ VoltageRating = 250V
       </Finalization>
     </Task>
 
-    <Task Identifier="Database.ExportProjectID" SelfType="TIdInfo" SelfConstruction="TIdInfo.Create">
+    <Task Identifier="Database.References.ExportProjectID" SelfType="TIdInfo" SelfConstruction="TIdInfo.Create">
       <Init>
         <Task.Description Expression="sDatabaseExportProjectIdTD"/>
-        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
-        <Execute Statement="Ini.Section('Export project')"/>
-        <Variable Identifier="ExportProjectID" Type="Integer" Init="Ini.ReadInteger('ProjectID', -1)"/>
-        <rep:Reporter.LabelValue Label="'ExportProjectID'" Value="IntToStr(ExportProjectID)" Target="Info"/>
-        <Task.Mark Success="ExportProjectID &lt;&gt; -1"/>
+        <Execute Statement="Ini.Section(Task.Name)"/>
+        <Execute Statement="ID:= Ini.ReadInteger('ID', -1)"/>
+        <rep:Reporter.LabelValue Label="'ExportProjectID'" Value="IntToStr(ID)" Target="Info"/>
+        <Task.Mark Success="ID &lt;&gt; -1"/>
       </Block>
     </Task>
 
-    <Task Identifier="Database.UnmatchedComponentsStorageID" SelfType="TIdInfo" SelfConstruction="TIdInfo.Create">
+    <Task Identifier="Database.References.UnmatchedComponentsStorageID" SelfType="TIdInfo" SelfConstruction="TIdInfo.Create">
       <Init>
         <Task.Description Expression="sDatabaseUnmatchedComponentsStorageIdTD"/>
-        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
-        <Execute Statement="Ini.Section('Unmatched components')"/>
-        <Variable Identifier="UnmatchedComponentsStorageID" Type="Integer" Init="Ini.ReadInteger('StorageID', -1)"/>
-        <rep:Reporter.LabelValue Label="'UnmatchedComponentsStorageID'" Value="IntToStr(UnmatchedComponentsStorageID)" Target="Info"/>
-        <Task.Mark Success="UnmatchedComponentsStorageID &lt;&gt; -1"/>
+        <Execute Statement="Ini.Section(Task.Name)"/>
+        <Execute Statement="ID:= Ini.ReadInteger('ID', -1)"/>
+        <rep:Reporter.LabelValue Label="'ID'" Value="IntToStr(ID)" Target="Info"/>
+        <Task.Mark Success="ID &lt;&gt; -1"/>
       </Block>
     </Task>
 
@@ -389,7 +421,7 @@ VoltageRating = 250V
       <Init>
         <Task.Description Expression="sBillOfMaterialsLoadTemplatesFromIniFileTD"/>
         <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
-        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
         <Execute Statement="BillOfMaterials.LoadTemplatesFromIniFile(Ini)"/>
@@ -491,7 +523,7 @@ VoltageRating = 250V
       <Init>
         <Task.Description Expression="sBillOfMaterialsDetermineBomCountTD"/>
         <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
-        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
         <Variable Identifier="BomCountS" Type="string" Init="''"/>
@@ -572,6 +604,17 @@ VoltageRating = 250V
       </Block>
     </Task>
 
+    <Task Identifier="Update.StorageLocations">
+      <Init>
+        <Task.AddDependency Task="Database" Result="Database" ResultType="TDatabase"/>
+      </Init>
+      <Block>
+        <rep:Reporter.DefaultTarget Identifier="Info"/>
+        <Execute Statement="UpdateStorageLocations(Database.DBConnection)"/>
+        <Task.MarkHandled/>
+      </Block>
+    </Task>
+
     <Task Identifier="Report.PartKeeprProjects">
       <Init>
         <Task.Description Expression="sReportPartKeeprProjectsTD"/>
@@ -606,7 +649,7 @@ VoltageRating = 250V
         <Task.AddDependency Task="BillOfMaterials" Result="BillOfMaterials" ResultType="TBillOfMaterials"/>
         <Task.AddDependency Task="BillOfMaterials.AssignStockComponents" IgnoreFailure="True"/>
         <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
-        <Task.AddDependency Task="Database.UnmatchedComponentsStorageID" Result="DatabaseUnmatchedComponentsStorageID" ResultType="TIdInfo"/>
+        <Task.AddDependency Task="Database.References.UnmatchedComponentsStorageID" Result="DatabaseUnmatchedComponentsStorageID" ResultType="TIdInfo"/>
       </Init>
       <Block>
         <rep:Reporter.DefaultTarget Identifier="Info"/>
@@ -625,8 +668,8 @@ VoltageRating = 250V
         <Task.AddDependency Task="BillOfMaterials.AssignStockComponents" IgnoreFailure="True"/>
         <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
         <Task.AddDependency Task="UpdateDB.MatchUnmatchedSchemaComponentsToCategories"/>
-        <Task.AddDependency Task="Database.ExportProjectID" Result="DatabaseExportProjectID" ResultType="TIdInfo"/>
-        <Task.AddDependency Task="Database.UnmatchedComponentsStorageID" Result="DatabaseUnmatchedComponentsStorageID" ResultType="TIdInfo"/>
+        <Task.AddDependency Task="Database.References.ExportProjectID" Result="DatabaseExportProjectID" ResultType="TIdInfo"/>
+        <Task.AddDependency Task="Database.References.UnmatchedComponentsStorageID" Result="DatabaseUnmatchedComponentsStorageID" ResultType="TIdInfo"/>
       </Init>
       <Block>
         <rep:Reporter.DefaultTarget Identifier="Info"/>
@@ -731,7 +774,7 @@ VoltageRating = 250V
         <Task.AddDependency Task="ElectronicsTasks.CombinationTarget" Result="CombinationTarget" ResultType="TCombinationTarget"/>
         <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
         <Task.AddDependency Task="StockManager.ConsolidateSpecifications"/>
-        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TIniHelper"/>
+        <Task.AddDependency Task="IniHelper" Result="Ini" ResultType="TScienceIniHelper"/>
       </Init>
       <Block>
         <Variable Identifier="TargetUnit" Type="UnitString" Init="CombinationTarget.Value.UnitS"/>
@@ -812,7 +855,6 @@ VoltageRating = 250V
         <Task.AddDependency Task="CombineTargetMatching.Stock.Source" Result="StockSource" ResultType="TAvailableValuesSource"/>
       </Init>
       <Block>
-        <Variable Identifier="LineSep" Type="Boolean" Init="False"/>
         <Variable Identifier="Value" Type="DecimalQuantity"/>
         <Variable Identifier="ComponentSpecAsString" Type="string"/>
         <Variable Identifier="CountS" Type="string"/>
@@ -836,7 +878,6 @@ VoltageRating = 250V
                 <Execute Statement="TPassiveSpec(MatchSpecification).SetValue(ComponentCombination.InputValues[I])" Condition="MatchSpecification is TPassiveSpec"/>
                 <Execute Statement="ComponentSpecAsString:= MatchSpecification.SpecificationAsString(TSpecFormatType.Fixed, SpecReportContext)"/>
                 <Block Condition="not SpecReportContext.Measure">
-                  <rep:Reporter.Information Text="''" Target="Info" Condition="LineSep"/>
                   <!--<rep:Reporter.Information Text="ListValue(I, '', 'A', 'B', 'C', 'D')" Target="Info" Markup="Header3"/>-->
                   <Execute Statement="ReportLine:= Format('  %-*s%-*s%-*s', 
                                           ColumnManager.GetColumnWidth(0, 1), ListValue(I, '', 'A', 'B', 'C', 'D'),
@@ -844,7 +885,6 @@ VoltageRating = 250V
                                           ColumnManager.GetColumnWidth(TNamedComponentSpecColumns.Max+3, 1), ComponentKindDescription(MatchSpecification.ComponentKind) 
                                           )"/>
                   <rep:Reporter.Information Text="ReportLine" Target="Info" Markup="Header4"/>
-                  <Execute Statement="LineSep:= True"/>
                 </Block>
                 <lil:LinkedList.Iterate Head="ComponentCategory.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="Item" Next="Item.Next">
                   <Choose>
@@ -883,6 +923,7 @@ VoltageRating = 250V
                     </When>
                   </Choose>
                 </lil:LinkedList.Iterate>
+                <rep:Reporter.Information Text="''" Target="Info" Condition="Im = 1"/>
               </ForLoop>
             </ForLoop>
             <Task.MarkHandled/>
@@ -915,18 +956,18 @@ VoltageRating = 250V
       <Init>
         <Task.Description Expression="sUtilityTasks"/>
         <Task.Kind Expression="TTaskKind.tkCategory"/>
-        <Variable Identifier="Source" Type="TAvailableValueSource" Init="TAvailableValueSource.Stock"/>
-        <Object.Use Identifier="Ini" Type="TIniHelper" Expression="TIniHelper.Create(ConfigInifile, True)" Condition="not Assigned(AvailableInputTask)">
-          <Execute Statement="Ini.Section('CombinationTarget.Input')"/>
-          <Execute Statement="Source:= Ini.ReadEnum('Source', Source, AvailableValueSourceEnumManager.NameRegister)"/>
-          <Case Expression="Source">
-            <On Select="TAvailableValueSource.Stock">
+        <Variable Identifier="UseStock" Type="TUseStock" Init="TUseStock.SourceAndMatch"/>
+        <Object.Use Identifier="Ini" Type="TScienceIniHelper" Expression="TScienceIniHelper.Create(ConfigInifile, True)" Condition="not Assigned(AvailableInputTask)">
+          <Execute Statement="Ini.Section('ComponentCombinations.Stock')"/>
+          <Execute Statement="UseStock:= Ini.ReadEnum('UseStock', UseStock, UseStockEnumManager.NameRegister)"/>
+          <Case Expression="UseStock">
+            <On Select="TUseStock.Source, TUseStock.SourceAndMatch">
               <Task.AcquireTaskReference Task="CombineTargetMatching.Stock.AvailableValues" RefObj="TTaskRef.Create" ReleaseObj="AvailableInputTask"/>
             </On>
           </Case>
         </Object.Use>
-        <Case Expression="Source">
-          <On Select="TAvailableValueSource.Stock">
+        <Case Expression="UseStock">
+          <On Select="TUseStock.SourceAndMatch">
             <Task.AddDependency Task="ComponentCombinations.Stock" Condition="InFlags(TUnattendedTask.ComponentCombinations, TaskSelectionFlags)" InstanceObject="AvailableInputTask" IgnoreFailure="True"/>
           </On>
           <Otherwise>

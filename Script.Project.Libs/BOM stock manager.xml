@@ -440,7 +440,7 @@
           <Object Identifier="SL" Type="TStringList" Expression="TStringList.Create"/>
           <Object Identifier="KeyValues" Type="TStringList" Expression="TStringList.Create"/>
           <Object Identifier="MemIni" Type="TMemIniFile" Expression="TMemIniFile.Create('')"/>
-          <Object Identifier="Ini" Type="TIniHelper" Expression="TIniHelper.Create(MemIni, False)"/>
+          <Object Identifier="Ini" Type="TScienceIniHelper" Expression="TScienceIniHelper.Create(MemIni, False)"/>
           <Object Identifier="CategoryIndex" Type="TMappingInt64ToObject" Expression="TMappingInt64ToObject.Create"/>
           <Object Identifier="PartList" Type="TObjectList" Expression="TObjectList.Create(False)"/>
           <Block>
