@@ -120,7 +120,18 @@
       <xs:extension base="sys:T_AbstractConditionalProcessItem">
         <xs:attribute name="SourceFilename" type="sys:expression" use="required"/>
         <xs:attribute name="TargetFilename" type="sys:expression" use="required"/>
-        <xs:attribute name="Flags" type="sys:expression" use="optional"/>
+        <xs:attribute name="Flags" type="sys:expression" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              MOVEFILE_REPLACE_EXISTING
+              MOVEFILE_COPY_ALLOWED
+              MOVEFILE_DELAY_UNTIL_REBOOT
+              MOVEFILE_WRITE_THROUGH
+              MOVEFILE_CREATE_HARDLINK
+              MOVEFILE_FAIL_IF_NOT_TRACKABLE
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -145,6 +156,7 @@
       <xs:extension base="sys:T_AbstractConditionalProcessItem">
         <xs:attribute name="Filename" type="sys:expression" use="required"/>
         <xs:attribute name="Attributes" type="sys:expression" use="required"/>
+        <xs:attribute name="Missing" type="sys:identifier" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

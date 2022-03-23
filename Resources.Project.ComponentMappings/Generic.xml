@@ -40,6 +40,7 @@
     <Part Part="2N3904" Component="NPNTransistor"/>
     <Part Part="TIP125" Component="PNPTransistor"/>
     <Part Part="TIP120" Component="NPNTransistor"/>
+    <Part Part="TIP122" Component="NPNTransistor"/>
   </Library>
   <Library Name="Transistor_FET">
     <Part Part="2N7000" Component="NMOSFET"/>

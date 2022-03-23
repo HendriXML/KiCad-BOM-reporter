@@ -313,6 +313,7 @@
     <Part Part="R_Network_Dividers_x11_SIP" Component="ResistorNetwork"/>
     <Part Part="R_PHOTO" Component="PhotoResistor"/>
     <Part Part="R_POT" Component="VariableResistor"/>
+    <Part Part="R_Potentiometer" Component="VariableResistor"/>
     <Part Part="R_POT_Dual" Component="VariableResistor"/>
     <Part Part="R_POT_Dual_Separate" Component="VariableResistor"/>
     <Part Part="R_POT_TRIM" Component="VariableResistor"/>

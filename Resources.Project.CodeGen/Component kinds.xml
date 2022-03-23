@@ -1,0 +1,814 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../XmlSchemas.Common.KiCadBOMReporter/ComponentKinds.xsd">
+  <ComponentKind Name="None">
+    <Language LangID="en-GB">
+      <Name Text=""/>
+      <Header Text=""/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text=""/>
+      <Header Text=""/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Resistor">
+    <Language LangID="en-GB">
+      <Name Text="resistor"/>
+      <Header Text="Resistors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="weerstand"/>
+      <Header Text="Weerstanden"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="VariableResistor">
+    <Language LangID="en-GB">
+      <Name Text="variable resistor"/>
+      <Header Text="Variable resistors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="variabele weerstand"/>
+      <Header Text="Variabele weerstanden"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Capacitor">
+    <Language LangID="en-GB">
+      <Name Text="capacitor"/>
+      <Header Text="Capacitors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="condensator"/>
+      <Header Text="Condensatoren"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="PolarisedCapacitor">
+    <Language LangID="en-GB">
+      <Name Text="polarised capacitor"/>
+      <Header Text="Polarised capacitors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="gepolariseerde condensator"/>
+      <Header Text="Gepolariseerde condensatoren"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="VariableCapacitor">
+    <Language LangID="en-GB">
+      <Name Text="variable capacitor"/>
+      <Header Text="Variable capacitors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="variable condensator"/>
+      <Header Text="Variable condensatoren"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Inductor">
+    <Language LangID="en-GB">
+      <Name Text="inductor"/>
+      <Header Text="Inductors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="spoel"/>
+      <Header Text="Spoelen"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="BridgeRectifier">
+    <Language LangID="en-GB">
+      <Name Text="bridge rectifier"/>
+      <Header Text="Bridge rectifiers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="gelijkrichter"/>
+      <Header Text="Gelijkrichters"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="ZenerDiode">
+    <Language LangID="en-GB">
+      <Name Text="zener diode"/>
+      <Header Text="Zener diodes"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="zenerdiode"/>
+      <Header Text="Zenerdiodes"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Diode">
+    <Language LangID="en-GB">
+      <Name Text="diode"/>
+      <Header Text="Diodes"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="diode"/>
+      <Header Text="Diodes"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="SchottkyDiode">
+    <Language LangID="en-GB">
+      <Name Text="schottky diode"/>
+      <Header Text="Schottky diodes"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="schottkydiode"/>
+      <Header Text="Schottkydiodes"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Laserdiode">
+    <Language LangID="en-GB">
+      <Name Text="laser diode"/>
+      <Header Text="Laser diodes"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="laserdiode"/>
+      <Header Text="Laserdiodes"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Photodiode">
+    <Language LangID="en-GB">
+      <Name Text="photodiode"/>
+      <Header Text="Photodiodes"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="photodiode"/>
+      <Header Text="Photodiodes"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="SpecialDiode">
+    <Language LangID="en-GB">
+      <Name Text="special diode"/>
+      <Header Text="Special diodes"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="speciale diode"/>
+      <Header Text="Speciale diodes"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="DualDiode">
+    <Language LangID="en-GB">
+      <Name Text="dual diode"/>
+      <Header Text="Dual diodes"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="dual diode"/>
+      <Header Text="Dual diodes"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="NPNTransistor">
+    <Language LangID="en-GB">
+      <Name Text="npn transistor"/>
+      <Header Text="NPN transistors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="npn transistor"/>
+      <Header Text="NPN transistors"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="PNPTransistor">
+    <Language LangID="en-GB">
+      <Name Text="pnp transistor"/>
+      <Header Text="PNP transistors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="pnp transistor"/>
+      <Header Text="PNP transistors"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="NFET">
+    <Language LangID="en-GB">
+      <Name Text="n-fet"/>
+      <Header Text="NFETs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="n-fet"/>
+      <Header Text="N-FET's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="PFET">
+    <Language LangID="en-GB">
+      <Name Text="p-fet"/>
+      <Header Text="P-FETs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="p-fet"/>
+      <Header Text="P-FET's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="NIGBT">
+    <Language LangID="en-GB">
+      <Name Text="n-igbt"/>
+      <Header Text="N-IGBTs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="n-igbt"/>
+      <Header Text="N-IGBT's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="NJFET">
+    <Language LangID="en-GB">
+      <Name Text="njfet"/>
+      <Header Text="N-JFETs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="njfet"/>
+      <Header Text="N-JFET's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="PJFET">
+    <Language LangID="en-GB">
+      <Name Text="p-jfet"/>
+      <Header Text="P-JFETs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="p-jfet"/>
+      <Header Text="P-JFET's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="NMOSFET">
+    <Language LangID="en-GB">
+      <Name Text="n-mosfet"/>
+      <Header Text="N-MOSFETs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="n-mosfet"/>
+      <Header Text="N-MOSFET's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="PMOSFET">
+    <Language LangID="en-GB">
+      <Name Text="pmosfet"/>
+      <Header Text="PMOSFETs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="pmosfet"/>
+      <Header Text="P-MOSFET's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="PUJT">
+    <Language LangID="en-GB">
+      <Name Text="pujt"/>
+      <Header Text="PUJTs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="pujt"/>
+      <Header Text="P-UJT's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="NUJT">
+    <Language LangID="en-GB">
+      <Name Text="nujt"/>
+      <Header Text="N-UJT's"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="nujt"/>
+      <Header Text="N-UJT's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="OpAmp" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="op amp"/>
+      <Header Text="Op amps"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="opamp"/>
+      <Header Text="Opamps"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="AudioAmplifier" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="audio amplifier"/>
+      <Header Text="Audio amplifiers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="Audioversterker"/>
+      <Header Text="Audioversterkers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Comparator" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="comparator"/>
+      <Header Text="Comparators"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="comparator"/>
+      <Header Text="Comparators"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Diac">
+    <Language LangID="en-GB">
+      <Name Text="diac"/>
+      <Header Text="Diacs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="diac"/>
+      <Header Text="Diac's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="SCR">
+    <Language LangID="en-GB">
+      <Name Text="scr"/>
+      <Header Text="SCRs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="scr"/>
+      <Header Text="SCR's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="TRIAC">
+    <Language LangID="en-GB">
+      <Name Text="triac"/>
+      <Header Text="TRIACs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="triac"/>
+      <Header Text="TRIAC's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="LED">
+    <Language LangID="en-GB">
+      <Name Text="led"/>
+      <Header Text="LEDs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="led"/>
+      <Header Text="LED's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Fuse">
+    <Language LangID="en-GB">
+      <Name Text="fuse"/>
+      <Header Text="Fuses"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="zekering"/>
+      <Header Text="Zekeringen"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Polyfuse">
+    <Language LangID="en-GB">
+      <Name Text="polyfuse"/>
+      <Header Text="Polyfuses"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="Terugstelbare zekering"/>
+      <Header Text="Terugstelbare zekeringen"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Antenna">
+    <Language LangID="en-GB">
+      <Name Text="antenna"/>
+      <Header Text="Antennas"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="antenne"/>
+      <Header Text="Antennes"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Crystal">
+    <Language LangID="en-GB">
+      <Name Text="crystal"/>
+      <Header Text="Crystals"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="kristal"/>
+      <Header Text="Kristallen"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="DelayLine">
+    <Language LangID="en-GB">
+      <Name Text="delay line"/>
+      <Header Text="Delay lines"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="delay line"/>
+      <Header Text="Delay lines"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="EmiFilter">
+    <Language LangID="en-GB">
+      <Name Text="emi filter"/>
+      <Header Text="Emi filters"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="emifilter"/>
+      <Header Text="Emifilters"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="FerriteBead">
+    <Language LangID="en-GB">
+      <Name Text="ferrite bead"/>
+      <Header Text="Ferrite beads"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="ferrietkraal"/>
+      <Header Text="Ferrietkralen"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="FrequencyCounter">
+    <Language LangID="en-GB">
+      <Name Text="frequency counter"/>
+      <Header Text="Frequency counters"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="frequentie teller"/>
+      <Header Text="Frequentie tellers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="PhotoTransistor">
+    <Language LangID="en-GB">
+      <Name Text="photo transistor"/>
+      <Header Text="Photo transistors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="phototransistor"/>
+      <Header Text="Phototransistors"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="HallGenerator">
+    <Language LangID="en-GB">
+      <Name Text="hallgenerator"/>
+      <Header Text="Hall generators"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="hallgenerator"/>
+      <Header Text="Hall generators"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Thermistor">
+    <Language LangID="en-GB">
+      <Name Text="thermistor"/>
+      <Header Text="Thermistors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="thermistor"/>
+      <Header Text="Thermistors"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="PhotoResistor">
+    <Language LangID="en-GB">
+      <Name Text="photo resistor"/>
+      <Header Text="Photo resistors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="lichtgevoelige weerstand"/>
+      <Header Text="Lichtgevoelige weerstanden"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Varistor">
+    <Language LangID="en-GB">
+      <Name Text="varistor"/>
+      <Header Text="Varistors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="varistor"/>
+      <Header Text="Varistors"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Microphone">
+    <Language LangID="en-GB">
+      <Name Text="microphone"/>
+      <Header Text="Microphones"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="microfoon"/>
+      <Header Text="Microfoons"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Memristor">
+    <Language LangID="en-GB">
+      <Name Text="memristor"/>
+      <Header Text="Memristors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="memristor"/>
+      <Header Text="Memristors"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="ResistorNetwork">
+    <Language LangID="en-GB">
+      <Name Text="resistor network"/>
+      <Header Text="Resistor networks"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="weerstandnetwerk"/>
+      <Header Text="Weerstandnetwerken"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="ResistorPack">
+    <Language LangID="en-GB">
+      <Name Text="resistor pack"/>
+      <Header Text="Resistor packs"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="weerstandspakket"/>
+      <Header Text="Weerstandspakketten"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Resonator">
+    <Language LangID="en-GB">
+      <Name Text="resonator"/>
+      <Header Text="Resonators"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="resonator"/>
+      <Header Text="Resonatoren"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="RFShield">
+    <Language LangID="en-GB">
+      <Name Text="rf shield"/>
+      <Header Text="RF shields"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="rf schild"/>
+      <Header Text="RF schild"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="RotaryEncoder">
+    <Language LangID="en-GB">
+      <Name Text="rotary encoder"/>
+      <Header Text="Rotary encoders"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="rotary encoder"/>
+      <Header Text="Rotary encoders"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Thermocouple">
+    <Language LangID="en-GB">
+      <Name Text="thermocouple"/>
+      <Header Text="Thermocouples"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="thermokoppel"/>
+      <Header Text="Thermokoppels"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="VoltageDivider">
+    <Language LangID="en-GB">
+      <Name Text="voltage divider"/>
+      <Header Text="Voltage dividers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="spanningsdeler"/>
+      <Header Text="Spanningsdelers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Jumper">
+    <Language LangID="en-GB">
+      <Name Text="jumper"/>
+      <Header Text="Jumpers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="jumper"/>
+      <Header Text="Jumpers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Connector">
+    <Language LangID="en-GB">
+      <Name Text="connector"/>
+      <Header Text="Connectors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="connector"/>
+      <Header Text="Connectoren"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="SolarCell">
+    <Language LangID="en-GB">
+      <Name Text="solarcell"/>
+      <Header Text="SolarCells"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="zonnecel"/>
+      <Header Text="Zonnecellen"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Battery">
+    <Language LangID="en-GB">
+      <Name Text="battery"/>
+      <Header Text="Batterys"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="batterij"/>
+      <Header Text="Batterijen"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Adapter">
+    <Language LangID="en-GB">
+      <Name Text="ac adapter"/>
+      <Header Text="AC adapters"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="adapter"/>
+      <Header Text="Adapters"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Transformer">
+    <Language LangID="en-GB">
+      <Name Text="transformer"/>
+      <Header Text="Transformers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="transformator"/>
+      <Header Text="Transformatoren"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Peltier">
+    <Language LangID="en-GB">
+      <Name Text="peltier"/>
+      <Header Text="Peltiers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="peltier"/>
+      <Header Text="Peltiers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Speaker">
+    <Language LangID="en-GB">
+      <Name Text="speaker"/>
+      <Header Text="Speakers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="speaker"/>
+      <Header Text="Speakers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Buzzer">
+    <Language LangID="en-GB">
+      <Name Text="buzzer"/>
+      <Header Text="Buzzers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="buzzer"/>
+      <Header Text="Buzzers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Earphone">
+    <Language LangID="en-GB">
+      <Name Text="earphone"/>
+      <Header Text="Earphones"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="oortelefoon"/>
+      <Header Text="Oortelefoons"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Lamp">
+    <Language LangID="en-GB">
+      <Name Text="lamp"/>
+      <Header Text="Lamps"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="lamp"/>
+      <Header Text="Lampen"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Heater">
+    <Language LangID="en-GB">
+      <Name Text="heater"/>
+      <Header Text="Heaters"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="verwarmer"/>
+      <Header Text="Verwarmers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="ElectromagneticActor">
+    <Language LangID="en-GB">
+      <Name Text="electromagnetic actor"/>
+      <Header Text="Electromagnetic actors"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="elektromagnetische actor"/>
+      <Header Text="Elektromagnetische actoren"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="MeasuringDevice">
+    <Language LangID="en-GB">
+      <Name Text="measuring device"/>
+      <Header Text="Measuring devices"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="meetapparaat"/>
+      <Header Text="Meetapparaten"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Timer" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="timer"/>
+      <Header Text="Timers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="timer"/>
+      <Header Text="Timers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="SchmittTrigger" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="schmitt trigger"/>
+      <Header Text="Schmitt triggers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="schmitt-trigger"/>
+      <Header Text="Schmitt-triggers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Optocoupler" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="optocoupler"/>
+      <Header Text="Optocouplers"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="optocoupler"/>
+      <Header Text="Optocouplers"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="ReferenceVoltageIC" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="reference voltage IC"/>
+      <Header Text="Reference voltage IC's"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="spanningsreferentie IC"/>
+      <Header Text="Spanningsreferentie IC's"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="VoltageRegulator" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="voltage regulator"/>
+      <Header Text="Voltage regulators"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="spanningsregelaar"/>
+      <Header Text="Spanningsregelaars"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Switch">
+    <Language LangID="en-GB">
+      <Name Text="switch"/>
+      <Header Text="Switches"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="schakelaar"/>
+      <Header Text="Schakelaars"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Heatsink">
+    <Language LangID="en-GB">
+      <Name Text="heatsink"/>
+      <Header Text="Heatsinks"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="koellichaam"/>
+      <Header Text="Koellichamen"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Relay">
+    <Language LangID="en-GB">
+      <Name Text="relay"/>
+      <Header Text="Relays"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="relais"/>
+      <Header Text="Relais"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="IntegratedCircuit" IsIntegratedCircuit="true">
+    <Language LangID="en-GB">
+      <Name Text="integrated circuit"/>
+      <Header Text="Integrated Circuits"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="integrated circuit"/>
+      <Header Text="Integrated circuits"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Module">
+    <Language LangID="en-GB">
+      <Name Text="module"/>
+      <Header Text="Modules"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="module"/>
+      <Header Text="Modules"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="Component">
+    <Language LangID="en-GB">
+      <Name Text="component"/>
+      <Header Text="Components"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="component"/>
+      <Header Text="Componenten"/>
+    </Language>
+  </ComponentKind>
+  <ComponentKind Name="NonComponent">
+    <Language LangID="en-GB">
+      <Name Text="non component"/>
+      <Header Text="Non components"/>
+    </Language>
+    <Language LangID="nl-NL">
+      <Name Text="niet component"/>
+      <Header Text="Niet componenten"/>
+    </Language>
+  </ComponentKind>
+
+</Document>

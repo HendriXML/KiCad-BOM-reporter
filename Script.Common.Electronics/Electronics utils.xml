@@ -1,0 +1,380 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:sim="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:cod="urn:schemas-www-wisware.nl-xmlscripting-codeparser"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers"
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement">
+  <Uses>
+    <Use Identifier="ScienceUnits"/>
+  </Uses>
+  <Type>
+
+    <DataClass Identifier="TValueLink">
+      <Field Identifier="Value" Type="Quantity"/>
+      <Field Identifier="Next" Type="TValueLink"/>
+    </DataClass>
+
+    <DataClass Identifier="TESerieValueLink" Inherit="TValueLink">
+      <Field Identifier="SerieNode" Type="TSerieNode"/>
+      <Field Identifier="LogScale" Type="Integer"/>
+    </DataClass>
+
+  </Type>
+  
+  <Constants>
+    <Constant Identifier="cDeca1" Type="Char" Expression="'d'"/>
+    <Constant Identifier="cDeca2" Type="Char" Expression="'a'"/>
+    <!--
+Yotta
+Zetta
+Exa
+Peta
+Tera
+Giga
+Mega
+Kilo
+Hecto
+Deca
+Deci
+Centi
+Milli
+Micro
+Nano
+Pico
+Femto
+Atto
+Zepto
+Yocto
+    -->
+    <Constant Identifier="cYotta" Type="Char" Expression="'Y'"/>
+    <Constant Identifier="cZetta" Type="Char" Expression="'Z'"/>
+    <Constant Identifier="cExa" Type="Char" Expression="'E'"/>
+    <Constant Identifier="cPeta" Type="Char" Expression="'P'"/>
+    <Constant Identifier="cTera" Type="Char" Expression="'T'"/>
+    <Constant Identifier="cGiga" Type="Char" Expression="'G'"/>
+    <Constant Identifier="cMega" Type="Char" Expression="'M'"/>
+    <Constant Identifier="cKilo" Type="Char" Expression="'k'"/>
+    <Constant Identifier="cHecto" Type="Char" Expression="'h'"/>
+    <Constant Identifier="cDeca" Type="string" Expression="cDeca1 + cDeca2"/>
+    <Constant Identifier="cDeci" Type="Char" Expression="'d'"/>
+    <Constant Identifier="cCenti" Type="Char" Expression="'c'"/>
+    <Constant Identifier="cMilli" Type="Char" Expression="'m'"/>
+    <Constant Identifier="cMicro" Type="Char" Expression="'μ'"/>
+    <Constant Identifier="cNano" Type="Char" Expression="'n'"/>
+    <Constant Identifier="cPico" Type="Char" Expression="'p'"/>
+    <Constant Identifier="cFemto" Type="Char" Expression="'f'"/>
+    <Constant Identifier="cAtto" Type="Char" Expression="'a'"/>
+    <Constant Identifier="cZepto" Type="Char" Expression="'z'"/>
+    <Constant Identifier="cYocto" Type="Char" Expression="'y'"/>
+
+    <Constant Identifier="cMicroAlt" Type="Char" Expression="'µ'"/>
+    <Constant Identifier="cMicroAlt2" Type="Char" Expression="'u'"/>
+    <Constant Identifier="cR" Type="Char" Expression="'R'"/>
+    <Constant Identifier="cE" Type="Char" Expression="'E'"/>
+    <Constant Identifier="cE2" Type="Char" Expression="'e'"/>
+    <Constant Identifier="cK" Type="Char" Expression="'K'"/>
+
+
+    <Constant Identifier="sKibi" Type="string" Expression="'Ki'"/>
+    <Constant Identifier="sMebi" Type="string" Expression="'Mi'"/>
+    <Constant Identifier="sGibi" Type="string" Expression="'Gi'"/>
+    <Constant Identifier="sTebi" Type="string" Expression="'Ti'"/>
+    <Constant Identifier="sPebi" Type="string" Expression="'Pi'"/>
+    <Constant Identifier="sExbi" Type="string" Expression="'Ei'"/>
+    <Constant Identifier="sZebi" Type="string" Expression="'Zi'"/>
+    <Constant Identifier="sYobi" Type="string" Expression="'Yi'"/>
+
+    <Constant Identifier="cSpace" Type="Char" Expression="' '"/>
+    <Constant Identifier="cTab" Type="Char" Expression="#9"/>
+    <Constant Identifier="c0" Type="Char" Expression="'0'"/>
+    <Constant Identifier="cOrd0" Type="UInt32" Expression="CharOrd(c0)"/>
+    <Constant Identifier="c1" Type="Char" Expression="'1'"/>
+    <Constant Identifier="c9" Type="Char" Expression="'9'"/>
+    <Constant Identifier="cMilliOrMeter" Type="Char" Expression="cMilli"/>
+    <Constant Identifier="cDecimalSep1" Type="Char" Expression="'.'"/>
+    <Constant Identifier="cDecimalSep2" Type="Char" Expression="','"/>
+    <Constant Identifier="cNegative" Type="Char" Expression="'-'"/>
+    <Constant Identifier="cPositive" Type="Char" Expression="'+'"/>
+    <!--
+Ohm
+Watt
+Farad
+Henry
+Volt
+Amp
+Perc
+Hz
+Meter
+-->
+    <Constant Identifier="cOhm" Type="Char" Expression="'Ω'"/>
+    <Constant Identifier="cWatt" Type="Char" Expression="'W'"/>
+    <Constant Identifier="cFarad" Type="Char" Expression="'F'"/>
+    <Constant Identifier="cHenry" Type="Char" Expression="'H'"/>
+    <Constant Identifier="cVolt" Type="Char" Expression="'V'"/>
+    <Constant Identifier="cAmp" Type="Char" Expression="'A'"/>
+    <Constant Identifier="cPerc" Type="Char" Expression="'%'"/>
+    <Constant Identifier="sHz" Type="string" Expression="'Hz'"/>
+    <Constant Identifier="cHz" Type="Char" Expression="'H'"/>
+    <Constant Identifier="cHz2" Type="Char" Expression="'z'"/>
+    <Constant Identifier="cHenry_Hz" Type="Char" Expression="'H'"/>
+    <Constant Identifier="cMeter" Type="Char" Expression="'m'"/>
+    <Constant Identifier="cPercentage" Type="Char" Expression="'%'"/>
+    <Constant Identifier="cSecond" Type="Char" Expression="'s'"/>
+    <Constant Identifier="sKW" Type="string" Expression="'K/W'"/>
+    <Constant Identifier="sCelcius" Type="string" Expression="'°C'"/>
+
+    <Constant Identifier="cScaleYotta" Type="Integer" Expression="24"/>
+    <Constant Identifier="cScaleZetta" Type="Integer" Expression="21"/>
+    <Constant Identifier="cScaleExa" Type="Integer" Expression="18"/>
+    <Constant Identifier="cScalePeta" Type="Integer" Expression="15"/>
+    <Constant Identifier="cScaleTera" Type="Integer" Expression="12"/>
+    <Constant Identifier="cScaleGiga" Type="Integer" Expression="9"/>
+    <Constant Identifier="cScaleMega" Type="Integer" Expression="6"/>
+    <Constant Identifier="cScaleKilo" Type="Integer" Expression="3"/>
+    <Constant Identifier="cScaleHecto" Type="Integer" Expression="2"/>
+    <Constant Identifier="cScaleDeca" Type="Integer" Expression="1"/>
+    <Constant Identifier="cScaleNone" Type="Integer" Expression="0"/>
+    <Constant Identifier="cScaleDeci" Type="Integer" Expression="-1"/>
+    <Constant Identifier="cScaleCenti" Type="Integer" Expression="-2"/>
+    <Constant Identifier="cScaleMilli" Type="Integer" Expression="-3"/>
+    <Constant Identifier="cScaleMicro" Type="Integer" Expression="-6"/>
+    <Constant Identifier="cScaleNano" Type="Integer" Expression="-9"/>
+    <Constant Identifier="cScalePico" Type="Integer" Expression="-12"/>
+    <Constant Identifier="cScaleFemto" Type="Integer" Expression="-15"/>
+    <Constant Identifier="cScaleAtto" Type="Integer" Expression="-18"/>
+    <Constant Identifier="cScaleZepto" Type="Integer" Expression="-21"/>
+    <Constant Identifier="cScaleYocto" Type="Integer" Expression="-24"/>
+
+    <Constant Identifier="kilo" Type="Integer" Expression="1000"/>
+    <Constant Identifier="Mega" Type="Integer" Expression="1000 * kilo"/>
+    <Constant Identifier="Giga" Type="Integer" Expression="1000 * Mega"/>
+
+    <Constant Identifier="k" Type="Integer" Expression="kilo"/>
+    <Constant Identifier="M" Type="Integer" Expression="Mega"/>
+    <Constant Identifier="G" Type="Integer" Expression="Giga"/>
+
+    <Constant Identifier="nano" Type="Extended" Expression="1/1000000000"/>
+    <Constant Identifier="micro" Type="Extended" Expression="1/1000000"/>
+    <Constant Identifier="Milli" Type="Extended" Expression="1/1000"/>
+  </Constants>
+  <Variables>
+    <Variable Identifier="_E192Serie" Type="TSerie"/>
+    <Variable Identifier="_E96Serie" Type="TSerie"/>
+    <Variable Identifier="_E48Serie" Type="TSerie"/>
+    <Variable Identifier="_E24Serie" Type="TSerie"/>
+    <Variable Identifier="_E12Serie" Type="TSerie"/>
+    <Variable Identifier="_E6Serie" Type="TSerie"/>
+    <Variable Identifier="_E3Serie" Type="TSerie"/>
+    <Variable Identifier="_SerieNameRegister" Type="TCharacterTreeInt64Register"/>
+  </Variables>
+  <Procedures>
+
+    <Function Identifier="ESerieName" Type="string">
+      <Parameters>
+        <Parameter Identifier="Value" Type="TESerie"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TESerie.E1">
+            <Execute Statement="Result:= 'E1'"/>
+          </On>
+          <On Select="TESerie.E3">
+            <Execute Statement="Result:= 'E3'"/>
+          </On>
+          <On Select="TESerie.E6">
+            <Execute Statement="Result:= 'E6'"/>
+          </On>
+          <On Select="TESerie.E12">
+            <Execute Statement="Result:= 'E12'"/>
+          </On>
+          <On Select="TESerie.E24">
+            <Execute Statement="Result:= 'E24'"/>
+          </On>
+          <On Select="TESerie.E48">
+            <Execute Statement="Result:= 'E48'"/>
+          </On>
+          <On Select="TESerie.E96">
+            <Execute Statement="Result:= 'E96'"/>
+          </On>
+          <On Select="TESerie.E192">
+            <Execute Statement="Result:= 'E192'"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(Format('Invalid Eserie: %d', Value))"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="ESerieByName" Type="TESerie">
+      <Parameters>
+        <Parameter Identifier="Value" Type="string"/>
+      </Parameters>
+      <Block>
+        <Block Condition="IsEmpty(_SerieNameRegister)">
+          <Execute Statement="_SerieNameRegister:= TCharacterTreeInt64Register.Create(False)"/>
+          <ForLoop Indexer="I" From="TESerie.Low" To="TESerie.High">
+            <Execute Statement="_SerieNameRegister.Add(ESerieName(I), I)"/>
+          </ForLoop>
+        </Block>
+        <Variable Identifier="Result64" Type="Int64"/>
+        <Raise Expression="Exception.Create(Format('Invalid Eserie name: %s', Value))" Condition="not _SerieNameRegister.GetItem(Value, Result64)"/>
+        <Execute Statement="Result:= Result64"/>
+      </Block>
+    </Function>
+
+
+    <Function Identifier="DecodeReference" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Reference" Type="string"/>
+        <Parameter Identifier="Prefix" Type="string" Direction="Output"/>
+        <Parameter Identifier="Counter" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="ValidEndState" Type="Boolean" Init="False"/>
+        <Variable Identifier="locCounter" Type="UInt64"/>
+        <Variable Identifier="locPrefix" Type="string"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <stm:StateHandler InitialState="Start">
+          <StringLoop StringValue="Reference" OrdinalIdentifier="ChrI" CharacterIdentifier="Chr">
+            <stm:HandleStates>
+              <stm:State Name="Start">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="' ', #9">
+                  </On>
+                  <On Select="'a'..'z', 'A'..'Z'">
+                    <Execute Statement="locPrefix:= Chr"/>
+                    <stm:SetState Name="InPrefix"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="InPrefix">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="'a'..'z', 'A'..'Z'">
+                    <Execute Statement="locPrefix:= locPrefix + Chr"/>
+                  </On>
+                  <On Select="'0'..'9'">
+                    <Execute Statement="locCounter:= ChrI - CharOrd('0')"/>
+                    <stm:SetState Name="InNum"/>
+                    <Execute Statement="ValidEndState:= True"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="InNum">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="' ', #9">
+                    <stm:SetState Name="InEndWhitespace"/>
+                  </On>
+                  <On Select="'0'..'9'">
+                    <Execute Statement="locCounter:= locCounter * 10 + (ChrI - CharOrd('0'))"/>
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="InEndWhitespace">
+                <Case Expression="ChrI" Optimalisation="integermapping" OrdinalType="widechar">
+                  <On Select="' ', #9">
+                  </On>
+                  <Otherwise>
+                    <Exit/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+            </stm:HandleStates>
+          </StringLoop>
+        </stm:StateHandler>
+        <Block Condition="ValidEndState">
+          <Execute Statement="Counter:= locCounter"/>
+          <Execute Statement="Prefix:= locPrefix"/>
+          <Execute Statement="Result:= True"/>
+        </Block>
+      </Block>
+    </Function>
+
+    <Function Identifier="RangeItemCount" Type="Int64">
+      <Parameters>
+        <Parameter Identifier="Serie" Type="TSerie"/>
+        <Parameter Identifier="NodeLow" Type="TSerieNode"/>
+        <Parameter Identifier="LogScaleLow" Type="Integer"/>
+        <Parameter Identifier="NodeHigh" Type="TSerieNode"/>
+        <Parameter Identifier="LogScaleHigh" Type="Integer"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= (LogScaleHigh * Serie.Count + NodeHigh.OrderedPosition) - (LogScaleLow * Serie.Count + NodeLow.OrderedPosition)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="GetRangeValues" Type="TESerieValueLink">
+      <Parameters>
+        <Parameter Identifier="Serie" Type="TSerie"/>
+        <Parameter Identifier="NodeLow" Type="TSerieNode"/>
+        <Parameter Identifier="LogScaleLow" Type="Integer"/>
+        <Parameter Identifier="NodeHigh" Type="TSerieNode"/>
+        <Parameter Identifier="LogScaleHigh" Type="Integer"/>
+        <Parameter Identifier="UnitS" Type="UnitString"/>
+        <Parameter Identifier="ToleranceV" Type="Extended"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="RunningNode" Type="TSerieNode" Init="NodeLow"/>
+        <Variable Identifier="RunningLogScale" Type="Integer" Init="LogScaleLow"/>
+        <Variable Identifier="Tail" Type="TESerieValueLink"/>
+        <Variable Identifier="NewLink" Type="TESerieValueLink"/>
+        <Variable Identifier="Value" Type="Extended"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= TESerieValueLink.Create"/>
+        <Execute Statement="Value:= ScaleDecimal(RunningNode.Value, RunningLogScale)"/>
+        <Execute Statement="Result.Value:= Value ~ UnitS ± ((Value * ToleranceV) ~ UnitS)"/>
+        <Execute Statement="Result.SerieNode:= RunningNode"/>
+        <Execute Statement="Result.LogScale:= RunningLogScale"/>
+        <Execute Statement="Tail:= Result"/>
+        <Exit Condition="(RunningNode = NodeHigh) and (RunningLogScale = LogScaleHigh)"/>
+        <RepeatUntilLoop Expression="(RunningNode = NodeHigh) and (RunningLogScale = LogScaleHigh)">
+          <Choose>
+            <When Expression="Assigned(RunningNode.Next)">
+              <Execute Statement="RunningNode:= RunningNode.Next"/>
+            </When>
+            <Otherwise>
+              <Execute Statement="RunningNode:= Serie.Head"/>
+              <Execute Statement="RunningLogScale:= RunningLogScale + 1"/>
+            </Otherwise>
+          </Choose>
+          <Execute Statement="NewLink:= TESerieValueLink.Create"/>
+          <Execute Statement="Value:= ScaleDecimal(RunningNode.Value, RunningLogScale)"/>
+          <Execute Statement="NewLink.Value:= Value ~ UnitS ± ((Value * ToleranceV) ~ UnitS)"/>
+          <Execute Statement="NewLink.SerieNode:= RunningNode"/>
+          <Execute Statement="NewLink.LogScale:= RunningLogScale"/>
+          <Execute Statement="Tail.Next:= NewLink"/>
+          <Execute Statement="Tail:= NewLink"/>
+          <ExitOnAbortRequest/>
+        </RepeatUntilLoop>
+      </Block>
+    </Function>
+
+  </Procedures>
+</pkg:Library>

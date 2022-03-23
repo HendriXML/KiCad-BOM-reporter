@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Constants>
+    <Constant Identifier="sSelectTasks" Type="string" Expression="'Select the tasks that needs executing..'"/>
+    <Constant Identifier="sTasksAreBeingCreated" Type="string" Expression="'Tasks are being created..'"/>
+    <Constant Identifier="sTasksAreCreated" Type="string" Expression="'Tasks are created'"/>
+    <Constant Identifier="sTasksAreBeingExecuted" Type="string" Expression="'Tasks are being executed..'"/>
+    <Constant Identifier="sTasksAreExecuted" Type="string" Expression="'Tasks are executed'"/>
+    <Constant Identifier="sTasksAreBeingInitialized" Type="string" Expression="'Tasks are being initialized..'"/>
+    <Constant Identifier="sTasksAreInitialized" Type="string" Expression="'Tasks are initialized'"/>
+    <Constant Identifier="sTaskIsBeingInitialized" Type="string" Expression="'Task &quot;%s&quot; is being initialized..'"/>
+    <Constant Identifier="sTaskIsBeingInitializedEx" Type="string" Expression="'Task %s &quot;%s&quot; is being initialized..'"/>
+    <Constant Identifier="sTaskIsBeingFinalizedEx" Type="string" Expression="'Task %s &quot;%s&quot; is being finalized..'"/>
+    <Constant Identifier="sTaskIsIsFinalizedEx" Type="string" Expression="'Task %s &quot;%s&quot; is finalized'"/>
+    <Constant Identifier="sTaskIsBeingInitializedAfterInit" Type="string" Expression="'Task &quot;%s&quot; is being initialized after initialization..'"/>
+    <Constant Identifier="sTaskIsBeingInitializedAfterInitEx" Type="string" Expression="'Task %s &quot;%s&quot; is being initialized after initialization..'"/>
+    <Constant Identifier="sTaskIsInitialized" Type="string" Expression="'Task &quot;%s&quot; is initialized'"/>
+    <Constant Identifier="sTaskIsInitializedEx" Type="string" Expression="'Task %s &quot;%s&quot; is initialized'"/>
+    <Constant Identifier="sTaskIsInitializedAfterInit" Type="string" Expression="'Task &quot;%s&quot; is initialized after initialization'"/>
+    <Constant Identifier="sTaskIsInitializedAfterInitEx" Type="string" Expression="'Task %s &quot;%s&quot; is initialized after initialization'"/>
+    <Constant Identifier="sTaskIsBeingExecuted" Type="string" Expression="'Task &quot;%s&quot; is being executed..'"/>
+    <Constant Identifier="sTaskIsExecuted" Type="string" Expression="'Task &quot;%s&quot; was executed'"/>
+    <Constant Identifier="sTaskIsExecutedEx" Type="string" Expression="'Task &quot;%s&quot; was %s'"/>
+    <Constant Identifier="sTaskExecutionHasFailed" Type="string" Expression="'Task &quot;%s&quot; has failed'"/>
+    <Constant Identifier="sWithSuccess" Type="string" Expression="'successfully executed'"/>
+    <Constant Identifier="sWithFailure" Type="string" Expression="'unsuccessfully executed'"/>
+    <Constant Identifier="sWithUnknownSuccess" Type="string" Expression="'executed with unknown result'"/>
+
+    <Constant Identifier="sScriptException" Type="string" Expression="'A exception of type &quot;%s&quot; was raised: &quot;%s&quot;'"/>
+    <Constant Identifier="sScriptFailed" Type="string" Expression="'Failure while executing the script: &quot;%s&quot;'"/>
+    <Constant Identifier="sScriptDone" Type="string" Expression="'Done'"/>
+    <Constant Identifier="sWaitToResume" Type="string" Expression="'Waiting to resume..'"/>
+
+    <Constant Identifier="sNeeds" Type="string" Expression="'uses'"/>
+    <Constant Identifier="sNeededBy" Type="string" Expression="'is used by'"/>
+    <Constant Identifier="sIsUsedBy" Type="string" Expression="'Is being used by'"/>
+    <Constant Identifier="sMakesUseOf" Type="string" Expression="'Makes use of'"/>
+    <Constant Identifier="sTime" Type="string" Expression="'Time'"/>
+    <Constant Identifier="sInterpreterVersion" Type="string" Expression="'Interpreter version'"/>
+    <Constant Identifier="sScriptVersion" Type="string" Expression="'Script version'"/>
+    <Constant Identifier="sFilename" Type="string" Expression="'Filename'"/>
+  </Constants>
+</pkg:Library>

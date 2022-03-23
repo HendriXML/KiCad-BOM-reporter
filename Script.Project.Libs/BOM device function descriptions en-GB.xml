@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado" 
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report" 
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus" 
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index" 
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry" 
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils" 
+  xmlns:sim="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput" 
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement" 
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall" 
+  xmlns:cod="urn:schemas-www-wisware.nl-xmlscripting-codeparser" 
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist" 
+  xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers" 
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement" 
+  >
+  <Uses>
+    <Use Identifier="EnumerationUtils"/>
+    <Use Identifier="DeviceFunctions"/>
+    <Use Identifier="BomEnumerations"/>
+  </Uses>
+	<Procedures>
+
+    <Function Identifier="GetCountPrefix" Type="string">
+      <Parameters>
+        <Parameter Identifier="Count" Type="Integer"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Count" Optimalisation="integermapping">
+          <On Select="1">
+            <Execute Statement="Result:= ''"/>
+          </On>
+          <On Select="2">
+            <Execute Statement="Result:= 'dual '"/>
+          </On>
+          <On Select="3">
+            <Execute Statement="Result:= 'tripple '"/>
+          </On>
+          <On Select="4">
+            <Execute Statement="Result:= 'quad '"/>
+          </On>
+          <On Select="5">
+            <Execute Statement="Result:= 'penta '"/>
+          </On>
+          <On Select="6">
+            <Execute Statement="Result:= 'hexa '"/>
+          </On>
+          <On Select="8">
+            <Execute Statement="Result:= 'octa '"/>
+          </On>
+          <Otherwise>
+            <Execute Statement="Result:= Format('%d x ', Count)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="GetDeviceFunctionDescription" Type="string">
+      <Parameters>
+        <Parameter Identifier="ImplementedFunction" Type="TBaseImplementedFunction"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= TDeviceFunctionEnumInfo(DeviceFunctionNameRegister.Objects[ImplementedFunction.DeviceFunction]).Description"/>
+        <Execute Statement="Result:= GetCountPrefix(ImplementedFunction.Count) + Result"/>
+      </Block>
+    </Function>
+  </Procedures>
+</pkg:Library>

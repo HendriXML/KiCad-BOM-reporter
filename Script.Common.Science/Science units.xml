@@ -1,0 +1,364 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  >
+  <Type>
+    <Unit Identifier="Kilogram" Symbol="g" StandardPrefix="k" Prefixes="n μ m c d da h k M"/>
+
+    <Unit Identifier="Meter" Symbol="m" Prefixes="n μ m c d da h k M"/>
+
+    <Unit Identifier="Second" Symbol="s" Prefixes="p n μ m k M G T"/>
+
+    <Unit Identifier="Ampere" Symbol="A" Prefixes="f p n μ m k M"/>
+
+    <Unit Identifier="Mole" Symbol="mol" Prefixes="n μ m k M"/>
+
+    <Unit Identifier="Kelvin" Symbol="K" Prefixes="p n μ m k"/>
+
+    <Unit Identifier="Candela" Symbol="cd" Prefixes="p n μ m k"/>
+
+    <Unit Identifier="Weber" Symbol="Wb" Equivalent="⌠kg·m²·s⁻²·A⁻¹⌡"/>
+
+    <Unit Identifier="Watt" Symbol="W" Equivalent="⌠kg·m²·s⁻³⌡" Prefixes="f p n μ m k M"/>
+
+    <Unit Identifier="Volt" Symbol="V" Equivalent="⌠kg·m²·s⁻³·A⁻¹⌡" Prefixes="f p n μ m k M"/>
+
+    <Unit Identifier="Tesla" Symbol="T" Equivalent="⌠kg·s⁻²·A⁻¹⌡"/>
+
+    <Unit Identifier="Sievert" Symbol="Sv" Equivalent="⌠m²·s⁻²⌡"/>
+
+    <Unit Identifier="Siemens" Symbol="S" Equivalent="⌠kg⁻¹·m⁻²·s³·A²⌡"/>
+
+    <Unit Identifier="Radian" Symbol="rad"/>
+
+    <Unit Identifier="Pascal" Symbol="Pa" Equivalent="⌠kg·m⁻¹·s⁻²⌡" Prefixes="n μ m h k M G"/>
+
+    <Unit Identifier="Ohm" Symbol="Ω" Equivalent="⌠kg·m²·s⁻³·A⁻²⌡" Prefixes="n μ m k M G"/>
+
+    <Unit Identifier="Newton" Symbol="N" Equivalent="⌠kg·m·s⁻²⌡" Prefixes="f p n μ m k M G"/>
+
+    <Unit Identifier="Lux" Symbol="lx" Equivalent="⌠cd·m⁻²⌡"/>
+
+    <Unit Identifier="Lumen" Symbol="lm" Equivalent="⌠cd⌡"/>
+
+    <Unit Identifier="Katal" Symbol="kat" Equivalent="⌠s⁻¹·mol⌡"/>
+
+    <Unit Identifier="Joule" Symbol="J" Equivalent="⌠kg·m²·s⁻²⌡" Prefixes="f p n μ m k M G"/>
+
+    <Unit Identifier="Hertz" Symbol="Hz" Equivalent="⌠s⁻¹⌡" Prefixes="f p n μ m k M G T"/>
+
+    <Unit Identifier="Henry" Symbol="H" Equivalent="⌠kg·m²·s⁻²·A⁻²⌡" Prefixes="f p n μ m k M G T"/>
+
+    <Unit Identifier="Gray" Symbol="Gy" Equivalent="⌠m²·s⁻²⌡"/>
+
+    <Unit Identifier="Farad" Symbol="F" Equivalent="⌠kg⁻¹·m⁻²·s⁴·A²⌡" Prefixes="f p n μ m k M"/>
+
+    <Unit Identifier="DegreeCelsius" Symbol="°C" Prefixes="n μ m k M"/>
+
+    <Unit Identifier="Coulomb" Symbol="C" Equivalent="⌠s·A⌡"/>
+
+    <Unit Identifier="Becquerel" Symbol="Bq" Equivalent="⌠s⁻¹⌡"/>
+
+    <Unit Identifier="Percentage" Symbol="%"/>
+
+    <Unit Identifier="Degree" Symbol="°"/>
+
+    <Unit Identifier="Hour" Symbol="h"/>
+
+    <Unit Identifier="Day" Symbol="d"/>
+
+    <Unit Identifier="Week" Symbol="wk"/>
+
+    <Unit Identifier="Division" Symbol="div"/>
+
+    <Unit Identifier="Screen" Symbol="scr"/>
+
+    <Unit Identifier="Cycle" Symbol="cycle"/>
+
+    <Unit Identifier="Sample" Symbol="sample"/>
+
+    <Unit Identifier="DacStep" Symbol="dacstep"/>
+
+    <Unit Identifier="CyclesPerSecond" Symbol="cps" Equivalent="⌠cycle·s⁻¹⌡"/>
+
+    <Quantity Identifier="Mass" Unit="⌠kg⌡"/>
+
+    <Quantity Identifier="Time" Unit="⌠s⌡"/>
+
+    <Quantity Identifier="Temperature" Unit="⌠K⌡"/>
+
+    <Quantity Identifier="TemperatureC" Unit="⌠°C⌡"/>
+
+    <Quantity Identifier="ThermalResistance" Unit="⌠K·W⁻¹⌡"/>
+
+    <Quantity Identifier="ElectricCurrent" Unit="⌠A⌡"/>
+
+    <Quantity Identifier="ElectricResistance" Unit="⌠Ω⌡"/>
+
+    <Quantity Identifier="ElectricConductivity" Unit="⌠S⌡"/>
+
+    <Quantity Identifier="ElectricPotential" Unit="⌠V⌡"/>
+
+    <Quantity Identifier="Inductance" Unit="⌠H⌡"/>
+
+    <Quantity Identifier="Capacitance" Unit="⌠F⌡"/>
+
+    <Quantity Identifier="Power" Unit="⌠W⌡"/>
+
+    <Quantity Identifier="Force" Unit="⌠N⌡"/>
+
+    <Quantity Identifier="Frequency" Unit="⌠Hz⌡"/>
+
+    <Quantity Identifier="Capacity" Unit="⌠F⌡"/>
+
+    <Quantity Identifier="Factor" Unit="⌠⌡"/>
+
+    <Quantity Identifier="Speed" Unit="⌠m·s⁻¹⌡"/>
+
+    <Quantity Identifier="Acceleration" Unit="⌠m·s⁻²⌡"/>
+
+    <Quantity Identifier="Energy" Unit="⌠J⌡"/>
+
+    <Quantity Identifier="Distance" Unit="⌠m⌡"/>
+
+    <Quantity Identifier="Area" Unit="⌠m²⌡"/>
+
+    <Quantity Identifier="Volume" Unit="⌠m³⌡"/>
+
+    <Quantity Identifier="Dimensionless" Unit="⌠⌡"/>
+
+    <Quantity Identifier="ElectricCharge" Unit="⌠C⌡"/>
+
+    <Quantity Identifier="Weight" Unit="⌠kg⌡"/>
+
+    <Quantity Identifier="Pressure" Unit="⌠Pa⌡"/>
+
+    <Quantity Identifier="TemperatureCoefficientOfResistance" Unit="⌠K⁻¹⌡"/>
+
+    <Quantity Identifier="RC" Unit="⌠Ω·F⌡"/>
+
+    <Quantity Identifier="AngleDegree" Unit="⌠°⌡"/>
+
+    <DecimalQuantity Identifier="AngleDegreeDQ" Unit="⌠°⌡"/>
+
+    <Alias Identifier="Voltage" RefersTo="ElectricPotential"/>
+
+    <Alias Identifier="Current" RefersTo="ElectricCurrent"/>
+
+    <Alias Identifier="Resistance" RefersTo="ElectricResistance"/>
+
+    <Alias Identifier="Conductivity" RefersTo="ElectricConductivity"/>
+
+    <Alias Identifier="KineticEnergy" RefersTo="Energy"/>
+
+    <Alias Identifier="Height" RefersTo="Distance"/>
+
+    <Alias Identifier="Lenght" RefersTo="Distance"/>
+
+    <Alias Identifier="LenghtQ" RefersTo="Distance"/>
+
+    <Alias Identifier="Depth" RefersTo="Distance"/>
+
+    <DecimalQuantity Identifier="MassDQ" Unit="⌠kg⌡"/>
+
+    <DecimalQuantity Identifier="TimeDQ" Unit="⌠s⌡"/>
+
+    <DecimalQuantity Identifier="TemperatureDQ" Unit="⌠K⌡"/>
+
+    <DecimalQuantity Identifier="ElectricCurrentDQ" Unit="⌠A⌡"/>
+
+    <DecimalQuantity Identifier="ElectricResistanceDQ" Unit="⌠Ω⌡"/>
+
+    <DecimalQuantity Identifier="ElectricConductivityDQ" Unit="⌠S⌡"/>
+
+    <DecimalQuantity Identifier="ElectricPotentialDQ" Unit="⌠V⌡"/>
+
+    <DecimalQuantity Identifier="InductanceDQ" Unit="⌠H⌡"/>
+
+    <DecimalQuantity Identifier="CapacitanceDQ" Unit="⌠F⌡"/>
+
+    <DecimalQuantity Identifier="PowerDQ" Unit="⌠W⌡"/>
+
+    <DecimalQuantity Identifier="ForceDQ" Unit="⌠N⌡"/>
+
+    <DecimalQuantity Identifier="FrequencyDQ" Unit="⌠Hz⌡"/>
+
+    <DecimalQuantity Identifier="CapacityDQ" Unit="⌠F⌡"/>
+
+    <DecimalQuantity Identifier="FactorDQ" Unit="⌠⌡"/>
+
+    <DecimalQuantity Identifier="SpeedDQ" Unit="⌠m·s⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="AccelerationDQ" Unit="⌠m·s⁻²⌡"/>
+
+    <DecimalQuantity Identifier="EnergyDQ" Unit="⌠J⌡"/>
+
+    <DecimalQuantity Identifier="DistanceDQ" Unit="⌠m⌡"/>
+
+    <DecimalQuantity Identifier="DimensionlessDQ" Unit="⌠⌡"/>
+
+    <Alias Identifier="VoltageDQ" RefersTo="ElectricPotentialDQ"/>
+
+    <Alias Identifier="CurrentDQ" RefersTo="ElectricCurrentDQ"/>
+
+    <Alias Identifier="ResistanceDQ" RefersTo="ElectricResistanceDQ"/>
+
+    <Alias Identifier="ConductivityDQ" RefersTo="ElectricConductivityDQ"/>
+
+    <Alias Identifier="KineticEnergyDQ" RefersTo="EnergyDQ"/>
+
+    <Alias Identifier="HeightDQ" RefersTo="DistanceDQ"/>
+
+    <Alias Identifier="LenghtDQ" RefersTo="DistanceDQ"/>
+
+    <!--<Alias Identifier="DepthDQ" RefersTo="DistanceDQ"/>-->
+
+    <Quantity Identifier="PercentageRatioDQ" Unit="⌠%⌡"/>
+
+    <Alias Identifier="PercentageDQ" RefersTo="PercentageRatioDQ"/>
+    
+    <Alias Identifier="ToleranceDQ" RefersTo="PercentageRatioDQ"/>
+
+    <Quantity Identifier="PercentageRatio" Unit="⌠%⌡"/>
+
+    <Alias Identifier="PercentageQ" RefersTo="PercentageRatio"/>
+
+    <Alias Identifier="Tolerance" RefersTo="PercentageRatio"/>
+    
+    <Quantity Identifier="Resistivity" Unit="⌠Ω·m⌡"/>
+
+    <Quantity Identifier="Angle" Unit="⌠rad⌡"/>
+
+    <Quantity Identifier="AngularFrequency" Unit="⌠rad·s⁻¹⌡"/>
+
+    <Quantity Identifier="VoltagePerTime" Unit="⌠V·s⁻¹⌡"/>
+
+    <Quantity Identifier="TimeHour" Unit="⌠h⌡"/>
+
+    <Quantity Identifier="TimeDay" Unit="⌠d⌡"/>
+
+    <Quantity Identifier="TimeWeek" Unit="⌠wk⌡"/>
+
+    <Quantity Identifier="CurrentHour" Unit="⌠A·h⌡"/>
+
+    <Alias Identifier="BatteryCapacity" RefersTo="CurrentHour"/>
+
+    <Alias Identifier="Ratio" RefersTo="Dimensionless"/>
+
+    <Quantity Identifier="DistancePerHour" Unit="⌠m·h⁻¹⌡"/>
+    
+    <Quantity Identifier="ResistancePerMeter" Unit="⌠Ω·m⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="DivisionDQ" Unit="⌠div⌡"/>
+
+    <DecimalQuantity Identifier="ScreenDQ" Unit="⌠scr⌡"/>
+
+    <DecimalQuantity Identifier="SamplePerScreenDQ" Unit="⌠sample·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="DacStepDQ" Unit="⌠dacstep⌡"/>
+
+    <DecimalQuantity Identifier="DacStepPerDivDQ" Unit="⌠dacstep·div⁻¹⌡"/>
+
+    <Quantity Identifier="CyclesPerScreenQ" Unit="⌠cycle·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="CyclesPerScreenDQ" Unit="⌠cycle·scr⁻¹⌡"/>
+
+    <Quantity Identifier="CycleQ" Unit="⌠cycle⌡"/>
+
+    <DecimalQuantity Identifier="CycleDQ" Unit="⌠cycle⌡"/>
+
+    <Quantity Identifier="SamplesPerSec" Unit="⌠sample·s⁻¹⌡"/>
+
+    <Quantity Identifier="SampleQ" Unit="⌠sample⌡"/>
+
+    <DecimalQuantity Identifier="DivisionPerScreenDQ" Unit="⌠div·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="TimePerDivDQ" Unit="⌠s·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="DivPerDacStepDQ" Unit="⌠div·dacstep⁻¹⌡"/>
+
+    <Quantity Identifier="TimePerDiv" Unit="⌠s·div⁻¹⌡"/>
+
+    <Quantity Identifier="VoltagePerDiv" Unit="⌠V·div⁻¹⌡"/>
+
+    <Quantity Identifier="CurrentPerDiv" Unit="⌠A·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="VoltagePerDivDQ" Unit="⌠V·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="CurrentPerDivDQ" Unit="⌠A·div⁻¹⌡"/>
+
+    <Quantity Identifier="VoltagePerDacStep" Unit="⌠V·dacstep⁻¹⌡"/>
+
+    <Quantity Identifier="TimePerSample" Unit="⌠s·sample⁻¹⌡"/>
+
+    <Quantity Identifier="CyclesPerSecondQ" Unit="⌠cps⌡"/>
+<!--
+    <Unit Identifier="Division" Symbol="div"/>
+
+    <Unit Identifier="Screen" Symbol="scr"/>
+
+    <Unit Identifier="Cycle" Symbol="cycle"/>
+
+    <Unit Identifier="Sample" Symbol="sample"/>
+
+    <Unit Identifier="DacStep" Symbol="dacstep"/>
+
+    <DecimalQuantity Identifier="DivisionDQ" Unit="⌠div⌡"/>
+
+    <DecimalQuantity Identifier="ScreenDQ" Unit="⌠scr⌡"/>
+
+    <DecimalQuantity Identifier="SamplePerScreenDQ" Unit="⌠sample·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="DacStepDQ" Unit="⌠dacstep⌡"/>
+
+    <DecimalQuantity Identifier="DacStepPerDivDQ" Unit="⌠dacstep·div⁻¹⌡"/>
+
+    <Quantity Identifier="CyclesPerScreenQ" Unit="⌠cycle·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="CyclesPerScreenDQ" Unit="⌠cycle·scr⁻¹⌡"/>
+
+    <Quantity Identifier="CycleQ" Unit="⌠cycle⌡"/>
+
+    <DecimalQuantity Identifier="CycleDQ" Unit="⌠cycle⌡"/>
+
+    <Quantity Identifier="SamplesPerSec" Unit="⌠sample·s⁻¹⌡"/>
+
+    <Quantity Identifier="SampleQ" Unit="⌠sample⌡"/>
+
+    <DecimalQuantity Identifier="DivisionPerScreenDQ" Unit="⌠div·scr⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="TimePerDivDQ" Unit="⌠s·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="DivPerDacStepDQ" Unit="⌠div·dacstep⁻¹⌡"/>
+
+    <Quantity Identifier="TimePerDiv" Unit="⌠s·div⁻¹⌡"/>
+
+    <Quantity Identifier="VoltagePerDiv" Unit="⌠V·div⁻¹⌡"/>
+
+    <Quantity Identifier="CurrentPerDiv" Unit="⌠A·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="VoltagePerDivDQ" Unit="⌠V·div⁻¹⌡"/>
+
+    <DecimalQuantity Identifier="CurrentPerDivDQ" Unit="⌠A·div⁻¹⌡"/>
+
+    <Quantity Identifier="VoltagePerDacStep" Unit="⌠V·dacstep⁻¹⌡"/>
+
+    <Quantity Identifier="TimePerSample" Unit="⌠s·sample⁻¹⌡"/>
+
+-->
+  </Type>
+  
+  <Constants>
+    <Constant Identifier="cSecondPerHour" Type="Quantity" Expression="3600±0⌠s⌡ / 1±0⌠h⌡"/>
+    <Constant Identifier="cHourPerSecond" Type="Quantity" Expression="1±0⌠h⌡ / 3600±0⌠s⌡"/>
+    <Constant Identifier="cHoursPerDay" Type="Quantity" Expression="24±0⌠h⌡ / 1±0⌠d⌡"/>
+    <Constant Identifier="cDaysPerWeek" Type="Quantity" Expression="7±0⌠d⌡ / 1±0⌠wk⌡"/>
+    <Constant Identifier="cSecondPerDay" Type="Quantity" Expression="cSecondPerHour * cHoursPerDay"/>
+    <Constant Identifier="cFracToPerc" Type="Quantity" Expression="100±0⌠%⌡"/>
+    <Constant Identifier="cPercToFrac" Type="Quantity" Expression="0.01±0⌠%⁻¹⌡"/>
+  </Constants>
+</pkg:Library>

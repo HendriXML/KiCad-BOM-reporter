@@ -164,6 +164,8 @@
     <Constant Identifier="sOptocouplerHeader" Expression="'Optocouplers'"/>
     <Constant Identifier="sReferenceVoltageICDescription" Expression="'reference voltage IC'"/>
     <Constant Identifier="sReferenceVoltageICHeader" Expression="'Reference voltage IC''s'"/>
+    <Constant Identifier="sVoltageRegulatorDescription" Expression="'voltage regulator'"/>
+    <Constant Identifier="sVoltageRegulatorHeader" Expression="'Voltage regulators'"/>
     <Constant Identifier="sSwitchDescription" Expression="'switch'"/>
     <Constant Identifier="sSwitchHeader" Expression="'Switches'"/>
     <Constant Identifier="sHeatsinkDescription" Expression="'heatsink'"/>
@@ -185,26 +187,26 @@
     <Constant Identifier="sGlobalConfigTD" Type="string" Expression="'Read global config'"/>
     <Constant Identifier="sPartkeeprDatabaseTD" Type="string" Expression="'Connect to Partkeepr database'"/>
     <Constant Identifier="sBillOfMaterialsTD" Type="string" Expression="'Requested bill of materials object'"/>
-    <Constant Identifier="sStockManagerTD" Type="string" Expression="'Registered materials object'"/>
+    <Constant Identifier="sStockManagerTD" Type="string" Expression="'Available materials object'"/>
     <Constant Identifier="sBillOfMaterialsLoadTemplatesFromIniFileTD" Type="string" Expression="'Read bill of materials templates'"/>
     <Constant Identifier="sBillOfMaterialsLoadBomFileTD" Type="string" Expression="'Load requested bill of materials'"/>
     <Constant Identifier="sCalculatedSpecificationsTD" Type="string" Expression="'Load calculated specifications'"/>
     <Constant Identifier="sReportReportOrderPickingTD" Type="string" Expression="'Report order picking list'"/>
-    <Constant Identifier="sReadingStockTD" Type="string" Expression="'Load registered materials'"/>
-    <Constant Identifier="sStockManagerConsolidateSpecificationsTD" Type="string" Expression="'Consolidate registered material specifications'"/>
+    <Constant Identifier="sReadingStockTD" Type="string" Expression="'Load available materials'"/>
+    <Constant Identifier="sStockManagerConsolidateSpecificationsTD" Type="string" Expression="'Consolidate available material specifications'"/>
     <Constant Identifier="sBillOfMaterialsConsolidateSpecificationsTD" Type="string" Expression="'Consolidate requested material specifications'"/>
     <Constant Identifier="sBillOfMaterialsDetermineBomCountTD" Type="string" Expression="'Determine requested list amount'"/>
     <Constant Identifier="sBillOfMaterialsProcessDesignatorsTD" Type="string" Expression="'Process designators'"/>
-    <Constant Identifier="sBillOfMaterialsAssignStockComponentsTD" Type="string" Expression="'Match requested specifications and registered material specifications'"/>
+    <Constant Identifier="sBillOfMaterialsAssignStockComponentsTD" Type="string" Expression="'Match requested specifications and available material specifications'"/>
     <Constant Identifier="sSymbolMappingPathTD" Type="string" Expression="'Symbol mapping directory'"/>
     <Constant Identifier="sLoadSymbolMappingsTD" Type="string" Expression="'Read symbool component type mapping from directory'"/>
     <Constant Identifier="sLoadKnownUnitsTD" Type="string" Expression="'Load known PartKeepr units'"/>
     <Constant Identifier="sReportStorageLocationsTD" Type="string" Expression="'Report PartKeepr storage locations'"/>
     <Constant Identifier="sReportPartKeeprProjectsTD" Type="string" Expression="'Report PartKeepr projects'"/>
-    <Constant Identifier="sReportStockTD" Type="string" Expression="'Report registered materials'"/>
+    <Constant Identifier="sReportStockTD" Type="string" Expression="'Report available materials'"/>
     <Constant Identifier="sUpdateDBChangeProjectPartsTD" Type="string" Expression="'Add requested materials to PartKeepr project'"/>
-    <Constant Identifier="sUpdateDBChangePartNamesTD" Type="string" Expression="'Update registered material names in PartKeepr'"/>
-    <Constant Identifier="sUpdateDBChangePartDescriptionsTD" Type="string" Expression="'Update registered material descriptions in PartKeepr'"/>
+    <Constant Identifier="sUpdateDBChangePartNamesTD" Type="string" Expression="'Update available material names in PartKeepr'"/>
+    <Constant Identifier="sUpdateDBChangePartDescriptionsTD" Type="string" Expression="'Update available material descriptions in PartKeepr'"/>
     <Constant Identifier="sReportBomTD" Type="string" Expression="'Report requested bill of materials'"/>
     <Constant Identifier="sReportBomEEVBlogTD" Type="string" Expression="'Report requested bill of materials for EEVBlog'"/>
     <Constant Identifier="sReportBomDokuWikiTD" Type="string" Expression="'Report requested bill of materials for DokuWiki'"/>
@@ -212,6 +214,8 @@
     <Constant Identifier="sDatabaseExportProjectIdTD" Type="string" Expression="'Determine PartKeepr project ID'"/>
     <Constant Identifier="sDatabaseUnmatchedComponentsStorageIdTD" Type="string" Expression="'Determine PartKeepr storage location ID for unmatched materials'"/>
     <Constant Identifier="sMatchUnmatchedSchemaComponentsToCategoriesTD" Type="string" Expression="'Add unmatched materials to Partkeeper categories'"/>
+    <Constant Identifier="sUnrecognizedComponent" Type="string" Expression="'Component %s was not recognized'"/>
+    <Constant Identifier="sSheetsHeader" Type="string" Expression="'Schematic sheets'"/>
 
     <Constant Identifier="sUnsupportedUnattendedTask" Type="string" Expression="'Unsupported unattended task'"/>
     <Constant Identifier="sUnsupportedHideSpecs" Type="string" Expression="'Unsupported hide specs'"/>
@@ -221,15 +225,58 @@
     <Constant Identifier="sDesignatorReport" Type="string" Expression="'Designator specifications'"/>
     <Constant Identifier="sReportStorageLocations" Type="string" Expression="'Material locations'"/>
     <Constant Identifier="sReportOutOfStockMaterials" Type="string" Expression="'Out of stock materials'"/>
+    <Constant Identifier="sCombineTargetMatchingsStockAvailableValue" Type="string" Expression="'Available values provided by available materials'"/>
+    <Constant Identifier="sCombineTargetMatchingsStockMatching" Type="string" Expression="'Match combination values with available materials - config %d - (%s)'"/>
+    <Constant Identifier="sCombineTargetMatchingStockSource" Type="string" Expression="'Source of available materials'"/>
+    <Constant Identifier="cCompCombosTaskStock" Type="string" Expression="'Determine optimal available combinations for replacement value'"/>
+    <Constant Identifier="sUtilityTasks" Type="string" Expression="'Utility tasks'"/>
 
     <Constant Identifier="sMissingComponentHeader" Type="string" Expression="'Missing component class name'"/>
     <Constant Identifier="sResistorTechnologyMetalFilm" Type="string" Expression="'metal film'"/>
     <Constant Identifier="sResistorTechnologyMissing" Type="string" Expression="'-missing resistor technology mapping-'"/>
 
-    <Constant Identifier="sCapacitorTechnologyElectrolytic" Type="string" Expression="'elco'"/>
+    <Constant Identifier="sCapacitorTechnologyAluminumElectrolytic" Type="string" Expression="'aluminum electrolytic'"/>
+    <Constant Identifier="sCapacitorTechnologyTantalumElectrolytic" Type="string" Expression="'tantalum electrolytic'"/>
+    <Constant Identifier="sCapacitorTechnologyNiobiumElectrolytic" Type="string" Expression="'niobium electrolytic'"/>
     <Constant Identifier="sCapacitorTechnologyCeramic" Type="string" Expression="'ceramic'"/>
-    <Constant Identifier="sCapacitorTechnologyMissing" Type="string" Expression="'-missening capacitor technology mapping-'"/>
-    <Constant Identifier="sFootprintNamingMissing" Type="string" Expression="'-missening footprint mapping-'"/>
+    <Constant Identifier="sCapacitorTechnologySilverMica" Type="string" Expression="'silver mica'"/>
+    <Constant Identifier="sCapacitorTechnologyPolyesterFilm" Type="string" Expression="'polyester film'"/>
+    <Constant Identifier="sCapacitorTechnologyMetallisedPolyesterFilm" Type="string" Expression="'metallised polyester film'"/>
+    <Constant Identifier="sCapacitorTechnologyPolycarbonate" Type="string" Expression="'polycarbonate'"/>
+    <Constant Identifier="sCapacitorTechnologyPolypropylene" Type="string" Expression="'polypropylene'"/>
+    <Constant Identifier="sCapacitorTechnologyGlass" Type="string" Expression="'glass'"/>
+
+    <Constant Identifier="sDeviceFunctionOpAmp" Type="string" Expression="'opamp'"/>
+    <Constant Identifier="sDeviceFunctionComparator" Type="string" Expression="'comparator'"/>
+    <Constant Identifier="sDeviceFunctionSchmittTrigger" Type="string" Expression="'schmitt trigger'"/>
+    <Constant Identifier="sDeviceFunctionOptocoupler" Type="string" Expression="'optocoupler'"/>
+    <Constant Identifier="sDeviceFunctionTimer" Type="string" Expression="'timer'"/>
+    <Constant Identifier="sDeviceFunctionAndGate" Type="string" Expression="'AND gate'"/>
+    <Constant Identifier="sDeviceFunctionOrGate" Type="string" Expression="'OR gate'"/>
+    <Constant Identifier="sDeviceFunctionXorGate" Type="string" Expression="'XOR gate'"/>
+    <Constant Identifier="sDeviceFunctionXnorGate" Type="string" Expression="'XNOR gate'"/>
+    <Constant Identifier="sDeviceFunctionNandGate" Type="string" Expression="'NAND gate'"/>
+    <Constant Identifier="sDeviceFunctionNorGate" Type="string" Expression="'NOR gate'"/>
+    <Constant Identifier="sDeviceFunctionNotGate" Type="string" Expression="'NOT gate'"/>
+    <Constant Identifier="sDeviceFunctionVRef" Type="string" Expression="'reference voltage'"/>
+    <Constant Identifier="sDeviceFunctionTempSens" Type="string" Expression="'temperature sensor'"/>
+
+    <Constant Identifier="sDeviceFunctionOpAmpMulti" Type="string" Expression="'opamps'"/>
+    <Constant Identifier="sDeviceFunctionComparatorMulti" Type="string" Expression="'comparators'"/>
+    <Constant Identifier="sDeviceFunctionSchmittTriggerMulti" Type="string" Expression="'schmitt triggers'"/>
+    <Constant Identifier="sDeviceFunctionOptocouplerMulti" Type="string" Expression="'optocouplers'"/>
+    <Constant Identifier="sDeviceFunctionTimerMulti" Type="string" Expression="'timers'"/>
+    <Constant Identifier="sDeviceFunctionAndGateMulti" Type="string" Expression="'AND gates'"/>
+    <Constant Identifier="sDeviceFunctionOrGateMulti" Type="string" Expression="'OR gates'"/>
+    <Constant Identifier="sDeviceFunctionXorGateMulti" Type="string" Expression="'XOR gates'"/>
+    <Constant Identifier="sDeviceFunctionXnorGateMulti" Type="string" Expression="'XNOR gates'"/>
+    <Constant Identifier="sDeviceFunctionNandGateMulti" Type="string" Expression="'NAND gates'"/>
+    <Constant Identifier="sDeviceFunctionNorGateMulti" Type="string" Expression="'NOR gates'"/>
+    <Constant Identifier="sDeviceFunctionNotGateMulti" Type="string" Expression="'NOT gates'"/>
+    <Constant Identifier="sDeviceFunctionVRefMulti" Type="string" Expression="'reference voltages'"/>
+    <Constant Identifier="sDeviceFunctionTempSensMulti" Type="string" Expression="'temperature sensors'"/>
+
+    <Constant Identifier="sFootprintNamingMissing" Type="string" Expression="'-missing footprint mapping-'"/>
 
     <Constant Identifier="sFootprintTHT" Type="string" Expression="'THT'"/>
     <Constant Identifier="sFootprintSMD" Type="string" Expression="'SMD'"/>
@@ -285,29 +332,31 @@
 
     <Constant Identifier="sUpdateName" Type="string" Expression="'Change name %s (#%d) from &quot;%s&quot; to &quot;%s&quot;'"/>
     <Constant Identifier="sChangePartNames" Type="string" Expression="'Processing stock components for name alteration...'"/>
+    
+    <Constant Identifier="sBreakSpeedVeryFast" Type="string" Expression="'very fast'"/>
+    <Constant Identifier="sBreakSpeedFast" Type="string" Expression="'fast'"/>
+    <Constant Identifier="sBreakSpeedMedium" Type="string" Expression="'medium'"/>
+    <Constant Identifier="sBreakSpeedSlow" Type="string" Expression="'slow'"/>
+    <Constant Identifier="sBreakSpeedVerySlow" Type="string" Expression="'very slow'"/>
 
-    <Constant Identifier="sFuseSpeedVeryFast" Type="string" Expression="'very fast'"/>
-    <Constant Identifier="sFuseSpeedFast" Type="string" Expression="'fast'"/>
-    <Constant Identifier="sFuseSpeedMedium" Type="string" Expression="'medium'"/>
-    <Constant Identifier="sFuseSpeedSlow" Type="string" Expression="'slow'"/>
-    <Constant Identifier="sFuseSpeedVerySlow" Type="string" Expression="'very slow'"/>
-
-    <Constant Identifier="sMsgMappingExistingSymbol" Type="string" Expression="'Error while mapping symbol %s to %s it''s is already registered with component kind %s'"/>
+    <Constant Identifier="sMsgMappingExistingSymbol" Type="string" Expression="'Error while mapping symbol %s to %s it''s is already available with component kind %s'"/>
     <Constant Identifier="sMsgMissingSymbolComponentKind" Type="string" Expression="'Component kind %s for symbol %s could not be found'"/>
     <Constant Identifier="sMsgMissingLibraryComponentKind" Type="string" Expression="'Component kind %s for library %s could not be found'"/>
-    <Constant Identifier="sMsgMappingExistingLibrary" Type="string" Expression="'Error while mapping library %s to %s it''s is already registered with component kind %s'"/>
+    <Constant Identifier="sMsgMappingExistingLibrary" Type="string" Expression="'Error while mapping library %s to %s it''s is already available with component kind %s'"/>
     <Constant Identifier="sMsgMissingLibrarysymbolMapping" Type="string" Expression="'Part &quot;%s&quot; was not mapped to a componentkind, and thus defaults to component'"/>
 
     <Constant Identifier="sMsgUnmatchedCalculatedDesignator" Type="string" Expression="'Calculated designator %s not found in schema'"/>
-    <Constant Identifier="sTitleField" Type="string"     Expression="'Title'"/>
-    <Constant Identifier="sCompanyField" Type="string"   Expression="'Company'"/>
-    <Constant Identifier="sRevisionField" Type="string"  Expression="'Revision'"/>
-    <Constant Identifier="sDateField" Type="string"      Expression="'Date'"/>
-    <Constant Identifier="sSourceField" Type="string"    Expression="'Source'"/>
-    <Constant Identifier="sComment1Field" Type="string"  Expression="'Comment1'"/>
-    <Constant Identifier="sComment2Field" Type="string"  Expression="'Comment2'"/>
-    <Constant Identifier="sComment3Field" Type="string"  Expression="'Comment3'"/>
-    <Constant Identifier="sComment4Field" Type="string"  Expression="'Comment4'"/>
-    <Constant Identifier="sCountField" Type="string"     Expression="'Amount'"/>
+    <Constant Identifier="sCalculatedSpecificationsNotProcessed" Type="string" Expression="'Calculated specifications of %s could not be processed'"/>
+    <Constant Identifier="sSheetHeader" Type="string" Expression="'Sheet %u'"/>
+    <Constant Identifier="sTitleField" Type="string" Expression="'Title'"/>
+    <Constant Identifier="sCompanyField" Type="string" Expression="'Company'"/>
+    <Constant Identifier="sRevisionField" Type="string" Expression="'Revision'"/>
+    <Constant Identifier="sDateField" Type="string" Expression="'Date'"/>
+    <Constant Identifier="sSourceField" Type="string" Expression="'Source'"/>
+    <Constant Identifier="sCommentField" Type="string" Expression="'Comment %d'"/>
+    <Constant Identifier="sCountField" Type="string" Expression="'Amount'"/>
+    <Constant Identifier="sNumberField" Type="string" Expression="'Number'"/>
+    <Constant Identifier="sNameField" Type="string" Expression="'Name'"/>
+    <Constant Identifier="sScriptLog" Type="string" Expression="'Script log'"/>
   </Constants>
 </pkg:Library>

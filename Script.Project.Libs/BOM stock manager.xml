@@ -1,0 +1,663 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="ElectronicsUtils"/>
+    <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="ResistorClasses"/>
+    <Use Identifier="CapacitorClasses"/>
+    <Use Identifier="InductorClasses"/>
+    <Use Identifier="ZenerDiodeClasses"/>
+    <Use Identifier="DiodeClasses"/>
+    <Use Identifier="FuseClasses"/>
+    <Use Identifier="ConnectorClasses"/>
+    <Use Identifier="NamedComponentClasses"/>
+    <Use Identifier="CategoryContainer"/>
+  </Uses>
+  <Type>
+    <Enumeration Identifier="TPartKeeprPrefix" Elements="Yotta = 1, Zetta = 2, Exa = 3, Peta = 4, Tera = 5, Giga = 6, Mega = 7, Kilo = 8, Hecto = 9, Deca = 10, None = 11, Deci = 12, Centi = 13, Milli = 14, Micro = 15, Nano = 16, Pico = 17, Femto = 18, Atto = 19, Zepto = 20, Yocto = 21, Kibi = 22, Mebi = 23, Gibi = 24, Tebi = 25, Pebi = 26, Exbi = 27, Zebi = 28, Yobi = 29"/>
+
+    <DataClass Identifier="TStockManager" Inherit="TCategoryContainer" DefaultConstructor="none">
+      <VirtualMethod Identifier="vmFinalize" IsFinalizer="true"/>
+      <Field Identifier="CategoryList" Type="TObjectList"/>
+      <Field Identifier="StorageLocationIndex" Type="TMappingInt64ToObject"/>
+      <Field Identifier="RootStorageLocationCategory" Type="TStorageLocationCategory"/>
+    </DataClass>
+
+    <DataClass Identifier="TUnitInfo">
+      <Field Identifier="ID" Type="Integer"/>
+      <Field Identifier="Name" Type="string"/>
+      <Field Identifier="Symbol" Type="string"/>
+    </DataClass>
+
+  </Type>
+
+  <Constants>
+    <Constant Identifier="cLF" Type="string"  Expression="#13#10"/>
+    <Constant Identifier="sqlParts" Type="string"  Expression="
+      'SELECT id' + cLF + 
+      ', category_id' + cLF + 
+      ', name' + cLF + 
+      ', description' + cLF + 
+      ', needsReview' + cLF + 
+      ', partCondition' + cLF + 
+      ', status' + cLF + 
+      ', comment' + cLF + 
+      ', productionRemarks' + cLF + 
+      ', stockLevel' + cLF + 
+      ', storageLocation_id' + cLF + 
+      ', footprint_id' + cLF + 
+      ', internalPartNumber' + cLF + 
+      'FROM Part' + cLF + 
+      'ORDER BY id'"/>
+    <Constant Identifier="sqlPartParameters" Type="string"  Expression="
+      'SELECT id' + cLF + 
+      ',      part_id' + cLF + 
+      ',      name' + cLF + 
+      ',      valueType' + cLF + 
+      ',      stringValue' + cLF + 
+      ',      value' + cLF + 
+      ',      siPrefix_id' + cLF + 
+      ',      unit_id ' + cLF + 
+      'FROM PartParameter' + cLF + 
+      'ORDER BY part_id, id'"/>
+    <Constant Identifier="sqlFootPrints" Type="string"  Expression="
+      'SELECT id' + cLF + 
+      ',      name' + cLF + 
+      'FROM   Footprint'"/>
+  </Constants>
+  <Variables>
+    <Variable Identifier="UnitIndex" Type="TMappingInt64ToObject" Init="TMappingInt64ToObject.Create"/>
+    <Variable Identifier="FootPrintInfoIndex" Type="TMappingInt64ToObject" Init="TMappingInt64ToObject.Create"/>
+    <Variable Identifier="FootPrintToFootPrintInfoMapping" Type="TMappingInt64ToObject" Init="TMappingInt64ToObject.Create"/>
+    <Variable Identifier="UnitVolt" Type="TUnitInfo" Init="ObjNil"/>
+    <Variable Identifier="UnitAmp" Type="TUnitInfo" Init="ObjNil"/>
+    <Variable Identifier="UnitOhm" Type="TUnitInfo" Init="ObjNil"/>
+    <Variable Identifier="UnitFarad" Type="TUnitInfo" Init="ObjNil"/>
+    <Variable Identifier="UnitHenry" Type="TUnitInfo" Init="ObjNil"/>
+    <Variable Identifier="UnitPercentage" Type="TUnitInfo" Init="ObjNil"/>
+    <Variable Identifier="UnitWatt" Type="TUnitInfo" Init="ObjNil"/>
+  </Variables>
+
+  <Procedures>
+    <Procedure Identifier="TStockManager.Finalize" VirtualMethod="vmFinalize">
+      <Block>
+        <Free Expression="StorageLocationIndex"/>
+        <Free Expression="CategoryList"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="NumericalValueToStringValue" Type="string">
+      <Parameters>
+        <Parameter Identifier="Value" Type="Extended"/>
+        <Parameter Identifier="PartKeeprPrefix" Type="TPartKeeprPrefix"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Format('%g', Value)"/>
+        <Case Expression="PartKeeprPrefix">
+          <On Select="TPartKeeprPrefix.Yotta">
+            <Execute Statement="Result:= Result + cYotta"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Zetta">
+            <Execute Statement="Result:= Result + cZetta"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Exa">
+            <Execute Statement="Result:= Result + cExa"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Peta">
+            <Execute Statement="Result:= Result + cPeta"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Tera">
+            <Execute Statement="Result:= Result + cTera"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Giga">
+            <Execute Statement="Result:= Result + cGiga"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Mega">
+            <Execute Statement="Result:= Result + cMega"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Kilo">
+            <Execute Statement="Result:= Result + cKilo"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Hecto">
+            <Execute Statement="Result:= Result + cHecto"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Deca">
+            <Execute Statement="Result:= Result + cDeca"/>
+          </On>
+          <On Select="TPartKeeprPrefix.None">
+          </On>
+          <On Select="TPartKeeprPrefix.Deci">
+            <Execute Statement="Result:= Result + cDeci"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Centi">
+            <Execute Statement="Result:= Result + cCenti"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Milli">
+            <Execute Statement="Result:= Result + cMilli"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Micro">
+            <Execute Statement="Result:= Result + cMicro"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Nano">
+            <Execute Statement="Result:= Result + cNano"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Pico">
+            <Execute Statement="Result:= Result + cPico"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Femto">
+            <Execute Statement="Result:= Result + cFemto"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Atto">
+            <Execute Statement="Result:= Result + cAtto"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Zepto">
+            <Execute Statement="Result:= Result + cZepto"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Yocto">
+            <Execute Statement="Result:= Result + cYocto"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Kibi">
+            <Execute Statement="Result:= Result + sKibi"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Mebi">
+            <Execute Statement="Result:= Result + sMebi"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Gibi">
+            <Execute Statement="Result:= Result + sGibi"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Tebi">
+            <Execute Statement="Result:= Result + sTebi"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Pebi">
+            <Execute Statement="Result:= Result + sPebi"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Exbi">
+            <Execute Statement="Result:= Result + sExbi"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Zebi">
+            <Execute Statement="Result:= Result + sZebi"/>
+          </On>
+          <On Select="TPartKeeprPrefix.Yobi">
+            <Execute Statement="Result:= Result + sYobi"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="ReadKnownUnits">
+      <Parameters>
+        <Parameter Identifier="DBConnection" Type="Connection"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="UnitInfo" Type="TUnitInfo"/>
+        <Variable Identifier="ID" Type="Integer"/>
+        <Variable Identifier="Name" Type="string"/>
+        <Variable Identifier="Symbol" Type="string"/>
+      </Variables>
+      <Block>
+        <ado:Command.CreateBlock  CommandText="'SELECT id, name, symbol FROM Unit'" CommandType="adCmdText" Connection="DBConnection">
+          <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+            <ado:Recordset.Iterate>
+              <ado:Field.GetValue Name="id" Identifier="ID"/>
+              <ado:Field.GetValue Name="name" Identifier="Name"/>
+              <ado:Field.GetValue Name="symbol" Identifier="Symbol"/>
+              <Execute Statement="UnitInfo:= TUnitInfo.Create(ID, Name, Symbol)"/>
+              <Choose>
+                <When Expression="symbol = 'V'">
+                  <Execute Statement="UnitVolt:= UnitInfo"/>
+                </When>
+                <When Expression="symbol = 'A'">
+                  <Execute Statement="UnitAmp:= UnitInfo"/>
+                </When>
+                <When Expression="symbol = 'Ω'">
+                  <Execute Statement="UnitOhm:= UnitInfo"/>
+                </When>
+                <When Expression="symbol = 'W'">
+                  <Execute Statement="UnitWatt:= UnitInfo"/>
+                </When>
+                <When Expression="symbol = 'F'">
+                  <Execute Statement="UnitFarad:= UnitInfo"/>
+                </When>
+                <When Expression="symbol = 'H'">
+                  <Execute Statement="UnitHenry:= UnitInfo"/>
+                </When>
+                <When Expression="symbol = '%'">
+                  <Execute Statement="UnitPercentage:= UnitInfo"/>
+                </When>
+              </Choose>
+              <inx:Index.MapValue Index="UnitIndex" Key="ID" Value="UnitInfo" Flags="" />
+            </ado:Recordset.Iterate>
+          </ado:Recordset.OpenBlock>
+        </ado:Command.CreateBlock>
+      </Block>
+    </Procedure>
+
+    <!--<Procedure Identifier="ReadKnownFootPrints">
+      <Parameters>
+        <Parameter Identifier="DBConnection" Type="Connection"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Found" Type="Boolean"/>
+        -->
+    <!--<Variable Identifier="FootPrint" Type="TFootPrint"/>-->
+    <!--
+        -->
+    <!--<Variable Identifier="FootPrintInfo" Type="TFootprintInfo"/>-->
+    <!--
+        <Variable Identifier="ID" Type="Integer"/>
+        <Variable Identifier="Name" Type="string"/>
+      </Variables>
+      <Block>
+        <ado:Command.CreateBlock  CommandText="sqlFootPrints" CommandType="adCmdText" Connection="DBConnection">
+          <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+            <ado:Recordset.Iterate>
+              <ado:Field.GetValue Name="id" Identifier="ID"/>
+              <ado:Field.GetValue Name="name" Identifier="Name"/>
+              <Execute Statement="FootPrintInfo:= TFootprintInfo.Create(ID, Name)"/>
+              <inx:Index.FindValue Index="FootprintIndex" Key="Name" Value="FootPrint" Found="Found" Flags="NoErrorOnNotFound"/>
+              <Execute Statement="FootPrintInfo.Footprint:= FootPrint" Condition="Found"/>
+              <inx:Index.MapValue Index="FootPrintToFootPrintInfoMapping" Key="FootPrint" Value="FootPrintInfo" Flags="DiscardOnExist NoErrorOnExist" Condition="Found" />
+              <inx:Index.MapValue Index="FootPrintInfoIndex" Key="ID" Value="FootPrintInfo" Flags="" />
+            </ado:Recordset.Iterate>
+          </ado:Recordset.OpenBlock>
+        </ado:Command.CreateBlock>
+      </Block>
+    </Procedure>-->
+
+    <Procedure Identifier="TStockManager.LoadFromDB">
+      <Parameters>
+        <Parameter Identifier="DBConnection" Type="Connection"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Count" Type="Integer" Init="0"/>
+      </Variables>
+      <Procedures>
+        <Procedure Identifier="LoadStorageLocations">
+          <Block>
+            <Variable Identifier="NewCategory" Type="TStorageLocationCategory"/>
+            <Variable Identifier="NewStorageLocation" Type="TStorageLocation"/>
+            <Variable Identifier="ParentCategory" Type="TStorageLocationCategory"/>
+            <Variable Identifier="Category" Type="TStorageLocationCategory"/>
+            <Variable Identifier="ID"/>
+            <Variable Identifier="ParentID"/>
+            <Variable Identifier="CategoryID"/>
+            <Variable Identifier="Name"/>
+            <Variable Identifier="Description"/>
+            <Variable Identifier="StorageLocationIndex" Type="TMappingInt64ToObject" Init="TMappingInt64ToObject.Create"/>
+            <Execute Statement="Self.StorageLocationIndex:= StorageLocationIndex"/>
+            <Object.Use Identifier="StorageCategoryIndex" Type="TMappingInt64ToObject" Expression="TMappingInt64ToObject.Create">
+              <ado:Command.CreateBlock  CommandText="'SELECT id, parent_id, name, description FROM StorageLocationCategory ORDER BY lft ASC'" CommandType="adCmdText" Connection="DBConnection">
+                <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+                  <ado:Recordset.Iterate>
+                    <ado:Field.GetValue Index="0" Identifier="ID"/>
+                    <ado:Field.GetValue Index="1" Identifier="ParentID"/>
+                    <ado:Field.GetValue Index="2" Identifier="Name"/>
+                    <ado:Field.GetValue Index="3" Identifier="Description"/>
+                    <Execute Statement="NewCategory:= TStorageLocationCategory.Create(Name)"/>
+                    <Execute Statement="NewCategory.Description:= Description" Condition="not IsNull(Description)"/>
+                    <Choose>
+                      <When Expression="IsNullOrEmpty(ParentID)">
+                        <Execute Statement="Self.RootStorageLocationCategory:= NewCategory"/>
+                      </When>
+                      <Otherwise>
+                        <inx:Index.FindValue Index="StorageCategoryIndex" Key="ParentID" Value="ParentCategory" Flags=""/>
+                        <Choose>
+                          <When Expression="Assigned(ParentCategory.FirstChild)">
+                            <Execute Statement="ParentCategory.LastChild.NextSibling:= NewCategory"/>
+                          </When>
+                          <Otherwise>
+                            <Execute Statement="ParentCategory.FirstChild:= NewCategory"/>
+                          </Otherwise>
+                        </Choose>
+                        <Execute Statement="ParentCategory.LastChild:= NewCategory"/>
+                        <Execute Statement="NewCategory.Parent:= ParentCategory"/>
+                      </Otherwise>
+                    </Choose>
+                    <inx:Index.MapValue Index="StorageCategoryIndex" Key="ID" Value="NewCategory" Flags="" />
+                  </ado:Recordset.Iterate>
+                </ado:Recordset.OpenBlock>
+              </ado:Command.CreateBlock>
+              <ado:Command.CreateBlock  CommandText="'SELECT id, category_id, name FROM StorageLocation'" CommandType="adCmdText" Connection="DBConnection">
+                <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+                  <ado:Recordset.Iterate>
+                    <ado:Field.GetValue Index="0" Identifier="ID"/>
+                    <ado:Field.GetValue Index="1" Identifier="CategoryID"/>
+                    <ado:Field.GetValue Index="2" Identifier="Name"/>
+                    <Execute Statement="NewStorageLocation:= TStorageLocation.Create(Name)"/>
+                    <inx:Index.FindValue Index="StorageCategoryIndex" Key="CategoryID" Value="Category" Flags=""/>
+                    <Choose>
+                      <When Expression="Assigned(Category.FirstStorageLocation)">
+                        <Execute Statement="Category.LastStorageLocation.NextSibling:= NewStorageLocation"/>
+                      </When>
+                      <Otherwise>
+                        <Execute Statement="Category.FirstStorageLocation:= NewStorageLocation"/>
+                      </Otherwise>
+                    </Choose>
+                    <Execute Statement="Category.LastStorageLocation:= NewStorageLocation"/>
+                    <Execute Statement="NewStorageLocation.Category:= Category"/>
+                    <inx:Index.MapValue Index="StorageLocationIndex" Key="ID" Value="NewStorageLocation" Flags="" />
+                  </ado:Recordset.Iterate>
+                </ado:Recordset.OpenBlock>
+              </ado:Command.CreateBlock>
+            </Object.Use>
+          </Block>
+
+        </Procedure>
+        <Procedure Identifier="ProcessStockComponent">
+          <Parameters>
+            <Parameter Identifier="StockComponent" Type="TStockComponent"/>
+            <Parameter Identifier="ValueHead" Type="TComponentValue"/>
+          </Parameters>
+          <Variables>
+            <Variable Identifier="ReleaseComponentValue" Type="TComponentValue"/>
+          </Variables>
+          <Block>
+            <Execute Statement="Count:= Count + 1"/>
+            <Choose>
+              <When Expression="Resistors.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <When Expression="Capacitors.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <When Expression="Inductors.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <When Expression="ZenerDiodes.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <When Expression="Diodes.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <When Expression="Fuses.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <When Expression="Connectors.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <When Expression="IntegratedCircuits.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <When Expression="NamedComponents.ProcessStockComponent(StockComponent, ValueHead, Count)"/>
+              <Otherwise>
+                <rep:Reporter.Error Text="Format('Component %d was not recognized', StockComponent.ID)" Target="Info"/>
+              </Otherwise>
+            </Choose>
+            <lil:LinkedList.Iterate Head="ValueHead" ItemType="TComponentValue" RunningItem="RunningComponentValue" Next="RunningComponentValue.Next">
+              <Free Expression="RunningComponentValue"/>
+            </lil:LinkedList.Iterate>
+          </Block>
+        </Procedure>
+      </Procedures>
+      <Variables>
+        <Variable Identifier="ID"/>
+        <Variable Identifier="PartID"/>
+        <Variable Identifier="Name"/>
+        <Variable Identifier="ValueType"/>
+        <Variable Identifier="StringValue"/>
+        <Variable Identifier="Value"/>
+        <Variable Identifier="SiPrefix_ID"/>
+        <Variable Identifier="UnitID"/>
+        <Variable Identifier="ParentID"/>
+        <Variable Identifier="CategoryID"/>
+        <Variable Identifier="Description"/>
+        <Variable Identifier="Amount"/>
+        <Variable Identifier="LocationID"/>
+        <Variable Identifier="Location" Type="TStorageLocation"/>
+        <Variable Identifier="FootPrintID"/>
+        <Variable Identifier="InternalPartNumber"/>
+        <Variable Identifier="Symbol"/>
+        <Variable Identifier="NeedsReview"/>
+        <Variable Identifier="PartCondition"/>
+        <Variable Identifier="Status"/>
+        <Variable Identifier="Comment"/>
+        <Variable Identifier="ProductionRemarks"/>
+        <Variable Identifier="UnitInfo" Type="TUnitInfo"/>
+        <!--<Variable Identifier="FootprintInfo" Type="TFootprintInfo"/>-->
+        <Variable Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Variable Identifier="StockComponent" Type="TStockComponent"/>
+        <Variable Identifier="StockComponentDetached" Type="TStockComponent"/>
+        <Variable Identifier="StockComponentHead" Type="TStockComponent" Init="ObjNil"/>
+        <Variable Identifier="StockComponentTail" Type="TStockComponent" Init="ObjNil"/>
+        <Variable Identifier="NewCategory" Type="TStockCategory" Init="TStockCategory.Create"/>
+        <Variable Identifier="Category" Type="TStockCategory"/>
+        <Variable Identifier="ParentCategory" Type="TStockCategory"/>
+        <Variable Identifier="FoundCategory" Type="Boolean"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+        <Variable Identifier="ComponentValueHead" Type="TComponentValue" Init="ObjNil"/>
+        <Variable Identifier="ComponentValueTail" Type="TComponentValue" Init="ObjNil"/>
+        <Variable Identifier="CurrentComponentValue" Type="TComponentValue"/>
+        <Variable Identifier="PrevPartID" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Execute Statement="LoadStorageLocations"/>
+        <Variable Identifier="CategoryList" Type="TObjectList" Init="TObjectList.Create(False)"/>
+        <Execute Statement="Self.CategoryList:= CategoryList"/>
+        <Objects.Use>
+          <Object Identifier="SL" Type="TStringList" Expression="TStringList.Create"/>
+          <Object Identifier="KeyValues" Type="TStringList" Expression="TStringList.Create"/>
+          <Object Identifier="MemIni" Type="TMemIniFile" Expression="TMemIniFile.Create('')"/>
+          <Object Identifier="Ini" Type="TScienceIniHelper" Expression="TScienceIniHelper.Create(MemIni, False)"/>
+          <Object Identifier="CategoryIndex" Type="TMappingInt64ToObject" Expression="TMappingInt64ToObject.Create"/>
+          <Object Identifier="PartList" Type="TObjectList" Expression="TObjectList.Create(False)"/>
+          <Block>
+            <ado:Command.CreateBlock  CommandText="'SELECT id, name, parent_id, description FROM PartCategory'" CommandType="adCmdText" Connection="DBConnection">
+              <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+                <ado:Recordset.Iterate>
+                  <ado:Field.GetValue Index="0" Identifier="ID"/>
+                  <ado:Field.GetValue Index="1" Identifier="Name"/>
+                  <ado:Field.GetValue Index="2" Identifier="ParentID"/>
+                  <ado:Field.GetValue Index="3" Identifier="Description"/>
+                  <inx:Index.MapValue Index="CategoryIndex" Key="ID" Found="FoundCategory" Value="NewCategory" PreviousValue="Category" Flags="NoErrorOnExist DiscardOnExist" />
+                  <Block Condition="not FoundCategory">
+                    <Execute Statement="Category:= NewCategory"/>
+                    <Execute Statement="NewCategory:= TStockCategory.Create"/>
+                  </Block>
+                  <Block Condition="not IsNullOrEmpty(ParentID)">
+                    <inx:Index.MapValue Index="CategoryIndex" Key="ParentID" Found="FoundCategory" Value="NewCategory" PreviousValue="ParentCategory" Flags="NoErrorOnExist DiscardOnExist" />
+                    <Block Condition="not FoundCategory">
+                      <Execute Statement="ParentCategory:= NewCategory"/>
+                      <Execute Statement="NewCategory:= TStockCategory.Create"/>
+                    </Block>
+                    <Execute Statement="Category.ParentCategory:= ParentCategory"/>
+                  </Block>
+                  <Choose>
+                    <When Expression="IsNull(Description)">
+                      <Execute Statement="SL.Clear"/>
+                    </When>
+                    <Otherwise>
+                      <Execute Statement="SL.Text:= Description"/>
+                    </Otherwise>
+                  </Choose>
+                  <Execute Statement="MemIni.SetStrings(SL)"/>
+                  <Execute Statement="ComponentSpec:= ObjNil"/>
+                  <Choose>
+                    <When Expression="Resistors.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                    <When Expression="Capacitors.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                    <When Expression="Inductors.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                    <When Expression="ZenerDiodes.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                    <When Expression="Diodes.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                    <When Expression="Fuses.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                    <When Expression="Connectors.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                    <When Expression="IntegratedCircuits.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                    <When Expression="NamedComponents.CanExtractTemplateFromIniFile(Ini, ComponentSpec)"/>
+                  </Choose>
+                  <Execute Statement="Category.ID:= ID"/>
+                  <Execute Statement="Category.Name:= Name"/>
+                  <Execute Statement="Category.ComponentSpec:= ComponentSpec"/>
+                  <Execute Statement="Category.ComponentSpec:= ComponentSpec"/>
+                  <Execute Statement="CategoryList.Add(Category)"/>
+                </ado:Recordset.Iterate>
+              </ado:Recordset.OpenBlock>
+            </ado:Command.CreateBlock>
+            <ForLoop Indexer="I" From="0" To="CategoryList.Count - 1">
+              <Execute Statement="TStockCategory(CategoryList[I]).AcquireSpecs"/>
+            </ForLoop>
+            <ado:Command.CreateBlock CommandText="sqlParts" CommandType="adCmdText" Connection="DBConnection">
+              <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+                <ado:Recordset.Iterate>
+                  <ado:Field.GetValue Name="id" Identifier="ID"/>
+                  <ado:Field.GetValue Name="category_id" Identifier="CategoryID"/>
+                  <ado:Field.GetValue Name="name" Identifier="Name"/>
+                  <ado:Field.GetValue Name="description" Identifier="Description"/>
+                  <ado:Field.GetValue Name="needsReview" Identifier="NeedsReview"/>
+                  <ado:Field.GetValue Name="partCondition" Identifier="PartCondition"/>
+                  <ado:Field.GetValue Name="status" Identifier="Status"/>
+                  <ado:Field.GetValue Name="comment" Identifier="Comment"/>
+                  <ado:Field.GetValue Name="productionRemarks" Identifier="ProductionRemarks"/>
+                  <ado:Field.GetValue Name="stockLevel" Identifier="Amount"/>
+                  <ado:Field.GetValue Name="storageLocation_id" Identifier="LocationID"/>
+                  <ado:Field.GetValue Name="footprint_id" Identifier="FootPrintID"/>
+                  <ado:Field.GetValue Name="internalPartNumber" Identifier="InternalPartNumber"/>
+                  <inx:Index.FindValue Index="CategoryIndex" Key="CategoryID" Value="Category"/>
+                  <Execute Statement="StockComponent:= TStockComponent.Create"/>
+                  <Execute Statement="StockComponent.ID:= ID"/>
+                  <Execute Statement="StockComponent.Name:= Name"/>
+                  <Execute Statement="StockComponent.Description:= Description" Condition="not IsNull(Description)"/>
+                  <Execute Statement="StockComponent.NeedsReview:= NeedsReview &lt;&gt; 0" Condition="not IsNull(NeedsReview)"/>
+                  <Execute Statement="StockComponent.PartCondition:= PartCondition" Condition="not IsNull(PartCondition)"/>
+                  <Execute Statement="StockComponent.Status:= Status" Condition="not IsNull(Status)"/>
+                  <Execute Statement="StockComponent.Comment:= Comment" Condition="not IsNull(Comment)"/>
+                  <Execute Statement="StockComponent.ProductionRemarks:= ProductionRemarks" Condition="not IsNull(ProductionRemarks)"/>
+                  <Execute Statement="StockComponent.Amount:= Amount"/>
+                  <Execute Statement="StockComponent.InternalPartNumber:= IfElse(IsNull(InternalPartNumber), '', InternalPartNumber)"/>
+                  <inx:Index.FindValue Index="StorageLocationIndex" Key="LocationID" Value="Location" Flags=""/>
+                  <Execute Statement="StockComponent.Location:= Location"/>
+                  <!--<Block Condition="not IsNull(FootPrintID)">
+                          <inx:Index.FindValue Index="FootPrintInfoIndex" Key="FootPrintID" Value="FootprintInfo" Flags=""/>
+                          <Execute Statement="StockComponent.FootprintInfo:= FootprintInfo"/>
+                        </Block>-->
+                  <Execute Statement="StockComponent.StockCategory:= Category"/>
+                  <lil:LinkedList.LinkUp Head="StockComponentHead" Tail="StockComponentTail" Item="StockComponent" TailLinkStatement="StockComponentTail.Next:= Item"/>
+                </ado:Recordset.Iterate>
+              </ado:Recordset.OpenBlock>
+            </ado:Command.CreateBlock>
+
+            <Execute Statement="StockComponent:= StockComponentHead"/>
+            <ado:Command.CreateBlock  CommandText="sqlPartParameters" CommandType="adCmdText" Connection="DBConnection">
+              <ado:Recordset.OpenBlock CursorType="adOpenForwardOnly" LockType="adLockReadOnly">
+                <ado:Recordset.Iterate>
+                  <!--<ado:Field.GetValue Index="0" Identifier="ID"/>-->
+                  <ado:Field.GetValue Name="part_id" Identifier="PartID"/>
+                  <ado:Field.GetValue Name="name" Identifier="Name"/>
+                  <ado:Field.GetValue Name="valueType" Identifier="ValueType"/>
+                  <ado:Field.GetValue Name="stringValue" Identifier="StringValue"/>
+                  <ado:Field.GetValue Name="value" Identifier="Value"/>
+                  <ado:Field.GetValue Name="siPrefix_id" Identifier="SiPrefix_ID"/>
+                  <ado:Field.GetValue Name="unit_id" Identifier="UnitID"/>
+                  <Choose>
+                    <When Expression="ValueType = 'string'">
+                      <Execute Statement="CurrentComponentValue:= TComponentValue.Create(Name, IfElse(IsNull(StringValue), '-', StringValue))"/>
+                    </When>
+                    <When Expression="ValueType = 'numeric'">
+                      <Execute Statement="siPrefix_id:= TPartKeeprPrefix.None" Condition="IsNull(siPrefix_id)"/>
+                      <Execute Statement="StringValue:= IfElse(IsNull(Value), '-', NumericalValueToStringValue(Value, siPrefix_id))"/>
+                      <inx:Index.FindValue Index="UnitIndex" Key="UnitID" Value="UnitInfo" Found="Found" Flags="NoErrorOnNotFound NoKeyConvertError"/>
+                      <Execute Statement="StringValue:= StringValue + UnitInfo.Symbol" Condition="Found"/>
+                      <Execute Statement="CurrentComponentValue:= TComponentValue.Create(Name, StringValue)"/>
+                    </When>
+                    <Otherwise>
+                      <Execute Statement="CurrentComponentValue:= TComponentValue.Create(Name, '')"/>
+                    </Otherwise>
+                  </Choose>
+                  <Choose>
+                    <When Expression="IsEmpty(PrevPartID)">
+                      <Execute Statement="ComponentValueHead:= CurrentComponentValue"/>
+                      <Execute Statement="ComponentValueTail:= CurrentComponentValue"/>
+                    </When>
+                    <When Expression="PartID = PrevPartID">
+                      <Execute Statement="ComponentValueTail.Next:= CurrentComponentValue"/>
+                      <Execute Statement="ComponentValueTail:= CurrentComponentValue"/>
+                    </When>
+                    <When Expression="PartID &gt; PrevPartID">
+                      <!-- all field gathered -->
+                      <RepeatUntilLoop Expression="False">
+                        <Raise Condition="not Assigned(StockComponent) or (StockComponent.ID &gt; PrevPartID)" Expression="Exception.Create('Missing component')"/>
+                        <Break Condition="StockComponent.ID = PrevPartID"/>
+                        <Execute Statement="StockComponentDetached:= StockComponent"/>
+                        <Execute Statement="StockComponent:= StockComponent.Next"/>
+                        <Execute Statement="StockComponentDetached.Next:= ObjNil"/>
+                        <Execute Statement="ProcessStockComponent(StockComponentDetached, ObjNil)"/>
+                      </RepeatUntilLoop>
+                      <Execute Statement="StockComponentDetached:= StockComponent"/>
+                      <Execute Statement="StockComponent:= StockComponent.Next"/>
+                      <Execute Statement="StockComponentDetached.Next:= ObjNil"/>
+                      <Execute Statement="ProcessStockComponent(StockComponentDetached, ComponentValueHead)"/>
+                      <Execute Statement="ComponentValueHead:= CurrentComponentValue"/>
+                      <Execute Statement="ComponentValueTail:= CurrentComponentValue"/>
+                    </When>
+                  </Choose>
+                  <Execute Statement="PrevPartID:= PartID"/>
+                </ado:Recordset.Iterate>
+              </ado:Recordset.OpenBlock>
+            </ado:Command.CreateBlock>
+            <Choose>
+              <When Expression="IsEmpty(PrevPartID)">
+                <WhileLoop Expression="Assigned(StockComponent)">
+                  <Execute Statement="StockComponentDetached:= StockComponent"/>
+                  <Execute Statement="StockComponent:= StockComponent.Next"/>
+                  <Execute Statement="StockComponentDetached.Next:= ObjNil"/>
+                  <Execute Statement="ProcessStockComponent(StockComponentDetached, ObjNil)"/>
+                </WhileLoop>
+              </When>
+              <Otherwise>
+                <RepeatUntilLoop Expression="False">
+                  <Raise Condition="not Assigned(StockComponent) or (StockComponent.ID &gt; PrevPartID)" Expression="Exception.Create('Missing component')"/>
+                  <Break Condition="StockComponent.ID = PrevPartID"/>
+                  <Execute Statement="StockComponentDetached:= StockComponent"/>
+                  <Execute Statement="StockComponent:= StockComponent.Next"/>
+                  <Execute Statement="StockComponentDetached.Next:= ObjNil"/>
+                  <Execute Statement="ProcessStockComponent(StockComponentDetached, ObjNil)"/>
+                </RepeatUntilLoop>
+                <Execute Statement="StockComponentDetached:= StockComponent"/>
+                <Execute Statement="StockComponent:= StockComponent.Next"/>
+                <Execute Statement="StockComponentDetached.Next:= ObjNil"/>
+                <Execute Statement="ProcessStockComponent(StockComponentDetached, ComponentValueHead)"/>
+                <WhileLoop Expression="Assigned(StockComponent)">
+                  <Execute Statement="StockComponentDetached:= StockComponent"/>
+                  <Execute Statement="StockComponent:= StockComponent.Next"/>
+                  <Execute Statement="StockComponentDetached.Next:= ObjNil"/>
+                  <Execute Statement="ProcessStockComponent(StockComponentDetached, ObjNil)"/>
+                </WhileLoop>
+              </Otherwise>
+            </Choose>
+          </Block>
+        </Objects.Use>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TStockManager.Report">
+      <Block>
+        <Object.Use Identifier="StockContext" Type="TStockReportContext" Expression="TStockReportContext.Create">
+          <Object.Use Identifier="SpecReportContext" Type="TSpecReportContext" Expression="TSpecReportContext.Create">
+            <Object.Use Identifier="ColumnManager" Type="TTextColumnManager" Expression="TTextColumnManager.Create">
+              <Execute Statement="SpecReportContext.ColumnManager:= ColumnManager"/>
+              <Execute Statement="SpecReportContext.ColumnOffset:= 1"/>
+              <Execute Statement="StockContext.SpecContext:= SpecReportContext"/>
+              <Execute Statement="StockContext.Measure:= True"/>
+              <Execute Statement="SpecReportContext.Measure:= True"/>
+              <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
+                <Execute Statement="RunningItem.ReportStock(StockContext)"/>
+              </lil:LinkedList.Iterate>
+              <Execute Statement="StockContext.Measure:= False"/>
+              <Execute Statement="SpecReportContext.Measure:= False"/>
+              <rep:Reporter.Information Text="sStockHeader" Markup="Header1"/>
+              <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
+                <Execute Statement="RunningItem.ReportStock(StockContext)"/>
+              </lil:LinkedList.Iterate>
+            </Object.Use>
+          </Object.Use>
+        </Object.Use>
+      </Block>
+    </Procedure>
+
+  </Procedures>
+  <Finalization>
+    <Free Identifier="UnitIndex"/>
+    <Free Identifier="FootPrintInfoIndex"/>
+    <Free Identifier="FootPrintToFootPrintInfoMapping"/>
+  </Finalization>
+</pkg:Library>

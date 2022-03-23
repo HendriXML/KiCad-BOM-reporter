@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting" 
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado" 
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement" 
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall" 
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index" 
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist" 
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry" 
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report" 
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus" 
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils" 
+  >
+  <Uses>
+    <Use Identifier="ElectronicsUtils"/>
+    <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
+    <Use Identifier="ResistorClasses"/>
+    <Use Identifier="CapacitorClasses"/>
+    <Use Identifier="InductorClasses"/>
+    <Use Identifier="ZenerDiodeClasses"/>
+    <Use Identifier="DiodeClasses"/>
+    <Use Identifier="FuseClasses"/>
+    <Use Identifier="ConnectorClasses"/>
+    <Use Identifier="IntegratedCircuitClasses"/>
+    <Use Identifier="NamedComponentClasses"/>
+  </Uses>
+  <Type>
+    <DataClass Identifier="TDesignatorInfo">
+      <Field Identifier="SchemaComponent" Type="TSchemaComponent"/>
+      <Field Identifier="ComponentSpec" Type="TComponentSpec"/>
+      <Field Identifier="Next" Type="TDesignatorInfo"/>
+    </DataClass>
+
+    <DataClass Identifier="TCategoryContainer">
+      <Field Identifier="CategoryHead" Type="TComponentCategory"/>
+      <Field Identifier="Resistors" Type="TResistorCategory"/>
+      <Field Identifier="Capacitors" Type="TCapacitorCategory"/>
+      <Field Identifier="Inductors" Type="TInductorCategory"/>
+      <Field Identifier="ZenerDiodes" Type="TZenerDiodeCategory"/>
+      <Field Identifier="Diodes" Type="TDiodeCategory"/>
+      <Field Identifier="Fuses" Type="TFuseCategory"/>
+      <Field Identifier="Connectors" Type="TConnectorCategory"/>
+      <Field Identifier="IntegratedCircuits" Type="TIntegratedCircuitCategory"/>
+      <Field Identifier="NamedComponents" Type="TNamedComponentCategory"/>
+    </DataClass>
+  </Type>
+  <Procedures>
+    <Constructor Identifier="TCategoryContainer.Create">
+      <Variables>
+        <Variable Identifier="Head" Type="TComponentCategory"/>
+        <Variable Identifier="Tail" Type="TComponentCategory"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Resistors:= TResistorCategory.Create"/>
+        <Execute Statement="Capacitors:= TCapacitorCategory.Create"/>
+        <Execute Statement="Inductors:= TInductorCategory.Create"/>
+        <Execute Statement="ZenerDiodes:= TZenerDiodeCategory.Create"/>
+        <Execute Statement="Diodes:= TDiodeCategory.Create"/>
+        <Execute Statement="Fuses:= TFuseCategory.Create"/>
+        <Execute Statement="Connectors:= TConnectorCategory.Create"/>
+        <Execute Statement="IntegratedCircuits:= TIntegratedCircuitCategory.Create"/>
+        <Execute Statement="NamedComponents:= TNamedComponentCategory.Create"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Resistors" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Capacitors" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Inductors" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="ZenerDiodes" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Diodes" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Fuses" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="Connectors" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="IntegratedCircuits" TailLinkStatement="Tail.Next:= Item"/>
+        <lil:LinkedList.LinkUp Head="Head" Tail="Tail" Item="NamedComponents" TailLinkStatement="Tail.Next:= Item"/>
+        <Execute Statement="CategoryHead:= Head"/>
+      </Block>
+    </Constructor>
+    
+    <Procedure Identifier="TCategoryContainer.ConsolidateSpecifications">
+      <Block>
+        <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningItem" Next="RunningItem.Next">
+          <Execute Statement="RunningItem.ConsolidateSpecifications"/>
+        </lil:LinkedList.Iterate>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TCategoryContainer.ExtractDesignators" Type="TDesignatorInfo">
+      <Variables>
+        <Variable Identifier="DesignatorInfoTail" Type="TDesignatorInfo"/>
+        <Variable Identifier="DesignatorInfo" Type="TDesignatorInfo"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= ObjNil"/>
+        <lil:LinkedList.Iterate Head="CategoryHead" ItemType="TComponentCategory" RunningItem="RunningCategory" Next="RunningCategory.Next">
+          <lil:LinkedList.Iterate Head="RunningCategory.ComponentSpecHead" ItemType="TComponentSpec" RunningItem="RunningSpecification" Next="RunningSpecification.Next">
+            <lil:LinkedList.Iterate Head="RunningSpecification.SchemaComponentHead" ItemType="TSchemaComponent" RunningItem="RunningComponent" Next="RunningComponent.Next">
+              <Execute Statement="DesignatorInfo:= TDesignatorInfo.Create(RunningComponent, RunningSpecification)"/>
+              <lil:LinkedList.LinkUp Head="Result" Tail="DesignatorInfoTail" Item="DesignatorInfo" TailLinkStatement="DesignatorInfoTail.Next:= Item" />
+            </lil:LinkedList.Iterate>
+          </lil:LinkedList.Iterate>
+        </lil:LinkedList.Iterate>
+        <lil:LinkedList.MergeSort Head="Result" ItemType="TDesignatorInfo" Next="Item.Next" LinkUp="ItemA.Next:= ItemB" IsInOrder="CompareComponent(ItemA.SchemaComponent, ItemB.SchemaComponent) &lt;= 0"/>
+      </Block>
+    </Function>
+
+  </Procedures>
+</pkg:Library>

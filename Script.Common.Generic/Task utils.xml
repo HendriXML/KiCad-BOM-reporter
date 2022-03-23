@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fir="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:indx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages">
+  
+  <Uses>
+    <Use Identifier="TaskReportStrings"/>
+  </Uses>
+  
+  <Procedures>
+    <Function Identifier="TaskStatusDescription">
+      <Parameters>
+        <Parameter Identifier="Task" Type="TTask"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Task.Status" Optimalisation="integermapping">
+          <On Select="TTaskStatus.tsHandled">
+            <Execute Statement="Result:= sWithSuccess"/>
+          </On>
+          <On Select="TTaskStatus.tsFailed">
+            <Execute Statement="Result:= sWithFailure"/>
+          </On>
+          <Otherwise>
+            <Execute Statement="Result:= sWithUnknownSuccess"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+    
+    <Function Identifier="TaskStatusIndication">
+      <Parameters>
+        <Parameter Identifier="Task" Type="TTask"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Task.Status" Optimalisation="integermapping">
+          <On Select="TTaskStatus.tsHandled">
+            <Execute Statement="Result:= '[X]'"/>
+          </On>
+          <On Select="TTaskStatus.tsFailed">
+            <Execute Statement="Result:= '[!]'"/>
+          </On>
+          <On Select="TTaskStatus.tsUnHandled, TTaskStatus.tsInitialized">
+            <Execute Statement="Result:= '[ ]'"/>
+          </On>
+          <Otherwise>
+            <Execute Statement="Result:= '[?]'"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+    
+    <Procedure Identifier="UpdateCollectionTaskStatus">
+      <Parameters>
+        <Parameter Identifier="Task" Type="TTask"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="HasHandled" Type="Boolean" Init="False"/>
+        <Variable Identifier="HasFailed" Type="Boolean" Init="False"/>
+      </Variables>
+      <Block>
+        <Task.Iterate.DependOnTasks Task="Task" DependsOnTask="DependsOnTask">
+          <Case Expression="DependsOnTask.Status" Optimalisation="integermapping">
+            <On Select="TTaskStatus.tsHandled">
+              <Execute Statement="HasHandled:= True"/>
+            </On>
+            <On Select="TTaskStatus.tsFailed">
+              <Execute Statement="HasFailed:= True"/>
+            </On>
+            <On Select="TTaskStatus.tsUnHandled, TTaskStatus.tsInitialized">
+              <Task.MarkUnhandled Task="Task"/>
+              <Exit/>
+            </On>
+          </Case>
+        </Task.Iterate.DependOnTasks>
+        <Choose>
+          <When Expression="HasFailed and not HasHandled">
+            <Task.MarkFailed Task="Task"/>
+          </When>
+          <Otherwise>
+            <Task.MarkHandled Task="Task"/>
+          </Otherwise>
+        </Choose>
+      </Block>
+    </Procedure>
+  </Procedures>
+</pkg:Library>

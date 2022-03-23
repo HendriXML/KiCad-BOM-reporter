@@ -1,0 +1,1160 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  >
+  <Uses>
+    <Use Identifier="ScienceIniHelper"/>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="ElectronicsUtils"/>
+    <Use Identifier="BomStrings"/>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
+  </Uses>
+  <Type>
+
+    <DataClass Identifier="TResistorSpec" Inherit="TPassiveSpec">
+      <VirtualMethod Identifier="vmHandleField" Override="true"/>
+      <VirtualMethod Identifier="vmCheckComponentKind" Override="true"/>
+      <VirtualMethod Identifier="vmSpecificationAsString" Override="true"/>
+      <VirtualMethod Identifier="vmApplyTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmDoesMatchSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmCategoryMatchScore" Override="true"/>
+      <VirtualMethod Identifier="vmGetValue" Override="true"/>
+      <VirtualMethod Identifier="vmSetValue" Override="true"/>
+      <!--<-<TComponentSpec.Fields-->
+      <Field Identifier="ResistanceVT" Type="TValueType"/>
+      <Field Identifier="Resistance" Type="ResistanceDQ"/>
+      <Field Identifier="ErrorResistance" Type="string"/>
+      <Field Identifier="ResistanceBounds" Type="TBoundType"/>
+      <Field Identifier="ResistanceUpperBound" Type="ResistanceDQ"/>
+      <Field Identifier="PowerRatingVT" Type="TValueType"/>
+      <Field Identifier="PowerRating" Type="PowerDQ"/>
+      <Field Identifier="ErrorPowerRating" Type="string"/>
+      <Field Identifier="PowerRatingBounds" Type="TBoundType"/>
+      <Field Identifier="PowerRatingUpperBound" Type="PowerDQ"/>
+      <Field Identifier="ToleranceVT" Type="TValueType"/>
+      <Field Identifier="Tolerance" Type="ToleranceDQ"/>
+      <Field Identifier="ErrorTolerance" Type="string"/>
+      <Field Identifier="ToleranceBounds" Type="TBoundType"/>
+      <Field Identifier="ToleranceUpperBound" Type="ToleranceDQ"/>
+      <Field Identifier="TechnologyVT" Type="TValueType"/>
+      <Field Identifier="Technology" Type="TResistorTechnology"/>
+      <Field Identifier="ErrorTechnology" Type="string"/>
+      <Field Identifier="TechnologySet" Type="TFlags"/>
+      <!-->->-->
+    </DataClass>
+
+    <DataClass Identifier="TResistanceSpecificationIndex" Inherit="TSpecificationIndex" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetKey" Override="true"/>
+    </DataClass>
+
+    <DataClass Identifier="TResistorCategory" Inherit="TComponentCategory">
+      <VirtualMethod Identifier="vmCreateSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmIsValidSpecification" Override="true"/>
+      <VirtualMethod Identifier="vmIndexSearchSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmCompareSpecifications" Override="true"/>
+      <VirtualMethod Identifier="vmLoadTemplatesFromIniFile" Override="true"/>
+      <VirtualMethod Identifier="vmGetTemplate" Override="true"/>
+      <VirtualMethod Identifier="vmCanExtractTemplateFromIniFile" Override="true"/>
+      <Field Identifier="Template" Type="TResistorSpec"/>
+      <Field Identifier="TemplateVariable" Type="TResistorSpec"/>
+      <Field Identifier="ResistanceSpecificationIndex" Type="TResistanceSpecificationIndex"/>
+    </DataClass>
+  </Type>
+
+  <Variables>
+    <Variable Identifier="ResistorResistanceConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Ohm)"/>
+    <Variable Identifier="ResistorPowerRatingConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Watt)"/>
+    <Variable Identifier="ResistorToleranceConv" Type="TUnitConvertor" Init="GetUnitConvertor(TSiUnit.Perc)"/>
+  </Variables>
+
+  <Procedures>
+
+    <Function Identifier="TResistorSpec.CheckComponentKind" VirtualMethod="vmCheckComponentKind" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentKind" Type="TComponentKind"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="ComponentKind" Optimalisation="integermapping">
+          <On Select="TComponentKind.Resistor, TComponentKind.VariableResistor">
+            <Execute Statement="Result:= True"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TResistorSpec.DoesMatchSpecification" VirtualMethod="vmDoesMatchSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Exit Condition="not inherited DoesMatchSpecification(ComponentSpec)"/>
+        <Variable Identifier="IsMultiple" Type="Boolean"/>
+        <!--<-<TComponentSpec.DoesMatchSpecification-->
+        <Case Expression="ResistanceVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Exit Condition="not (ComponentSpec is TResistorSpec)"/>
+            <Case Expression="TResistorSpec(ComponentSpec).ResistanceVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="Resistance &lt;&gt; TResistorSpec(ComponentSpec).Resistance"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Exit Condition="not (ComponentSpec is TResistorSpec)"/>
+            <Case Expression="TResistorSpec(ComponentSpec).ResistanceVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Case Expression="ResistanceBounds">
+                  <On Select="TBoundType.Lower">
+                    <Exit Condition="TResistorSpec(ComponentSpec).Resistance &lt; Resistance"/>
+                  </On>
+                  <On Select="TBoundType.Upper">
+                    <Exit Condition="TResistorSpec(ComponentSpec).Resistance &gt; ResistanceUpperBound"/>
+                  </On>
+                  <On Select="TBoundType.Range">
+                    <Exit Condition="(TResistorSpec(ComponentSpec).Resistance &lt; Resistance) or (TResistorSpec(ComponentSpec).Resistance &gt; ResistanceUpperBound)"/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="PowerRatingVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Exit Condition="not (ComponentSpec is TResistorSpec)"/>
+            <Case Expression="TResistorSpec(ComponentSpec).PowerRatingVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="PowerRating &lt;&gt; TResistorSpec(ComponentSpec).PowerRating"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Exit Condition="not (ComponentSpec is TResistorSpec)"/>
+            <Case Expression="TResistorSpec(ComponentSpec).PowerRatingVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Case Expression="PowerRatingBounds">
+                  <On Select="TBoundType.Lower">
+                    <Exit Condition="TResistorSpec(ComponentSpec).PowerRating &lt; PowerRating"/>
+                  </On>
+                  <On Select="TBoundType.Upper">
+                    <Exit Condition="TResistorSpec(ComponentSpec).PowerRating &gt; PowerRatingUpperBound"/>
+                  </On>
+                  <On Select="TBoundType.Range">
+                    <Exit Condition="(TResistorSpec(ComponentSpec).PowerRating &lt; PowerRating) or (TResistorSpec(ComponentSpec).PowerRating &gt; PowerRatingUpperBound)"/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="ToleranceVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Exit Condition="not (ComponentSpec is TResistorSpec)"/>
+            <Case Expression="TResistorSpec(ComponentSpec).ToleranceVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="Tolerance &lt;&gt; TResistorSpec(ComponentSpec).Tolerance"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Exit Condition="not (ComponentSpec is TResistorSpec)"/>
+            <Case Expression="TResistorSpec(ComponentSpec).ToleranceVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Case Expression="ToleranceBounds">
+                  <On Select="TBoundType.Lower">
+                    <Exit Condition="TResistorSpec(ComponentSpec).Tolerance &lt; Tolerance"/>
+                  </On>
+                  <On Select="TBoundType.Upper">
+                    <Exit Condition="TResistorSpec(ComponentSpec).Tolerance &gt; ToleranceUpperBound"/>
+                  </On>
+                  <On Select="TBoundType.Range">
+                    <Exit Condition="(TResistorSpec(ComponentSpec).Tolerance &lt; Tolerance) or (TResistorSpec(ComponentSpec).Tolerance &gt; ToleranceUpperBound)"/>
+                  </On>
+                </Case>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <Case Expression="TechnologyVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Exit Condition="not (ComponentSpec is TResistorSpec)"/>
+            <Case Expression="TResistorSpec(ComponentSpec).TechnologyVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="Technology &lt;&gt; TResistorSpec(ComponentSpec).Technology"/>
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Exit Condition="not (ComponentSpec is TResistorSpec)"/>
+            <Exit Condition="not InFlags(TResistorSpec(ComponentSpec).Technology, TechnologySet)"/>
+            <Case Expression="TResistorSpec(ComponentSpec).TechnologyVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+              </On>
+              <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                <Exit/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+        <!-->->-->
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TResistorSpec.CategoryMatchScore" VirtualMethod="vmCategoryMatchScore" Type="Int64">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+
+        <Exit Condition="not (ComponentSpec is TResistorSpec)"/>
+
+        <Case Expression="ComponentKindVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Case Expression="ComponentSpec.ComponentKindVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="ComponentKind &lt;&gt; ComponentSpec.ComponentKind" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ResistanceVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Case Expression="TResistorSpec(ComponentSpec).ResistanceVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="Resistance &lt;&gt; TResistorSpec(ComponentSpec).Resistance" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="PowerRatingVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Case Expression="TResistorSpec(ComponentSpec).PowerRatingVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="PowerRating &lt;&gt; TResistorSpec(ComponentSpec).PowerRating" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="FootprintVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Case Expression="ComponentSpec.FootprintVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Execute Statement="Result:= Result + 1" Condition="Footprint = ComponentSpec.Footprint"/>
+              </On>
+              <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
+                <Execute Statement="Result:= Result + 1" Condition="ComponentSpec.FootprintMask.Matches(Footprint)"/>
+              </On>
+              <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+              </On>
+              <Otherwise>
+                <Exit/>
+              </Otherwise>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="TechnologyVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Case Expression="TResistorSpec(ComponentSpec).TechnologyVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="Technology &lt;&gt; TResistorSpec(ComponentSpec).Technology" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ToleranceVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Case Expression="TResistorSpec(ComponentSpec).ToleranceVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="Tolerance &lt;&gt; TResistorSpec(ComponentSpec).Tolerance" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="PartNumberVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Case Expression="ComponentSpec.PartNumberVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="not SameText(PartNumber, ComponentSpec.PartNumber)" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+
+        <Execute Statement="Result:= Result shl 1"/>
+        <Case Expression="ManufacturerVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Case Expression="ComponentSpec.ManufacturerVT">
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Exit Condition="not SameText(Manufacturer, ComponentSpec.Manufacturer)" Result="0"/>
+                <Execute Statement="Result:= Result + 1"/>
+              </On>
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="0"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Exit Result="0"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TResistorSpec.HandleField" VirtualMethod="vmHandleField">
+      <Parameters>
+        <Parameter Identifier="CustomField" Type="TCustomField"/>
+        <Parameter Identifier="Name" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="Clear" Type="Boolean"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="LocValue" Type="DecimalQuantity"/>
+        <Variable Identifier="LocResistorTechnology" Type="TResistorTechnology"/>
+        <Variable Identifier="LocFlags" Type="TFlags"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+      </Variables>
+      <Block>
+        <Case Expression="CustomField" Optimalisation="integermapping">
+          <!--<-<TComponentSpec.HandleField-->
+          <On Select="TCustomField.Value">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="ResistanceVT:= TValueType.Cleared"/>
+              </When>
+              <When Expression="ResistorResistanceConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Execute Statement="ResistanceVT:= TValueType.Specified"/>
+                <Execute Statement="Resistance:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="ResistanceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorResistance:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.ValueMin">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="ResistanceVT:= TValueType.Cleared"/>
+              </When>
+              <When Expression="ResistorResistanceConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Choose>
+                  <When Expression="(ResistanceVT = TValueType.SpecifiedEx) and (ResistanceBounds = TBoundType.Upper)">
+                    <Execute Statement="ResistanceBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ResistanceVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="ResistanceBounds:= TBoundType.Lower"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="Resistance:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="ResistanceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorResistance:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.ValueMax">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="ResistanceVT:= TValueType.Cleared"/>
+              </When>
+              <When Expression="ResistorResistanceConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Choose>
+                  <When Expression="(ResistanceVT = TValueType.SpecifiedEx) and (ResistanceBounds = TBoundType.Lower)">
+                    <Execute Statement="ResistanceBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ResistanceVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="ResistanceBounds:= TBoundType.Upper"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="ResistanceUpperBound:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="ResistanceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorResistance:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.PowerRating">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="PowerRatingVT:= TValueType.Cleared"/>
+              </When>
+              <When Expression="ResistorPowerRatingConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Execute Statement="PowerRatingVT:= TValueType.Specified"/>
+                <Execute Statement="PowerRating:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="PowerRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorPowerRating:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.PowerRatingMin">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="PowerRatingVT:= TValueType.Cleared"/>
+              </When>
+              <When Expression="ResistorPowerRatingConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Choose>
+                  <When Expression="(PowerRatingVT = TValueType.SpecifiedEx) and (PowerRatingBounds = TBoundType.Upper)">
+                    <Execute Statement="PowerRatingBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="PowerRatingVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="PowerRatingBounds:= TBoundType.Lower"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="PowerRating:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="PowerRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorPowerRating:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.PowerRatingMax">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="PowerRatingVT:= TValueType.Cleared"/>
+              </When>
+              <When Expression="ResistorPowerRatingConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Choose>
+                  <When Expression="(PowerRatingVT = TValueType.SpecifiedEx) and (PowerRatingBounds = TBoundType.Lower)">
+                    <Execute Statement="PowerRatingBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="PowerRatingVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="PowerRatingBounds:= TBoundType.Upper"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="PowerRatingUpperBound:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="PowerRatingVT:= TValueType.Error"/>
+                <Execute Statement="ErrorPowerRating:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.Tolerance">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="ToleranceVT:= TValueType.Cleared"/>
+              </When>
+              <When Expression="ResistorToleranceConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Execute Statement="ToleranceVT:= TValueType.Specified"/>
+                <Execute Statement="Tolerance:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="ToleranceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorTolerance:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.ToleranceMin">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="ToleranceVT:= TValueType.Cleared"/>
+              </When>
+              <When Expression="ResistorToleranceConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Choose>
+                  <When Expression="(ToleranceVT = TValueType.SpecifiedEx) and (ToleranceBounds = TBoundType.Upper)">
+                    <Execute Statement="ToleranceBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ToleranceVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="ToleranceBounds:= TBoundType.Lower"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="Tolerance:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="ToleranceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorTolerance:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.ToleranceMax">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="ToleranceVT:= TValueType.Cleared"/>
+              </When>
+              <When Expression="ResistorToleranceConv.EStrToDecimalQuantity(Value, LocValue)">
+                <Choose>
+                  <When Expression="(ToleranceVT = TValueType.SpecifiedEx) and (ToleranceBounds = TBoundType.Lower)">
+                    <Execute Statement="ToleranceBounds:= TBoundType.Range"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ToleranceVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="ToleranceBounds:= TBoundType.Upper"/>
+                  </Otherwise>
+                </Choose>
+                <Execute Statement="ToleranceUpperBound:= LocValue"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="ToleranceVT:= TValueType.Error"/>
+                <Execute Statement="ErrorTolerance:= Value"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.Technology">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="TechnologyVT:= TValueType.Cleared"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Found:= ResistorTechnologyNameRegister.GetItem(Value, LocResistorTechnology)"/>
+                <Choose>
+                  <When Expression="Found">
+                    <Execute Statement="Technology:= LocResistorTechnology"/>
+                    <Execute Statement="TechnologyVT:= TValueType.Specified"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ErrorTechnology:= Value"/>
+                    <Execute Statement="TechnologyVT:= TValueType.Error"/>
+                  </Otherwise>
+                </Choose>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TCustomField.TechnologySet">
+            <Choose>
+              <When Expression="Clear">
+                <Execute Statement="TechnologyVT:= TValueType.Cleared"/>
+              </When>
+              <Otherwise>
+                <Choose>
+                  <When Expression="ResistorTechnologyNameRegister.GetFlags(Value, LocFlags)">
+                    <Execute Statement="TechnologySet:= LocFlags"/>
+                    <Execute Statement="TechnologyVT:= TValueType.SpecifiedEx"/>
+                    <Execute Statement="TechnologyVT:= TValueType.Cleared" Condition="LocFlags = 0"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="ErrorTechnology:= Value"/>
+                    <Execute Statement="TechnologyVT:= TValueType.Error"/>
+                  </Otherwise>
+                </Choose>
+              </Otherwise>
+            </Choose>
+          </On>
+          <!-->->-->
+          <Otherwise>
+            <Execute Statement="inherited HandleField(CustomField, Name, Value, Clear)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TResistorSpec.GetValue" VirtualMethod="vmGetValue" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Case Expression="ResistanceVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="Value:= Resistance"/>
+            <Exit Result="True"/>
+          </On>
+        </Case>
+        <Execute Statement="Result:= False"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TResistorSpec.SetValue" VirtualMethod="vmSetValue">
+      <Parameters>
+        <Parameter Identifier="Value" Type="DecimalQuantity"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Resistance:= Value"/>
+        <Execute Statement="ResistanceVT:= TValueType.Specified"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TResistorSpec.GetSpecificationValues">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="Resistance" Type="string" Direction="Output"/>
+        <Parameter Identifier="ESerie" Type="string" Direction="Output"/>
+        <Parameter Identifier="PowerRating" Type="string" Direction="Output"/>
+        <Parameter Identifier="MaxAmpVolt" Type="string" Direction="Output"/>
+        <Parameter Identifier="Tolerance" Type="string" Direction="Output"/>
+        <Parameter Identifier="Technology" Type="string" Direction="Output"/>
+        <Parameter Identifier="Footprint" Type="string" Direction="Output"/>
+        <Parameter Identifier="PartNumberModel" Type="string" Direction="Output"/>
+        <Parameter Identifier="InternalPartNumber" Type="string" Direction="Output"/>
+        <Parameter Identifier="ComponentKind" Type="string" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="UnitPostFix" Type="TUnitPostFix" Init="TUnitPostFix.Compact"/>
+        <Execute Statement="UnitPostFix:= TUnitPostFix.Separated" Condition="FormatType = TSpecFormatType.Name"/>
+        <Variable Identifier="Multi" Type="Boolean"/>
+        <!--<-<TComponentSpec.GetSpecificationValues-->
+        <Case Expression="ResistanceVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="Resistance:= ''"/>
+          </On>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="Resistance:= EDecimalQuantityToStr(Self.Resistance, UnitPostFix)"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="ResistanceBounds">
+              <On Select="TBoundType.Lower">
+                <Execute Statement="Resistance:= EDecimalQuantityToStr(Self.Resistance, UnitPostFix) + #$2026"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="Resistance:= #$2026 + EDecimalQuantityToStr(Self.ResistanceUpperBound, UnitPostFix)"/>
+              </On>
+              <On Select="TBoundType.Range">
+                <Execute Statement="Resistance:= EDecimalQuantityToStr(Self.Resistance, UnitPostFix) + #$2026 + EDecimalQuantityToStr(Self.ResistanceUpperBound, UnitPostFix)"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="Resistance:= '!' + ErrorResistance + '!'"/>
+          </On>
+        </Case>
+        <Case Expression="PowerRatingVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="PowerRating:= ''"/>
+          </On>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="PowerRating:= EDecimalQuantityToStr(Self.PowerRating, UnitPostFix)"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="PowerRatingBounds">
+              <On Select="TBoundType.Lower">
+                <Execute Statement="PowerRating:= EDecimalQuantityToStr(Self.PowerRating, UnitPostFix) + #$2026"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="PowerRating:= #$2026 + EDecimalQuantityToStr(Self.PowerRatingUpperBound, UnitPostFix)"/>
+              </On>
+              <On Select="TBoundType.Range">
+                <Execute Statement="PowerRating:= EDecimalQuantityToStr(Self.PowerRating, UnitPostFix) + #$2026 + EDecimalQuantityToStr(Self.PowerRatingUpperBound, UnitPostFix)"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="PowerRating:= '!' + ErrorPowerRating + '!'"/>
+          </On>
+        </Case>
+        <Case Expression="ToleranceVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="Tolerance:= ''"/>
+          </On>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix)"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Case Expression="ToleranceBounds">
+              <On Select="TBoundType.Lower">
+                <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix) + #$2026"/>
+              </On>
+              <On Select="TBoundType.Upper">
+                <Execute Statement="Tolerance:= #$2026 + EDecimalQuantityToStr(Self.ToleranceUpperBound, UnitPostFix)"/>
+              </On>
+              <On Select="TBoundType.Range">
+                <Execute Statement="Tolerance:= EDecimalQuantityToStr(Self.Tolerance, UnitPostFix) + #$2026 + EDecimalQuantityToStr(Self.ToleranceUpperBound, UnitPostFix)"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="Tolerance:= '!' + ErrorTolerance + '!'"/>
+          </On>
+        </Case>
+        <Case Expression="TechnologyVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Execute Statement="Technology:= ''"/>
+          </On>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="Technology:= ResistorTechnologyAsString(Self.Technology)"/>
+          </On>
+          <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+            <Execute Statement="Technology:= ResistorTechnologySetAsString(Self.TechnologySet)"/>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="Technology:= '!' + ErrorTechnology + '!'"/>
+          </On>
+        </Case>
+        <!-->->-->
+
+        <Execute Statement="MaxAmpVolt:= ''"/>
+        <Case Expression="ResistanceVT">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate, TValueType.Error, TValueType.ErrorByTemplate">
+            <Execute Statement="ESerie:= ''"/>
+          </On>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="ESerie:= ESerieOfValue(Self.Resistance)"/>
+            <Block Condition="not HideResistorMaxAmpVolt">
+              <Case Expression="PowerRatingVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <!--<Variable Identifier="MaxVoltage" Type="Voltage" Init="CatchFloatE(Sqrt(Self.PowerRating * Self.Resistance)) ~ ⌠V⌡" DisabledChecks="error"/>-->
+                  <Variable Identifier="MaxVoltage" Type="Voltage" Init="CatchFloatE(Sqrt(Self.PowerRating * Self.Resistance)) ~ ⌠V⌡"/>
+                  <Choose>
+                    <When Expression="IsError(MaxVoltage)">
+                      <Execute Statement="MaxAmpVolt:= '?'"/>
+                    </When>
+                    <When Expression="MaxVoltage &gt; MaxShowResistorVoltage"/>
+                    <When Expression="MaxVoltage &lt;= 1⌠nV⌡">
+                      <Execute Statement="MaxAmpVolt:= MaxVoltAmpToStr(MaxVoltage)"/>
+                    </When>
+                    <Otherwise>
+                      <Variable Identifier="MaxAmp" Type="Current" Init="Self.PowerRating / MaxVoltage" DisabledChecks="error"/>
+                      <Choose>
+                        <When Expression="IsError(MaxAmp)">
+                          <Execute Statement="MaxAmpVolt:= '?'"/>
+                        </When>
+                        <Otherwise>
+                          <Execute Statement="MaxAmpVolt:= MaxVoltAmpToStr(MaxVoltage) + '|' + MaxVoltAmpToStr(MaxAmp)"/>
+                        </Otherwise>
+                      </Choose>
+                    </Otherwise>
+                  </Choose>
+                </On>
+              </Case>
+            </Block>
+          </On>
+        </Case>
+        <Execute Statement="inherited GetSpecificationValues(FormatType, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TResistorSpec.SpecificationAsString" VirtualMethod="vmSpecificationAsString" Type="string">
+      <Parameters>
+        <Parameter Identifier="FormatType" Type="TSpecFormatType"/>
+        <Parameter Identifier="ReportContext" Type="TSpecReportContext"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Value" Type="string" Init="''"/>
+        <Variable Identifier="ESerie" Type="string" Init="''"/>
+        <Variable Identifier="PowerRating" Type="string" Init="''"/>
+        <Variable Identifier="MaxAmpVolt" Type="string" Init="''"/>
+        <Variable Identifier="Tolerance" Type="string" Init="''"/>
+        <Variable Identifier="Technology" Type="string" Init="''"/>
+        <Variable Identifier="Footprint" Type="string" Init="''"/>
+        <Variable Identifier="PartNumberModel" Type="string" Init="''"/>
+        <Variable Identifier="InternalPartNumber" Type="string"/>
+        <Variable Identifier="ComponentKind" Type="string" Init="''"/>
+      </Variables>
+      <Block>
+        <Execute Statement="GetSpecificationValues(FormatType, Value, ESerie, PowerRating, MaxAmpVolt, Tolerance, Technology, Footprint, PartNumberModel, InternalPartNumber, ComponentKind)"/>
+        <Case Expression="FormatType" Optimalisation="integermapping">
+          <On Select="TSpecFormatType.Fixed">
+            <Variable Identifier="ColumnManager" Type="TTextColumnManager" Init="ReportContext.ColumnManager"/>
+            <Variable Identifier="ColumnOffset" Type="Integer" Init="ReportContext.ColumnOffset"/>
+            <Execute Statement="Value:= Value + ' '" Condition="IsNonEmptyString(Value)"/>
+            <Execute Statement="ESerie:= ESerie + ' '" Condition="IsNonEmptyString(ESerie)"/>
+            <Execute Statement="PowerRating:= PowerRating + ' '" Condition="IsNonEmptyString(PowerRating)"/>
+            <Execute Statement="MaxAmpVolt:= MaxAmpVolt + ' '" Condition="IsNonEmptyString(MaxAmpVolt)"/>
+            <Execute Statement="Tolerance:= Tolerance + ' '" Condition="IsNonEmptyString(Tolerance)"/>
+            <Execute Statement="Technology:= Technology + ' '" Condition="IsNonEmptyString(Technology)"/>
+            <Execute Statement="Footprint:= Footprint + ' '" Condition="IsNonEmptyString(Footprint)"/>
+            <Execute Statement="PartNumberModel:= PartNumberModel + ' '" Condition="IsNonEmptyString(PartNumberModel)"/>
+            <Execute Statement="InternalPartNumber:= InternalPartNumber + ' '" Condition="IsNonEmptyString(InternalPartNumber)"/>
+            <Choose>
+              <When Expression="ReportContext.Measure">
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.Value, 1, Length(Value))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.ESerie, 1, Length(ESerie))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.PowerRating, 1, Length(PowerRating))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.MaxAmpVolt, 1, Length(MaxAmpVolt))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.Tolerance, 1, Length(Tolerance))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.Technology, 1, Length(Technology))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.FootPrint, 1, Length(Footprint))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.PartNumberModel, 1, Length(PartNumberModel))"/>
+                <Execute Statement="ColumnManager.RequestColumnWidth(ColumnOffset + TResistorSpecColumns.InternalPartNumber, 1, Length(InternalPartNumber))"/>
+                <Execute Statement="Result:= ''"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="Result:= Format('%*s%*s%*s%-*s%*s%-*s%-*s%-*s%-*s',
+                         ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.Value, 1), Value,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.ESerie, 1), ESerie,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.PowerRating, 1), PowerRating,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.MaxAmpVolt, 1), MaxAmpVolt,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.Tolerance, 1), Tolerance,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.Technology, 1), Technology,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.FootPrint, 1), Footprint,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.PartNumberModel, 1), PartNumberModel,
+                         ColumnManager.GetColumnWidth(ColumnOffset + TResistorSpecColumns.InternalPartNumber, 1), InternalPartNumber)"/>
+              </Otherwise>
+            </Choose>
+          </On>
+          <On Select="TSpecFormatType.Description">
+            <Execute Statement="Result:= ConcatExt(' ', True, Value, Tolerance, PowerRating, PartNumberModel, InternalPartNumber, Technology, ComponentKind)"/>
+          </On>
+          <On Select="TSpecFormatType.Name">
+            <Execute Statement="Result:= Value"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TResistorSpec.ApplyTemplate" VirtualMethod="vmApplyTemplate">
+      <Variables>
+        <Variable Identifier="locTemplate" Type="TResistorSpec"/>
+      </Variables>
+      <Block>
+        <Exit Condition="not Assigned(Template)"/>
+        <ConditionalBlock Expression="Template is TResistorSpec">
+          <Execute Statement="locTemplate:= TResistorSpec(Template)"/>
+          <!--<-<TComponentSpec.ApplyTemplate-->
+          <Case Expression="ResistanceVT">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+              <Case Expression="locTemplate.ResistanceVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="Resistance:= locTemplate.Resistance"/>
+                  <Execute Statement="ResistanceVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                  <Execute Statement="Resistance:= locTemplate.Resistance" Condition="InFlags(locTemplate.ResistanceBounds, cValidLowerFlags)"/>
+                  <Execute Statement="ResistanceUpperBound:= locTemplate.ResistanceUpperBound" Condition="InFlags(locTemplate.ResistanceBounds, cValidUpperFlags)"/>
+                  <Execute Statement="ResistanceBounds:= locTemplate.ResistanceBounds"/>
+                  <Execute Statement="ResistanceVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorResistance:= locTemplate.ErrorResistance"/>
+                  <Execute Statement="ResistanceVT:= TValueType.ErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+          <Case Expression="PowerRatingVT">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+              <Case Expression="locTemplate.PowerRatingVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="PowerRating:= locTemplate.PowerRating"/>
+                  <Execute Statement="PowerRatingVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                  <Execute Statement="PowerRating:= locTemplate.PowerRating" Condition="InFlags(locTemplate.PowerRatingBounds, cValidLowerFlags)"/>
+                  <Execute Statement="PowerRatingUpperBound:= locTemplate.PowerRatingUpperBound" Condition="InFlags(locTemplate.PowerRatingBounds, cValidUpperFlags)"/>
+                  <Execute Statement="PowerRatingBounds:= locTemplate.PowerRatingBounds"/>
+                  <Execute Statement="PowerRatingVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorPowerRating:= locTemplate.ErrorPowerRating"/>
+                  <Execute Statement="PowerRatingVT:= TValueType.ErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+          <Case Expression="ToleranceVT">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.ErrorByTemplate">
+              <Case Expression="locTemplate.ToleranceVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="Tolerance:= locTemplate.Tolerance"/>
+                  <Execute Statement="ToleranceVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedEx, TValueType.SpecifiedExByTemplate">
+                  <Execute Statement="Tolerance:= locTemplate.Tolerance" Condition="InFlags(locTemplate.ToleranceBounds, cValidLowerFlags)"/>
+                  <Execute Statement="ToleranceUpperBound:= locTemplate.ToleranceUpperBound" Condition="InFlags(locTemplate.ToleranceBounds, cValidUpperFlags)"/>
+                  <Execute Statement="ToleranceBounds:= locTemplate.ToleranceBounds"/>
+                  <Execute Statement="ToleranceVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorTolerance:= locTemplate.ErrorTolerance"/>
+                  <Execute Statement="ToleranceVT:= TValueType.ErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+          <Case Expression="TechnologyVT">
+            <On Select="TValueType.Unspecified, TValueType.ClearedByTemplate, TValueType.SpecifiedByTemplate, TValueType.SpecifiedExByTemplate, TValueType.ErrorByTemplate">
+              <Case Expression="locTemplate.TechnologyVT">
+                <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                  <Execute Statement="Technology:= locTemplate.Technology"/>
+                  <Execute Statement="TechnologyVT:= TValueType.SpecifiedByTemplate"/>
+                </On>
+                <On Select="TValueType.SpecifiedExByTemplate, TValueType.SpecifiedEx">
+                  <Execute Statement="TechnologySet:= locTemplate.TechnologySet"/>
+                  <Execute Statement="TechnologyVT:= TValueType.SpecifiedExByTemplate"/>
+                </On>
+                <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                  <Execute Statement="ErrorTechnology:= locTemplate.ErrorTechnology"/>
+                  <Execute Statement="TechnologyVT:= TValueType.ErrorByTemplate"/>
+                </On>
+              </Case>
+            </On>
+          </Case>
+          <!-->->-->
+        </ConditionalBlock>
+        <Execute Statement="inherited ApplyTemplate"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TResistanceSpecificationIndex.GetKey" VirtualMethod="vmGetKey" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TResistorSpec"/>
+        <Parameter Identifier="Key" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Case Expression="ComponentSpec.ResistanceVT" Optimalisation="integermapping">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Execute Statement="Result:= True"/>
+            <Execute Statement="Key:= ComponentSpec.Resistance"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Constructor Identifier="TResistorCategory.Create">
+      <Block>
+        <Execute Statement="ResistanceSpecificationIndex:= TResistanceSpecificationIndex.Create(TMappingDecimalQuantityToObject.Create)"/>
+      </Block>
+    </Constructor>
+
+    <Function Identifier="TResistorCategory.CreateSpecification" VirtualMethod="vmCreateSpecification" Type="TComponentSpec">
+      <Block>
+        <Execute Statement="Result:= TResistorSpec.Create"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TResistorCategory.IsValidSpecification" VirtualMethod="vmIsValidSpecification" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Specification.ComponentKindVT">
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate"/>
+          <Otherwise>
+            <Exit Result="False"/>
+          </Otherwise>
+        </Case>
+        <Case Expression="Specification.ComponentKind">
+          <On Select="TComponentKind.Resistor, TComponentKind.VariableResistor"/>
+          <Otherwise>
+            <Exit Result="False"/>
+          </Otherwise>
+        </Case>
+        <Execute Statement="Result:= True"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TResistorCategory.IndexSearchSpecifications" VirtualMethod="vmIndexSearchSpecifications" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec"/>
+        <Parameter Identifier="Specifications" Type="TSpecificationLink" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <Choose>
+          <When Expression="ResistanceSpecificationIndex.GetLinks(ComponentSpec, ComponentSpecHead, Specifications)">
+            <Execute Statement="Result:= True"/>
+          </When>
+        </Choose>
+      </Block>
+    </Function>
+
+    <Function Identifier="TResistorCategory.GetTemplate" VirtualMethod="vmGetTemplate" Type="TComponentSpec">
+      <Parameters>
+        <Parameter Identifier="Specification" Type="TComponentSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= ObjNil"/>
+        <Case Expression="Specification.ComponentKind">
+          <On Select="TComponentKind.Resistor">
+            <Execute Statement="Result:= Template"/>
+          </On>
+          <On Select="TComponentKind.VariableResistor">
+            <Execute Statement="Result:= TemplateVariable"/>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+    <Function Identifier="TResistorCategory.CompareSpecifications" Type="Integer" VirtualMethod="vmCompareSpecifications">
+      <Parameters>
+        <Parameter Identifier="A" Type="TResistorSpec"/>
+        <Parameter Identifier="B" Type="TResistorSpec"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= A.ComponentKind - B.ComponentKind"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <!--<-<TComponentSpec.CompareSpecifications-->
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.ResistanceVT, A.Resistance, A.ResistanceUpperBound, A.ResistanceBounds, B.ID, B.ResistanceVT, B.Resistance, B.ResistanceUpperBound, B.ResistanceBounds)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.PowerRatingVT, A.PowerRating, A.PowerRatingUpperBound, A.PowerRatingBounds, B.ID, B.PowerRatingVT, B.PowerRating, B.PowerRatingUpperBound, B.PowerRatingBounds)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateValueRange(A.ID, A.ToleranceVT, A.Tolerance, A.ToleranceUpperBound, A.ToleranceBounds, B.ID, B.ToleranceVT, B.Tolerance, B.ToleranceUpperBound, B.ToleranceBounds)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <Execute Statement="Result:= CompareStateEnumValue(A.ID, A.TechnologyVT, A.Technology, A.TechnologySet, B.ID, B.TechnologyVT, B.Technology, B.TechnologySet)"/>
+        <Exit Condition="Result &lt;&gt; 0"/>
+        <!-->->-->
+        <Execute Statement="Result:= inherited CompareSpecifications(A, B)"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TResistorCategory.LoadTemplatesFromIniFile" VirtualMethod="vmLoadTemplatesFromIniFile">
+      <Parameters>
+        <Parameter Identifier="Ini" Type="TScienceIniHelper"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="sSection" Type="string" Expression="'Template.Resistor'"/>
+        <Constant Identifier="sSectionVariable" Type="string" Expression="'Template.Resistor.Variable'"/>
+      </Constants>
+
+      <Block>
+        <Block Condition="Ini.Inifile.SectionExists(sSection)">
+          <Execute Statement="Template:= TResistorSpec.Create"/>
+          <Execute Statement="Template.LoadFromIniFileSection(Ini, sSection)"/>
+        </Block>
+        <Block Condition="Ini.Inifile.SectionExists(sSectionVariable)">
+          <Execute Statement="TemplateVariable:= TResistorSpec.Create"/>
+          <Execute Statement="TemplateVariable.LoadFromIniFileSection(Ini, sSectionVariable)"/>
+        </Block>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TResistorCategory.CanExtractTemplateFromIniFile" VirtualMethod="vmCanExtractTemplateFromIniFile" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Ini" Type="TScienceIniHelper"/>
+        <Parameter Identifier="ComponentSpec" Type="TComponentSpec" Direction="Output"/>
+      </Parameters>
+      <Constants>
+        <Constant Identifier="cResistorSection" Type="string" Expression="'Resistor'"/>
+      </Constants>
+      <Block>
+        <Execute Statement="Result:= Ini.Inifile.SectionExists(cResistorSection)"/>
+        <Block Condition="Result">
+          <Execute Statement="ComponentSpec:= TResistorSpec.Create"/>
+          <Execute Statement="ComponentSpec.LoadFromIniFileSection(Ini, cResistorSection)"/>
+        </Block>
+      </Block>
+    </Function>
+
+  </Procedures>
+
+</pkg:Library>

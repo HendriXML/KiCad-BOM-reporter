@@ -1,0 +1,490 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:sim="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:cod="urn:schemas-www-wisware.nl-xmlscripting-codeparser"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers"
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement"
+  >
+  <Uses>
+    <Use Identifier="EnumerationUtils"/>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="ScienceIniHelper"/>
+  </Uses>
+
+  <Type>
+    <!--<Enumeration Identifier="TESerie" Elements="E1, E3, E6, E12, E24, E48, E96, E192" LowAlias="Low" HighAlias="High"/>-->
+
+    <DataClass Identifier="TESerieEnumInfo" ClassOfIdentifier="TTESerieEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+    </DataClass>
+
+    <!--<Enumeration Identifier="TValueGranularity" Elements="ExtraCoarse, Coarse, Fine, ExtraFine" LowAlias="Low" HighAlias="High"/>-->
+
+    <DataClass Identifier="TValueGranularityEnumInfo" ClassOfIdentifier="TTValueGranularityEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+    </DataClass>
+
+    <!--<Enumeration Identifier="TValueSets" Elements="E192, E96, E48, E24, E12, E6, E3, E1, E192_E192_E192_E192_E192_E192_E192_E001, E096_E192_E192_E192_E192_E192_E096_E001, E048_E192_E192_E192_E192_E192_E048_E001, E048_E096_E192_E192_E192_E096_E048_E001, E048_E096_E096_E192_E096_E096_E048_E001, E048_E096_E096_E096_E096_E096_E048_E001, E024_E096_E096_E096_E096_E096_E024_E001, E024_E048_E096_E096_E096_E048_E024_E001, E024_E048_E048_E096_E048_E048_E024_E001, E024_E048_E048_E048_E048_E048_E024_E001, E012_E048_E048_E048_E048_E048_E012_E001, E012_E024_E048_E048_E048_E024_E012_E001, E012_E024_E024_E048_E024_E024_E012_E001, E012_E024_E024_E024_E024_E024_E012_E001, E006_E024_E024_E024_E024_E024_E006_E001, E006_E012_E024_E024_E024_E012_E006_E001, E006_E012_E012_E024_E012_E012_E006_E001, E006_E012_E012_E012_E012_E012_E006_E001, E003_E012_E012_E012_E012_E012_E003_E001, E003_E006_E012_E012_E012_E006_E003_E001, E003_E006_E006_E012_E006_E006_E003_E001, E003_E006_E006_E006_E006_E006_E003_E001, E001_E006_E006_E006_E006_E006_E001_E001,E001_E003_E006_E006_E006_E003_E001_E001, E001_E003_E003_E006_E003_E003_E001_E001, E001_E003_E003_E003_E003_E003_E001_E001, E001_E001_E003_E003_E003_E001_E001_E001, E001_E001_E001_E003_E001_E001_E001_E001, E001_E001_E001_E001_E001_E001_E001_E001" LowAlias="Low" HighAlias="High"/>-->
+
+    <DataClass Identifier="TValueSetsEnumInfo" ClassOfIdentifier="TTValueSetsEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+      <Field Identifier="Description" Type="string"/>
+    </DataClass>
+
+    <!--<Enumeration Identifier="T4CompConfig" Elements="A, AsB, ApB, AsBsC, ApBpC, ApBsC, AssBpC, AsBsCsD, ApBpCpD, ApBsCsD, AssBpCpD, AssBpCsD, AppBssCpD, AssBssCpD, ApBpCsD, AssBpCssD, ApBsCpD" LowAlias="Low" HighAlias="High"/>-->
+
+    <DataClass Identifier="T4CompConfigEnumInfo" ClassOfIdentifier="TT4CompConfigEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+      <Field Identifier="Description" Type="string"/>
+    </DataClass>
+
+    <Enumeration Identifier="TAvailableValueSource" Elements="None, InputTab, TextFile" LowAlias="Low" HighAlias="High"/>
+
+    <DataClass Identifier="TAvailableValueSourceEnumInfo" ClassOfIdentifier="TTAvailableValueSourceEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
+      <VirtualMethod Identifier="vmGetInfo" Override="true"/>
+      <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
+    </DataClass>
+  </Type>
+
+  <Constants>
+    <Constant Identifier="sErrorInvalidESerie" Type="string" Expression="'Invalid ESerie'"/>
+    <Constant Identifier="sErrorInvalidValueGranularity" Type="string" Expression="'Invalid ValueGranularity'"/>
+    <Constant Identifier="sErrorInvalidValueSets" Type="string" Expression="'Invalid ValueSets'"/>
+    <Constant Identifier="sErrorInvalid4CompConfig" Type="string" Expression="'Invalid 4CompConfig'"/>
+    <Constant Identifier="sErrorInvalidAvailableValueSource" Type="string" Expression="'Invalid AvailableValueSource'"/>
+  </Constants>
+
+  <Variables>
+    <Variable Identifier="cESerieE1" Type="TESerieEnumInfo" Init="TESerieEnumInfo.Create(TESerie.E1, 'E1')"/>
+    <Variable Identifier="cESerieE3" Type="TESerieEnumInfo" Init="TESerieEnumInfo.Create(TESerie.E3, 'E3')"/>
+    <Variable Identifier="cESerieE6" Type="TESerieEnumInfo" Init="TESerieEnumInfo.Create(TESerie.E6, 'E6')"/>
+    <Variable Identifier="cESerieE12" Type="TESerieEnumInfo" Init="TESerieEnumInfo.Create(TESerie.E12, 'E12')"/>
+    <Variable Identifier="cESerieE24" Type="TESerieEnumInfo" Init="TESerieEnumInfo.Create(TESerie.E24, 'E24')"/>
+    <Variable Identifier="cESerieE48" Type="TESerieEnumInfo" Init="TESerieEnumInfo.Create(TESerie.E48, 'E48')"/>
+    <Variable Identifier="cESerieE96" Type="TESerieEnumInfo" Init="TESerieEnumInfo.Create(TESerie.E96, 'E96')"/>
+    <Variable Identifier="cESerieE192" Type="TESerieEnumInfo" Init="TESerieEnumInfo.Create(TESerie.E192, 'E192')"/>
+    <Variable Identifier="ESerieEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TESerieEnumInfo)"/>
+
+    <Variable Identifier="cValueGranularityExtraCoarse" Type="TValueGranularityEnumInfo" Init="TValueGranularityEnumInfo.Create(TValueGranularity.ExtraCoarse, 'ExtraCoarse')"/>
+    <Variable Identifier="cValueGranularityCoarse" Type="TValueGranularityEnumInfo" Init="TValueGranularityEnumInfo.Create(TValueGranularity.Coarse, 'Coarse')"/>
+    <Variable Identifier="cValueGranularityFine" Type="TValueGranularityEnumInfo" Init="TValueGranularityEnumInfo.Create(TValueGranularity.Fine, 'Fine')"/>
+    <Variable Identifier="cValueGranularityExtraFine" Type="TValueGranularityEnumInfo" Init="TValueGranularityEnumInfo.Create(TValueGranularity.ExtraFine, 'ExtraFine')"/>
+    <Variable Identifier="ValueGranularityEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TValueGranularityEnumInfo)"/>
+
+    <Variable Identifier="cValueSetsE192_E192_E192" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E192_E192_E192, 'E192_E192_E192', 'E192[E192]E192')"/>
+    <Variable Identifier="cValueSetsE096_E096_E096" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E096_E096_E096, 'E096_E096_E096', 'E96[E96]E96')"/>
+    <Variable Identifier="cValueSetsE048_E048_E048" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E048_E048, 'E048_E048_E048', 'E48[E48]E48')"/>
+    <Variable Identifier="cValueSetsE024_E024_E024" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E024_E024, 'E024_E024_E024', 'E24[E24]E24')"/>
+    <Variable Identifier="cValueSetsE012_E012_E012" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E012_E012, 'E012_E012_E012', 'E12[E12]E12')"/>
+    <Variable Identifier="cValueSetsE006_E006_E006" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E006_E006, 'E006_E006_E006', 'E6[E6]E6')"/>
+    <Variable Identifier="cValueSetsE003_E003_E003" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E003_E003, 'E003_E003_E003', 'E3[E3]E3')"/>
+    <Variable Identifier="cValueSetsE001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E001, 'E001_E001_E001', 'E1[E1]E1')"/>
+    <Variable Identifier="cValueSetsE192_E192_E192_E192_E192_E192_E192_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E192_E192_E192_E192_E192_E192_E192_E001, 'E192_E192_E192_E192_E192_E192_E192_E001', 'E192-E192-E192-[E192]-E192-E192-E192-E1')"/>
+    <Variable Identifier="cValueSetsE096_E192_E192_E192_E192_E192_E096_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E096_E192_E192_E192_E192_E192_E096_E001, 'E096_E192_E192_E192_E192_E192_E096_E001', 'E96-E192-E192-[E192]-E192-E192-E96-E1')"/>
+    <Variable Identifier="cValueSetsE048_E192_E192_E192_E192_E192_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E192_E192_E192_E192_E192_E048_E001, 'E048_E192_E192_E192_E192_E192_E048_E001', 'E48-E192-E192-[E192]-E192-E192-E48-E1')"/>
+    <Variable Identifier="cValueSetsE048_E096_E192_E192_E192_E096_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E096_E192_E192_E192_E096_E048_E001, 'E048_E096_E192_E192_E192_E096_E048_E001', 'E48-E96-E192-[E192]-E192-E96-E48-E1')"/>
+    <Variable Identifier="cValueSetsE048_E096_E096_E192_E096_E096_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E096_E096_E192_E096_E096_E048_E001, 'E048_E096_E096_E192_E096_E096_E048_E001', 'E48-E96-E96-[E192]-E96-E96-E48-E1')"/>
+    <Variable Identifier="cValueSetsE048_E096_E096_E096_E096_E096_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E096_E096_E096_E096_E096_E048_E001, 'E048_E096_E096_E096_E096_E096_E048_E001', 'E48-E96-E96-[E96]-E96-E96-E48-E1')"/>
+    <Variable Identifier="cValueSetsE024_E096_E096_E096_E096_E096_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E096_E096_E096_E096_E096_E024_E001, 'E024_E096_E096_E096_E096_E096_E024_E001', 'E24-E96-E96-[E96]-E96-E96-E24-E1')"/>
+    <Variable Identifier="cValueSetsE024_E048_E096_E096_E096_E048_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E048_E096_E096_E096_E048_E024_E001, 'E024_E048_E096_E096_E096_E048_E024_E001', 'E24-E48-E96-[E96]-E96-E48-E24-E1')"/>
+    <Variable Identifier="cValueSetsE024_E048_E048_E096_E048_E048_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E048_E048_E096_E048_E048_E024_E001, 'E024_E048_E048_E096_E048_E048_E024_E001', 'E24-E48-E48-[E96]-E48-E48-E24-E1')"/>
+    <Variable Identifier="cValueSetsE024_E048_E048_E048_E048_E048_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E048_E048_E048_E048_E048_E024_E001, 'E024_E048_E048_E048_E048_E048_E024_E001', 'E24-E48-E48-[E48]-E48-E48-E24-E1')"/>
+    <Variable Identifier="cValueSetsE012_E048_E048_E048_E048_E048_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E048_E048_E048_E048_E048_E012_E001, 'E012_E048_E048_E048_E048_E048_E012_E001', 'E12-E48-E48-[E48]-E48-E48-E12-E1')"/>
+    <Variable Identifier="cValueSetsE012_E024_E048_E048_E048_E024_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E024_E048_E048_E048_E024_E012_E001, 'E012_E024_E048_E048_E048_E024_E012_E001', 'E12-E24-E48-[E48]-E48-E24-E12-E1')"/>
+    <Variable Identifier="cValueSetsE012_E024_E024_E048_E024_E024_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E024_E024_E048_E024_E024_E012_E001, 'E012_E024_E024_E048_E024_E024_E012_E001', 'E12-E24-E24-[E48]-E24-E24-E12-E1')"/>
+    <Variable Identifier="cValueSetsE012_E024_E024_E024_E024_E024_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E024_E024_E024_E024_E024_E012_E001, 'E012_E024_E024_E024_E024_E024_E012_E001', 'E12-E24-E24-[E24]-E24-E24-E12-E1')"/>
+    <Variable Identifier="cValueSetsE006_E024_E024_E024_E024_E024_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E024_E024_E024_E024_E024_E006_E001, 'E006_E024_E024_E024_E024_E024_E006_E001', 'E6-E24-E24-[E24]-E24-E24-E6-E1')"/>
+    <Variable Identifier="cValueSetsE006_E012_E024_E024_E024_E012_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E012_E024_E024_E024_E012_E006_E001, 'E006_E012_E024_E024_E024_E012_E006_E001', 'E6-E12-E24-[E24]-E24-E12-E6-E1')"/>
+    <Variable Identifier="cValueSetsE006_E012_E012_E024_E012_E012_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E012_E012_E024_E012_E012_E006_E001, 'E006_E012_E012_E024_E012_E012_E006_E001', 'E6-E12-E12-[E24]-E12-E12-E6-E1')"/>
+    <Variable Identifier="cValueSetsE006_E012_E012_E012_E012_E012_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E012_E012_E012_E012_E012_E006_E001, 'E006_E012_E012_E012_E012_E012_E006_E001', 'E6-E12-E12-[E12]-E12-E12-E6-E1')"/>
+    <Variable Identifier="cValueSetsE003_E012_E012_E012_E012_E012_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E012_E012_E012_E012_E012_E003_E001, 'E003_E012_E012_E012_E012_E012_E003_E001', 'E3-E12-E12-[E12]-E12-E12-E3-E1')"/>
+    <Variable Identifier="cValueSetsE003_E006_E012_E012_E012_E006_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E006_E012_E012_E012_E006_E003_E001, 'E003_E006_E012_E012_E012_E006_E003_E001', 'E3-E6-E12-[E12]-E12-E6-E3-E1')"/>
+    <Variable Identifier="cValueSetsE003_E006_E006_E012_E006_E006_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E006_E006_E012_E006_E006_E003_E001, 'E003_E006_E006_E012_E006_E006_E003_E001', 'E3-E6-E6-[E12]-E6-E6-E3-E1')"/>
+    <Variable Identifier="cValueSetsE003_E006_E006_E006_E006_E006_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E006_E006_E006_E006_E006_E003_E001, 'E003_E006_E006_E006_E006_E006_E003_E001', 'E3-E6-E6-[E6]-E6-E6-E3-E1')"/>
+    <Variable Identifier="cValueSetsE001_E006_E006_E006_E006_E006_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E006_E006_E006_E006_E006_E001_E001, 'E001_E006_E006_E006_E006_E006_E001_E001', 'E1-E6-E6-[E6]-E6-E6-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E003_E006_E006_E006_E003_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E003_E006_E006_E006_E003_E001_E001, 'E001_E003_E006_E006_E006_E003_E001_E001', 'E1-E3-E6-[E6]-E6-E3-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E003_E003_E006_E003_E003_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E003_E003_E006_E003_E003_E001_E001, 'E001_E003_E003_E006_E003_E003_E001_E001', 'E1-E3-E3-[E6]-E3-E3-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E003_E003_E003_E003_E003_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E003_E003_E003_E003_E003_E001_E001, 'E001_E003_E003_E003_E003_E003_E001_E001', 'E1-E3-E3-[E3]-E3-E3-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E001_E003_E003_E003_E001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E003_E003_E003_E001_E001_E001, 'E001_E001_E003_E003_E003_E001_E001_E001', 'E1-E1-E3-[E3]-E3-E1-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E001_E001_E003_E001_E001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E001_E003_E001_E001_E001_E001, 'E001_E001_E001_E003_E001_E001_E001_E001', 'E1-E1-E1-[E3]-E1-E1-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E001_E001_E001_E001_E001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E001_E001_E001_E001_E001_E001, 'E001_E001_E001_E001_E001_E001_E001_E001', 'E1-E1-E1-[E1]-E1-E1-E1-E1')"/>
+    <Variable Identifier="ValueSetsEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TValueSetsEnumInfo)"/>
+
+    <Variable Identifier="c4CompConfigA" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.A, 'A', 'A')"/>
+    <Variable Identifier="c4CompConfigAsB" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.AsB, 'AsB', 'A~B')"/>
+    <Variable Identifier="c4CompConfigApB" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.ApB, 'ApB', 'A|B')"/>
+    <Variable Identifier="c4CompConfigAsBsC" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.AsBsC, 'AsBsC', 'A~B~C')"/>
+    <Variable Identifier="c4CompConfigApBpC" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.ApBpC, 'ApBpC', 'A|B|C')"/>
+    <Variable Identifier="c4CompConfigApBsC" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.ApBsC, 'ApBsC', '(A|B)~C')"/>
+    <Variable Identifier="c4CompConfigAssBpC" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.AssBpC, 'AssBpC', '(A~B)|C')"/>
+    <Variable Identifier="c4CompConfigAsBsCsD" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.AsBsCsD, 'AsBsCsD', 'A~B~C~D')"/>
+    <Variable Identifier="c4CompConfigApBpCpD" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.ApBpCpD, 'ApBpCpD', 'A|B|C|D')"/>
+    <Variable Identifier="c4CompConfigApBsCsD" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.ApBsCsD, 'ApBsCsD', '(A|B)~C~D')"/>
+    <Variable Identifier="c4CompConfigAssBpCpD" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.AssBpCpD, 'AssBpCpD', '(A~B)|C|D')"/>
+    <Variable Identifier="c4CompConfigAssBpCsD" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.AssBpCsD, 'AssBpCsD', '((A~B)|C)~D')"/>
+    <Variable Identifier="c4CompConfigAppBssCpD" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.AppBssCpD, 'AppBssCpD', '((A|B)~C)|D')"/>
+    <Variable Identifier="c4CompConfigAssBssCpD" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.AssBssCpD, 'AssBssCpD', '(A~B~C)|D')"/>
+    <Variable Identifier="c4CompConfigApBpCsD" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.ApBpCsD, 'ApBpCsD', '(A|B|C)~D')"/>
+    <Variable Identifier="c4CompConfigAssBpCssD" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.AssBpCssD, 'AssBpCssD', '(A~B)|(C~D)')"/>
+    <Variable Identifier="c4CompConfigApBsCpD" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.ApBsCpD, 'ApBsCpD', '(A|B)~(C|D)')"/>
+    <Variable Identifier="FourCompConfigEnumManager" Type="TEnumManager" Init="TEnumManager.Create(T4CompConfigEnumInfo)"/>
+
+    <Variable Identifier="cAvailableValueSourceNone" Type="TAvailableValueSourceEnumInfo" Init="TAvailableValueSourceEnumInfo.Create(TAvailableValueSource.None, 'None')"/>
+    <Variable Identifier="cAvailableValueSourceInputTab" Type="TAvailableValueSourceEnumInfo" Init="TAvailableValueSourceEnumInfo.Create(TAvailableValueSource.InputTab, 'InputTab')"/>
+    <Variable Identifier="cAvailableValueSourceTextFile" Type="TAvailableValueSourceEnumInfo" Init="TAvailableValueSourceEnumInfo.Create(TAvailableValueSource.TextFile, 'TextFile')"/>
+    <Variable Identifier="AvailableValueSourceEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TAvailableValueSourceEnumInfo)"/>
+  </Variables>
+
+  <Procedures>
+    <Function Identifier="TTESerieEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TESerie.E1">
+            <Execute Statement="Result:= cESerieE1"/>
+          </On>
+          <On Select="TESerie.E3">
+            <Execute Statement="Result:= cESerieE3"/>
+          </On>
+          <On Select="TESerie.E6">
+            <Execute Statement="Result:= cESerieE6"/>
+          </On>
+          <On Select="TESerie.E12">
+            <Execute Statement="Result:= cESerieE12"/>
+          </On>
+          <On Select="TESerie.E24">
+            <Execute Statement="Result:= cESerieE24"/>
+          </On>
+          <On Select="TESerie.E48">
+            <Execute Statement="Result:= cESerieE48"/>
+          </On>
+          <On Select="TESerie.E96">
+            <Execute Statement="Result:= cESerieE96"/>
+          </On>
+          <On Select="TESerie.E192">
+            <Execute Statement="Result:= cESerieE192"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidESerie)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTESerieEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TESerie.Low"/>
+        <Execute Statement="HighValue:= TESerie.High"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TTValueGranularityEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TValueGranularity.ExtraCoarse">
+            <Execute Statement="Result:= cValueGranularityExtraCoarse"/>
+          </On>
+          <On Select="TValueGranularity.Coarse">
+            <Execute Statement="Result:= cValueGranularityCoarse"/>
+          </On>
+          <On Select="TValueGranularity.Fine">
+            <Execute Statement="Result:= cValueGranularityFine"/>
+          </On>
+          <On Select="TValueGranularity.ExtraFine">
+            <Execute Statement="Result:= cValueGranularityExtraFine"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidValueGranularity)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTValueGranularityEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TValueGranularity.Low"/>
+        <Execute Statement="HighValue:= TValueGranularity.High"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TTValueSetsEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TValueSets.E192_E192_E192">
+            <Execute Statement="Result:= cValueSetsE192_E192_E192"/>
+          </On>
+          <On Select="TValueSets.E096_E096_E096">
+            <Execute Statement="Result:= cValueSetsE096_E096_E096"/>
+          </On>
+          <On Select="TValueSets.E048_E048_E048">
+            <Execute Statement="Result:= cValueSetsE048_E048_E048"/>
+          </On>
+          <On Select="TValueSets.E024_E024_E024">
+            <Execute Statement="Result:= cValueSetsE024_E024_E024"/>
+          </On>
+          <On Select="TValueSets.E012_E012_E012">
+            <Execute Statement="Result:= cValueSetsE012_E012_E012"/>
+          </On>
+          <On Select="TValueSets.E006_E006_E006">
+            <Execute Statement="Result:= cValueSetsE006_E006_E006"/>
+          </On>
+          <On Select="TValueSets.E003_E003_E003">
+            <Execute Statement="Result:= cValueSetsE003_E003_E003"/>
+          </On>
+          <On Select="TValueSets.E001_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E192_E192_E192_E192_E192_E192_E192_E001">
+            <Execute Statement="Result:= cValueSetsE192_E192_E192_E192_E192_E192_E192_E001"/>
+          </On>
+          <On Select="TValueSets.E096_E192_E192_E192_E192_E192_E096_E001">
+            <Execute Statement="Result:= cValueSetsE096_E192_E192_E192_E192_E192_E096_E001"/>
+          </On>
+          <On Select="TValueSets.E048_E192_E192_E192_E192_E192_E048_E001">
+            <Execute Statement="Result:= cValueSetsE048_E192_E192_E192_E192_E192_E048_E001"/>
+          </On>
+          <On Select="TValueSets.E048_E096_E192_E192_E192_E096_E048_E001">
+            <Execute Statement="Result:= cValueSetsE048_E096_E192_E192_E192_E096_E048_E001"/>
+          </On>
+          <On Select="TValueSets.E048_E096_E096_E192_E096_E096_E048_E001">
+            <Execute Statement="Result:= cValueSetsE048_E096_E096_E192_E096_E096_E048_E001"/>
+          </On>
+          <On Select="TValueSets.E048_E096_E096_E096_E096_E096_E048_E001">
+            <Execute Statement="Result:= cValueSetsE048_E096_E096_E096_E096_E096_E048_E001"/>
+          </On>
+          <On Select="TValueSets.E024_E096_E096_E096_E096_E096_E024_E001">
+            <Execute Statement="Result:= cValueSetsE024_E096_E096_E096_E096_E096_E024_E001"/>
+          </On>
+          <On Select="TValueSets.E024_E048_E096_E096_E096_E048_E024_E001">
+            <Execute Statement="Result:= cValueSetsE024_E048_E096_E096_E096_E048_E024_E001"/>
+          </On>
+          <On Select="TValueSets.E024_E048_E048_E096_E048_E048_E024_E001">
+            <Execute Statement="Result:= cValueSetsE024_E048_E048_E096_E048_E048_E024_E001"/>
+          </On>
+          <On Select="TValueSets.E024_E048_E048_E048_E048_E048_E024_E001">
+            <Execute Statement="Result:= cValueSetsE024_E048_E048_E048_E048_E048_E024_E001"/>
+          </On>
+          <On Select="TValueSets.E012_E048_E048_E048_E048_E048_E012_E001">
+            <Execute Statement="Result:= cValueSetsE012_E048_E048_E048_E048_E048_E012_E001"/>
+          </On>
+          <On Select="TValueSets.E012_E024_E048_E048_E048_E024_E012_E001">
+            <Execute Statement="Result:= cValueSetsE012_E024_E048_E048_E048_E024_E012_E001"/>
+          </On>
+          <On Select="TValueSets.E012_E024_E024_E048_E024_E024_E012_E001">
+            <Execute Statement="Result:= cValueSetsE012_E024_E024_E048_E024_E024_E012_E001"/>
+          </On>
+          <On Select="TValueSets.E012_E024_E024_E024_E024_E024_E012_E001">
+            <Execute Statement="Result:= cValueSetsE012_E024_E024_E024_E024_E024_E012_E001"/>
+          </On>
+          <On Select="TValueSets.E006_E024_E024_E024_E024_E024_E006_E001">
+            <Execute Statement="Result:= cValueSetsE006_E024_E024_E024_E024_E024_E006_E001"/>
+          </On>
+          <On Select="TValueSets.E006_E012_E024_E024_E024_E012_E006_E001">
+            <Execute Statement="Result:= cValueSetsE006_E012_E024_E024_E024_E012_E006_E001"/>
+          </On>
+          <On Select="TValueSets.E006_E012_E012_E024_E012_E012_E006_E001">
+            <Execute Statement="Result:= cValueSetsE006_E012_E012_E024_E012_E012_E006_E001"/>
+          </On>
+          <On Select="TValueSets.E006_E012_E012_E012_E012_E012_E006_E001">
+            <Execute Statement="Result:= cValueSetsE006_E012_E012_E012_E012_E012_E006_E001"/>
+          </On>
+          <On Select="TValueSets.E003_E012_E012_E012_E012_E012_E003_E001">
+            <Execute Statement="Result:= cValueSetsE003_E012_E012_E012_E012_E012_E003_E001"/>
+          </On>
+          <On Select="TValueSets.E003_E006_E012_E012_E012_E006_E003_E001">
+            <Execute Statement="Result:= cValueSetsE003_E006_E012_E012_E012_E006_E003_E001"/>
+          </On>
+          <On Select="TValueSets.E003_E006_E006_E012_E006_E006_E003_E001">
+            <Execute Statement="Result:= cValueSetsE003_E006_E006_E012_E006_E006_E003_E001"/>
+          </On>
+          <On Select="TValueSets.E003_E006_E006_E006_E006_E006_E003_E001">
+            <Execute Statement="Result:= cValueSetsE003_E006_E006_E006_E006_E006_E003_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E006_E006_E006_E006_E006_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E006_E006_E006_E006_E006_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E003_E006_E006_E006_E003_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E003_E006_E006_E006_E003_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E003_E003_E006_E003_E003_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E003_E003_E006_E003_E003_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E003_E003_E003_E003_E003_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E003_E003_E003_E003_E003_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E001_E003_E003_E003_E001_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E001_E003_E003_E003_E001_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E001_E001_E003_E001_E001_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E001_E001_E003_E001_E001_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E001_E001_E001_E001_E001_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E001_E001_E001_E001_E001_E001_E001"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidValueSets)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTValueSetsEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TValueSets.Low"/>
+        <Execute Statement="HighValue:= TValueSets.High"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TT4CompConfigEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="T4CompConfig.A">
+            <Execute Statement="Result:= c4CompConfigA"/>
+          </On>
+          <On Select="T4CompConfig.AsB">
+            <Execute Statement="Result:= c4CompConfigAsB"/>
+          </On>
+          <On Select="T4CompConfig.ApB">
+            <Execute Statement="Result:= c4CompConfigApB"/>
+          </On>
+          <On Select="T4CompConfig.AsBsC">
+            <Execute Statement="Result:= c4CompConfigAsBsC"/>
+          </On>
+          <On Select="T4CompConfig.ApBpC">
+            <Execute Statement="Result:= c4CompConfigApBpC"/>
+          </On>
+          <On Select="T4CompConfig.ApBsC">
+            <Execute Statement="Result:= c4CompConfigApBsC"/>
+          </On>
+          <On Select="T4CompConfig.AssBpC">
+            <Execute Statement="Result:= c4CompConfigAssBpC"/>
+          </On>
+          <On Select="T4CompConfig.AsBsCsD">
+            <Execute Statement="Result:= c4CompConfigAsBsCsD"/>
+          </On>
+          <On Select="T4CompConfig.ApBpCpD">
+            <Execute Statement="Result:= c4CompConfigApBpCpD"/>
+          </On>
+          <On Select="T4CompConfig.ApBsCsD">
+            <Execute Statement="Result:= c4CompConfigApBsCsD"/>
+          </On>
+          <On Select="T4CompConfig.AssBpCpD">
+            <Execute Statement="Result:= c4CompConfigAssBpCpD"/>
+          </On>
+          <On Select="T4CompConfig.AssBpCsD">
+            <Execute Statement="Result:= c4CompConfigAssBpCsD"/>
+          </On>
+          <On Select="T4CompConfig.AppBssCpD">
+            <Execute Statement="Result:= c4CompConfigAppBssCpD"/>
+          </On>
+          <On Select="T4CompConfig.AssBssCpD">
+            <Execute Statement="Result:= c4CompConfigAssBssCpD"/>
+          </On>
+          <On Select="T4CompConfig.ApBpCsD">
+            <Execute Statement="Result:= c4CompConfigApBpCsD"/>
+          </On>
+          <On Select="T4CompConfig.AssBpCssD">
+            <Execute Statement="Result:= c4CompConfigAssBpCssD"/>
+          </On>
+          <On Select="T4CompConfig.ApBsCpD">
+            <Execute Statement="Result:= c4CompConfigApBsCpD"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalid4CompConfig)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TT4CompConfigEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= T4CompConfig.Low"/>
+        <Execute Statement="HighValue:= T4CompConfig.High"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TTAvailableValueSourceEnumInfo.GetInfo" Type="TEnumInfo" VirtualMethod="vmGetInfo">
+      <Parameters>
+        <Parameter Identifier="Value" Type="UInt32"/>
+      </Parameters>
+      <Block>
+        <Case Expression="Value" Optimalisation="integermapping">
+          <On Select="TAvailableValueSource.None">
+            <Execute Statement="Result:= cAvailableValueSourceNone"/>
+          </On>
+          <On Select="TAvailableValueSource.InputTab">
+            <Execute Statement="Result:= cAvailableValueSourceInputTab"/>
+          </On>
+          <On Select="TAvailableValueSource.TextFile">
+            <Execute Statement="Result:= cAvailableValueSourceTextFile"/>
+          </On>
+          <Otherwise>
+            <Raise Expression="Exception.Create(sErrorInvalidAvailableValueSource)"/>
+          </Otherwise>
+        </Case>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TTAvailableValueSourceEnumInfo.GetEnumBounds" VirtualMethod="vmGetEnumBounds">
+      <Parameters>
+        <Parameter Identifier="LowValue" Type="UInt32" Direction="Output"/>
+        <Parameter Identifier="HighValue" Type="UInt32" Direction="Output"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="LowValue:= TAvailableValueSource.Low"/>
+        <Execute Statement="HighValue:= TAvailableValueSource.High"/>
+      </Block>
+    </Procedure>
+  </Procedures>
+
+  <Finalization>
+    <Free Identifier="ESerieEnumManager"/>
+  </Finalization>
+
+</pkg:Library>

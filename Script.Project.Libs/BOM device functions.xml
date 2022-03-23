@@ -1,0 +1,299 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  xmlns:sim="urn:schemas-www-wisware.nl-xmlscripting-simulateuserinput"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:cod="urn:schemas-www-wisware.nl-xmlscripting-codeparser"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:div="urn:schemas-www-wisware.nl-xmlscripting-dividers"
+  xmlns:stm="urn:schemas-www-wisware.nl-xmlscripting-statemanagement"
+  >
+  <Uses>
+    <Use Identifier="BomEnumerations"/>
+    <Use Identifier="BomClasses"/>
+  </Uses>
+
+  <Type>
+    <DataClass Identifier="TBaseImplementedFunction">
+      <Field Identifier="DeviceFunction" Type="TDeviceFunction"/>
+      <Field Identifier="Count" Type="Integer"/>
+      <Field Identifier="Next" Type="TBaseImplementedFunction"/>
+    </DataClass>
+
+  </Type>
+
+  <Procedures>
+    <Function Identifier="TBaseImplementedFunction.CompareTo" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="Item" Type="TBaseImplementedFunction"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= DeviceFunction - Item.DeviceFunction"/>
+        <Execute Statement="Result:= Count - Item.Count" Condition="Result = 0"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ParseFunctions" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="ReturnImplementedFunctionHead" Type="TBaseImplementedFunction" Direction="Output"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Count" Type="Integer"/>
+        <Variable Identifier="ImplementedFunctionHead" Type="TBaseImplementedFunction" Init="ObjNil"/>
+        <Variable Identifier="ImplementedFunctionTail" Type="TBaseImplementedFunction" Init="ObjNil"/>
+      </Variables>
+      <Block>
+        <Variable Identifier="DeviceFunction" Type="TDeviceFunction"/>
+        <Variable Identifier="ImplementedFunction" Type="TBaseImplementedFunction"/>
+        <Execute Statement="Result:= False"/>
+        <stm:StateHandler InitialState="Start">
+          <StringLoop StringValue="Value" OrdinalIdentifier="ChrI" CharacterIdentifier="Chr">
+            <stm:HandleStates>
+              <stm:State Name="Start">
+                <Execute Statement="DeviceFunctionNameRegister.SearchStart"/>
+                <Choose>
+                  <When Expression="DeviceFunctionNameRegister.SearchAdvance(Chr)">
+                    <Execute Statement="Count:= 1"/>
+                    <stm:SetState Name="InIdentifer"/>
+                    <Execute Statement="Result:= True"/>
+                  </When>
+                  <Otherwise>
+                    <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                      <On Select="' '">
+                      </On>
+                      <On Select="'0'..'9'">
+                        <Execute Statement="Count:= ChrI - CharOrd('0')"/>
+                        <stm:SetState Name="InCount"/>
+                      </On>
+                      <Otherwise>
+                        <Execute Statement="Result:= False"/>
+                        <Break/>
+                      </Otherwise>
+                    </Case>
+                  </Otherwise>
+                </Choose>
+              </stm:State>
+              <stm:State Name="InCount">
+                <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                  <On Select="'0'..'9'">
+                    <Execute Statement="Count:= Count * 10 + ChrI - CharOrd('0')"/>
+                  </On>
+                  <On Select="'*'">
+                    <stm:SetState Name="AfterMultiplier"/>
+                  </On>
+                  <Otherwise>
+                    <Execute Statement="Result:= False"/>
+                    <Break/>
+                  </Otherwise>
+                </Case>
+              </stm:State>
+              <stm:State Name="InIdentifer">
+                <Choose>
+                  <When Expression="DeviceFunctionNameRegister.SearchAdvance(Chr)">
+                  </When>
+                  <When Expression="DeviceFunctionNameRegister.SearchItem(DeviceFunction)">
+                    <Case Expression="ChrI" OrdinalType="widechar" Optimalisation="integermapping">
+                      <On Select="';'">
+                        <Execute Statement="ImplementedFunction:= TBaseImplementedFunction.Create(DeviceFunction, Count)"/>
+                        <lil:LinkedList.LinkUp Head="ImplementedFunctionHead" Tail="ImplementedFunctionTail" TailLinkStatement="ImplementedFunctionTail.Next:= Item" Item="ImplementedFunction" />
+                        <stm:SetState Name="Start"/>
+                      </On>
+                      <Otherwise>
+                        <Execute Statement="Result:= False"/>
+                        <Break/>
+                      </Otherwise>
+                    </Case>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="Result:= False"/>
+                    <Break/>
+                  </Otherwise>
+                </Choose>
+              </stm:State>
+              <stm:State Name="AfterMultiplier">
+                <Choose>
+                  <When Expression="DeviceFunctionNameRegister.SearchAdvance(Chr)">
+                    <Execute Statement="Result:= True"/>
+                  </When>
+                  <Otherwise>
+                    <Execute Statement="Result:= False"/>
+                    <Break/>
+                  </Otherwise>
+                </Choose>
+              </stm:State>
+            </stm:HandleStates>
+          </StringLoop>
+        </stm:StateHandler>
+        <Block Condition="not Result">
+          <lil:LinkedList.Iterate Head="ImplementedFunctionHead" ItemType="TBaseImplementedFunction" RunningItem="Item" Next="Item.Next">
+            <Free Expression="Item"/>
+          </lil:LinkedList.Iterate>
+          <Exit/>
+        </Block>
+        <Choose>
+          <When Expression="DeviceFunctionNameRegister.SearchItem(DeviceFunction)">
+            <Execute Statement="ImplementedFunction:= TBaseImplementedFunction.Create(DeviceFunction, Count)"/>
+            <lil:LinkedList.LinkUp Head="ImplementedFunctionHead" Tail="ImplementedFunctionTail" TailLinkStatement="ImplementedFunctionTail.Next:= Item" Item="ImplementedFunction" />
+          </When>
+          <Otherwise>
+              <lil:LinkedList.Iterate Head="ImplementedFunctionHead" ItemType="TBaseImplementedFunction" RunningItem="Item" Next="Item.Next">
+                <Free Expression="Item"/>
+              </lil:LinkedList.Iterate>
+              <Exit Result="False"/>
+          </Otherwise>
+        </Choose>
+        <Block Condition="Assigned(ImplementedFunctionHead)">
+          <lil:LinkedList.MergeSort Head="ImplementedFunctionHead" ItemType="TBaseImplementedFunction" LinkUp="ItemA.Next:= ItemB" Next="Item.Next" IsInOrder="ItemA.CompareTo(ItemB) &lt;= 0"/>
+          <Variable Identifier="PrevItem" Type="TBaseImplementedFunction" Init="ImplementedFunctionHead"/>
+          <lil:LinkedList.Iterate Head="ImplementedFunctionHead.Next" ItemType="TBaseImplementedFunction" RunningItem="Item" Next="Item.Next">
+            <Choose>
+              <When Expression="PrevItem.CompareTo(Item) = 0">
+                <Execute Statement="PrevItem.Count:= PrevItem.Count + Item.Count"/>
+                <Execute Statement="PrevItem.Next:= Item.Next"/>
+                <Free Expression="Item"/>
+              </When>
+              <Otherwise>
+                <Execute Statement="PrevItem:= Item"/>
+              </Otherwise>
+            </Choose>
+          </lil:LinkedList.Iterate>
+        </Block>
+        <Execute Statement="ReturnImplementedFunctionHead:= ImplementedFunctionHead"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="CompareFunctions" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="HeadA" Type="TBaseImplementedFunction"/>
+        <Parameter Identifier="HeadB" Type="TBaseImplementedFunction"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Comp" Type="Integer"/>
+      </Variables>
+      <Block>
+        <WhileLoop Expression="Assigned(HeadA) and Assigned(HeadB)">
+          <Execute Statement="Comp:= HeadA.CompareTo(HeadB)"/>
+          <Exit Result="Comp" Condition="Comp &lt;&gt; 0"/>
+          <Execute Statement="HeadA:= HeadA.Next"/>
+          <Execute Statement="HeadB:= HeadB.Next"/>
+        </WhileLoop>
+        <Choose>
+          <When Expression="Assigned(HeadB)">
+            <Exit Result="-1"/>
+          </When>
+          <When Expression="Assigned(HeadA)">
+            <Exit Result="0"/>
+          </When>
+        </Choose>
+        <Execute Statement="Result:= 0"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="FunctionsMatches" Type="Boolean">
+      <Parameters>
+        <Parameter Identifier="HeadA" Type="TBaseImplementedFunction"/>
+        <Parameter Identifier="HeadB" Type="TBaseImplementedFunction"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Comp" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= False"/>
+        <WhileLoop Expression="Assigned(HeadA) and Assigned(HeadB)">
+          <Execute Statement="Comp:= HeadA.DeviceFunction - HeadB.DeviceFunction"/>
+          <Choose>
+            <When Expression="Comp = 0">
+              <Exit Condition="HeadA.Count &gt; HeadB.Count"/>
+              <Execute Statement="HeadA:= HeadA.Next"/>
+              <Execute Statement="HeadB:= HeadB.Next"/>
+            </When>
+            <When Expression="Comp &gt; 0">
+              <Execute Statement="HeadB:= HeadB.Next"/>
+            </When>
+            <Otherwise>
+              <Exit/>
+            </Otherwise>
+          </Choose>
+        </WhileLoop>
+        <Execute Statement="Result:= True" Condition="not Assigned(HeadA)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="CompareStateFunctions" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="ItemIDA" Type="Integer"/>
+        <Parameter Identifier="HeadA" Type="TBaseImplementedFunction"/>
+        <Parameter Identifier="ValueTypeA" Type="TValueType"/>
+        <Parameter Identifier="ItemIDB" Type="Integer"/>
+        <Parameter Identifier="HeadB" Type="TBaseImplementedFunction"/>
+        <Parameter Identifier="ValueTypeB" Type="TValueType"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="Comp" Type="Integer"/>
+      </Variables>
+      <Block>
+        <Execute Statement="Result:= 0"/>
+        <Case Expression="ValueTypeA">
+          <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate">
+            <Case Expression="ValueTypeB">
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="-1"/>
+              </On>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <Execute Statement="Result:= 1"/>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+            <Case Expression="ValueTypeB">
+              <On Select="TValueType.Unspecified, TValueType.Cleared, TValueType.ClearedByTemplate, TValueType.Error, TValueType.ErrorByTemplate">
+                <Execute Statement="Result:= -1"/>
+              </On>
+              <On Select="TValueType.Specified, TValueType.SpecifiedByTemplate">
+                <WhileLoop Expression="Assigned(HeadA) and Assigned(HeadB)">
+                  <Execute Statement="Comp:= HeadA.CompareTo(HeadB)"/>
+                  <Exit Result="Comp" Condition="Comp &lt;&gt; 0"/>
+                  <Execute Statement="HeadA:= HeadA.Next"/>
+                  <Execute Statement="HeadB:= HeadB.Next"/>
+                </WhileLoop>
+                <Choose>
+                  <When Expression="Assigned(HeadB)">
+                    <Exit Result="-1"/>
+                  </When>
+                  <When Expression="Assigned(HeadA)">
+                    <Exit Result="1"/>
+                  </When>
+                </Choose>
+              </On>
+            </Case>
+          </On>
+          <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+            <Case Expression="ValueTypeB">
+              <On Select="TValueType.Error, TValueType.ErrorByTemplate">
+                <Exit Result="-1" Condition="ItemIDA &lt; ItemIDB"/>
+              </On>
+              <Otherwise>
+                <Execute Statement="Result:= 1"/>
+              </Otherwise>
+            </Case>
+          </On>
+        </Case>
+      </Block>
+    </Function>
+
+  </Procedures>
+
+</pkg:Library>

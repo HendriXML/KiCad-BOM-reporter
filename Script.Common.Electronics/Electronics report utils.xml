@@ -1,0 +1,623 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<pkg:Library
+  xsi:schemaLocation="urn:schemas-www-wisware.nl-scriptingpackages ../XmlSchemas.Common.XmlScript/XMLScripting.Packages.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:pkg="urn:schemas-www-wisware.nl-scriptingpackages"
+  xmlns:sys="urn:schemas-www-wisware.nl-xmlscripting"
+  xmlns:ado="urn:schemas-www-wisware.nl-xmlscripting-ado"
+  xmlns:fil="urn:schemas-www-wisware.nl-xmlscripting-filemanagement"
+  xmlns:fwl="urn:schemas-www-wisware.nl-xmlscripting-windowsfirewall"
+  xmlns:inx="urn:schemas-www-wisware.nl-xmlscripting-index"
+  xmlns:lil="urn:schemas-www-wisware.nl-xmlscripting-linkedlist"
+  xmlns:msx="urn:schemas-www-wisware.nl-xmlscripting-xml"
+  xmlns:reg="urn:schemas-www-wisware.nl-xmlscripting-registry"
+  xmlns:rep="urn:schemas-www-wisware.nl-xmlscripting-report"
+  xmlns:sts="urn:schemas-www-wisware.nl-xmlscripting-showstatus"
+  xmlns:syu="urn:schemas-www-wisware.nl-xmlscripting-sysutils"
+  >
+  <Uses>
+    <Use Identifier="ScienceUnits"/>
+    <Use Identifier="ScienceQuantityUtils"/>
+    <Use Identifier="ElectronicsUtils"/>
+    <Use Identifier="ElectronicsStrings"/>
+  </Uses>
+
+  <Type>
+    <Enumeration Identifier="TLanguage" Elements="GB, NL"/>
+
+    <Enumeration Identifier="TFieldKind" Elements="ValueDQ, ValueText, Tolerance, PowerRatingMin, ComponentKind"/>
+
+    <Enumeration Identifier="TComponentClass" Elements="Unspecified, Resistor, Capacitor, Inductor, ZenerDiode"/>
+
+    <DataClass Identifier="TReportComponentField">
+      <Field Identifier="FieldKind" Type="TFieldKind"/>
+      <Field Identifier="ValueDQ" Type="DecimalQuantity"/>
+      <Field Identifier="ValueText" Type="string"/>
+      <Field Identifier="Next" Type="TReportComponentField"/>
+    </DataClass>
+
+    <DataClass Identifier="TReportComponent">
+      <Field Identifier="ComponentClass" Type="TComponentClass"/>
+      <Field Identifier="FieldHead" Type="TReportComponentField"/>
+      <Field Identifier="Designator" Type="string"/>
+      <Field Identifier="Next" Type="TReportComponent"/>
+    </DataClass>
+
+    <DataClass Identifier="TComponentContainer">
+      <Field Identifier="ComponentHead" Type="TReportComponent"/>
+      <Field Identifier="ComponentTail" Type="TReportComponent"/>
+    </DataClass>
+
+    <DataClass Identifier="TSchematic" DefaultConstructor="none">
+      <VirtualMethod Identifier="vmFinalize" IsFinalizer="true"/>
+      <Field Identifier="_SchemaName" Type="string"/>
+      <Field Identifier="_SchemaID" Type="string"/>
+      <Field Identifier="DesignatorIndex" Type="TMappingCaseInSensitiveUnicodeStringToObject"/>
+      <Field Identifier="Resistors" Type="TComponentContainer"/>
+      <Field Identifier="Capacitors" Type="TComponentContainer"/>
+      <Field Identifier="Inductors" Type="TComponentContainer"/>
+      <Field Identifier="ZenerDiodes" Type="TComponentContainer"/>
+      <Field Identifier="Components" Type="TComponentContainer"/>
+    </DataClass>
+  </Type>
+
+  <Constants>
+    <Constant Identifier="sLabelValue" Type="string" Expression="'  %-*s: %s'"/>
+    <Constant Identifier="cLabelLength" Type="Integer" Expression="40"/>
+    <Constant Identifier="cResistancePrefix" Type="string" Expression="'R_'"/>
+    <Constant Identifier="cCapacitancePrefix" Type="string" Expression="'C_'"/>
+    <Constant Identifier="cInductancePrefix" Type="string" Expression="'L_'"/>
+    <Constant Identifier="cElectricPotentialPrefix" Type="string" Expression="'V_'"/>
+    <Constant Identifier="cPowerPrefix" Type="string" Expression="'P_'"/>
+  </Constants>
+
+  <Variables>
+    <Variable Identifier="Language" Type="TLanguage" Init="TLanguage.GB"/>
+  </Variables>
+
+  <Procedures>
+
+    <Procedure Identifier="TComponentContainer.Add">
+      <Parameters>
+        <Parameter Identifier="Component" Type="TReportComponent"/>
+      </Parameters>
+      <Block>
+        <Choose>
+          <When Expression="Assigned(ComponentHead)">
+            <Execute Statement="ComponentTail.Next:= Component"/>
+          </When>
+          <Otherwise>
+            <Execute Statement="ComponentHead:= Component"/>
+          </Otherwise>
+        </Choose>
+        <Execute Statement="ComponentTail:= Component"/>
+      </Block>
+    </Procedure>
+
+    <Constructor Identifier="TSchematic.Create">
+      <Parameters>
+        <Parameter Identifier="SchemaName" Type="string"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="_SchemaName:= SchemaName"/>
+        <Execute Statement="_SchemaID:= '(' + SchemaName + ')'" Condition="IsNonEmptyString(SchemaName)"/>
+        <Execute Statement="DesignatorIndex:= TMappingCaseInSensitiveUnicodeStringToObject.Create"/>
+        <Execute Statement="Resistors:= TComponentContainer.Create"/>
+        <Execute Statement="Capacitors:= TComponentContainer.Create"/>
+        <Execute Statement="Inductors:= TComponentContainer.Create"/>
+        <Execute Statement="ZenerDiodes:= TComponentContainer.Create"/>
+        <Execute Statement="Components:= TComponentContainer.Create"/>
+      </Block>
+    </Constructor>
+
+    <Procedure Identifier="TSchematic.Finalize" VirtualMethod="vmFinalize">
+      <Block>
+        <Free Expression="Components"/>
+        <Free Expression="ZenerDiodes"/>
+        <Free Expression="Capacitors"/>
+        <Free Expression="Inductors"/>
+        <Free Expression="Resistors"/>
+        <Free Expression="DesignatorIndex"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TSchematic.SaveToFile">
+      <Parameters>
+        <Parameter Identifier="Filename" Type="string"/>
+      </Parameters>
+      <Variables>
+        <Variable Identifier="xmlDoc" Type="IXmlDomDocument"/>
+        <Variable Identifier="RootXE" Type="IXmlDomElement"/>
+      </Variables>
+      <Procedures>
+        <Procedure Identifier="ReportContainer">
+          <Parameters>
+            <Parameter Identifier="Container" Type="TComponentContainer"/>
+            <Parameter Identifier="ComponentClassName" Type="string"/>
+          </Parameters>
+          <Block>
+            <Exit Condition="not Assigned(Container.ComponentHead)"/>
+            <Variable Identifier="ContainerXE" Type="IXmlDomElement"/>
+            <Variable Identifier="ComponentXE" Type="IXmlDomElement"/>
+            <Variable Identifier="FieldXE" Type="IXmlDomElement"/>
+            <msx:Document.CreateElement Document="xmlDoc" NameExpression="ComponentClassName" ParentElement="RootXE" Element="ContainerXE"/>
+            <lil:LinkedList.Iterate Head="Container.ComponentHead" ItemType="TReportComponent" RunningItem="Component" Next="Component.Next">
+              <msx:Document.CreateElement Document="xmlDoc" Name="Component" ParentElement="ContainerXE" Element="ComponentXE"/>
+              <msx:Element.SetAttribute Element="ComponentXE" Name="Designator" Value="Component.Designator"/>
+              <lil:LinkedList.Iterate Head="Component.FieldHead" ItemType="TReportComponentField" RunningItem="Field" Next="Field.Next">
+                <msx:Document.CreateElement Document="xmlDoc"  Name="Field" ParentElement="ComponentXE" Element="FieldXE"/>
+                <Case Expression="Field.FieldKind">
+                  <On Select="TFieldKind.ValueDQ">
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Kind" Value="'Value'"/>
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Value" Value="StoreDecimalQuantityToStr(Field.ValueDQ, 32)"/>
+                  </On>
+                  <On Select="TFieldKind.ValueText">
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Kind" Value="'Value'"/>
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Value" Value="Field.ValueText"/>
+                  </On>
+                  <On Select="TFieldKind.Tolerance">
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Kind" Value="'Tolerance'"/>
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Value" Value="StoreDecimalQuantityToStr(Field.ValueDQ, 32)"/>
+                  </On>
+                  <On Select="TFieldKind.PowerRatingMin">
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Kind" Value="'PowerRating.Min'"/>
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Value" Value="StoreDecimalQuantityToStr(Field.ValueDQ, 3)"/>
+                  </On>
+                  <On Select="TFieldKind.ComponentKind">
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Kind" Value="'ComponentKind'"/>
+                    <msx:Element.SetAttribute Element="FieldXE" Name="Value" Value="Field.ValueText"/>
+                  </On>
+                </Case>
+              </lil:LinkedList.Iterate>
+            </lil:LinkedList.Iterate>
+          </Block>
+        </Procedure>
+      </Procedures>
+      <Block>
+        <rep:Reporter.LabelValue Label="sLabelFilename + _SchemaID" Value="Filename"/>
+        <msx:Document.Create Identifier="xmlDoc"/>
+        <msx:Document.CreateElement Document="xmlDoc" Name="Components" ParentElement="xmlDoc" Element="RootXE"/>
+        <Execute Statement="ReportContainer(Resistors, 'Resistors')"/>
+        <Execute Statement="ReportContainer(Capacitors, 'Capacitors')"/>
+        <Execute Statement="ReportContainer(Inductors, 'Inductors')"/>
+        <Execute Statement="ReportContainer(ZenerDiodes, 'ZenerDiodes')"/>
+        <Execute Statement="ReportContainer(Components, 'Components')"/>
+        <Variable Identifier="WriteStream" Type="TSequentialFileWriteStream" Init="TSequentialFileWriteStream.Create(Filename)"/>
+        <Variable Identifier="Stream" Type="IStream" Init="WriteStream as IStream"/>
+        <Variable Identifier="MXWriter" Type="IMXWriter" Init="CoMXXMLWriter60.Create"/>
+        <Execute Statement="MXWriter.Output:= Stream"/>
+        <Execute Statement="MXWriter.Indent:= True"/>
+        <Execute Statement="MXWriter.encoding:= 'utf-8'"/>
+        <Variable Identifier="Output" Type="Variant" Init="MXWriter"/>
+        <Variable Identifier="XMLReader" Type="ISAXXMLReader" Init="CoSAXXMLReader60.Create"/>
+        <Execute Statement="XMLReader.putContentHandler(MXWriter as ISAXContentHandler)"/>
+        <Execute Statement="XMLReader.Parse(XmlDoc)"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TSchematic.GetComponentField" Type="TReportComponentField">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="ComponentClass" Type="TComponentClass"/>
+        <Parameter Identifier="FieldKind" Type="TFieldKind"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="NewComponent" Type="TReportComponent" Init="TReportComponent.Create"/>
+        <Variable Identifier="PrevComponent" Type="TReportComponent"/>
+        <Variable Identifier="Found" Type="Boolean"/>
+        <inx:Index.MapValue Index="DesignatorIndex" Key="Designator" Value="NewComponent" PreviousValue="PrevComponent" Found="Found" Flags="NoErrorOnExist DiscardOnExist"/>
+        <Choose>
+          <When Expression="Found">
+            <Free Expression="NewComponent"/>
+            <Execute Statement="NewComponent:= PrevComponent"/>
+            <Raise Expression="Exception.Create(Format('Component class of %s cannot be changed', Designator))" Condition="NewComponent.ComponentClass &lt;&gt; ComponentClass"/>
+            <lil:LinkedList.Iterate Head="NewComponent.FieldHead" ItemType="TReportComponentField" RunningItem="Field" Next="Field.Next">
+              <Exit Result="Field" Condition="Field.FieldKind = FieldKind"/>
+            </lil:LinkedList.Iterate>
+            <Execute Statement="Result:= TReportComponentField.Create"/>
+            <Execute Statement="Result.FieldKind:= FieldKind"/>
+            <Execute Statement="Result.Next:= NewComponent.FieldHead"/>
+            <Execute Statement="NewComponent.FieldHead:= Result"/>
+          </When>
+          <Otherwise>
+            <Execute Statement="Result:= TReportComponentField.Create"/>
+            <Execute Statement="Result.FieldKind:= FieldKind"/>
+            <Execute Statement="NewComponent.FieldHead:= Result"/>
+            <Execute Statement="NewComponent.Designator:= Designator"/>
+            <Execute Statement="NewComponent.ComponentClass:= ComponentClass"/>
+            <Case Expression="ComponentClass" Optimalisation="integermapping">
+              <On Select="TComponentClass.Unspecified">
+                <Execute Statement="Components.Add(NewComponent)"/>
+              </On>
+              <On Select="TComponentClass.Resistor">
+                <Execute Statement="Resistors.Add(NewComponent)"/>
+              </On>
+              <On Select="TComponentClass.Capacitor">
+                <Execute Statement="Capacitors.Add(NewComponent)"/>
+              </On>
+              <On Select="TComponentClass.Inductor">
+                <Execute Statement="Inductors.Add(NewComponent)"/>
+              </On>
+              <On Select="TComponentClass.ZenerDiode">
+                <Execute Statement="ZenerDiodes.Add(NewComponent)"/>
+              </On>
+            </Case>
+          </Otherwise>
+        </Choose>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="TSchematic.SetDecimalField">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="ComponentClass" Type="TComponentClass"/>
+        <Parameter Identifier="FieldKind" Type="TFieldKind"/>
+        <Parameter Identifier="Value" Type="DecimalQuantity"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ComponentField" Type="TReportComponentField" Init="GetComponentField(Designator, ComponentClass, FieldKind)"/>
+        <Execute Statement="ComponentField.ValueDQ:= Value"/>
+      </Block>
+    </Procedure>
+
+    <Procedure Identifier="TSchematic.SetTextField">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="ComponentClass" Type="TComponentClass"/>
+        <Parameter Identifier="FieldKind" Type="TFieldKind"/>
+        <Parameter Identifier="Value" Type="string"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ComponentField" Type="TReportComponentField" Init="GetComponentField(Designator, ComponentClass, FieldKind)"/>
+        <Execute Statement="ComponentField.ValueText:= Value"/>
+      </Block>
+    </Procedure>
+
+    <Function Identifier="ReportInteger" Type="Integer">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Integer"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="IntToStr(Value)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportString" Type="string">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="Value"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportVoltage" Type="Voltage">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Voltage"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportCapacitance" Type="Capacitance">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Capacitance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportDistance" Type="Extended">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Distance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportMilliMeterDistance" Type="Distance">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Distance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStrSpecial(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportExactDistance" Type="Distance">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Distance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportThermalResistance" Type="ThermalResistance">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="ThermalResistance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportTemperatureCelcius" Type="TemperatureC">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="TemperatureC"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportResistance" Type="Resistance">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Resistance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportValue" Type="Quantity">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Quantity"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportPower" Type="Power">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Power"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportFrequency" Type="Frequency">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Frequency"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportCurrent" Type="Current">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Current"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportTime" Type="Time">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Time"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="ReportAmplification" Type="Factor">
+      <Parameters>
+        <Parameter Identifier="LabelS" Type="string"/>
+        <Parameter Identifier="Value" Type="Factor"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="LabelS" Value="DQToStr(Result, IsVerbose)"/>
+      </Block>
+    </Function>
+
+    <Procedure Identifier="ReportTaskDescription">
+      <Parameters>
+        <Parameter Identifier="Task" Type="TTask"/>
+      </Parameters>
+      <Block>
+        <rep:Reporter.Information Text="'  ' + Task.Description" Markup="Header4"/>
+
+      </Block>
+    </Procedure>
+
+    <Function Identifier="TSchematic.ReportZenerDiode" Type="Voltage">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Voltage"/>
+        <Parameter Identifier="ESerie" Type="TESerie"/>
+        <Parameter Identifier="ToleranceV" Type="Tolerance"/>
+        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ESerieObj" Type="TSerie" Init="GetESerie(ESerie)"/>
+        <Variable Identifier="ResultD" Type="Decimal"/>
+        <Variable Identifier="SerieNode" Type="TSerieNode" Init="ESerieObj.MatchNode(Value, MatchKind, ResultD)"/>
+        <Execute Statement="Result:= ResultD ~ ⌠V⌡"/>
+        <Execute Statement="Result:= Result ± (Result * ToleranceV * 0.01⌠%⁻¹⌡)"/>
+        <rep:Reporter.LabelValue Label="cElectricPotentialPrefix + Designator + _SchemaID" Value="DQToStr(Result, IsVerbose)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.ZenerDiode, TFieldKind.ValueDQ, Result)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.ZenerDiode, TFieldKind.Tolerance, ToleranceV)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSchematic.ReportResistor" Type="Resistance">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Resistance"/>
+        <Parameter Identifier="ESerie" Type="TESerie"/>
+        <Parameter Identifier="ToleranceV" Type="Tolerance"/>
+        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ESerieObj" Type="TSerie" Init="GetESerie(ESerie)"/>
+        <Variable Identifier="ResultD" Type="Decimal"/>
+        <Variable Identifier="Deviation" Type="Resistance"/>
+        <Variable Identifier="SerieNode" Type="TSerieNode" Init="ESerieObj.MatchNode(Value, MatchKind, ResultD)"/>
+        <Variable Identifier="ResultE" Type="Extended" Init="ResultD"/>
+        <Execute Statement="Result:= ResultE ~ ⌠Ω⌡"/>
+        <Execute Statement="Result:= Result ± (Result * ToleranceV * 0.01⌠%⁻¹⌡)"/>
+        <rep:Reporter.LabelValue Label="cResistancePrefix+ Designator + _SchemaID" Value="DQToStr(Result, IsVerbose)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.Resistor, TFieldKind.ValueDQ, Result)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.Resistor, TFieldKind.Tolerance, ToleranceV)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSchematic.ReportResistorPower" Type="Power">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Power"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="cPowerPrefix + Designator + _SchemaID" Value="DQToStr(Result, IsVerbose)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.Resistor, TFieldKind.PowerRatingMin, Result)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSchematic.ReportComponentValue" Type="string">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="string"/>
+        <Parameter Identifier="ComponentKind" Type="string"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="Designator + _SchemaID" Value="Value"/>
+        <Execute Statement="SetTextField(Designator, TComponentClass.Unspecified, TFieldKind.ComponentKind, ComponentKind)"/>
+        <Execute Statement="SetTextField(Designator, TComponentClass.Unspecified, TFieldKind.ValueText, Result)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSchematic.ReportCapacitor" Type="Capacitance">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Capacitance"/>
+        <Parameter Identifier="ESerie" Type="TESerie"/>
+        <Parameter Identifier="ToleranceV" Type="Tolerance"/>
+        <Parameter Identifier="MatchKind" Type="TMatchValueKind"/>
+      </Parameters>
+      <Block>
+        <Variable Identifier="ESerieObj" Type="TSerie" Init="GetESerie(ESerie)"/>
+        <Variable Identifier="ResultD" Type="Decimal"/>
+        <Variable Identifier="Deviation" Type="Resistance"/>
+        <Variable Identifier="SerieNode" Type="TSerieNode" Init="ESerieObj.MatchNode(Value, MatchKind, ResultD)"/>
+        <Variable Identifier="ResultE" Type="Extended" Init="ResultD"/>
+        <Execute Statement="Result:= ResultE ~ ⌠F⌡"/>
+        <Execute Statement="Result:= Result ± (Result * ToleranceV * 0.01⌠%⁻¹⌡)"/>
+        <rep:Reporter.LabelValue Label="cCapacitancePrefix + Designator + _SchemaID" Value="DQToStr(Result, IsVerbose)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.Capacitor, TFieldKind.ValueDQ, Result)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.Capacitor, TFieldKind.Tolerance, ToleranceV)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSchematic.ReportCapacitor" Type="Capacitance">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Capacitance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="cCapacitancePrefix + Designator + _SchemaID" Value="DQToStr(Result, IsVerbose)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.Capacitor, TFieldKind.ValueDQ, Result)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSchematic.ReportResistor" Type="Resistance">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Resistance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="cResistancePrefix + Designator + _SchemaID" Value="DQToStr(Result, IsVerbose)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.Resistor, TFieldKind.ValueDQ, Result)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSchematic.ReportHandPickedResistor" Type="Resistance">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Resistance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="cResistancePrefix + Designator + _SchemaID" Value="DQToStr(Result, IsVerbose)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.Resistor, TFieldKind.ValueDQ, Value)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSchematic.ReportHandPickedCapacitor" Type="Capacitance">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Capacitance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="cCapacitancePrefix + Designator + _SchemaID" Value="DQToStr(Result, IsVerbose)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.Capacitor, TFieldKind.ValueDQ, Value)"/>
+      </Block>
+    </Function>
+
+    <Function Identifier="TSchematic.ReportHandPickedInductor" Type="Inductance">
+      <Parameters>
+        <Parameter Identifier="Designator" Type="string"/>
+        <Parameter Identifier="Value" Type="Inductance"/>
+      </Parameters>
+      <Block>
+        <Execute Statement="Result:= Value"/>
+        <rep:Reporter.LabelValue Label="cInductancePrefix + Designator + _SchemaID" Value="DQToStr(Result, IsVerbose)"/>
+        <Execute Statement="SetDecimalField(Designator, TComponentClass.Inductor, TFieldKind.ValueDQ, Value)"/>
+      </Block>
+    </Function>
+
+  </Procedures>
+
+  <Initialization>
+    <Choose>
+      <When Expression="SameText(LanguageCode, 'nl-NL')">
+        <Execute Statement="Language:= TLanguage.NL"/>
+      </When>
+    </Choose>
+  </Initialization>
+
+</pkg:Library>

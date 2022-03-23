@@ -164,6 +164,8 @@
     <Constant Identifier="sOptocouplerHeader" Expression="'Optocouplers'"/>
     <Constant Identifier="sReferenceVoltageICDescription" Expression="'spanningsreferentie IC'"/>
     <Constant Identifier="sReferenceVoltageICHeader" Expression="'Spanningsreferentie IC''s'"/>
+    <Constant Identifier="sVoltageRegulatorDescription" Expression="'spanningsregelaar'"/>
+    <Constant Identifier="sVoltageRegulatorHeader" Expression="'Spanningsregelaars'"/>
     <Constant Identifier="sSwitchDescription" Expression="'schakelaar'"/>
     <Constant Identifier="sSwitchHeader" Expression="'Schakelaars'"/>
     <Constant Identifier="sHeatsinkDescription" Expression="'koellichaam'"/>
@@ -185,26 +187,26 @@
     <Constant Identifier="sGlobalConfigTD" Type="string" Expression="'Globale configuratie lezen'"/>
     <Constant Identifier="sPartkeeprDatabaseTD" Type="string" Expression="'Met Partkeepr database verbinden'"/>
     <Constant Identifier="sBillOfMaterialsTD" Type="string" Expression="'Benodigde lijst van materialen object leveren'"/>
-    <Constant Identifier="sStockManagerTD" Type="string" Expression="'Geregistreerde materialen object leveren'"/>
+    <Constant Identifier="sStockManagerTD" Type="string" Expression="'Beschikbare materialen object leveren'"/>
     <Constant Identifier="sBillOfMaterialsLoadTemplatesFromIniFileTD" Type="string" Expression="'Lijst van materialen templates lezen'"/>
     <Constant Identifier="sBillOfMaterialsLoadBomFileTD" Type="string" Expression="'Benodigde lijst van materialen laden'"/>
     <Constant Identifier="sCalculatedSpecificationsTD" Type="string" Expression="'Berekende specificaties laden'"/>
     <Constant Identifier="sReportReportOrderPickingTD" Type="string" Expression="'Rapporteer lijst voor order picking'"/>
-    <Constant Identifier="sReadingStockTD" Type="string" Expression="'Geregistreerde materialen laden'"/>
-    <Constant Identifier="sStockManagerConsolidateSpecificationsTD" Type="string" Expression="'Geregistreerde materiaal specificaties consolideren'"/>
+    <Constant Identifier="sReadingStockTD" Type="string" Expression="'Beschikbare materialen laden'"/>
+    <Constant Identifier="sStockManagerConsolidateSpecificationsTD" Type="string" Expression="'Beschikbare materiaal specificaties consolideren'"/>
     <Constant Identifier="sBillOfMaterialsConsolidateSpecificationsTD" Type="string" Expression="'Benodigde materiaal specificaties consolideren'"/>
     <Constant Identifier="sBillOfMaterialsDetermineBomCountTD" Type="string" Expression="'Benodigde lijst aantal bepalen'"/>
-    <Constant Identifier="sBillOfMaterialsProcessDesignatorsTD" Type="string" Expression="'Designators op geregistreerde materiaal specificaties verwerken'"/>
-    <Constant Identifier="sBillOfMaterialsAssignStockComponentsTD" Type="string" Expression="'Geregistreerde materiaal specificaties koppelen aan benodigde specificaties'"/>
+    <Constant Identifier="sBillOfMaterialsProcessDesignatorsTD" Type="string" Expression="'Designators op beschikbare materiaal specificaties verwerken'"/>
+    <Constant Identifier="sBillOfMaterialsAssignStockComponentsTD" Type="string" Expression="'Beschikbare materiaal specificaties koppelen aan benodigde specificaties'"/>
     <Constant Identifier="sSymbolMappingPathTD" Type="string" Expression="'Symbool koppeling directory'"/>
     <Constant Identifier="sLoadSymbolMappingsTD" Type="string" Expression="'Symbool component type koppelingen uit directory inlezen'"/>
     <Constant Identifier="sLoadKnownUnitsTD" Type="string" Expression="'Bekende eenheden van PartKeepr inlezen'"/>
     <Constant Identifier="sReportStorageLocationsTD" Type="string" Expression="'Opslaglocaties van PartKeepr rapporteren'"/>
     <Constant Identifier="sReportPartKeeprProjectsTD" Type="string" Expression="'Projecten van PartKeepr rapporteren'"/>
-    <Constant Identifier="sReportStockTD" Type="string" Expression="'Geregistreerde lijst van materialen rapporteren'"/>
+    <Constant Identifier="sReportStockTD" Type="string" Expression="'Beschikbare lijst van materialen rapporteren'"/>
     <Constant Identifier="sUpdateDBChangeProjectPartsTD" Type="string" Expression="'Benodigde materialen aan een PartKeepr project toevoegen'"/>
-    <Constant Identifier="sUpdateDBChangePartNamesTD" Type="string" Expression="'Geregistreerde materialen namen in PartKeepr automatisch aanpassen'"/>
-    <Constant Identifier="sUpdateDBChangePartDescriptionsTD" Type="string" Expression="'Geregistreerde materialen omschrijvingen in PartKeepr automatisch aanpassen'"/>
+    <Constant Identifier="sUpdateDBChangePartNamesTD" Type="string" Expression="'Beschikbare materiaalnamen in PartKeepr automatisch aanpassen'"/>
+    <Constant Identifier="sUpdateDBChangePartDescriptionsTD" Type="string" Expression="'Beschikbare materiaalomschrijvingen in PartKeepr automatisch aanpassen'"/>
     <Constant Identifier="sReportBomTD" Type="string" Expression="'Benodigde lijst van materialen rapporteren'"/>
     <Constant Identifier="sReportBomEEVBlogTD" Type="string" Expression="'Benodigde lijst van materialen voor EEVBlog forum rapporteren'"/>
     <Constant Identifier="sReportBomDokuWikiTD" Type="string" Expression="'Benodigde lijst van materialen voor DokuWiki rapporteren'"/>
@@ -212,6 +214,8 @@
     <Constant Identifier="sDatabaseExportProjectIdTD" Type="string" Expression="'ID van PartKeepr project bepalen'"/>
     <Constant Identifier="sDatabaseUnmatchedComponentsStorageIdTD" Type="string" Expression="'ID van PartKeepr opslaglocatie voor ongematchte materialen bepalen'"/>
     <Constant Identifier="sMatchUnmatchedSchemaComponentsToCategoriesTD" Type="string" Expression="'Niet gematchte componenten aan categorien toevoegen'"/>
+    <Constant Identifier="sUnrecognizedComponent" Type="string" Expression="'Component %s werd niet herkend'"/>
+    <Constant Identifier="sSheetsHeader" Type="string" Expression="'Schema bladen'"/>
 
     <Constant Identifier="sUnsupportedUnattendedTask" Type="string" Expression="'Niet ondersteunde unattended task'"/>
     <Constant Identifier="sUnsupportedHideSpecs" Type="string" Expression="'Niet ondersteunde hide specs'"/>
@@ -221,14 +225,57 @@
     <Constant Identifier="sDesignatorReport" Type="string" Expression="'Designator specificaties'"/>
     <Constant Identifier="sReportStorageLocations" Type="string" Expression="'Materiaal locaties'"/>
     <Constant Identifier="sReportOutOfStockMaterials" Type="string" Expression="'Niet beschikbaar materiaal'"/>
+    <Constant Identifier="sCombineTargetMatchingsStockAvailableValue" Type="string" Expression="'Beschikbare waarden geleverd uit beschikbare materialen'"/>
+    <Constant Identifier="sCombineTargetMatchingsStockMatching" Type="string" Expression="'Koppelen van combinatie waarden met beschikbare materialen - configuratie %d - (%s)'"/>
+    <Constant Identifier="sCombineTargetMatchingStockSource" Type="string" Expression="'Bron van beschikbare materialen'"/>
+    <Constant Identifier="cCompCombosTaskStock" Type="string" Expression="'Optimale combinaties uit beschikbare materialen voor vervangingswaarde bepalen'"/>
+    <Constant Identifier="sUtilityTasks" Type="string" Expression="'Handige taken'"/>
 
     <Constant Identifier="sMissingComponentHeader" Type="string" Expression="'Component klasse naam niet vermeld'"/>
     <Constant Identifier="sResistorTechnologyMetalFilm" Type="string" Expression="'metaalfilm'"/>
     <Constant Identifier="sResistorTechnologyMissing" Type="string" Expression="'-missende weerstand technologie mapping-'"/>
 
-    <Constant Identifier="sCapacitorTechnologyElectrolytic" Type="string" Expression="'elco'"/>
+    <Constant Identifier="sCapacitorTechnologyAluminumElectrolytic" Type="string" Expression="'aluminum elektrolytisch'"/>
+    <Constant Identifier="sCapacitorTechnologyTantalumElectrolytic" Type="string" Expression="'tantalum elektrolytisch'"/>
+    <Constant Identifier="sCapacitorTechnologyNiobiumElectrolytic" Type="string" Expression="'niobium elektrolytisch'"/>
     <Constant Identifier="sCapacitorTechnologyCeramic" Type="string" Expression="'keramisch'"/>
-    <Constant Identifier="sCapacitorTechnologyMissing" Type="string" Expression="'-missende condensator technologie mapping-'"/>
+    <Constant Identifier="sCapacitorTechnologySilverMica" Type="string" Expression="'zilver mica'"/>
+    <Constant Identifier="sCapacitorTechnologyPolyesterFilm" Type="string" Expression="'polyester film'"/>
+    <Constant Identifier="sCapacitorTechnologyMetallisedPolyesterFilm" Type="string" Expression="'gemetalliseerde polyester film'"/>
+    <Constant Identifier="sCapacitorTechnologyPolycarbonate" Type="string" Expression="'polycarbonaat'"/>
+    <Constant Identifier="sCapacitorTechnologyPolypropylene" Type="string" Expression="'polypropylene'"/>
+    <Constant Identifier="sCapacitorTechnologyGlass" Type="string" Expression="'glas'"/>
+
+    <Constant Identifier="sDeviceFunctionOpAmp" Type="string" Expression="'opamp'"/>
+    <Constant Identifier="sDeviceFunctionComparator" Type="string" Expression="'comparator'"/>
+    <Constant Identifier="sDeviceFunctionSchmittTrigger" Type="string" Expression="'schmitt-trigger'"/>
+    <Constant Identifier="sDeviceFunctionOptocoupler" Type="string" Expression="'optocoupler'"/>
+    <Constant Identifier="sDeviceFunctionTimer" Type="string" Expression="'timer'"/>
+    <Constant Identifier="sDeviceFunctionAndGate" Type="string" Expression="'AND poort'"/>
+    <Constant Identifier="sDeviceFunctionOrGate" Type="string" Expression="'OR poort'"/>
+    <Constant Identifier="sDeviceFunctionXorGate" Type="string" Expression="'XOR poort'"/>
+    <Constant Identifier="sDeviceFunctionXnorGate" Type="string" Expression="'XNOR poort'"/>
+    <Constant Identifier="sDeviceFunctionNandGate" Type="string" Expression="'NAND poort'"/>
+    <Constant Identifier="sDeviceFunctionNorGate" Type="string" Expression="'NOR poort'"/>
+    <Constant Identifier="sDeviceFunctionNotGate" Type="string" Expression="'NOT poort'"/>
+    <Constant Identifier="sDeviceFunctionVRef" Type="string" Expression="'referentiespanning'"/>
+    <Constant Identifier="sDeviceFunctionTempSens" Type="string" Expression="'temperatuur sensor'"/>
+
+    <Constant Identifier="sDeviceFunctionOpAmpMulti" Type="string" Expression="'opamps'"/>
+    <Constant Identifier="sDeviceFunctionComparatorMulti" Type="string" Expression="'comparatoren'"/>
+    <Constant Identifier="sDeviceFunctionSchmittTriggerMulti" Type="string" Expression="'schmitt-triggers'"/>
+    <Constant Identifier="sDeviceFunctionOptocouplerMulti" Type="string" Expression="'optocouplers'"/>
+    <Constant Identifier="sDeviceFunctionTimerMulti" Type="string" Expression="'timers'"/>
+    <Constant Identifier="sDeviceFunctionAndGateMulti" Type="string" Expression="'AND poorten'"/>
+    <Constant Identifier="sDeviceFunctionOrGateMulti" Type="string" Expression="'OR poorten'"/>
+    <Constant Identifier="sDeviceFunctionXorGateMulti" Type="string" Expression="'XOR poorten'"/>
+    <Constant Identifier="sDeviceFunctionXnorGateMulti" Type="string" Expression="'XNOR poorten'"/>
+    <Constant Identifier="sDeviceFunctionNandGateMulti" Type="string" Expression="'NAND poorten'"/>
+    <Constant Identifier="sDeviceFunctionNorGateMulti" Type="string" Expression="'NOR poorten'"/>
+    <Constant Identifier="sDeviceFunctionNotGateMulti" Type="string" Expression="'NOT poorten'"/>
+    <Constant Identifier="sDeviceFunctionVRefMulti" Type="string" Expression="'referentiespanningen'"/>
+    <Constant Identifier="sDeviceFunctionTempSensMulti" Type="string" Expression="'temperatuur sensoren'"/>
+
     <Constant Identifier="sFootprintNamingMissing" Type="string" Expression="'-missende footprint mapping-'"/>
 
     <Constant Identifier="sFootprintTHT" Type="string" Expression="'THT'"/>
@@ -286,11 +333,11 @@
     <Constant Identifier="sUpdateName" Type="string" Expression="'Naam %s (#%d) aanpassen van &quot;%s&quot; naar &quot;%s&quot;'"/>
     <Constant Identifier="sChangePartNames" Type="string" Expression="'Verwerken voorraadcomponenten voor naam aanpassingen...'"/>
 
-    <Constant Identifier="sFuseSpeedVeryFast" Type="string" Expression="'zeer snel'"/>
-    <Constant Identifier="sFuseSpeedFast" Type="string" Expression="'snel'"/>
-    <Constant Identifier="sFuseSpeedMedium" Type="string" Expression="'normaal'"/>
-    <Constant Identifier="sFuseSpeedSlow" Type="string" Expression="'langzaam'"/>
-    <Constant Identifier="sFuseSpeedVerySlow" Type="string" Expression="'zeer langzaam'"/>
+    <Constant Identifier="sBreakSpeedVeryFast" Type="string" Expression="'zeer snel'"/>
+    <Constant Identifier="sBreakSpeedFast" Type="string" Expression="'snel'"/>
+    <Constant Identifier="sBreakSpeedMedium" Type="string" Expression="'normaal'"/>
+    <Constant Identifier="sBreakSpeedSlow" Type="string" Expression="'langzaam'"/>
+    <Constant Identifier="sBreakSpeedVerySlow" Type="string" Expression="'zeer langzaam'"/>
 
     <Constant Identifier="sMsgMappingExistingSymbol" Type="string" Expression="'Fout bij het mappen van symbool %s naar %s deze is al geregistreerd met component soort %s'"/>
     <Constant Identifier="sMsgMissingSymbolComponentKind" Type="string" Expression="'Component soort %s voor symbool %s kon niet worden gevonden'"/>
@@ -299,15 +346,17 @@
     <Constant Identifier="sMsgMissingLibrarysymbolMapping" Type="string" Expression="'Onderdeel &quot;%s&quot; heeft geen component soort mapping, en krijgt dus component als soort'"/>
 
     <Constant Identifier="sMsgUnmatchedCalculatedDesignator" Type="string" Expression="'Berekende designator %s niet gevonden in schema'"/>
-    <Constant Identifier="sTitleField" Type="string"     Expression="'Titel'"/>
-    <Constant Identifier="sCompanyField" Type="string"   Expression="'Bedrijf'"/>
-    <Constant Identifier="sRevisionField" Type="string"  Expression="'Revisie'"/>
-    <Constant Identifier="sDateField" Type="string"      Expression="'Datum'"/>
-    <Constant Identifier="sSourceField" Type="string"    Expression="'Bron'"/>
-    <Constant Identifier="sComment1Field" Type="string"  Expression="'Aantekening1'"/>
-    <Constant Identifier="sComment2Field" Type="string"  Expression="'Aantekening2'"/>
-    <Constant Identifier="sComment3Field" Type="string"  Expression="'Aantekening3'"/>
-    <Constant Identifier="sComment4Field" Type="string"  Expression="'Aantekening4'"/>
-    <Constant Identifier="sCountField" Type="string"     Expression="'Aantal'"/>
+    <Constant Identifier="sCalculatedSpecificationsNotProcessed" Type="string" Expression="'Berekende specificaties van %s konden niet verwerkt worden'"/>
+    <Constant Identifier="sSheetHeader" Type="string" Expression="'Blad %u'"/>
+    <Constant Identifier="sTitleField" Type="string" Expression="'Titel'"/>
+    <Constant Identifier="sCompanyField" Type="string" Expression="'Bedrijf'"/>
+    <Constant Identifier="sRevisionField" Type="string" Expression="'Revisie'"/>
+    <Constant Identifier="sDateField" Type="string" Expression="'Datum'"/>
+    <Constant Identifier="sSourceField" Type="string" Expression="'Bron'"/>
+    <Constant Identifier="sCommentField" Type="string" Expression="'Aantekening %d'"/>
+    <Constant Identifier="sCountField" Type="string" Expression="'Aantal'"/>
+    <Constant Identifier="sNumberField" Type="string" Expression="'Nummer'"/>
+    <Constant Identifier="sNameField" Type="string" Expression="'Naam'"/>
+    <Constant Identifier="sScriptLog" Type="string" Expression="'Script logboek'"/>
   </Constants>
 </pkg:Library>
