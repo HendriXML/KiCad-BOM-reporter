@@ -204,7 +204,7 @@
     <Constant Identifier="sReportStorageLocationsTD" Type="string" Expression="'Report PartKeepr storage locations'"/>
     <Constant Identifier="sReportPartKeeprProjectsTD" Type="string" Expression="'Report PartKeepr projects'"/>
     <Constant Identifier="sReportStockTD" Type="string" Expression="'Report available materials'"/>
-    <Constant Identifier="sUpdateDBChangeProjectPartsTD" Type="string" Expression="'Add requested materials to PartKeepr project'"/>
+    <Constant Identifier="sUpdateDBChangeProjectPartsTD" Type="string" Expression="'Add requested materials to a PartKeepr project'"/>
     <Constant Identifier="sUpdateDBChangePartNamesTD" Type="string" Expression="'Update available material names in PartKeepr'"/>
     <Constant Identifier="sUpdateDBChangePartDescriptionsTD" Type="string" Expression="'Update available material descriptions in PartKeepr'"/>
     <Constant Identifier="sReportBomTD" Type="string" Expression="'Report requested bill of materials'"/>
