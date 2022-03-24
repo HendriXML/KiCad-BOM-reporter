@@ -59,12 +59,6 @@ MaxShowResistorVoltage=230V
 [ElectronicsTasks.CombinationTarget]
 Value	= 123.0 Ω ± 2%
 
-[ElectronicsTasks.CombinationParameters]
-;MaxESerie	= E24
-;Granularity	= Fine
-;Tolerance	= 2%
-;Refine	= 1
-
 [ComponentCombinations.Stock]
 ;UseStock=No|Source|SourceAndMatch
 ;UseStock=SourceAndMatch
@@ -220,7 +214,7 @@ ID = -1
 
   <Constants>
     <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
-    <Constant Identifier="ScriptVersion" Type="string" Expression="'7.00.3.0.0.65'"/>
+    <Constant Identifier="ScriptVersion" Type="string" Expression="'7.00.3.0.1.66'"/>
   </Constants>
 
   <Variables>
@@ -667,7 +661,6 @@ ID = -1
         <Task.AddDependency Task="BillOfMaterials.DetermineBomCount"/>
         <Task.AddDependency Task="BillOfMaterials.AssignStockComponents" IgnoreFailure="True"/>
         <Task.AddDependency Task="StockManager" Result="StockManager" ResultType="TStockManager"/>
-        <Task.AddDependency Task="UpdateDB.MatchUnmatchedSchemaComponentsToCategories"/>
         <Task.AddDependency Task="Database.References.ExportProjectID" Result="DatabaseExportProjectID" ResultType="TIdInfo"/>
         <Task.AddDependency Task="Database.References.UnmatchedComponentsStorageID" Result="DatabaseUnmatchedComponentsStorageID" ResultType="TIdInfo"/>
       </Init>

@@ -268,7 +268,7 @@
     <Variable Identifier="cCustomFieldReverseVoltageRatingMin" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ReverseVoltageRatingMin, 'ReverseVoltageRating.Min')"/>
     <Variable Identifier="cCustomFieldReverseVoltageRatingMax" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.ReverseVoltageRatingMax, 'ReverseVoltageRating.Max')"/>
     <Variable Identifier="cCustomFieldBreakSpeed" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.BreakSpeed, 'BreakSpeed')"/>
-    <Variable Identifier="cCustomFieldBreakSpeedSet" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.BreakSpeedSet, 'BreakSpeedSet')"/>
+    <Variable Identifier="cCustomFieldBreakSpeedSet" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.BreakSpeedSet, 'BreakSpeed.Set')"/>
     <Variable Identifier="cCustomFieldDimensions" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Dimensions, 'Dimensions')"/>
     <Variable Identifier="cCustomFieldFunctions" Type="TCustomFieldEnumInfo" Init="TCustomFieldEnumInfo.Create(TCustomField.Functions, 'Functions')"/>
     <Variable Identifier="CustomFieldEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TCustomFieldEnumInfo)"/>
