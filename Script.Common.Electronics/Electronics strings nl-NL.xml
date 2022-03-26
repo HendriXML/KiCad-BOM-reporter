@@ -49,5 +49,8 @@
     <Constant Identifier="cCombinationTargetTask" Type="string" Expression="'Combinatie doel configuratie'"/>
     <Constant Identifier="cAvailableValuesInputTabTask" Type="string" Expression="'Beschikbare waarden genomen van invoer tabblad'"/>
     <Constant Identifier="cAvailableValuesTextFileTask" Type="string" Expression="'Beschikbare waarden genomen van een tekstbestand'"/>
+    <Constant Identifier="cAssertEitherEseriesOrAvailableValues" Type="string" Expression="'Beschikbare waarden dienen gelevert te worden of E-reeksen moeten gebruikt worden'"/>
+    <Constant Identifier="cValuesIncluded" Type="string" Expression="'Aantal geïncludeerde waarden'"/>
+    <Constant Identifier="cValuesExcluded" Type="string" Expression="'Aantal geëxcludeerde waarden'"/>
   </Constants>
 </pkg:Library>

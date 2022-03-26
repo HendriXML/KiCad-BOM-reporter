@@ -49,5 +49,8 @@
     <Constant Identifier="cCombinationTargetTask" Type="string" Expression="'Combination target configuration'"/>
     <Constant Identifier="cAvailableValuesInputTabTask" Type="string" Expression="'Available values provided by input tabsheet'"/>
     <Constant Identifier="cAvailableValuesTextFileTask" Type="string" Expression="'Available values provided by a text file'"/>
+    <Constant Identifier="cAssertEitherEseriesOrAvailableValues" Type="string" Expression="'Available values should be provided or E-series should be used'"/>
+    <Constant Identifier="cValuesIncluded" Type="string" Expression="'Number of values included'"/>
+    <Constant Identifier="cValuesExcluded" Type="string" Expression="'Number of values excluded'"/>
   </Constants>
 </pkg:Library>

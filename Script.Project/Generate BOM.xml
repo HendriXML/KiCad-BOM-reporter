@@ -82,10 +82,12 @@ ComponentKind=Inductor
 ;Source=None
 
 [ElectronicsTasks.CombinationParameters]
-;MaxESerie=E1|E3|E6|E12|E24|E48|E96|E192
-;MaxESerie=E24
+;UseESeries=0|1
+;UseESeries=0
 ;Granularity=ExtraCoarse|Coarse|Fine|ExtraFine
 ;Granularity=Fine
+;MaxESerie=E1|E3|E6|E12|E24|E48|E96|E192
+;MaxESerie=E24
 ;Refine=0|1
 ;Refine=1
 ;Tolerance=2%
@@ -214,7 +216,7 @@ ID = -1
 
   <Constants>
     <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
-    <Constant Identifier="ScriptVersion" Type="string" Expression="'7.00.3.0.1.66'"/>
+    <Constant Identifier="ScriptVersion" Type="string" Expression="'7.1.3.0.2.68'"/>
   </Constants>
 
   <Variables>
