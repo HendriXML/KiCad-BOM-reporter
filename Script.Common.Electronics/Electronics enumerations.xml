@@ -90,43 +90,50 @@
     <Variable Identifier="cValueGranularityExtraFine" Type="TValueGranularityEnumInfo" Init="TValueGranularityEnumInfo.Create(TValueGranularity.ExtraFine, 'ExtraFine')"/>
     <Variable Identifier="ValueGranularityEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TValueGranularityEnumInfo)"/>
 
-    <Variable Identifier="cValueSetsE192_E192_E192" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E192_E192_E192, 'E192_E192_E192', 'E192[E192]E192')"/>
-    <Variable Identifier="cValueSetsE096_E096_E096" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E096_E096_E096, 'E096_E096_E096', 'E96[E96]E96')"/>
-    <Variable Identifier="cValueSetsE048_E048_E048" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E048_E048, 'E048_E048_E048', 'E48[E48]E48')"/>
-    <Variable Identifier="cValueSetsE024_E024_E024" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E024_E024, 'E024_E024_E024', 'E24[E24]E24')"/>
-    <Variable Identifier="cValueSetsE012_E012_E012" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E012_E012, 'E012_E012_E012', 'E12[E12]E12')"/>
-    <Variable Identifier="cValueSetsE006_E006_E006" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E006_E006, 'E006_E006_E006', 'E6[E6]E6')"/>
-    <Variable Identifier="cValueSetsE003_E003_E003" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E003_E003, 'E003_E003_E003', 'E3[E3]E3')"/>
-    <Variable Identifier="cValueSetsE001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E001, 'E001_E001_E001', 'E1[E1]E1')"/>
-    <Variable Identifier="cValueSetsE192_E192_E192_E192_E192_E192_E192_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E192_E192_E192_E192_E192_E192_E192_E001, 'E192_E192_E192_E192_E192_E192_E192_E001', 'E192-E192-E192-[E192]-E192-E192-E192-E1')"/>
-    <Variable Identifier="cValueSetsE096_E192_E192_E192_E192_E192_E096_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E096_E192_E192_E192_E192_E192_E096_E001, 'E096_E192_E192_E192_E192_E192_E096_E001', 'E96-E192-E192-[E192]-E192-E192-E96-E1')"/>
-    <Variable Identifier="cValueSetsE048_E192_E192_E192_E192_E192_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E192_E192_E192_E192_E192_E048_E001, 'E048_E192_E192_E192_E192_E192_E048_E001', 'E48-E192-E192-[E192]-E192-E192-E48-E1')"/>
-    <Variable Identifier="cValueSetsE048_E096_E192_E192_E192_E096_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E096_E192_E192_E192_E096_E048_E001, 'E048_E096_E192_E192_E192_E096_E048_E001', 'E48-E96-E192-[E192]-E192-E96-E48-E1')"/>
-    <Variable Identifier="cValueSetsE048_E096_E096_E192_E096_E096_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E096_E096_E192_E096_E096_E048_E001, 'E048_E096_E096_E192_E096_E096_E048_E001', 'E48-E96-E96-[E192]-E96-E96-E48-E1')"/>
-    <Variable Identifier="cValueSetsE048_E096_E096_E096_E096_E096_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E096_E096_E096_E096_E096_E048_E001, 'E048_E096_E096_E096_E096_E096_E048_E001', 'E48-E96-E96-[E96]-E96-E96-E48-E1')"/>
-    <Variable Identifier="cValueSetsE024_E096_E096_E096_E096_E096_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E096_E096_E096_E096_E096_E024_E001, 'E024_E096_E096_E096_E096_E096_E024_E001', 'E24-E96-E96-[E96]-E96-E96-E24-E1')"/>
-    <Variable Identifier="cValueSetsE024_E048_E096_E096_E096_E048_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E048_E096_E096_E096_E048_E024_E001, 'E024_E048_E096_E096_E096_E048_E024_E001', 'E24-E48-E96-[E96]-E96-E48-E24-E1')"/>
-    <Variable Identifier="cValueSetsE024_E048_E048_E096_E048_E048_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E048_E048_E096_E048_E048_E024_E001, 'E024_E048_E048_E096_E048_E048_E024_E001', 'E24-E48-E48-[E96]-E48-E48-E24-E1')"/>
-    <Variable Identifier="cValueSetsE024_E048_E048_E048_E048_E048_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E048_E048_E048_E048_E048_E024_E001, 'E024_E048_E048_E048_E048_E048_E024_E001', 'E24-E48-E48-[E48]-E48-E48-E24-E1')"/>
-    <Variable Identifier="cValueSetsE012_E048_E048_E048_E048_E048_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E048_E048_E048_E048_E048_E012_E001, 'E012_E048_E048_E048_E048_E048_E012_E001', 'E12-E48-E48-[E48]-E48-E48-E12-E1')"/>
-    <Variable Identifier="cValueSetsE012_E024_E048_E048_E048_E024_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E024_E048_E048_E048_E024_E012_E001, 'E012_E024_E048_E048_E048_E024_E012_E001', 'E12-E24-E48-[E48]-E48-E24-E12-E1')"/>
-    <Variable Identifier="cValueSetsE012_E024_E024_E048_E024_E024_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E024_E024_E048_E024_E024_E012_E001, 'E012_E024_E024_E048_E024_E024_E012_E001', 'E12-E24-E24-[E48]-E24-E24-E12-E1')"/>
-    <Variable Identifier="cValueSetsE012_E024_E024_E024_E024_E024_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E024_E024_E024_E024_E024_E012_E001, 'E012_E024_E024_E024_E024_E024_E012_E001', 'E12-E24-E24-[E24]-E24-E24-E12-E1')"/>
-    <Variable Identifier="cValueSetsE006_E024_E024_E024_E024_E024_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E024_E024_E024_E024_E024_E006_E001, 'E006_E024_E024_E024_E024_E024_E006_E001', 'E6-E24-E24-[E24]-E24-E24-E6-E1')"/>
-    <Variable Identifier="cValueSetsE006_E012_E024_E024_E024_E012_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E012_E024_E024_E024_E012_E006_E001, 'E006_E012_E024_E024_E024_E012_E006_E001', 'E6-E12-E24-[E24]-E24-E12-E6-E1')"/>
-    <Variable Identifier="cValueSetsE006_E012_E012_E024_E012_E012_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E012_E012_E024_E012_E012_E006_E001, 'E006_E012_E012_E024_E012_E012_E006_E001', 'E6-E12-E12-[E24]-E12-E12-E6-E1')"/>
-    <Variable Identifier="cValueSetsE006_E012_E012_E012_E012_E012_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E012_E012_E012_E012_E012_E006_E001, 'E006_E012_E012_E012_E012_E012_E006_E001', 'E6-E12-E12-[E12]-E12-E12-E6-E1')"/>
-    <Variable Identifier="cValueSetsE003_E012_E012_E012_E012_E012_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E012_E012_E012_E012_E012_E003_E001, 'E003_E012_E012_E012_E012_E012_E003_E001', 'E3-E12-E12-[E12]-E12-E12-E3-E1')"/>
-    <Variable Identifier="cValueSetsE003_E006_E012_E012_E012_E006_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E006_E012_E012_E012_E006_E003_E001, 'E003_E006_E012_E012_E012_E006_E003_E001', 'E3-E6-E12-[E12]-E12-E6-E3-E1')"/>
-    <Variable Identifier="cValueSetsE003_E006_E006_E012_E006_E006_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E006_E006_E012_E006_E006_E003_E001, 'E003_E006_E006_E012_E006_E006_E003_E001', 'E3-E6-E6-[E12]-E6-E6-E3-E1')"/>
-    <Variable Identifier="cValueSetsE003_E006_E006_E006_E006_E006_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E006_E006_E006_E006_E006_E003_E001, 'E003_E006_E006_E006_E006_E006_E003_E001', 'E3-E6-E6-[E6]-E6-E6-E3-E1')"/>
-    <Variable Identifier="cValueSetsE001_E006_E006_E006_E006_E006_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E006_E006_E006_E006_E006_E001_E001, 'E001_E006_E006_E006_E006_E006_E001_E001', 'E1-E6-E6-[E6]-E6-E6-E1-E1')"/>
-    <Variable Identifier="cValueSetsE001_E003_E006_E006_E006_E003_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E003_E006_E006_E006_E003_E001_E001, 'E001_E003_E006_E006_E006_E003_E001_E001', 'E1-E3-E6-[E6]-E6-E3-E1-E1')"/>
-    <Variable Identifier="cValueSetsE001_E003_E003_E006_E003_E003_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E003_E003_E006_E003_E003_E001_E001, 'E001_E003_E003_E006_E003_E003_E001_E001', 'E1-E3-E3-[E6]-E3-E3-E1-E1')"/>
-    <Variable Identifier="cValueSetsE001_E003_E003_E003_E003_E003_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E003_E003_E003_E003_E003_E001_E001, 'E001_E003_E003_E003_E003_E003_E001_E001', 'E1-E3-E3-[E3]-E3-E3-E1-E1')"/>
-    <Variable Identifier="cValueSetsE001_E001_E003_E003_E003_E001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E003_E003_E003_E001_E001_E001, 'E001_E001_E003_E003_E003_E001_E001_E001', 'E1-E1-E3-[E3]-E3-E1-E1-E1')"/>
-    <Variable Identifier="cValueSetsE001_E001_E001_E003_E001_E001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E001_E003_E001_E001_E001_E001, 'E001_E001_E001_E003_E001_E001_E001_E001', 'E1-E1-E1-[E3]-E1-E1-E1-E1')"/>
-    <Variable Identifier="cValueSetsE001_E001_E001_E001_E001_E001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E001_E001_E001_E001_E001_E001, 'E001_E001_E001_E001_E001_E001_E001_E001', 'E1-E1-E1-[E1]-E1-E1-E1-E1')"/>
+    <Variable Identifier="cValueSetsE192_E192_E192" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E192_E192_E192, 'E192_E192_E192', 'E192-[E192]-E192')"/>
+    <Variable Identifier="cValueSetsE096_E096_E096" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E096_E096_E096, 'E096_E096_E096', 'E96-[E96]-E96')"/>
+    <Variable Identifier="cValueSetsE048_E048_E048" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E048_E048, 'E048_E048_E048', 'E48-[E48]-E48')"/>
+    <Variable Identifier="cValueSetsE024_E024_E024" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E024_E024, 'E024_E024_E024', 'E24-[E24]-E24')"/>
+    <Variable Identifier="cValueSetsE012_E012_E012" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E012_E012, 'E012_E012_E012', 'E12-[E12]-E12')"/>
+    <Variable Identifier="cValueSetsE006_E006_E006" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E006_E006, 'E006_E006_E006', 'E6-[E6]-E6')"/>
+    <Variable Identifier="cValueSetsE003_E003_E003" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E003_E003, 'E003_E003_E003', 'E3-[E3]-E3')"/>
+    <Variable Identifier="cValueSetsE001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E001, 'E001_E001_E001', 'E1-[E1]-E1')"/>
+    <Variable Identifier="cValueSetsE192_E192_E192_E192_E192_E192_E192_E192_E192_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E192_E192_E192_E192_E192_E192_E192_E192_E192_E001, 'E192_E192_E192_E192_E192_E192_E192_E192_E192_E001', 'E192-E192-E192-E192-[E192]-E192-E192-E192-E192-E1')"/>
+    <Variable Identifier="cValueSetsE096_E192_E192_E192_E192_E192_E192_E192_E096_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E096_E192_E192_E192_E192_E192_E192_E192_E096_E001, 'E096_E192_E192_E192_E192_E192_E192_E192_E096_E001', 'E96-E192-E192-E192-[E192]-E192-E192-E192-E96-E1')"/>
+    <Variable Identifier="cValueSetsE048_E192_E192_E192_E192_E192_E192_E192_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E192_E192_E192_E192_E192_E192_E192_E048_E001, 'E048_E192_E192_E192_E192_E192_E192_E192_E048_E001', 'E48-E192-E192-E192-[E192]-E192-E192-E192-E48-E1')"/>
+    <Variable Identifier="cValueSetsE048_E096_E192_E192_E192_E192_E192_E096_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E096_E192_E192_E192_E192_E192_E096_E048_E001, 'E048_E096_E192_E192_E192_E192_E192_E096_E048_E001', 'E48-E96-E192-E192-[E192]-E192-E192-E96-E48-E1')"/>
+    <Variable Identifier="cValueSetsE048_E096_E096_E192_E192_E192_E096_E096_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E096_E096_E192_E192_E192_E096_E096_E048_E001, 'E048_E096_E096_E192_E192_E192_E096_E096_E048_E001', 'E48-E96-E96-E192-[E192]-E192-E96-E96-E48-E1')"/>
+    <Variable Identifier="cValueSetsE048_E096_E096_E096_E192_E096_E096_E096_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E096_E096_E096_E192_E096_E096_E096_E048_E001, 'E048_E096_E096_E096_E192_E096_E096_E096_E048_E001', 'E48-E96-E96-E96-[E192]-E96-E96-E96-E48-E1')"/>
+    <Variable Identifier="cValueSetsE048_E096_E096_E096_E096_E096_E096_E096_E048_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E048_E096_E096_E096_E096_E096_E096_E096_E048_E001, 'E048_E096_E096_E096_E096_E096_E096_E096_E048_E001', 'E48-E96-E96-E96-[E96]-E96-E96-E96-E48-E1')"/>
+    <Variable Identifier="cValueSetsE024_E096_E096_E096_E096_E096_E096_E096_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E096_E096_E096_E096_E096_E096_E096_E024_E001, 'E024_E096_E096_E096_E096_E096_E096_E096_E024_E001', 'E24-E96-E96-E96-[E96]-E96-E96-E96-E24-E1')"/>
+    <Variable Identifier="cValueSetsE024_E048_E096_E096_E096_E096_E096_E048_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E048_E096_E096_E096_E096_E096_E048_E024_E001, 'E024_E048_E096_E096_E096_E096_E096_E048_E024_E001', 'E24-E48-E96-E96-[E96]-E96-E96-E48-E24-E1')"/>
+    <Variable Identifier="cValueSetsE024_E048_E048_E096_E096_E096_E048_E048_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E048_E048_E096_E096_E096_E048_E048_E024_E001, 'E024_E048_E048_E096_E096_E096_E048_E048_E024_E001', 'E24-E48-E48-E96-[E96]-E96-E48-E48-E24-E1')"/>
+    <Variable Identifier="cValueSetsE024_E048_E048_E048_E096_E048_E048_E048_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E048_E048_E048_E096_E048_E048_E048_E024_E001, 'E024_E048_E048_E048_E096_E048_E048_E048_E024_E001', 'E24-E48-E48-E48-[E96]-E48-E48-E48-E24-E1')"/>
+    <Variable Identifier="cValueSetsE024_E048_E048_E048_E048_E048_E048_E048_E024_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E024_E048_E048_E048_E048_E048_E048_E048_E024_E001, 'E024_E048_E048_E048_E048_E048_E048_E048_E024_E001', 'E24-E48-E48-E48-[E48]-E48-E48-E48-E24-E1')"/>
+    <Variable Identifier="cValueSetsE012_E048_E048_E048_E048_E048_E048_E048_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E048_E048_E048_E048_E048_E048_E048_E012_E001, 'E012_E048_E048_E048_E048_E048_E048_E048_E012_E001', 'E12-E48-E48-E48-[E48]-E48-E48-E48-E12-E1')"/>
+    <Variable Identifier="cValueSetsE012_E024_E048_E048_E048_E048_E048_E024_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E024_E048_E048_E048_E048_E048_E024_E012_E001, 'E012_E024_E048_E048_E048_E048_E048_E024_E012_E001', 'E12-E24-E48-E48-[E48]-E48-E48-E24-E12-E1')"/>
+    <Variable Identifier="cValueSetsE012_E024_E024_E048_E048_E048_E024_E024_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E024_E024_E048_E048_E048_E024_E024_E012_E001, 'E012_E024_E024_E048_E048_E048_E024_E024_E012_E001', 'E12-E24-E24-E48-[E48]-E48-E24-E24-E12-E1')"/>
+    <Variable Identifier="cValueSetsE012_E024_E024_E024_E048_E024_E024_E024_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E024_E024_E024_E048_E024_E024_E024_E012_E001, 'E012_E024_E024_E024_E048_E024_E024_E024_E012_E001', 'E12-E24-E24-E24-[E48]-E24-E24-E24-E12-E1')"/>
+    <Variable Identifier="cValueSetsE012_E024_E024_E024_E024_E024_E024_E024_E012_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E012_E024_E024_E024_E024_E024_E024_E024_E012_E001, 'E012_E024_E024_E024_E024_E024_E024_E024_E012_E001', 'E12-E24-E24-E24-[E24]-E24-E24-E24-E12-E1')"/>
+    <Variable Identifier="cValueSetsE006_E024_E024_E024_E024_E024_E024_E024_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E024_E024_E024_E024_E024_E024_E024_E006_E001, 'E006_E024_E024_E024_E024_E024_E024_E024_E006_E001', 'E6-E24-E24-E24-[E24]-E24-E24-E24-E6-E1')"/>
+    <Variable Identifier="cValueSetsE006_E012_E024_E024_E024_E024_E024_E012_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E012_E024_E024_E024_E024_E024_E012_E006_E001, 'E006_E012_E024_E024_E024_E024_E024_E012_E006_E001', 'E6-E12-E24-E24-[E24]-E24-E24-E12-E6-E1')"/>
+    <Variable Identifier="cValueSetsE006_E012_E012_E024_E024_E024_E012_E012_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E012_E012_E024_E024_E024_E012_E012_E006_E001, 'E006_E012_E012_E024_E024_E024_E012_E012_E006_E001', 'E6-E12-E12-E24-[E24]-E24-E12-E12-E6-E1')"/>
+    <Variable Identifier="cValueSetsE006_E012_E012_E012_E024_E012_E012_E012_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E012_E012_E012_E024_E012_E012_E012_E006_E001, 'E006_E012_E012_E012_E024_E012_E012_E012_E006_E001', 'E6-E12-E12-E12-[E24]-E12-E12-E12-E6-E1')"/>
+    <Variable Identifier="cValueSetsE006_E012_E012_E012_E012_E012_E012_E012_E006_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E006_E012_E012_E012_E012_E012_E012_E012_E006_E001, 'E006_E012_E012_E012_E012_E012_E012_E012_E006_E001', 'E6-E12-E12-E12-[E12]-E12-E12-E12-E6-E1')"/>
+    <Variable Identifier="cValueSetsE003_E012_E012_E012_E012_E012_E012_E012_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E012_E012_E012_E012_E012_E012_E012_E003_E001, 'E003_E012_E012_E012_E012_E012_E012_E012_E003_E001', 'E3-E12-E12-E12-[E12]-E12-E12-E12-E3-E1')"/>
+    <Variable Identifier="cValueSetsE003_E006_E012_E012_E012_E012_E012_E006_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E006_E012_E012_E012_E012_E012_E006_E003_E001, 'E003_E006_E012_E012_E012_E012_E012_E006_E003_E001', 'E3-E6-E12-E12-[E12]-E12-E12-E6-E3-E1')"/>
+    <Variable Identifier="cValueSetsE003_E006_E006_E012_E012_E012_E006_E006_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E006_E006_E012_E012_E012_E006_E006_E003_E001, 'E003_E006_E006_E012_E012_E012_E006_E006_E003_E001', 'E3-E6-E6-E12-[E12]-E12-E6-E6-E3-E1')"/>
+    <Variable Identifier="cValueSetsE003_E006_E006_E006_E012_E006_E006_E006_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E006_E006_E006_E012_E006_E006_E006_E003_E001, 'E003_E006_E006_E006_E012_E006_E006_E006_E003_E001', 'E3-E6-E6-E6-[E12]-E6-E6-E6-E3-E1')"/>
+    <Variable Identifier="cValueSetsE003_E006_E006_E006_E006_E006_E006_E006_E003_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E003_E006_E006_E006_E006_E006_E006_E006_E003_E001, 'E003_E006_E006_E006_E006_E006_E006_E006_E003_E001', 'E3-E6-E6-E6-[E6]-E6-E6-E6-E3-E1')"/>
+    <Variable Identifier="cValueSetsE001_E006_E006_E006_E006_E006_E006_E006_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E006_E006_E006_E006_E006_E006_E006_E001_E001, 'E001_E006_E006_E006_E006_E006_E006_E006_E001_E001', 'E1-E6-E6-E6-[E6]-E6-E6-E6-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E003_E006_E006_E006_E006_E006_E003_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E003_E006_E006_E006_E006_E006_E003_E001_E001, 'E001_E003_E006_E006_E006_E006_E006_E003_E001_E001', 'E1-E3-E6-E6-[E6]-E6-E6-E3-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E003_E003_E006_E006_E006_E003_E003_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E003_E003_E006_E006_E006_E003_E003_E001_E001, 'E001_E003_E003_E006_E006_E006_E003_E003_E001_E001', 'E1-E3-E3-E6-[E6]-E6-E3-E3-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E003_E003_E003_E006_E003_E003_E003_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E003_E003_E003_E006_E003_E003_E003_E001_E001, 'E001_E003_E003_E003_E006_E003_E003_E003_E001_E001', 'E1-E3-E3-E3-[E6]-E3-E3-E3-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E003_E003_E003_E003_E003_E003_E003_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E003_E003_E003_E003_E003_E003_E003_E001_E001, 'E001_E003_E003_E003_E003_E003_E003_E003_E001_E001', 'E1-E3-E3-E3-[E3]-E3-E3-E3-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E001_E003_E003_E003_E003_E003_E001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E003_E003_E003_E003_E003_E001_E001_E001, 'E001_E001_E003_E003_E003_E003_E003_E001_E001_E001', 'E1-E1-E3-E3-[E3]-E3-E3-E1-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E001_E001_E003_E003_E003_E001_E001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E001_E003_E003_E003_E001_E001_E001_E001, 'E001_E001_E001_E003_E003_E003_E001_E001_E001_E001', 'E1-E1-E1-E3-[E3]-E3-E1-E1-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E001_E001_E001_E003_E001_E001_E001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E001_E001_E003_E001_E001_E001_E001_E001, 'E001_E001_E001_E001_E003_E001_E001_E001_E001_E001', 'E1-E1-E1-E1-[E3]-E1-E1-E1-E1-E1')"/>
+    <Variable Identifier="cValueSetsE001_E001_E001_E001_E001_E001_E001_E001_E001_E001" Type="TValueSetsEnumInfo" Init="TValueSetsEnumInfo.Create(TValueSets.E001_E001_E001_E001_E001_E001_E001_E001_E001_E001, 'E001_E001_E001_E001_E001_E001_E001_E001_E001_E001', 'E1-E1-E1-E1-[E1]-E1-E1-E1-E1-E1')"/>
     <Variable Identifier="ValueSetsEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TValueSetsEnumInfo)"/>
 
     <Variable Identifier="c4CompConfigA" Type="T4CompConfigEnumInfo" Init="T4CompConfigEnumInfo.Create(T4CompConfig.A, 'A', 'A')"/>
@@ -269,92 +276,113 @@
           <On Select="TValueSets.E001_E001_E001">
             <Execute Statement="Result:= cValueSetsE001_E001_E001"/>
           </On>
-          <On Select="TValueSets.E192_E192_E192_E192_E192_E192_E192_E001">
-            <Execute Statement="Result:= cValueSetsE192_E192_E192_E192_E192_E192_E192_E001"/>
+          <On Select="TValueSets.E192_E192_E192_E192_E192_E192_E192_E192_E192_E001">
+            <Execute Statement="Result:= cValueSetsE192_E192_E192_E192_E192_E192_E192_E192_E192_E001"/>
           </On>
-          <On Select="TValueSets.E096_E192_E192_E192_E192_E192_E096_E001">
-            <Execute Statement="Result:= cValueSetsE096_E192_E192_E192_E192_E192_E096_E001"/>
+          <On Select="TValueSets.E096_E192_E192_E192_E192_E192_E192_E192_E096_E001">
+            <Execute Statement="Result:= cValueSetsE096_E192_E192_E192_E192_E192_E192_E192_E096_E001"/>
           </On>
-          <On Select="TValueSets.E048_E192_E192_E192_E192_E192_E048_E001">
-            <Execute Statement="Result:= cValueSetsE048_E192_E192_E192_E192_E192_E048_E001"/>
+          <On Select="TValueSets.E048_E192_E192_E192_E192_E192_E192_E192_E048_E001">
+            <Execute Statement="Result:= cValueSetsE048_E192_E192_E192_E192_E192_E192_E192_E048_E001"/>
           </On>
-          <On Select="TValueSets.E048_E096_E192_E192_E192_E096_E048_E001">
-            <Execute Statement="Result:= cValueSetsE048_E096_E192_E192_E192_E096_E048_E001"/>
+          <On Select="TValueSets.E048_E096_E192_E192_E192_E192_E192_E096_E048_E001">
+            <Execute Statement="Result:= cValueSetsE048_E096_E192_E192_E192_E192_E192_E096_E048_E001"/>
           </On>
-          <On Select="TValueSets.E048_E096_E096_E192_E096_E096_E048_E001">
-            <Execute Statement="Result:= cValueSetsE048_E096_E096_E192_E096_E096_E048_E001"/>
+          <On Select="TValueSets.E048_E096_E096_E192_E192_E192_E096_E096_E048_E001">
+            <Execute Statement="Result:= cValueSetsE048_E096_E096_E192_E192_E192_E096_E096_E048_E001"/>
           </On>
-          <On Select="TValueSets.E048_E096_E096_E096_E096_E096_E048_E001">
-            <Execute Statement="Result:= cValueSetsE048_E096_E096_E096_E096_E096_E048_E001"/>
+          <On Select="TValueSets.E048_E096_E096_E096_E192_E096_E096_E096_E048_E001">
+            <Execute Statement="Result:= cValueSetsE048_E096_E096_E096_E192_E096_E096_E096_E048_E001"/>
           </On>
-          <On Select="TValueSets.E024_E096_E096_E096_E096_E096_E024_E001">
-            <Execute Statement="Result:= cValueSetsE024_E096_E096_E096_E096_E096_E024_E001"/>
+          <On Select="TValueSets.E048_E096_E096_E096_E096_E096_E096_E096_E048_E001">
+            <Execute Statement="Result:= cValueSetsE048_E096_E096_E096_E096_E096_E096_E096_E048_E001"/>
           </On>
-          <On Select="TValueSets.E024_E048_E096_E096_E096_E048_E024_E001">
-            <Execute Statement="Result:= cValueSetsE024_E048_E096_E096_E096_E048_E024_E001"/>
+          <On Select="TValueSets.E024_E096_E096_E096_E096_E096_E096_E096_E024_E001">
+            <Execute Statement="Result:= cValueSetsE024_E096_E096_E096_E096_E096_E096_E096_E024_E001"/>
           </On>
-          <On Select="TValueSets.E024_E048_E048_E096_E048_E048_E024_E001">
-            <Execute Statement="Result:= cValueSetsE024_E048_E048_E096_E048_E048_E024_E001"/>
+          <On Select="TValueSets.E024_E048_E096_E096_E096_E096_E096_E048_E024_E001">
+            <Execute Statement="Result:= cValueSetsE024_E048_E096_E096_E096_E096_E096_E048_E024_E001"/>
           </On>
-          <On Select="TValueSets.E024_E048_E048_E048_E048_E048_E024_E001">
-            <Execute Statement="Result:= cValueSetsE024_E048_E048_E048_E048_E048_E024_E001"/>
+          <On Select="TValueSets.E024_E048_E048_E096_E096_E096_E048_E048_E024_E001">
+            <Execute Statement="Result:= cValueSetsE024_E048_E048_E096_E096_E096_E048_E048_E024_E001"/>
           </On>
-          <On Select="TValueSets.E012_E048_E048_E048_E048_E048_E012_E001">
-            <Execute Statement="Result:= cValueSetsE012_E048_E048_E048_E048_E048_E012_E001"/>
+          <On Select="TValueSets.E024_E048_E048_E048_E096_E048_E048_E048_E024_E001">
+            <Execute Statement="Result:= cValueSetsE024_E048_E048_E048_E096_E048_E048_E048_E024_E001"/>
           </On>
-          <On Select="TValueSets.E012_E024_E048_E048_E048_E024_E012_E001">
-            <Execute Statement="Result:= cValueSetsE012_E024_E048_E048_E048_E024_E012_E001"/>
+          <On Select="TValueSets.E024_E048_E048_E048_E048_E048_E048_E048_E024_E001">
+            <Execute Statement="Result:= cValueSetsE024_E048_E048_E048_E048_E048_E048_E048_E024_E001"/>
           </On>
-          <On Select="TValueSets.E012_E024_E024_E048_E024_E024_E012_E001">
-            <Execute Statement="Result:= cValueSetsE012_E024_E024_E048_E024_E024_E012_E001"/>
+          <On Select="TValueSets.E012_E048_E048_E048_E048_E048_E048_E048_E012_E001">
+            <Execute Statement="Result:= cValueSetsE012_E048_E048_E048_E048_E048_E048_E048_E012_E001"/>
           </On>
-          <On Select="TValueSets.E012_E024_E024_E024_E024_E024_E012_E001">
-            <Execute Statement="Result:= cValueSetsE012_E024_E024_E024_E024_E024_E012_E001"/>
+          <On Select="TValueSets.E012_E024_E048_E048_E048_E048_E048_E024_E012_E001">
+            <Execute Statement="Result:= cValueSetsE012_E024_E048_E048_E048_E048_E048_E024_E012_E001"/>
           </On>
-          <On Select="TValueSets.E006_E024_E024_E024_E024_E024_E006_E001">
-            <Execute Statement="Result:= cValueSetsE006_E024_E024_E024_E024_E024_E006_E001"/>
+          <On Select="TValueSets.E012_E024_E024_E048_E048_E048_E024_E024_E012_E001">
+            <Execute Statement="Result:= cValueSetsE012_E024_E024_E048_E048_E048_E024_E024_E012_E001"/>
           </On>
-          <On Select="TValueSets.E006_E012_E024_E024_E024_E012_E006_E001">
-            <Execute Statement="Result:= cValueSetsE006_E012_E024_E024_E024_E012_E006_E001"/>
+          <On Select="TValueSets.E012_E024_E024_E024_E048_E024_E024_E024_E012_E001">
+            <Execute Statement="Result:= cValueSetsE012_E024_E024_E024_E048_E024_E024_E024_E012_E001"/>
           </On>
-          <On Select="TValueSets.E006_E012_E012_E024_E012_E012_E006_E001">
-            <Execute Statement="Result:= cValueSetsE006_E012_E012_E024_E012_E012_E006_E001"/>
+          <On Select="TValueSets.E012_E024_E024_E024_E024_E024_E024_E024_E012_E001">
+            <Execute Statement="Result:= cValueSetsE012_E024_E024_E024_E024_E024_E024_E024_E012_E001"/>
           </On>
-          <On Select="TValueSets.E006_E012_E012_E012_E012_E012_E006_E001">
-            <Execute Statement="Result:= cValueSetsE006_E012_E012_E012_E012_E012_E006_E001"/>
+          <On Select="TValueSets.E006_E024_E024_E024_E024_E024_E024_E024_E006_E001">
+            <Execute Statement="Result:= cValueSetsE006_E024_E024_E024_E024_E024_E024_E024_E006_E001"/>
           </On>
-          <On Select="TValueSets.E003_E012_E012_E012_E012_E012_E003_E001">
-            <Execute Statement="Result:= cValueSetsE003_E012_E012_E012_E012_E012_E003_E001"/>
+          <On Select="TValueSets.E006_E012_E024_E024_E024_E024_E024_E012_E006_E001">
+            <Execute Statement="Result:= cValueSetsE006_E012_E024_E024_E024_E024_E024_E012_E006_E001"/>
           </On>
-          <On Select="TValueSets.E003_E006_E012_E012_E012_E006_E003_E001">
-            <Execute Statement="Result:= cValueSetsE003_E006_E012_E012_E012_E006_E003_E001"/>
+          <On Select="TValueSets.E006_E012_E012_E024_E024_E024_E012_E012_E006_E001">
+            <Execute Statement="Result:= cValueSetsE006_E012_E012_E024_E024_E024_E012_E012_E006_E001"/>
           </On>
-          <On Select="TValueSets.E003_E006_E006_E012_E006_E006_E003_E001">
-            <Execute Statement="Result:= cValueSetsE003_E006_E006_E012_E006_E006_E003_E001"/>
+          <On Select="TValueSets.E006_E012_E012_E012_E024_E012_E012_E012_E006_E001">
+            <Execute Statement="Result:= cValueSetsE006_E012_E012_E012_E024_E012_E012_E012_E006_E001"/>
           </On>
-          <On Select="TValueSets.E003_E006_E006_E006_E006_E006_E003_E001">
-            <Execute Statement="Result:= cValueSetsE003_E006_E006_E006_E006_E006_E003_E001"/>
+          <On Select="TValueSets.E006_E012_E012_E012_E012_E012_E012_E012_E006_E001">
+            <Execute Statement="Result:= cValueSetsE006_E012_E012_E012_E012_E012_E012_E012_E006_E001"/>
           </On>
-          <On Select="TValueSets.E001_E006_E006_E006_E006_E006_E001_E001">
-            <Execute Statement="Result:= cValueSetsE001_E006_E006_E006_E006_E006_E001_E001"/>
+          <On Select="TValueSets.E003_E012_E012_E012_E012_E012_E012_E012_E003_E001">
+            <Execute Statement="Result:= cValueSetsE003_E012_E012_E012_E012_E012_E012_E012_E003_E001"/>
           </On>
-          <On Select="TValueSets.E001_E003_E006_E006_E006_E003_E001_E001">
-            <Execute Statement="Result:= cValueSetsE001_E003_E006_E006_E006_E003_E001_E001"/>
+          <On Select="TValueSets.E003_E006_E012_E012_E012_E012_E012_E006_E003_E001">
+            <Execute Statement="Result:= cValueSetsE003_E006_E012_E012_E012_E012_E012_E006_E003_E001"/>
           </On>
-          <On Select="TValueSets.E001_E003_E003_E006_E003_E003_E001_E001">
-            <Execute Statement="Result:= cValueSetsE001_E003_E003_E006_E003_E003_E001_E001"/>
+          <On Select="TValueSets.E003_E006_E006_E012_E012_E012_E006_E006_E003_E001">
+            <Execute Statement="Result:= cValueSetsE003_E006_E006_E012_E012_E012_E006_E006_E003_E001"/>
           </On>
-          <On Select="TValueSets.E001_E003_E003_E003_E003_E003_E001_E001">
-            <Execute Statement="Result:= cValueSetsE001_E003_E003_E003_E003_E003_E001_E001"/>
+          <On Select="TValueSets.E003_E006_E006_E006_E012_E006_E006_E006_E003_E001">
+            <Execute Statement="Result:= cValueSetsE003_E006_E006_E006_E012_E006_E006_E006_E003_E001"/>
           </On>
-          <On Select="TValueSets.E001_E001_E003_E003_E003_E001_E001_E001">
-            <Execute Statement="Result:= cValueSetsE001_E001_E003_E003_E003_E001_E001_E001"/>
+          <On Select="TValueSets.E003_E006_E006_E006_E006_E006_E006_E006_E003_E001">
+            <Execute Statement="Result:= cValueSetsE003_E006_E006_E006_E006_E006_E006_E006_E003_E001"/>
           </On>
-          <On Select="TValueSets.E001_E001_E001_E003_E001_E001_E001_E001">
-            <Execute Statement="Result:= cValueSetsE001_E001_E001_E003_E001_E001_E001_E001"/>
+          <On Select="TValueSets.E001_E006_E006_E006_E006_E006_E006_E006_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E006_E006_E006_E006_E006_E006_E006_E001_E001"/>
           </On>
-          <On Select="TValueSets.E001_E001_E001_E001_E001_E001_E001_E001">
-            <Execute Statement="Result:= cValueSetsE001_E001_E001_E001_E001_E001_E001_E001"/>
+          <On Select="TValueSets.E001_E003_E006_E006_E006_E006_E006_E003_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E003_E006_E006_E006_E006_E006_E003_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E003_E003_E006_E006_E006_E003_E003_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E003_E003_E006_E006_E006_E003_E003_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E003_E003_E003_E006_E003_E003_E003_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E003_E003_E003_E006_E003_E003_E003_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E003_E003_E003_E003_E003_E003_E003_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E003_E003_E003_E003_E003_E003_E003_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E001_E003_E003_E003_E003_E003_E001_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E001_E003_E003_E003_E003_E003_E001_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E001_E001_E003_E003_E003_E001_E001_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E001_E001_E003_E003_E003_E001_E001_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E001_E001_E001_E003_E001_E001_E001_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E001_E001_E001_E003_E001_E001_E001_E001_E001"/>
+          </On>
+          <On Select="TValueSets.E001_E001_E001_E001_E001_E001_E001_E001_E001_E001">
+            <Execute Statement="Result:= cValueSetsE001_E001_E001_E001_E001_E001_E001_E001_E001_E001"/>
           </On>
           <Otherwise>
             <Raise Expression="Exception.Create(sErrorInvalidValueSets)"/>
