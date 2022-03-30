@@ -36,8 +36,9 @@
     </DataClass>
 
     <DataClass Identifier="TCombinationParameters">
-      <Field Identifier="MaxESerie" Type="TESerie"/>
+      <Field Identifier="UseESeries" Type="Boolean"/>
       <Field Identifier="Granularity" Type="TValueGranularity"/>
+      <Field Identifier="MaxESerie" Type="TESerie"/>
       <Field Identifier="Tolerance" Type="PercentageRatioDQ"/>
       <Field Identifier="Refine" Type="Boolean"/>
       <Field Identifier="RefineESerie" Type="TSerie"/>
@@ -92,6 +93,9 @@
         <TryExcept>
           <Try>
             <Execute Statement="Ini.Section(Task.Name)"/>
+            <Execute Statement="UseESeries:= Ini.ReadBool('UseESeries', False)"/>
+            <Execute Statement="Granularity:= TValueGranularity.Fine"/>
+            <Execute Statement="Granularity:= Ini.ReadEnum('Granularity', Granularity, ValueGranularityEnumManager.NameRegister)"/>
             <Execute Statement="MaxESerie:= TESerie.E24"/>
             <Execute Statement="MaxESerie:= Ini.ReadEnum('MaxESerie', MaxESerie, ESerieEnumManager.NameRegister)"/>
             <Execute Statement="Tolerance:= 40⌠%⌡"/>
@@ -118,13 +122,12 @@
                 <Execute Statement="Tolerance:= 0.5⌠%⌡"/>
               </On>
             </Case>
-            <Execute Statement="Granularity:= TValueGranularity.Fine"/>
-            <Execute Statement="Granularity:= Ini.ReadEnum('Granularity', Granularity, ValueGranularityEnumManager.NameRegister)"/>
             <Execute Statement="Tolerance:= Ini.ReadDecimalQuantity('Tolerance', Tolerance)"/>
             <Execute Statement="Refine:= Ini.ReadBool('Refine', True)"/>
             <Execute Statement="RefineESerie:= GetESerie(MaxESerie)"/>
-            <rep:Reporter.LabelValue Label="'Tolerances'" Value="DQToStr(Tolerance, False)" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="'UseESeries'" Value="IfElse(UseESeries, sYes, sNo)" Target="ElectronicsTasks"/>
             <rep:Reporter.LabelValue Label="'Granularity'" Value="ValueGranularityEnumManager.NameRegister.Keys[Granularity]" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="'Tolerances'" Value="DQToStr(Tolerance, False)" Target="ElectronicsTasks"/>
             <rep:Reporter.LabelValue Label="'MaxESerie'" Value="ESerieEnumManager.NameRegister.Keys[MaxESerie]" Target="ElectronicsTasks"/>
             <rep:Reporter.LabelValue Label="'Refine'" Value="IfElse(Refine, sYes, sNo)" Target="ElectronicsTasks"/>
             <Task.MarkHandled/>
@@ -256,8 +259,7 @@
         <Objects.Use>
           <Object Identifier="Configuration" Type="TBaseComponentConfiguration" Expression="CreateCompConfigObject(ConfigurationKind)"/>
           <Block>
-            <Variable Identifier="ValueSets" Type="TValueSets" Init="ValuesManager.GetValueSets(Configuration, CombinationParameters.Granularity, CombinationParameters.MaxESerie)"/>
-            <Variable Identifier="ESerieValues" Type="TESerieValues" Init="ValuesManager.GetValueSetsValues(ValueSets)"/>
+            <Task.Assert Expression="Assigned(AvailableInputTask) or CombinationParameters.UseEseries" FailMessage="cAssertEitherEseriesOrAvailableValues" FailTarget="ElectronicsTasks"/>
             <!--    function MatchingValues(const TargetValue: Decimal; SerieValues: TESerieValues; out A, B, C, D: TSerieNode; out ScaleA, ScaleB, ScaleC, ScaleD: Int16; out Diff: Extended): Decimal;
 -->
             <Variable Identifier="TargetValue" Type="DecimalQuantity" Init="CombinationTarget.Value"/>
@@ -275,21 +277,43 @@
             <Variable Identifier="ScaleD" Type="Int32"/>
             <Variable Identifier="Diff" Type="Extended"/>
             <Variable Identifier="HasRefined" Type="Boolean" Init="False"/>
-            <Variable Identifier="Rd" Type="Decimal" Init="Configuration.MatchingValues(TargetValue, ESerieValues, AvailableValues, NodeA, NodeB, NodeC, NodeD, ScaleA, ScaleB, ScaleC, ScaleD, Diff)"/>
-            <Task.Assert Expression="Assigned(NodeA)"/>
+            <Variable Identifier="HasFullSet" Type="Boolean" Init="False"/>
+            <Variable Identifier="Rd" Type="Decimal"/>
             <Variable Identifier="Ad" Type="Decimal" Init="0"/>
             <Variable Identifier="Bd" Type="Decimal" Init="0"/>
             <Variable Identifier="Cd" Type="Decimal" Init="0"/>
             <Variable Identifier="Dd" Type="Decimal" Init="0"/>
-
-            <Execute Statement="Ad:= ScaleDecimal(NodeA.Value, ScaleA)" Condition="Assigned(NodeA)"/>
-            <Execute Statement="Bd:= ScaleDecimal(NodeB.Value, ScaleB)" Condition="Assigned(NodeB)"/>
-            <Execute Statement="Cd:= ScaleDecimal(NodeC.Value, ScaleC)" Condition="Assigned(NodeC)"/>
-            <Execute Statement="Dd:= ScaleDecimal(NodeD.Value, ScaleD)" Condition="Assigned(NodeD)"/>
-            <Block Condition="CombinationParameters.Refine">
-              <Execute Statement="HasRefined:= Configuration.RefineValues(TargetValue, CombinationParameters.RefineESerie, AvailableValues, Ad, Bd, Cd, Dd, Rd, Diff)"/>
-            </Block>
             <Execute Statement="InputCount:= Configuration.GetComponentCount"/>
+            <Choose>
+              <When Expression="CombinationParameters.UseEseries">
+                <Variable Identifier="ValueSets" Type="TValueSets" Init="ValuesManager.GetValueSets(Configuration, CombinationParameters.Granularity, CombinationParameters.MaxESerie)"/>
+                <Variable Identifier="SimulationValues" Type="TESerieValues" Init="ValuesManager.GetValueSetsValues(ValueSets)"/>
+                <Task.Assert Expression="Configuration.ESeriesSimulate(TargetValue, SimulationValues, AvailableValues, NodeA, NodeB, NodeC, NodeD, ScaleA, ScaleB, ScaleC, ScaleD, Rd, Diff)"/>
+                <Execute Statement="Ad:= ScaleDecimal(NodeA.Value, ScaleA)" Condition="Assigned(NodeA)"/>
+                <Execute Statement="Bd:= ScaleDecimal(NodeB.Value, ScaleB)" Condition="Assigned(NodeB)"/>
+                <Execute Statement="Cd:= ScaleDecimal(NodeC.Value, ScaleC)" Condition="Assigned(NodeC)"/>
+                <Execute Statement="Dd:= ScaleDecimal(NodeD.Value, ScaleD)" Condition="Assigned(NodeD)"/>
+              </When>
+              <Otherwise>
+                <Variable Identifier="IncludedValues" Type="TESerieValues"/>
+                <Variable Identifier="ExcludedValues" Type="TESerieValues"/>
+                <Choose>
+                  <When Expression="ValuesManager.PreparedSimulationValues(Configuration, CombinationParameters.Granularity, AvailableValues, TargetValue, IncludedValues, ExcludedValues)">
+                    <rep:Reporter.LabelValue Label="cValuesIncluded" Value="Format('%d', IncludedValues.Count)" Target="ElectronicsTasks"/>
+                    <rep:Reporter.LabelValue Label="cValuesExcluded" Value="Format('%d', ExcludedValues.Count)" Target="ElectronicsTasks"/>
+                    <Task.Assert Expression="Configuration.Simulate(TargetValue, IncludedValues, Ad, Bd, Cd, Dd, Rd, Diff)"/>
+                  </When>
+                  <Otherwise>
+                    <rep:Reporter.LabelValue Label="cValuesIncluded" Value="Format('%d', AvailableValues.Count)" Target="ElectronicsTasks"/>
+                    <Task.Assert Expression="Configuration.Simulate(TargetValue, AvailableValues, Ad, Bd, Cd, Dd, Rd, Diff)"/>
+                    <Execute Statement="HasFullSet:= True"/>
+                  </Otherwise>
+                </Choose>
+              </Otherwise>
+            </Choose>
+
+            <Execute Statement="HasRefined:= Configuration.RefineValues(TargetValue, CombinationParameters.RefineESerie, AvailableValues, Ad, Bd, Cd, Dd, Rd, Diff)" Condition="not HasFullSet and CombinationParameters.Refine"/>
+
             <ForLoop Indexer="I" From="0" To="InputCount - 1">
               <Case Expression="I" Optimalisation="integermapping">
                 <On Select="0">
@@ -307,14 +331,7 @@
               </Case>
               <Execute Statement="InputValues[I]:= InputValues[I] ± (InputValues[I] * ToleranceFrac)"/>
             </ForLoop>
-            <!--<Variable Identifier="A" Type="DecimalQuantity" Init="Ad ~ UnitS" Condition="Assigned(NodeA)"/>
-            <Variable Identifier="B" Type="DecimalQuantity" Init="Bd ~ UnitS" Condition="Assigned(NodeB)"/>
-            <Variable Identifier="C" Type="DecimalQuantity" Init="Cd ~ UnitS" Condition="Assigned(NodeC)"/>
-            <Variable Identifier="D" Type="DecimalQuantity" Init="Dd ~ UnitS" Condition="Assigned(NodeD)"/>
-            <Execute Statement="A:= A ± (A * ToleranceFrac)" Condition="Assigned(NodeA)"/>
-            <Execute Statement="B:= B ± (B * ToleranceFrac)" Condition="Assigned(NodeB)"/>
-            <Execute Statement="C:= C ± (C * ToleranceFrac)" Condition="Assigned(NodeC)"/>
-            <Execute Statement="D:= D ± (D * ToleranceFrac)" Condition="Assigned(NodeD)"/>-->
+
             <Choose>
               <When Expression="Configuration is TConfig1">
                 <Execute Statement="ComboResult:= TConfig1(Configuration).GetValue(InputValues[0])"/>
@@ -332,17 +349,11 @@
                 <Execute Statement="ComboResult:= Rd ~ UnitS"/>
               </Otherwise>
             </Choose>
-            <!--<rep:Reporter.Information Text="'Output'" Markup="Header3" Target="ElectronicsTasks"/>-->
-            <rep:Reporter.LabelValue Label="'Matches specs'" Value="IfElse(MatchesSpec(ComboResult, TargetValue), 'YES', 'NO!')" Target="ElectronicsTasks"/>
-            <rep:Reporter.LabelValue Label="'Used E-series'" Value="(ValueSetsEnumManager.NameRegister.Objects[ValueSets] as TValueSetsEnumInfo).Description" Target="ElectronicsTasks"/>
-            <rep:Reporter.LabelValue Label="'Relative difference'" Value="StoreDecimalQuantityToStr(Diff * cFracToPerc, 5)" Target="ElectronicsTasks"/>
-            <rep:Reporter.LabelValue Label="'Refined'" Value="IfElse(HasRefined, sYes, sNo)" Target="ElectronicsTasks"/>
-            <rep:Reporter.LabelValue Label="'Result'" Value="DQToStr(ComboResult, True)" Target="ElectronicsTasks"/>
-            <!--<rep:Reporter.Information Text="'Input'" Markup="Header3" Target="ElectronicsTasks"/>-->
-            <!--<rep:Reporter.LabelValue Label="'A'" Value="DQToStr(A, True)" Target="ElectronicsTasks" Condition="Assigned(NodeA)"/>
-            <rep:Reporter.LabelValue Label="'B'" Value="DQToStr(B, True)" Target="ElectronicsTasks" Condition="Assigned(NodeB)"/>
-            <rep:Reporter.LabelValue Label="'C'" Value="DQToStr(C, True)" Target="ElectronicsTasks" Condition="Assigned(NodeC)"/>
-            <rep:Reporter.LabelValue Label="'D'" Value="DQToStr(D, True)" Target="ElectronicsTasks" Condition="Assigned(NodeD)"/>-->
+            <rep:Reporter.LabelValue Label="cMatchesSpecs" Value="IfElse(MatchesSpec(ComboResult, TargetValue), sYes, sNo)" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="cUsedESeries" Value="(ValueSetsEnumManager.NameRegister.Objects[ValueSets] as TValueSetsEnumInfo).Description" Target="ElectronicsTasks" Condition="CombinationParameters.UseEseries"/>
+            <rep:Reporter.LabelValue Label="cRelativeDifference" Value="StoreDecimalQuantityToStr(Diff * cFracToPerc, 5)" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="cRefined" Value="IfElse(HasRefined, sYes, sNo)" Target="ElectronicsTasks"/>
+            <rep:Reporter.LabelValue Label="cResult" Value="DQToStr(ComboResult, True)" Target="ElectronicsTasks"/>
             <ForLoop Indexer="I" From="0" To="InputCount - 1">
               <rep:Reporter.LabelValue Label="ListValue(I, '', 'A', 'B', 'C', 'D')" Value="DQToStr(InputValues[I], True)" Target="ElectronicsTasks"/>
             </ForLoop>

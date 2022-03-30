@@ -60,7 +60,7 @@ MaxShowResistorVoltage=230V
 Value	= 123.0 Ω ± 2%
 
 [ComponentCombinations.Stock]
-;UseStock=No|Source|SourceAndMatch
+;UseStock=No|Source|SourceAndMatch|MatchOnly
 ;UseStock=SourceAndMatch
 
 [CombinationTarget.Input.Resistor]
@@ -81,11 +81,16 @@ ComponentKind=Inductor
 ;Source=None|InputTab|TextFile
 ;Source=None
 
+[ElectronicsTasks.AvailableValues.TextFile]
+;Filename=..\Resources.Project\Resistor values.txt
+
 [ElectronicsTasks.CombinationParameters]
-;MaxESerie=E1|E3|E6|E12|E24|E48|E96|E192
-;MaxESerie=E24
+;UseESeries=0|1
+;UseESeries=0
 ;Granularity=ExtraCoarse|Coarse|Fine|ExtraFine
 ;Granularity=Fine
+;MaxESerie=E1|E3|E6|E12|E24|E48|E96|E192
+;MaxESerie=E24
 ;Refine=0|1
 ;Refine=1
 ;Tolerance=2%
@@ -214,7 +219,7 @@ ID = -1
 
   <Constants>
     <Constant Identifier="connsPartKeepr" Type="string" Expression="'Provider=MSDASQL.1;Persist Security Info=False;Data Source=PartKeepr;Initial Catalog=PartKeepr'"/>
-    <Constant Identifier="ScriptVersion" Type="string" Expression="'7.00.3.0.1.66'"/>
+    <Constant Identifier="ScriptVersion" Type="string" Expression="'7.4.3.0.3.70'"/>
   </Constants>
 
   <Variables>
@@ -928,7 +933,7 @@ ID = -1
 
     <Task Identifier="ComponentCombinations.Stock">
       <Variables>
-        <Variable Identifier="AvailableInputTask" Type="TTaskRef" Init="Task.InstanceObject as TTaskRef"/>
+        <Variable Identifier="AvailableInputTask" Type="TTaskRef" Init="Task.InstanceObject"/>
       </Variables>
       <Init>
         <Task.Description Expression="cCompCombosTaskStock"/>
@@ -961,7 +966,7 @@ ID = -1
           </Case>
         </Object.Use>
         <Case Expression="UseStock">
-          <On Select="TUseStock.SourceAndMatch">
+          <On Select="TUseStock.SourceAndMatch, TUseStock.MatchOnly">
             <Task.AddDependency Task="ComponentCombinations.Stock" Condition="InFlags(TUnattendedTask.ComponentCombinations, TaskSelectionFlags)" InstanceObject="AvailableInputTask" IgnoreFailure="True"/>
           </On>
           <Otherwise>
