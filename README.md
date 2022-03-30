@@ -8,6 +8,7 @@ See [wiki](https://github.com/HendriXML/KiCad-BOM-reporter/wiki), [screenshots](
 * Version 7.0 of the XML interpreter
 * File restructuring, renaming and clean up
 * Improved/changed config settings
+* Configuration echo: shows which config values are actualy being used
 * Improved capacitor technology items: aluminum electrolytic, tantalum electrolytic, niobium electrolytic
 * Set matching, requested (schematic) components can specify multiple values on enumeration based fields like: "aluminum electrolytic, tantalum electrolytic"
 * New tasks which determines the best combination of (available) components (resistors, capacitors of inductors) for a replacement value

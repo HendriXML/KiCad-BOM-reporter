@@ -124,7 +124,7 @@
       <VirtualMethod Identifier="vmGetEnumBounds" Override="true"/>
     </DataClass>
     
-    <Enumeration Identifier="TUseStock" Elements="No,Source,SourceAndMatch" LowAlias="Low" HighAlias="High"/>
+    <Enumeration Identifier="TUseStock" Elements="No,Source,SourceAndMatch, MatchOnly" LowAlias="Low" HighAlias="High"/>
 
     <DataClass Identifier="TUseStockEnumInfo" ClassOfIdentifier="TTUseStockEnumInfo" Inherit="TEnumInfo" DefaultConstructor="createandsetfields">
       <VirtualMethod Identifier="vmGetInfo" Override="true"/>
@@ -348,6 +348,7 @@
     <Variable Identifier="cUseStockNo" Type="TUseStockEnumInfo" Init="TUseStockEnumInfo.Create(TUseStock.No, 'No')"/>
     <Variable Identifier="cUseStockSource" Type="TUseStockEnumInfo" Init="TUseStockEnumInfo.Create(TUseStock.Source, 'Source')"/>
     <Variable Identifier="cUseStockSourceAndMatch" Type="TUseStockEnumInfo" Init="TUseStockEnumInfo.Create(TUseStock.SourceAndMatch, 'SourceAndMatch')"/>
+    <Variable Identifier="cUseStockMatchOnly" Type="TUseStockEnumInfo" Init="TUseStockEnumInfo.Create(TUseStock.MatchOnly, 'MatchOnly')"/>
     <Variable Identifier="UseStockEnumManager" Type="TEnumManager" Init="TEnumManager.Create(TUseStockEnumInfo)"/>
     <Variable Identifier="UseStockNameRegister" Type="TEnumNameRegister"/>
   </Variables>
@@ -1222,6 +1223,9 @@
           </On>
           <On Select="TUseStock.SourceAndMatch">
             <Execute Statement="Result:= cUseStockSourceAndMatch"/>
+          </On>
+          <On Select="TUseStock.MatchOnly">
+            <Execute Statement="Result:= cUseStockMatchOnly"/>
           </On>
           <Otherwise>
             <Raise Expression="Exception.Create(sErrorInvalidUseStock)"/>

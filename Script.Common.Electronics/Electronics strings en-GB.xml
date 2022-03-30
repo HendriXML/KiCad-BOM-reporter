@@ -52,5 +52,10 @@
     <Constant Identifier="cAssertEitherEseriesOrAvailableValues" Type="string" Expression="'Available values should be provided or E-series should be used'"/>
     <Constant Identifier="cValuesIncluded" Type="string" Expression="'Number of values included'"/>
     <Constant Identifier="cValuesExcluded" Type="string" Expression="'Number of values excluded'"/>
+    <Constant Identifier="cMatchesSpecs" Type="string" Expression="'Matches specs'"/>
+    <Constant Identifier="cUsedESeries" Type="string" Expression="'Used E-series'"/>
+    <Constant Identifier="cRelativeDifference" Type="string" Expression="'Relative difference'"/>
+    <Constant Identifier="cRefined" Type="string" Expression="'Refined'"/>
+    <Constant Identifier="cResult" Type="string" Expression="'Result'"/>
   </Constants>
 </pkg:Library>
